@@ -1,0 +1,10 @@
+component ServerA
+    component OracleSE
+        component Sobaka
+            component Interpreter
+                component Link
+                    component WatchDog
+            component Analyzer
+
+
+

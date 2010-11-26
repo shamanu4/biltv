@@ -1,0 +1,44 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="/admin/">{% trans 'Home' %}</a> &rsaquo;
+    <a href="/admin/{{ app_label }}/">{{ app_label|capfirst }}</a> &rsaquo;
+    <a href="/admin/{{ app_label }}/{{ module_name }}/">{{ module_name }}</a> &rsaquo;
+    <a href="/admin/{{ app_label }}/{{ module_name }}/{{ oid }}/">{{ object|truncatewords:"18" }}</a> &rsaquo;
+    {% trans 'Logs' %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+<div class="module">
+
+{% if log_entires %}
+    <table id="change-history">
+        <thead>
+        <tr>
+            <th scope="col">{% trans 'Date/time' %}</th>
+            <th scope="col">{% trans 'User' %}</th>
+            <th scope="col">{% trans 'Action' %}</th>
+            <th scope="col">{% trans 'Data' %}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for log in log_entires %}
+        <tr>
+            <th scope="row">{{ log.timestamp|date:"DATETIME_FORMAT" }}</th>
+            <td>{{ log.user.username }}{% if log.user.get_full_name %} ({{ log.user.get_full_name }}){% endif %}</td>
+            <td>{{ log.action }}</td>
+            <td>{% for key,value in log.data.items %} <b>{{ key }}</b> = {{ value }}<br>{% endfor %}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>{% trans "This object doesn't have a object log." %}</p>
+{% endif %}
+</div>
+</div>
+{% endblock %}
