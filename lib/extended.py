@@ -8,36 +8,15 @@ class Model(models.Model):
         abstract = True
 
 
-    def delete(self, **kwargs):
-
-        for related_model in self.related_models:
-
-            if getattr(self,related_model).filter(deleted=0).count() > 0:
-                if 'recursive' in kwargs and kwargs['recursive']:
-                    for obj in getattr(self,related_model).filter(deleted=0):
-                        obj.delete(**kwargs)
-                    self.deleted=1
-                    self.save()
-                    return [True,"recursively deleted"]
-                else:
-                    return [False,"related objects found"]
+    def delete(self, *args, **kwargs):
 
             self.deleted=1
-            self.save()
-        
+            self.save()        
             return [True,"deleted"]
 
 
-    def undelete(self, **kwargs):
+    def undelete(self, *args, **kwargs):
 
-        if 'recursive' in kwargs and kwargs['recursive']:
-            for related_model in  self.related_models:
-                for obj in getattr(self,related_model).filter(deleted=1):
-                    obj.undelete(**kwargs)
-                self.deleted=0
-                self.save()
-                return [True,"recursively restored"]
-        else:
             self.deleted=0
             self.save()
             return [True,"restored"]

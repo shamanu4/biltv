@@ -2,9 +2,8 @@
 
 from datetime import date, datetime
 from django.db import models
-from lib import extended
 
-class Group(extended.Model):
+class Group(models.Model):
 
     name = models.CharField(max_length=40, unique=True)
     comment = models.TextField(blank=True, null=True)
@@ -30,7 +29,7 @@ class Group(extended.Model):
         ordering = ['name']
 
 
-class Person(extended.Model):
+class Person(models.Model):
 
     firstname = models.CharField(max_length=40)
     lastname = models.CharField(max_length=40)
@@ -105,7 +104,7 @@ class Person(extended.Model):
             return True
 
 
-class Contact(extended.Model):
+class Contact(models.Model):
 
     CONTACT_TYPE_CHOICES = (
                            (0, u'Тел.'),
@@ -124,7 +123,7 @@ class Contact(extended.Model):
         return "%s: %s" % (self.get_type_display(), self.value)
 
 
-class City(extended.Model):
+class City(models.Model):
     name = models.CharField(max_length=40, unique=True)
     label = models.CharField(blank=True, default='', max_length=40)
     deleted = models.BooleanField(default=False)
@@ -147,7 +146,7 @@ class City(extended.Model):
 
 
 
-class Street(extended.Model):
+class Street(models.Model):
 
     city = models.ForeignKey(City, default=1, related_name='streets')
     name = models.CharField(max_length=40)
@@ -168,7 +167,7 @@ class Street(extended.Model):
 
 
 
-class House(extended.Model):
+class House(models.Model):
 
     num = models.CharField(max_length=10, unique=True)
     code = models.CharField(max_length=5, unique=True)
@@ -187,7 +186,7 @@ class House(extended.Model):
 
 
 
-class Building(extended.Model):
+class Building(models.Model):
 
     street = models.ForeignKey(Street, related_name='houses')
     house = models.ForeignKey(House, related_name='houses')
@@ -210,7 +209,7 @@ class Building(extended.Model):
 
 
 
-class Address(extended.Model):
+class Address(models.Model):
     building = models.ForeignKey(Building, related_name='addresses')
     flat = models.CharField(max_length=10)
     deleted = models.BooleanField(default=False)
@@ -233,7 +232,7 @@ class Address(extended.Model):
 
 
 
-class Bill(extended.Model):
+class Bill(models.Model):
 
     balance = models.FloatField()
     deleted = models.BooleanField(default=False)
@@ -262,7 +261,7 @@ class Bill(extended.Model):
         return res
 
 
-class Abonent(extended.Model):
+class Abonent(models.Model):
     person = models.ForeignKey(Person, related_name='abonents')
     address = models.ForeignKey(Address, related_name='abonents')
     group = models.ForeignKey(Group, default=1, related_name='members')

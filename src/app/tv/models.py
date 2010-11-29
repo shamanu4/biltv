@@ -2,11 +2,10 @@
 
 from django.db import models
 from logger.models import logging_postsave, logging_postdelete
-from lib import extended
 from datetime import datetime
 
 
-class Trunk(extended.Model):
+class Trunk(models.Model):
 
     num = models.IntegerField(default=1,unique=True)
     enabled = models.BooleanField(default = False)
@@ -58,7 +57,7 @@ class Trunk(extended.Model):
 
 
 
-class Channel(extended.Model):
+class Channel(models.Model):
 
     name = models.CharField(max_length=32,default='channel name')
     bound = models.ManyToManyField(Trunk, blank=True, null=True, related_name="channels", through='TrunkChannelRelationship')
@@ -124,7 +123,7 @@ FEE_TYPE_ONCE=4
 FEE_TYPE_CUSTOM=5
 
 
-class FeeType(extended.Model):
+class FeeType(models.Model):
 
     FEE_TYPES = (
         (FEE_TYPE_DAILY, u'daily'),
@@ -146,7 +145,7 @@ class FeeType(extended.Model):
         return u'Снятие денег | %s (%s)' % (self.name, self.sum)
 
     def get_sum(self,date=None):
-        if not self.type == FEE_TYPE_CUSTOM:
+        if not self.ftype == FEE_TYPE_CUSTOM:
             return {'fee':self.sum(),'ret':0}
 
         if not date:
@@ -178,7 +177,7 @@ class FeeCustomRanges(models.Model):
 
 
 
-class TariffPlan(extended.Model):
+class TariffPlan(models.Model):
 
     name = models.CharField(max_length=64,default='tariff plan')
     channels = models.ManyToManyField(TrunkChannelRelationship,blank=True,related_name='tps',through='TariffPlanChannelRelationship')
@@ -230,7 +229,7 @@ class TariffPlanChannelRelationship(models.Model):
         unique_together = (('tp', 'chrel'),)
 
 
-class Payment(extended.Model):
+class Payment(models.Model):
     from abon.models import Bill
 
     timestamp = models.DateTimeField(default=datetime.now)
@@ -266,7 +265,7 @@ class Payment(extended.Model):
             fee.save()
 
 
-class Fee(extended.Model):
+class Fee(models.Model):
     from abon.models import Bill
 
     tpfr = models.ForeignKey('TariffPlanFeeRelationship', blank=True, null=True, related_name='fees')
@@ -357,7 +356,7 @@ class TariffPlanFeeRelationship(models.Model):
         unique_together = (('tp', 'fee_type'),)
         
 
-class Card(extended.Model):
+class Card(models.Model):
     num = models.IntegerField(unique=True)
     active = models.BooleanField(default=False)
     tps = models.ManyToManyField(TariffPlan, through='CardService')
