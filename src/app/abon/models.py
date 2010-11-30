@@ -124,6 +124,7 @@ class Contact(models.Model):
 
 
 class City(models.Model):
+
     name = models.CharField(max_length=40, unique=True)
     label = models.CharField(blank=True, default='', max_length=40)
     deleted = models.BooleanField(default=False)
@@ -142,7 +143,7 @@ class City(models.Model):
 
     def save(self, *args, **kwargs):
         self.name = self.name.capitalize()
-        super(self.__class__, self).save(*args,**kwargs)
+        super(City, self).save(*args,**kwargs)
 
 
 
@@ -210,6 +211,7 @@ class Building(models.Model):
 
 
 class Address(models.Model):
+
     building = models.ForeignKey(Building, related_name='addresses')
     flat = models.CharField(max_length=10)
     deleted = models.BooleanField(default=False)
@@ -292,10 +294,9 @@ class Abonent(models.Model):
 
 
 class AbonentCardRelationship(models.Model):
-    from tv.models import Card
 
     abonent = models.ForeignKey(Abonent)
-    card = models.ForeignKey(Card, unique=True)
+    card = models.ForeignKey("tv.Card", unique=True)
     activated = models.DateTimeField(default=datetime.now)
 
     def __unicode__(self):

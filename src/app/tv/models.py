@@ -51,7 +51,8 @@ class Trunk(models.Model):
         if not 'rehashed' in kwargs or not kwargs['rehashed']:            
             self.rehash()
         else:
-            super(self.__class__, self).save(*args,**kwargs)
+            del kwargs['rehashed']
+            super(Trunk, self).save(*args,**kwargs)
             q = ChannelQuery()
             q.run()
 
@@ -166,6 +167,7 @@ class FeeType(models.Model):
 
 
 class FeeCustomRanges(models.Model):
+
     fee_type = models.ForeignKey(FeeType, related_name='ranges')
     startday = models.PositiveSmallIntegerField()
     endday = models.PositiveSmallIntegerField()
@@ -229,11 +231,11 @@ class TariffPlanChannelRelationship(models.Model):
         unique_together = (('tp', 'chrel'),)
 
 
+
 class Payment(models.Model):
-    from abon.models import Bill
 
     timestamp = models.DateTimeField(default=datetime.now)
-    bill = models.ForeignKey(Bill)
+    bill = models.ForeignKey("abon.Bill")
     sum = models.FloatField(default=0)
     prev = models.FloatField(default=0)
     deleted = models.BooleanField(default=False)
@@ -264,42 +266,6 @@ class Payment(models.Model):
             fee.prev = fee.prev - self.sum
             fee.save()
 
-
-class Fee(models.Model):
-    from abon.models import Bill
-
-    tpfr = models.ForeignKey('TariffPlanFeeRelationship', blank=True, null=True, related_name='fees')
-    timestamp = models.DateTimeField(default=datetime.now)
-    bill = models.ForeignKey(Bill)
-    sum = models.FloatField(default=0)
-    prev = models.FloatField(default=0)
-    deleted = models.BooleanField(default=False)
-    maked = models.BooleanField(default=False)
-    descr = models.TextField()
-    inner_descr = models.TextField()
-
-    def __unicode__(self):
-        return "%s" % self.sum
-
-    def save(self, *args, **kwargs):
-        super(self.__class__, self).save(*args, **kwargs)
-
-    def make(self):
-        self.prev = self.bill.balance
-        self.save()
-        self.bill.balance = self.bill.balance - self.sum
-        self.bill.balance.save()
-        self.maked=True
-
-    def rollback(self):
-        self.bill.balance = self.bill.balance + self.sum
-        self.bill.balance.save()
-        self.maked=False
-        self.save()
-        upper = self.__class__.objects.filter(bill=self.bill).filter(timestamp>self.timestamp).filter(pk>self.pk)
-        for fee in upper:
-            fee.prev = fee.prev + self.sum
-            fee.save()
 
 
 class TariffPlanFeeRelationship(models.Model):
@@ -354,9 +320,10 @@ class TariffPlanFeeRelationship(models.Model):
     class Meta:
         ordering = ('tp__name','fee_type__name')
         unique_together = (('tp', 'fee_type'),)
-        
+
 
 class Card(models.Model):
+
     num = models.IntegerField(unique=True)
     active = models.BooleanField(default=False)
     tps = models.ManyToManyField(TariffPlan, through='CardService')
@@ -420,6 +387,7 @@ class Card(models.Model):
 
 
 class CardService(models.Model):
+
     card = models.ForeignKey(Card,related_name='services')
     tp = models.ForeignKey(TariffPlan,related_name='services')
     active = models.BooleanField(default=False)
