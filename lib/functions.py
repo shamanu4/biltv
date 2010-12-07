@@ -4,7 +4,7 @@ def int_to_4byte(num):
     import struct
 
     res = []
-    binary = struct.pack('!L',num)
+    binary = struct.pack('!l',num)
     for char in binary:
         res.append(ord(char))
 

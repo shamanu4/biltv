@@ -4,7 +4,6 @@ from django.db import models
 from logger.models import logging_postsave, logging_postdelete
 from datetime import datetime
 
-
 class Trunk(models.Model):
 
     num = models.IntegerField(default=1,unique=True)
@@ -147,7 +146,7 @@ class FeeType(models.Model):
 
     def get_sum(self,date=None):
         if not self.ftype == FEE_TYPE_CUSTOM:
-            return {'fee':self.sum(),'ret':0}
+            return {'fee':self.sum,'ret':0}
 
         if not date:
             date=datetime.now()
@@ -156,7 +155,7 @@ class FeeType(models.Model):
         sum = 0
         ret = 0
 
-        ranges = self.ranges.filter(startday<day).filter(endday>=day)
+        ranges = self.ranges.filter(startday__lte=day).filter(endday__gte=day)
         for range in ranges:
             sum += range.sum
             ret += range.ret
@@ -184,7 +183,7 @@ class TariffPlan(models.Model):
     name = models.CharField(max_length=64,default='tariff plan')
     channels = models.ManyToManyField(TrunkChannelRelationship,blank=True,related_name='tps',through='TariffPlanChannelRelationship')
     enabled = models.BooleanField(default=False)
-    fees = models.ManyToManyField(FeeType,blank=True,through='TariffPlanFeeRelationship')
+    fee_list = models.ManyToManyField(FeeType,blank=True,through='TariffPlanFeeRelationship')
     deleted = models.BooleanField(default=False)
     comment = models.TextField(blank=True, null=True)
 
@@ -257,65 +256,120 @@ class Payment(models.Model):
         self.maked=True
 
     def rollback(self):
-        self.bill.balance = self.bill.balance - self.sum
-        self.bill.balance.save()
         self.maked=False
         self.save()
-        upper = self.__class__.objects.filter(bill=self.bill).filter(timestamp>self.timestamp).filter(pk>self.pk)
-        for fee in upper:
-            fee.prev = fee.prev - self.sum
-            fee.save()
+        r = Payment()
+        r.sum = -self.sum
+        r.inner_descr = "rollback payment id:%s" % self.pk
+        r.save()
+        r.make()
+
+
+
+class Fee(models.Model):
+
+    timestamp = models.DateTimeField(default=datetime.now)
+    bill = models.ForeignKey("abon.Bill")
+    card = models.ForeignKey("tv.Card")
+    sum = models.FloatField(default=0)
+    prev = models.FloatField(default=0)
+    deleted = models.BooleanField(default=False)
+    maked = models.BooleanField(default=False)
+    descr = models.TextField()
+    inner_descr = models.TextField()
+    tp = models.ForeignKey(TariffPlan, blank=True, null=True)
+    fee_type = models.ForeignKey(FeeType, blank=True, null=True)
+
+    def __unicode__(self):
+        return "%s" % self.sum
+
+    def save(self, *args, **kwargs):
+        super(self.__class__, self).save(*args, **kwargs)
+
+    def make(self):        
+        self.prev = self.bill.balance
+        if not self.fee_type.allow_negative:
+            if self.sum > 0 and self.bill.balance - self.sum < 0:
+                self.inner_descr = "Not enough money"
+                self.save()
+                return False
+        self.bill.balance = self.bill.balance - self.sum
+        self.bill.save()
+        self.maked=True
+        self.save()
+        return True
+
+    def rollback(self):
+        self.maked=False
+        self.save()
+        r = Fee()
+        r.sum = -self.sum
+        r.inner_descr = "rollback fee id:%s" % self.pk
+        r.save()
+        r.make()
 
 
 
 class TariffPlanFeeRelationship(models.Model):
 
-    tp = models.ForeignKey(TariffPlan)
+    tp = models.ForeignKey(TariffPlan, related_name="fees")
     fee_type = models.ForeignKey(FeeType)
 
     def __unicode__(self):
-        return "%s - %s" % (self.tp.name, self.fee.name)
+        return "%s - %s" % (self.tp.name, self.fee_type.name)
 
-    def check_fee(self):
+    def check_fee(self,card):
         from functions import date_formatter
         date = date_formatter()
+        print "checking fee ..."
+        my_maked_fees = Fee.objects.filter(card__exact=card, tp__exact=self.tp, fee_type__exact=self.fee_type, maked__exact=True, deleted__exact=False)
+        if not card.bill:
+            return False
+        if self.fee_type.ftype == FEE_TYPE_ONCE:
+            return self.make_fee(card)
 
-        if self.fee_type == FEE_TYPE_ONCE:
-            return self.make_fee()
+        if self.fee_type.ftype == FEE_TYPE_CUSTOM:
+            return self.make_fee(card)
 
-        if self.fee_type == FEE_TYPE_DAILY:
-            c = self.fees.filter(timestamp>date['day'])
+        if self.fee_type.ftype == FEE_TYPE_DAILY:
+            c = my_maked_fees.filter(timestamp__gte=date['day'])
             if c.count()>0:
                 return False
             else:
-                return self.make_fee()
-        if self.fee_type == FEE_TYPE_WEEKLY:
-            c = self.fees.filter(timestamp>date['week'])
+                return self.make_fee(card)
+
+        if self.fee_type.ftype == FEE_TYPE_WEEKLY:
+            c = my_maked_fees.filter(timestamp__gte=date['week'])
             if c.count()>0:
                 return False
             else:
-                return self.make_fee()
+                return self.make_fee(card)
 
-        if self.fee_type == FEE_TYPE_MONTHLY:
-            c = self.fees.filter(timestamp>date['month'])
+        if self.fee_type.ftype == FEE_TYPE_MONTHLY:
+            c = my_maked_fees.filter(timestamp__gte=date['month'])
             if c.count()>0:
                 return False
             else:
-                return self.make_fee()
+                return self.make_fee(card)
 
-        if self.fee_type == FEE_TYPE_YEARLY:
-            c = self.fees.filter(timestamp>date['year'])
+        if self.fee_type.ftype == FEE_TYPE_YEARLY:
+            c = my_maked_fees.filter(timestamp__gte=date['year'])
             if c.count()>0:
                 return False
             else:
-                return self.make_fee()
+                return self.make_fee(card)
 
 
-    def make_fee(self):
+    def make_fee(self,card):
+        print "making fee ..."
         fee = Fee()
-        fee.tpfr = self
-        fee.sum = self.fee_type
-        return True
+        fee.bill = card.bill
+        fee.card = card
+        fee.tp = self.tp
+        fee.fee_type = self.fee_type
+        fee.sum = self.fee_type.get_sum()['fee']
+        fee.save()
+        return fee.make()
 
     class Meta:
         ordering = ('tp__name','fee_type__name')
@@ -330,6 +384,7 @@ class Card(models.Model):
     deleted = models.BooleanField(default=False)
     comment = models.TextField(blank=True, null=True)
     activated = models.DateTimeField(default=datetime.now)
+    owner = models.ForeignKey("abon.Abonent", blank=True, null=True)
 
     def __unicode__(self):
         return "%s" % self.num
@@ -342,6 +397,9 @@ class Card(models.Model):
 
     def save(self, *args, **kwargs):
         print "saving..."
+        if not self.owner:            
+            self.detach()
+            self.deactivate()
         super(self.__class__, self).save(*args, **kwargs)
         self.send()
 
@@ -366,23 +424,51 @@ class Card(models.Model):
         return res
 
     @property
+    def bill(self):
+        if self.owner:
+            return self.owner.bill
+        else:
+            return None
+
+    @property
     def balance(self):
-        return 1
+        if self.bill:
+            return self.bill.balance
+        else:
+            return None
+
+    @property
+    def balance_int(self):
+        return int(self.balance*100)
+
+    @property
+    def balance_rounded(self):
+        return int(self.balance*100)/100.0
+
+    @property
+    def bin_balance(self):
+        from functions import int_to_4byte_wrapped
+        return int_to_4byte_wrapped(self.balance_int)
+
 
     def activate(self):
-        for service in self.services:
+        if not self.owner:
+            return false
+        for service in self.services.all():
             service.activate()
         self.active=True
         self.activated=datetime.now()
         self.save()
+        return True
 
     def deactivate(self):
-        for service in self.services:
+        for service in self.services.all():
             service.deactivate()
         self.active=False
         self.save()
 
-
+    def detach(self):
+        self.tps.all().delete()
 
 
 
@@ -403,10 +489,21 @@ class CardService(models.Model):
         self.card.send()
 
     def activate(self):
-        self.active=True
-        self.activated=datetime.now()
+        fees = self.tp.fees.all()
+        print fees
+        paid = True
+        for fee in fees:
+            paid = paid and fee.check_fee(self.card)
+        if paid:
+            self.active=True
+            self.activated=datetime.now()
+        else:
+            self.deactivate()
+            return False
         self.save()
+        return True
 
     def deactivate(self):
         self.active=False
         self.save()
+        return True

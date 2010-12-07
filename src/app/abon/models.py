@@ -272,6 +272,7 @@ class Abonent(models.Model):
     sorting = models.CharField(blank=True, max_length=150)
     bill = models.ForeignKey(Bill)
 
+
     @property
     def bin_id(self):
         return int_to_4byte_wrapped(self.pk)
@@ -291,23 +292,5 @@ class Abonent(models.Model):
     def save(self, *args, **kwargs):
         self.sorting = "%s, [ %s ]" % (self.address.sorting, self.person.fio_short())
         super(self.__class__, self).save(*args,**kwargs)
-
-
-class AbonentCardRelationship(models.Model):
-
-    abonent = models.ForeignKey(Abonent)
-    card = models.ForeignKey("tv.Card", unique=True)
-    activated = models.DateTimeField(default=datetime.now)
-
-    def __unicode__(self):
-        return "%s - %s" % (self.abonent, self.card)
-
-    def delete(self, *args, **kwargs):
-        self.card.deactivate()
-        super(self.__class__, self).delete(*args,**kwargs)
-
-    def save(self, *args, **kwargs):
-        super(self.__class__, self).save(*args,**kwargs)
-        self.card.activate()
 
 

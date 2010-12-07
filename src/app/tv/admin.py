@@ -59,11 +59,10 @@ admin.site.register(TrunkChannelRelationship, TrunkChannelRelationshipAdmin)
 
 """
 TariffPlanFeeRelationship
-" " "
+"""
 class TariffPlanFeeRelationshipAdmin(admin.ModelAdmin):
     pass
 admin.site.register(TariffPlanFeeRelationship, TariffPlanFeeRelationshipAdmin)
-"""
 
 
 """
@@ -78,7 +77,6 @@ admin.site.register(FeeType, FeeTypeAdmin)
 TariffPlan
 """
 
-"""
 class TariffPlanChannelRelationshipInlineForm(forms.ModelForm):
     class Meta:
         model = TariffPlanChannelRelationship
@@ -96,10 +94,9 @@ class TariffPlanFeeRelationshipInline(admin.TabularInline):
     model = TariffPlanFeeRelationship
     form = TariffPlanFeeRelationshipInlineForm
     extra = 1
-"""
 
 class TariffPlanAdmin(admin.ModelAdmin):
-    #inlines = (TariffPlanChannelRelationshipInline,TariffPlanFeeRelationshipInline)
+    inlines = (TariffPlanChannelRelationshipInline,TariffPlanFeeRelationshipInline)
     pass
 admin.site.register(TariffPlan, TariffPlanAdmin)
 
@@ -136,3 +133,26 @@ CardService
 class CardServiceAdmin(admin.ModelAdmin):
     pass
 admin.site.register(CardService, CardServiceAdmin)
+
+
+"""
+Fee
+"""
+class FeeAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(Fee, FeeAdmin)
+
+"""
+FeeCustomRanges
+"""
+class FeeCustomRangesAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(FeeCustomRanges, FeeCustomRangesAdmin)
+
+
+"""
+Payment
+"""
+class PaymentAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(Payment, PaymentAdmin)
