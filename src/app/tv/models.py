@@ -239,6 +239,7 @@ class Payment(models.Model):
     prev = models.FloatField(default=0)
     deleted = models.BooleanField(default=False)
     maked = models.BooleanField(default=False)
+    rolled_by = models.OneToOneField("tv.Payment", blank=True, null=True)
     descr = models.TextField()
     inner_descr = models.TextField()
 
@@ -255,14 +256,30 @@ class Payment(models.Model):
         self.bill.balance.save()
         self.maked=True
 
+    @property
+    def rolled(self):
+        try:
+            self.payment
+        except Payment.DoesNotExist:
+            if self.rolled_by:
+                return True
+            else:
+                return False
+        else:
+            return True
+
     def rollback(self):
-        self.maked=False
-        self.save()
-        r = Payment()
-        r.sum = -self.sum
-        r.inner_descr = "rollback payment id:%s" % self.pk
-        r.save()
-        r.make()
+        if not self.rolled:
+            r = Payment()
+            r.sum = -self.sum
+            r.bill = self.bill
+            r.inner_descr = "rollback payment id:%s" % self.pk
+            r.save()
+            r.make()
+            self.rolled_by=r
+            self.save()
+            return (True,r)
+        return (False,"Already rolled back")
 
 
 
@@ -270,11 +287,12 @@ class Fee(models.Model):
 
     timestamp = models.DateTimeField(default=datetime.now)
     bill = models.ForeignKey("abon.Bill")
-    card = models.ForeignKey("tv.Card")
+    card = models.ForeignKey("tv.Card",blank=True,null=True)
     sum = models.FloatField(default=0)
     prev = models.FloatField(default=0)
     deleted = models.BooleanField(default=False)
     maked = models.BooleanField(default=False)
+    rolled_by = models.OneToOneField("tv.Fee", blank=True, null=True)
     descr = models.TextField()
     inner_descr = models.TextField()
     tp = models.ForeignKey(TariffPlan, blank=True, null=True)
@@ -292,21 +310,40 @@ class Fee(models.Model):
             if self.sum > 0 and self.bill.balance - self.sum < 0:
                 self.inner_descr = "Not enough money"
                 self.save()
-                return False
+                return (False,"Not enougn money")
         self.bill.balance = self.bill.balance - self.sum
         self.bill.save()
         self.maked=True
         self.save()
-        return True
+        return (True,self)
+
+    @property
+    def rolled(self):
+        try:
+            self.fee
+        except Fee.DoesNotExist:
+            if self.rolled_by:
+                return True
+            else:
+                return False
+        else:
+            return True
 
     def rollback(self):
-        self.maked=False
-        self.save()
-        r = Fee()
-        r.sum = -self.sum
-        r.inner_descr = "rollback fee id:%s" % self.pk
-        r.save()
-        r.make()
+        if not self.rolled:
+            r = Fee()
+            r.sum = -self.sum
+            r.bill = self.bill
+            r.card = self.card
+            r.tp = self.tp
+            r.fee_type = self.fee_type
+            r.inner_descr = "rollback fee id:%s" % self.pk
+            r.save()
+            r.make()
+            self.rolled_by=r
+            self.save()
+            return (True,r)
+        return (False,"Already rolled back")
 
 
 
@@ -318,49 +355,49 @@ class TariffPlanFeeRelationship(models.Model):
     def __unicode__(self):
         return "%s - %s" % (self.tp.name, self.fee_type.name)
 
-    def check_fee(self,card):
+    def check_fee(self,card,**kwargs):
         from functions import date_formatter
         date = date_formatter()
         print "checking fee ..."
         my_maked_fees = Fee.objects.filter(card__exact=card, tp__exact=self.tp, fee_type__exact=self.fee_type, maked__exact=True, deleted__exact=False)
         if not card.bill:
-            return False
+            return (False,"This card have not account with bill")
         if self.fee_type.ftype == FEE_TYPE_ONCE:
-            return self.make_fee(card)
+            return self.make_fee(card,**kwargs)
 
         if self.fee_type.ftype == FEE_TYPE_CUSTOM:
-            return self.make_fee(card)
+            return self.make_fee(card,**kwargs)
 
         if self.fee_type.ftype == FEE_TYPE_DAILY:
             c = my_maked_fees.filter(timestamp__gte=date['day'])
             if c.count()>0:
-                return False
+                return (False,"Fee already maked")
             else:
-                return self.make_fee(card)
+                return self.make_fee(card,**kwargs)
 
         if self.fee_type.ftype == FEE_TYPE_WEEKLY:
             c = my_maked_fees.filter(timestamp__gte=date['week'])
             if c.count()>0:
-                return False
+                return (False,"Fee already maked")
             else:
-                return self.make_fee(card)
+                return self.make_fee(card,**kwargs)
 
         if self.fee_type.ftype == FEE_TYPE_MONTHLY:
             c = my_maked_fees.filter(timestamp__gte=date['month'])
             if c.count()>0:
-                return False
+                return (False,"Fee already maked")
             else:
-                return self.make_fee(card)
+                return self.make_fee(card,**kwargs)
 
         if self.fee_type.ftype == FEE_TYPE_YEARLY:
             c = my_maked_fees.filter(timestamp__gte=date['year'])
             if c.count()>0:
-                return False
+                return (False,"Fee already maked")
             else:
-                return self.make_fee(card)
+                return self.make_fee(card,**kwargs)
 
 
-    def make_fee(self,card):
+    def make_fee(self,card,**kwargs):
         print "making fee ..."
         fee = Fee()
         fee.bill = card.bill
@@ -369,12 +406,68 @@ class TariffPlanFeeRelationship(models.Model):
         fee.fee_type = self.fee_type
         fee.sum = self.fee_type.get_sum()['fee']
         fee.save()
+        if 'hold' in kwargs and kwargs['hold']:
+            print "holding fee"
+            return (True,fee)
+        return fee.make()
+
+    def make_ret(self,card):
+        print "making ret ..."
+        fee = Fee()
+        fee.bill = card.bill
+        fee.card = card
+        fee.tp = self.tp
+        fee.fee_type = self.fee_type
+        fee.sum = - self.fee_type.get_sum()['ret']
+        fee.inner_descr = "Money return on service deactivation"
+        fee.save()
         return fee.make()
 
     class Meta:
         ordering = ('tp__name','fee_type__name')
         unique_together = (('tp', 'fee_type'),)
 
+
+CARD_SERVICE_ACTIVATED = 0
+CARD_SERVICE_DEACTIVATED = 1
+CARD_SERVICE_ADDED = 2
+CARD_SERVICE_REMOVED = 3
+CARD_OWNER_ADDED = 4
+CARD_OWNER_REMOVED = 5
+CARD_OWNER_CHANGED = 6
+
+CARD_SERVICE_ACTIONS = (
+    CARD_SERVICE_ACTIVATED,
+    CARD_SERVICE_DEACTIVATED,
+    CARD_SERVICE_ADDED,
+    CARD_SERVICE_REMOVED,
+)
+
+CARD_USER_ACTIONS = (
+    CARD_OWNER_ADDED,
+    CARD_OWNER_REMOVED,
+    CARD_OWNER_CHANGED,
+)
+
+
+
+class CardHistory(models.Model):
+
+    CARD_ACTIONS = (
+        (CARD_SERVICE_ACTIVATED, u'service activated'),
+        (CARD_SERVICE_DEACTIVATED, u'service deactivated'),
+        (CARD_SERVICE_ADDED, u'service added'),
+        (CARD_SERVICE_REMOVED, u'service removed'),
+        (CARD_OWNER_ADDED, u'owner added'),
+        (CARD_OWNER_REMOVED, u'owner removed'),
+        (CARD_OWNER_CHANGED, u'owner changed'),
+    )
+
+    timestamp = models.DateTimeField(default=datetime.now)
+    card = models.ForeignKey("tv.Card",related_name='service_log')
+    action = models.PositiveSmallIntegerField(choices=CARD_ACTIONS)
+    oid = models.PositiveIntegerField()
+    
 
 class Card(models.Model):
 
@@ -396,10 +489,45 @@ class Card(models.Model):
         u.run()
 
     def save(self, *args, **kwargs):
+
+        action = None
+        oid = None
+        old = None
+
+        if self.pk:
+            old = Card.objects.get(pk=self.pk)
+
+        if not old:
+            if self.owner:
+                action = CARD_OWNER_ADDED
+                oid = self.owner.pk
+        else:
+            if not old.owner == self.owner:                
+                if old.owner:
+                    if not self.owner:
+                        action = CARD_OWNER_REMOVED
+                        oid = old.owner.pk
+                    else:
+                        action = CARD_OWNER_CHANGED
+                        oid = self.owner.pk
+                else:
+                    action = CARD_OWNER_ADDED
+                    oid = self.owner.pk
+                    
+        if not action == None:
+            c = CardHistory()
+            c.card= self
+            c.action = action
+            c.oid = oid
+            c.save()
+
         print "saving..."
-        if not self.owner:            
-            self.detach()
-            self.deactivate()
+        if not self.owner:
+            if 'deactivation_processed' in kwargs and kwargs['deactivation_processed']:
+                del kwargs['deactivation_processed']
+            else:
+                self.detach()
+                self.deactivate()
         super(self.__class__, self).save(*args, **kwargs)
         self.send()
 
@@ -465,11 +593,10 @@ class Card(models.Model):
         for service in self.services.all():
             service.deactivate()
         self.active=False
-        self.save()
+        self.save(deactivation_processed=True)
 
     def detach(self):
         self.tps.all().delete()
-
 
 
 class CardService(models.Model):
@@ -484,26 +611,82 @@ class CardService(models.Model):
         return "%s - %s" % (self.card.num,self.tp.name)
 
     def save(self, *args, **kwargs):
-        print "saving service..."
+        action = None
+        oid = None
+        old = None
+        if not self.pk:
+            action = CARD_SERVICE_ADDED
+            oid = self.tp.pk
+        else:
+            old = CardService.objects.get(pk=self.pk)
+            if not old.active == self.active:                
+                if self.active:
+                    action = CARD_SERVICE_ACTIVATED
+                    oid = self.tp.pk
+                else:
+                    action = CARD_SERVICE_DEACTIVATED
+                    oid = old.tp.pk
+
+        if not action == None:
+            c = CardHistory()
+            c.card = self.card
+            c.action = action
+            c.oid = oid
+            c.save()
+
         super(self.__class__, self).save(*args, **kwargs)
         self.card.send()
 
+    def delete(self, *args, **kwargs):
+
+        action = CARD_SERVICE_REMOVED
+        oid = self.tp.pk
+
+        c = CardHistory()
+        c.card = self.card
+        c.action = action
+        c.oid = oid
+        c.save()
+
+        super(self.__class__, self).delete(*args, **kwargs)
+        self.card.send()
+
     def activate(self):
-        fees = self.tp.fees.all()
-        print fees
-        paid = True
-        for fee in fees:
-            paid = paid and fee.check_fee(self.card)
-        if paid:
-            self.active=True
-            self.activated=datetime.now()
-        else:
-            self.deactivate()
-            return False
-        self.save()
+        if not self.active:
+            fees = self.tp.fees.all()
+            print fees
+            ok = True
+            total = 0
+            prepared = []
+            for fee in fees:
+                f = fee.check_fee(self.card,hold=True)
+                if f[0]: prepared.append(f[1])
+            for fee in prepared:
+                total += fee.sum
+            if total>0 and self.card.balance - total >0:
+                for fee in prepared:
+                    ok = ok and fee.make()[0]
+            else:
+                ok = False
+                for fee in prepared:
+                    fee.inner_descr = "Not enough money"
+                    fee.save()
+            if ok:
+                self.active=True
+                self.activated=datetime.now()
+            else:
+                self.deactivate()
+                return False
+            self.save()
         return True
 
     def deactivate(self):
-        self.active=False
-        self.save()
+        if self.active:
+            fees = self.tp.fees.filter(fee_type__ftype__exact=FEE_TYPE_CUSTOM)
+            for fee in fees:
+                fee.make_ret(self.card)
+            self.active=False
+            self.save()
         return True
+
+

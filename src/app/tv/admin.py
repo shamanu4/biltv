@@ -134,6 +134,13 @@ class CardServiceAdmin(admin.ModelAdmin):
     pass
 admin.site.register(CardService, CardServiceAdmin)
 
+"""
+CardHistory
+"""
+class CardHistoryAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(CardHistory, CardHistoryAdmin)
+
 
 """
 Fee

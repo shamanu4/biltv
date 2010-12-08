@@ -79,7 +79,7 @@ class UserPacket(BasicPacket):
             self.data.extend(int_to_4byte_wrapped(card.pk))
             self.data.extend(int_to_4byte_wrapped((card.num-1)*2))
             self.data.extend(card.bin_flags)
-            self.data.extend(int_to_4byte_wrapped(card.balance))
+            self.data.extend(int_to_4byte_wrapped(card.balance or 0))
             self.append_crc()
             self.mk_prefix()
 
