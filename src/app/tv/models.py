@@ -46,13 +46,13 @@ class Trunk(models.Model):
         self.save(rehashed=True)
 
     def save(self, *args, **kwargs):
-        from scrambler import ChannelQuery
+        from scrambler import scrambler
         if not 'rehashed' in kwargs or not kwargs['rehashed']:            
             self.rehash()
         else:
             del kwargs['rehashed']
             super(Trunk, self).save(*args,**kwargs)
-            q = ChannelQuery()
+            q = scrambler.ChannelQuery()
             q.run()
 
 
@@ -467,6 +467,25 @@ class CardHistory(models.Model):
     card = models.ForeignKey("tv.Card",related_name='service_log')
     action = models.PositiveSmallIntegerField(choices=CARD_ACTIONS)
     oid = models.PositiveIntegerField()
+
+    @property
+    def obj_instance(self):
+        from abon.models import Abonent
+        if self.action in CARD_SERVICE_ACTIONS:
+            try:
+                return TariffPlan.objects.get(pk=self.oid)
+            except TariffPlan.DoesNotExist:
+                return None
+        if self.action in CARD_USER_ACTIONS:
+            try:
+                return Abonent.objects.get(pk=self.oid)
+            except TariffPlan.DoesNotExist:
+                return None
+        return None
+
+    def __unicode__(self):
+        return "%s | %s | %s" % (self.timestamp, self.get_action_display(), self.obj_instance)
+
     
 
 class Card(models.Model):
@@ -484,8 +503,8 @@ class Card(models.Model):
 
     def send(self):
         print "sending..."
-        from scrambler import UserQuery
-        u = UserQuery(self.num)
+        from scrambler import scrambler
+        u = scrambler.UserQuery(self.num)
         u.run()
 
     def save(self, *args, **kwargs):
