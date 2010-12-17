@@ -12,15 +12,20 @@ Ext.ux.msg = function(){
     }
 
     return function(title, text, type, callback){
+        if(type=="ext-mb-error") {
+            delay = 10;
+        } else {
+            delay = 3
+        }
         if(!msgCt){
             msgCt = Ext.DomHelper.insertFirst(document.body, {id:'msg-div'}, true);
         }
         msgCt.alignTo(document, 't-t');
         var m = Ext.DomHelper.append(msgCt, {html:createBox(title, text, type)}, true);
         if(Ext.isFunction(callback)) {
-            m.slideIn('t').pause(2).ghost("t", {remove:true,callback:callback});
+            m.slideIn('t').pause(delay).ghost("t", {remove:true,callback:callback});
         } else {
-            m.slideIn('t').pause(2).ghost("t", {remove:true});
+            m.slideIn('t').pause(delay).ghost("t", {remove:true});
         }
     }
 }();
@@ -37,37 +42,37 @@ Ext.ux.LoginForm = Ext.extend(Ext.form.FormPanel,{
             buttons:[{
                 text: 'ОК',
                 handler: function(){
-                    this.getForm().submit({
-                        failure: function(form, action){
-                            if(this.getForm().isValid()) {
-                                Ext.ux.msg('Ошибка авторизации', action.result.msg, Ext.Msg.ERROR);
-                            } else {
-                                Ext.ux.msg('Ошибка ввода', 'обязательные поля не заполнены', Ext.Msg.ERROR);
-                            }
-                            this.ownerCt.loginFailed()
-                            this.getForm().reset()                            
-                        },
-                        success: function(form, action){
-                            Ext.ux.msg('Авторизация успешная', action.result.msg, Ext.Msg.INFO);
-                            this.ownerCt.loginSuccess()
-                            this.ownerCt.close()                            
-                        },
-                        scope: this
-                    });                    
+                    this.submitaction()
                 },
                 scope: this
             }],
 
             submitaction: function() {
-                alert(1);
+                this.getForm().submit({
+                    failure: function(form, action){
+                        if(this.getForm().isValid()) {
+                            // Ext.ux.msg('Ошибка авторизации', action.result.msg, Ext.Msg.ERROR);
+                        } else {
+                            Ext.ux.msg('Ошибка ввода', 'обязательные поля не заполнены', Ext.Msg.ERROR);
+                        }
+                        this.ownerCt.loginFailed()
+                        this.getForm().reset()
+                    },
+                    success: function(form, action){
+                        // Ext.ux.msg('Авторизация успешная', action.result.msg, Ext.Msg.INFO);
+                        this.ownerCt.loginSuccess()
+                        this.ownerCt.close()
+                    },
+                    scope: this
+                });
             },
 
             keys: [
                 {
-                    key: [Ext.EventObject.ENTER], handler: function() {
-                        Ext.Msg.alert("Alert","Enter Key Event !");
+                    key: [Ext.EventObject.ENTER], handler: function() {                      
                         this.submitaction()
-                    }
+                    },
+                    scope: this
                 }
             ],
 
@@ -127,6 +132,67 @@ Ext.ux.TabPanel = Ext.extend(Ext.TabPanel,{
     }
 });
 
+Ext.ux.menu = {
+    'scrambler': [
+        {
+            'xtype': 'tbseparator'
+        },{
+            'id': 'menu-scrambler-button',
+            'xtype': 'tbbutton',
+            'text': 'Скрамблер',
+            'menu': [
+                {
+                    'text': 'Каналы'
+                },{
+                    'text': 'Стволы'
+                },
+            ]
+        }
+    ],
+    'cashier': [
+        {
+            'xtype': 'tbseparator'
+        },{
+            'id': 'menu-cashier-button',
+            'xtype': 'tbbutton',
+            'text': 'Касса',
+            'menu': [
+                {
+                    'text': 'Item One'
+                },{
+                    'text': 'Item Two'
+                },{
+                    'text': 'Item Three'
+                }
+            ]
+        }
+    ],
+    'address': [
+        {
+            'xtype': 'tbseparator'
+        },{
+            'id': 'menu-address-button',
+            'xtype': 'tbbutton',
+            'text': 'Адрес',
+            'menu': [
+                {
+                    'id': 'menu-address-city-button',
+                    'handler': Engine.menu.address.city.openGrid,
+                    'text': 'Города'
+                },{
+                    'id': 'menu-address-street-button',
+                    'text': 'Улицы'
+                },{
+                    'id': 'menu-address-house-button',
+                    'text': 'Номера домов'
+                },{
+                    'id': 'menu-address-building-button',
+                    'text': 'Дома'
+                }
+            ]
+        }
+    ]
+}
 
 Ext.ux.MenuBar = Ext.extend(Ext.Toolbar,{
     initComponent: function(){
@@ -144,6 +210,110 @@ Ext.ux.MenuBar = Ext.extend(Ext.Toolbar,{
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.MenuBar.superclass.initComponent.apply(this, arguments);
     }
+});
+
+Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
+    store: null,
+    ds_model: null,
+    columns: [],
+    height: 300,
+    instance: null,
+    onRender:function() {
+        Ext.ux.CustomGrid.superclass.onRender.apply(this, arguments);
+        this.store.client=this;
+        this.store.load();
+    },
+    onWrite: function(result) {
+        console.log(result)
+        if(result.ok) {
+            console.log('commiting')
+            this.store.commitChanges();
+            this.store.reload();
+        } else {
+            this.selModel.selectRow(this.unsaved_row)
+        }
+    },
+    initComponent: function(){
+        var config = {
+            frame:true,
+            closable: true,
+            current_row: 0,
+            unsaved_row: 0,            
+            tbar: [{
+                text: 'Apply',
+                icon: 'images/table_save.png',
+                cls: 'x-btn-text-icon',
+                handler: function() {		    
+                    this.store.save()
+                    this.store.commitChanges();
+                },
+                scope: this
+            },{
+                text: 'Add',
+                icon: 'images/table_add.png',
+                cls: 'x-btn-text-icon',
+                handler: function() {
+                    this.store.insert(
+                        0,
+                        new this.ds_model()
+                    );
+                    this.startEditing(0,1);
+                },
+                scope: this
+            },{
+                text:'Search'
+            },
+            new Ext.Toolbar.Spacer(),
+            this.searchfield = new Ext.form.TextField(),
+            ],
+            bbar: new Ext.PagingToolbar({
+                pageSize: 10,
+                store: this.store
+            }),
+            listeners: {
+                    beforeclose: {
+                        fn: function(obj) {
+                            obj.hide()
+                        }
+                    },
+                    beforedestroy: {
+                        fn: function(e) {
+                            return false;
+                        }
+                    }
+            },
+            sm: new Ext.grid.RowSelectionModel({
+                singleSelect: true,
+                listeners: {
+                    rowselect: {
+                        fn: function(sm,index,record) {                            
+                            if(this.current_row != index) {                                
+                                this.unsaved_row = this.current_row
+                                this.current_row = index
+                                this.store.save()
+                                this.store.commitChanges();
+                            }
+                        },
+                        scope: this
+                    }
+                }
+            })
+        }
+        Ext.apply(this, Ext.apply(this.initialConfig, config));
+        Ext.ux.CustomGrid.superclass.initComponent.apply(this, arguments);
+    }
+});
+
+Ext.ux.CityGrid = Ext.extend(Ext.ux.CustomGrid ,{
+            store: 'cities-store',
+            ds_model: cities_ds_model,
+            title: 'Города',
+            columns: [
+                {header: "Id", dataIndex: 'id'},
+                {header: "Name", dataIndex: 'name', editor: new Ext.form.TextField()},
+                {header: "Label", dataIndex: 'label', editor: new Ext.form.TextField()},
+                {header: "Comment", dataIndex: 'comment', editor: new Ext.form.TextField()},
+            ]
 });
 
 /*

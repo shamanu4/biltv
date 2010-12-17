@@ -16,14 +16,17 @@ class LoginForm(forms.Form):
 
         if user is not None:
             if user.is_active:
-                success = True
+                ok = True
                 login(request, user)
+                title = "Авторизация успешная."
                 msg = "Login success."
             else:
-                success = False
+                ok = False
+                title = "Сбой авторизации."
                 msg = "Account disabled."
         else:
-            success = False
+            ok = False
+            title = "Сбой авторизации."
             msg = "Incorrect login or password"
 
-        return dict(success=success, msg=msg)
+        return dict(success=True, ok=ok, title=title, msg=msg)

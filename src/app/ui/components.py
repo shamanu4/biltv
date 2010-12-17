@@ -33,5 +33,30 @@ MenuSection = {
                 }
             ]
         }
+    ],
+    'address': [
+        {
+            'xtype': 'tbseparator'
+        },{
+            'id': 'menu-address-button',
+            'xtype': 'tbbutton',
+            'text': u'Адрес',
+            'menu': [
+                {
+                    'id': 'menu-address-city-button',
+                    'handler': 'Engine.menu.address.city.showGrid',
+                    'text': u'Города'
+                },{
+                    'id': 'menu-address-street-button',
+                    'text': u'Улицы'
+                },{
+                    'id': 'menu-address-house-button',
+                    'text': u'Номера домов'
+                },{
+                    'id': 'menu-address-building-button',
+                    'text': u'Дома'
+                }
+            ]
+        }
     ]
 }

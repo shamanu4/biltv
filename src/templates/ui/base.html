@@ -4,13 +4,14 @@
     <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}extjs/resources/css/ext-all.css" />
     <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}extjs/resources/css/xtheme-gray.css" />
     <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}extjs/resources/css/custom.css" />
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js" type="text/javascript"></script>
+    <script src="{{ MEDIA_URL }}js/jquery.js" type="text/javascript"></script>
     <script src="{{ MEDIA_URL }}extjs/adapter/jquery/ext-jquery-adapter.js"></script>
     <script src="{{ MEDIA_URL }}extjs/ext-all.js"></script>
     <script src="{{ MEDIA_URL }}extjs/src/locale/ext-lang-ru.js"></script>
     <script src="{% url ui:api %}"></script>
     <script src="{{ MEDIA_URL }}js/ui-head.js"></script>
     <script src="{{ MEDIA_URL }}js/Ext.stores.js"></script>
+    <script src="{{ MEDIA_URL }}js/Ext.ux.grid.Search"></script>
     <script src="{{ MEDIA_URL }}js/Ext.ux.components.js"></script>
     <script src="{{ MEDIA_URL }}js/Ext.ux.MainViewport.js"></script>   
     <script type="text/javascript">
@@ -20,12 +21,28 @@
         Ext.apply(Ext.QuickTips.getQuickTip(), {
             showDelay: 1000
         });
-        
+
+        Ext.Ajax.on('requestcomplete', function(req,response){
+            batch = eval(response.responseText)
+            for(line in batch) {
+                if(isInt(line)) {
+                    data = batch[line]
+                    if(data.result.msg && data.result.title) {
+                        if(data.result.ok) {
+                            Ext.ux.msg(data.result.title, data.result.msg, Ext.Msg.INFO);
+                        } else {
+                            Ext.ux.msg(data.result.title, data.result.msg, Ext.Msg.ERROR);
+                        }
+                    }                    
+                }
+            }
+        }, this);
+
         Ext.Ajax.on('requestexception', function(){
             Ext.ux.msg('Failure', 'Request failed', Ext.Msg.ERROR);
         }, this);
         
-        Ext.Direct.on('exception', function(event){
+        Ext.Direct.on('exception', function(event){            
             Ext.ux.msg('RPC Error', event.result.error, Ext.Msg.ERROR);
         });        
     </script>      

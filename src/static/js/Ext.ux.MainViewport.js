@@ -30,5 +30,5 @@ Ext.ux.MainViewport = Ext.extend(Ext.Viewport, {
                 })
             }
         })
-    },             
+    }
 });

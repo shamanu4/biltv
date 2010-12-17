@@ -132,18 +132,25 @@ class City(models.Model):
     """
     <label> must be ended with space. <label> and <street> contacted without delimeter.
     """
+    
+    class Meta:
+        ordering = ['name']
 
     def __unicode__(self):
         return self.name
 
-
-    class Meta:
-        ordering = ['name']
-
-
     def save(self, *args, **kwargs):
         self.name = self.name.capitalize()
         super(City, self).save(*args,**kwargs)
+
+    def store_record(self):
+        obj = {}
+        obj['id'] = self.pk
+        obj['name'] = self.name
+        obj['label'] = self.label
+        obj['deleted'] = self.deleted
+        obj['comment'] = self.comment
+        return obj
 
 
 
@@ -195,14 +202,20 @@ class Building(models.Model):
     comment = models.TextField(blank=True, null=True)
     sorting = models.CharField(blank=True, max_length=100, unique=True)
 
-    def __unicode__(self):
-        return "%s" % (self.sorting,)
-
-
     class Meta:
         ordering = ['sorting']
         unique_together = (("street", "house",),)
 
+    def __unicode__(self):
+        return "%s" % (self.sorting,)
+
+    def get_or_create(self,street,house):
+        try:
+            building = Building.objects.get(street=street,house=house)
+        except Building.DoesNotExist:
+            building = Building(street=street,house=house)
+            building.save()
+        return building
 
     def save(self, *args, **kwargs):
         self.sorting = "%s%s, %s" % (self.street.city.label, self.street.name, self.house.num)
@@ -218,14 +231,20 @@ class Address(models.Model):
     comment = models.TextField(blank=True, null=True)
     sorting = models.CharField(blank=True, max_length=100, unique=True)
 
-    def __unicode__(self):
-        return "%s" % (self.sorting,)
-
-
     class Meta:
         ordering = ['sorting']
         unique_together = (("building", "flat",),)
 
+    def __unicode__(self):
+        return "%s" % (self.sorting,)
+
+    def get_or_create(self,building,flat):
+        try:
+            address = Address.objects.get(building=building,flat=flat)
+        except Address.DoesNotExist:
+            address = Address(building=building,flat=flat)
+            address.save()
+        return address
 
     def save(self, *args, **kwargs):
         self.flat = self.flat.lower()

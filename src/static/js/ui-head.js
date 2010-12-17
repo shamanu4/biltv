@@ -1,7 +1,22 @@
-
+function isInt(x) {
+   var y=parseInt(x);
+   if (isNaN(y)) return false;
+   return x==y && x.toString()==y.toString();
+}
 
 Engine = {
     vp: null,
+    components: {
+        
+    },
+    getComponent: function(component,string) {
+        if(string in Engine.components) {
+            return Engine.components[string]
+        } else {
+            Engine.components[string] = new component()
+            return Engine.components[string]
+        }
+    },
     auth: {
         doAuth: function() {
             lw = new Ext.ux.LoginWindow()
@@ -25,7 +40,7 @@ Engine = {
         checkAuth: function() {
             MainApi.is_authenticated(function(response){
                 if(response.authenticated) {
-                    Ext.ux.msg('Приветствие', response.msg, Ext.Msg.INFO);
+                    //Ext.ux.msg('Приветствие', response.msg, Ext.Msg.INFO);
                     Ext.getCmp('menu-exit-button').setDisabled(false)
                     this.loadMenu()
                 } else {
@@ -35,8 +50,11 @@ Engine = {
         },
         loadMenu: function() {
             MainApi.menu(function(response){
-                //debugger;
-                Ext.getCmp('menu-bar').toolbars[0].add(response.menuitems);
+                for (i in response.menuitems) {
+                if(isInt(i)) {
+                        Ext.getCmp('menu-bar').toolbars[0].add(Ext.ux.menu[response.menuitems[i]]);
+                    }
+                }
                 Ext.getCmp('menu-bar').toolbars[0].doLayout()
             }, this)
         }
@@ -48,39 +66,35 @@ Engine = {
         hasPerm: function() {
             
         }
+    },
+    menu: {
+        address: {
+            city: {
+                openGrid: function() {
+                    grid = Engine.getComponent(Ext.ux.CityGrid,'Ext.ux.CityGrid')
+                    if (grid.store && grid.rendered) {
+                        grid.store.reload()
+                    }
+                    Ext.getCmp('tab-panel').toolbars[0].add(grid);
+                    Ext.getCmp('tab-panel').toolbars[0].add(grid);
+                    Ext.getCmp('tab-panel').toolbars[0].doLayout()
+                }
+            },
+            street: {
+                openGrid: function() {
+
+                }
+            },
+            house: {
+                openGrid: function() {
+
+                }
+            },
+            building: {
+                openGrid: function() {
+
+                }
+            }
+        }
     }
 }
-
-/*
-                {
-                    xtype: 'tbseparator'
-                },{
-                    id: 'menu-scrambler-button',
-                    xtype: 'tbbutton',
-                    text: 'Скрамблер',
-                    disabled: true,
-                    menu: [
-                        {
-                            text: 'Каналы'
-                        },{
-                            text: 'Стволы'
-                        },
-                    ]
-                },{
-                    xtype: 'tbseparator'
-                },{
-                    id: 'menu-cashier-button',
-                    xtype: 'tbbutton',
-                    text: 'Касса',
-                    disabled: true,
-                    menu: [
-                        {
-                            text: 'Item One'
-                        },{
-                            text: 'Item Two'
-                        },{
-                            text: 'Item Three'
-                        }
-                    ]
-                }
-*/
