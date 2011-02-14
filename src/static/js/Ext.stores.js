@@ -1,43 +1,3 @@
-/* 
-
- new Ext.data.DirectStore({
-    api: {
-        read: GameApi.cards_on_hand
-    },
-    storeId: 'cards-on-hand-store',
-    paramsAsHash: false,
-    reader: new Ext.data.JsonReader({
-        root: 'data',
-        fields: [
-            'id',
-            'name',
-            'card_id',
-            'image',
-            'turned',
-            'type'
-        ]
-    })
-});
-
- */
-
-new Ext.data.DirectStore({
-    api: {
-        read: TvApi.channels
-    },
-    storeId: 'channels-store',
-    paramsAsHash: false,
-    reader: new Ext.data.JsonReader({
-        root: 'data',
-        fields: [
-            'id',
-            'name',
-            'bound',
-            'comment',
-        ]
-    })
-});
-
 Ext.ux.cities_store = new Ext.data.DirectStore({
     api: {
         read: CityGrid.read,
@@ -45,11 +5,13 @@ Ext.ux.cities_store = new Ext.data.DirectStore({
         update: CityGrid.update,
         destroy: CityGrid.destroy
     },
+    autoLoad: true,
     autoSave: false,
     storeId: 'cities-store',    
     reader: new Ext.data.JsonReader({
         root: 'data',
         totalProperty: 'total',
+        //idProperty: 'id',
         fields: [
             'id',
             'name',
@@ -64,12 +26,12 @@ Ext.ux.cities_store = new Ext.data.DirectStore({
     }),
     baseParams : {
         start:0,
-        limit:10
+        limit:10,
+        filter_fields:['name'],
+        filter_value:''
     },
     listeners:{
-        write: function (store,action,result,res,rs){
-            console.log('store write action')
-            console.log(res.result)
+        write: function (store,action,result,res,rs) {
             if(store.client && store.client.onWrite) {
                 store.client.onWrite(res.result)
             }
@@ -83,3 +45,55 @@ var cities_ds_model = Ext.data.Record.create([
     'label',
     'comment',
 ]);
+
+
+Ext.ux.streets_store = new Ext.data.DirectStore({
+    api: {
+        read: StreetGrid.read,
+        create: StreetGrid.create,
+        update: StreetGrid.update,
+        destroy: StreetGrid.destroy
+    },
+    autoLoad: true,
+    autoSave: false,
+    storeId: 'streets-store',
+    reader: new Ext.data.JsonReader({
+        root: 'data',
+        totalProperty: 'total',
+        //idProperty: 'id',
+        fields: [
+            'id',
+            'city',
+            'name',
+            'code',
+            'comment',
+        ]
+    }),
+    writer: new Ext.data.JsonWriter({
+        encode: false,
+        writeAllFields: true,
+        listful: true
+    }),
+    baseParams : {
+        start:0,
+        limit:10,
+        filter_fields:['name','code'],
+        filter_value:''
+    },
+    listeners:{
+        write: function (store,action,result,res,rs) {
+            if(store.client && store.client.onWrite) {
+                store.client.onWrite(res.result)
+            }
+        }
+    }
+});
+
+var streets_ds_model = Ext.data.Record.create([
+    'id',
+    'city',
+    'name',
+    'code',
+    'comment',
+]);
+

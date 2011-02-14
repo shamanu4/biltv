@@ -142,7 +142,9 @@ Ext.ux.menu = {
             'text': 'Скрамблер',
             'menu': [
                 {
-                    'text': 'Каналы'
+                    'text': 'Каналы',
+                    'handler': Engine.menu.address.city.openGrid,
+                    'text': 'Города'
                 },{
                     'text': 'Стволы'
                 },
@@ -181,6 +183,7 @@ Ext.ux.menu = {
                     'text': 'Города'
                 },{
                     'id': 'menu-address-street-button',
+                    'handler': Engine.menu.address.street.openGrid,
                     'text': 'Улицы'
                 },{
                     'id': 'menu-address-house-button',
@@ -224,11 +227,8 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
         this.store.load();
     },
     onWrite: function(result) {
-        console.log(result)
         if(result.ok) {
-            console.log('commiting')
-            this.store.commitChanges();
-            this.store.reload();
+            //this.store.commitChanges();
         } else {
             this.selModel.selectRow(this.unsaved_row)
         }
@@ -241,7 +241,7 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
             unsaved_row: 0,            
             tbar: [{
                 text: 'Apply',
-                icon: 'images/table_save.png',
+                icon: '/static/extjs/custom/tick_16.png',
                 cls: 'x-btn-text-icon',
                 handler: function() {		    
                     this.store.save()
@@ -250,7 +250,7 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                 scope: this
             },{
                 text: 'Add',
-                icon: 'images/table_add.png',
+                icon: '/static/extjs/custom/plus_16.png',
                 cls: 'x-btn-text-icon',
                 handler: function() {
                     this.store.insert(
@@ -261,10 +261,35 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                 },
                 scope: this
             },{
-                text:'Search'
+                text: 'Cancel',
+                icon: '/static/extjs/custom/block_16.png',
+                cls: 'x-btn-text-icon',
+                handler: function() {
+                    this.store.reload()
+                },
+                scope: this
             },
             new Ext.Toolbar.Spacer(),
             this.searchfield = new Ext.form.TextField(),
+            new Ext.Toolbar.Spacer(),
+            {
+                icon: '/static/extjs/custom/search_16.png',
+                cls: 'x-btn-text-icon',
+                handler: function() {
+                    this.store.baseParams.filter_value = this.searchfield.getValue()
+                    this.store.reload()                  
+                },
+                scope: this
+            },{
+                icon: '/static/extjs/custom/delete_16.png',
+                cls: 'x-btn-text-icon',
+                handler: function() {
+                    this.searchfield.setValue('')
+                    this.store.baseParams.filter_value = ''
+                    this.store.reload()
+                },
+                scope: this
+            },
             ],
             bbar: new Ext.PagingToolbar({
                 pageSize: 10,
@@ -291,7 +316,7 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                                 this.unsaved_row = this.current_row
                                 this.current_row = index
                                 this.store.save()
-                                this.store.commitChanges();
+                                //this.store.commitChanges();
                             }
                         },
                         scope: this
@@ -312,6 +337,36 @@ Ext.ux.CityGrid = Ext.extend(Ext.ux.CustomGrid ,{
                 {header: "Id", dataIndex: 'id'},
                 {header: "Name", dataIndex: 'name', editor: new Ext.form.TextField()},
                 {header: "Label", dataIndex: 'label', editor: new Ext.form.TextField()},
+                {header: "Comment", dataIndex: 'comment', editor: new Ext.form.TextField()},
+            ]
+});
+
+Ext.ux.StreetGrid = Ext.extend(Ext.ux.CustomGrid ,{
+            store: 'streets-store',
+            ds_model: streets_ds_model,
+            title: 'Улицы',
+            columns: [
+                {header: "Id", dataIndex: 'id'},
+                {header: "City", dataIndex: 'city',
+                    editor: new Ext.form.ComboBox({
+                         store: Ext.ux.cities_store,
+                         editable: false,
+                         lazyRender: false,
+                         triggerAction: 'all',
+                         valueField: 'id',
+                         displayField: 'name'
+                    }),
+                    renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                         index = Ext.ux.cities_store.find('id',value)
+                         if (index>=0) {
+                            return Ext.ux.cities_store.getAt(index).data.name
+                         } else {
+                            return 'undefined'
+                         }
+                    }
+                },
+                {header: "Name", dataIndex: 'name', editor: new Ext.form.TextField()},
+                {header: "Code", dataIndex: 'label', editor: new Ext.form.TextField()},
                 {header: "Comment", dataIndex: 'comment', editor: new Ext.form.TextField()},
             ]
 });

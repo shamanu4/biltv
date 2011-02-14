@@ -82,7 +82,13 @@ Engine = {
             },
             street: {
                 openGrid: function() {
-
+                    grid = Engine.getComponent(Ext.ux.StreetGrid,'Ext.ux.StreetGrid')
+                    if (grid.store && grid.rendered) {
+                        grid.store.reload()
+                    }
+                    Ext.getCmp('tab-panel').toolbars[0].add(grid);
+                    Ext.getCmp('tab-panel').toolbars[0].add(grid);
+                    Ext.getCmp('tab-panel').toolbars[0].doLayout()
                 }
             },
             house: {

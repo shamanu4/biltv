@@ -18,7 +18,7 @@ class AbonApiClass(object):
             try:
                 c = City.objects.get(pk=data['id'])
             except City.DoesNotExist:
-                return dict(success=True, ok=False, msg="city not found")
+                return dict(success=False, ok=False, msg="city not found")
             else:
                 del data['id']
                 for property in data:
@@ -30,7 +30,7 @@ class AbonApiClass(object):
         if not errors:
             return dict(success=True, ok=True, title="Сохранено", msg="saved", data={})
         else:            
-            return dict(success=True, ok=False, title="Ошибка записи", msg=error[1].decode('utf8'), data={})
+            return dict(success=False, ok=False, title="Ошибка записи", msg=error[1].decode('utf8'), data={})
     cities_update._args_len = 1
 
     def cities_create(self,rdata,request):
@@ -52,7 +52,7 @@ class AbonApiClass(object):
         if not errors:
             return dict(success=True, ok=True, title="Сохранено", msg="saved", data={})
         else:
-            return dict(success=True, ok=False, title="Ошибка записи", msg=error[1].decode('utf8'), data={})
+            return dict(success=False, ok=False, title="Ошибка записи", msg=error[1].decode('utf8'), data={})
     cities_create._args_len = 1
 
     def cities_destroy(self,rdata,request):

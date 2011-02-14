@@ -5,6 +5,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.utils import simplejson
 
 from django.db.models.query import QuerySet
+from django.db.models import Q
 from django.utils.functional import update_wrapper
 
 def store_read(func):
@@ -17,6 +18,17 @@ def store_read(func):
             success = True
         if isinstance(result, QuerySet):
             total = result.count()
+            print rdata
+            if 'filter_fields' in rdata and 'filter_value' in rdata:
+                if not rdata['filter_value']=='':
+                    query=None
+                    for node in rdata['filter_fields']:
+                        if query:
+                            query = query | Q(**{"%s__icontains" % str(node):rdata['filter_value']})
+                        else:
+                            query = Q(**{"%s__icontains" % str(node):rdata['filter_value']})
+                    if query:
+                        result = result.filter(query)
             if 'filter' in rdata:
                 result = result.filter(rdata['filter'])
             if 'start' in rdata and 'limit' in rdata:

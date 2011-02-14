@@ -173,6 +173,17 @@ class Street(models.Model):
         self.name = self.name.capitalize()
         super(self.__class__, self).save(*args,**kwargs)
 
+    def store_record(self):
+        obj = {}
+        obj['id'] = self.pk
+        obj['city'] = self.city.pk
+        obj['city__name'] = self.city.name
+        obj['name'] = self.name
+        obj['code'] = self.code
+        obj['deleted'] = self.deleted
+        obj['comment'] = self.comment
+        return obj
+
 
 
 class House(models.Model):
