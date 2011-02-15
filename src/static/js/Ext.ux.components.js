@@ -227,7 +227,7 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
         this.store.load();
     },
     onWrite: function(result) {
-        if(result.ok) {
+        if(result.success) {
             //this.store.commitChanges();
         } else {
             this.selModel.selectRow(this.unsaved_row)
@@ -245,7 +245,7 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                 cls: 'x-btn-text-icon',
                 handler: function() {		    
                     this.store.save()
-                    this.store.commitChanges();
+                    //this.store.commitChanges();
                 },
                 scope: this
             },{
@@ -312,12 +312,12 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                 listeners: {
                     rowselect: {
                         fn: function(sm,index,record) {                            
-                            if(this.current_row != index) {                                
-                                this.unsaved_row = this.current_row
-                                this.current_row = index
-                                this.store.save()
-                                //this.store.commitChanges();
-                            }
+                            //if(this.current_row != index) {
+                            //    this.unsaved_row = this.current_row
+                            //    this.current_row = index
+                            //    this.store.save()
+                            //    //this.store.commitChanges();
+                            //}
                         },
                         scope: this
                     }

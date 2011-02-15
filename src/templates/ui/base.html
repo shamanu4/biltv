@@ -27,7 +27,7 @@
                 if(isInt(line)) {
                     data = batch[line]
                     if(data.result.msg && data.result.title) {
-                        if(data.result.ok) {
+                        if(data.result.success) {
                             Ext.ux.msg(data.result.title, data.result.msg, Ext.Msg.INFO);
                         } else {
                             Ext.ux.msg(data.result.title, data.result.msg, Ext.Msg.ERROR);

@@ -5,6 +5,7 @@ Ext.ux.cities_store = new Ext.data.DirectStore({
         update: CityGrid.update,
         destroy: CityGrid.destroy
     },
+    restful: true,
     autoLoad: true,
     autoSave: false,
     storeId: 'cities-store',    
@@ -54,6 +55,7 @@ Ext.ux.streets_store = new Ext.data.DirectStore({
         update: StreetGrid.update,
         destroy: StreetGrid.destroy
     },
+    restful: true,
     autoLoad: true,
     autoSave: false,
     storeId: 'streets-store',
