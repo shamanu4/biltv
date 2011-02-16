@@ -9,6 +9,9 @@ class Group(models.Model):
     comment = models.TextField(blank=True, null=True)
     deleted = models.BooleanField(default=False)
 
+    class Meta:
+        ordering = ['name']
+        
     def __unicode__(self):
         return self.name
 
@@ -25,8 +28,6 @@ class Group(models.Model):
                 self.save()
                 return (0,"deleted")
 
-    class Meta:
-        ordering = ['name']
 
 
 class Person(models.Model):
@@ -40,11 +41,11 @@ class Person(models.Model):
     comment = models.TextField(blank=True, null=True)
     sorting = models.CharField(blank=True, max_length=100)
 
-    def __unicode__(self):
-        return "%s (%s)" % (self.sorting,self.passport)
-
     class Meta:
         ordering = ['sorting']
+
+    def __unicode__(self):
+        return "%s (%s)" % (self.sorting,self.passport)
 
     def save(self, *args, **kwargs):
         from functions import latinaze
@@ -104,6 +105,7 @@ class Person(models.Model):
             return True
 
 
+
 class Contact(models.Model):
 
     CONTACT_TYPE_CHOICES = (
@@ -121,6 +123,7 @@ class Contact(models.Model):
 
     def __unicode__(self):
         return "%s: %s" % (self.get_type_display(), self.value)
+
 
 
 class City(models.Model):
@@ -162,12 +165,12 @@ class Street(models.Model):
     deleted = models.BooleanField(default=False)
     comment = models.TextField(blank=True, null=True)
 
-    def __unicode__(self):
-        return "%s%s" % (self.city.label, self.name)
-
     class Meta:
         ordering = ['name']
         unique_together = (("city", "name",),)
+
+    def __unicode__(self):
+        return "%s%s" % (self.city.label, self.name)
 
     def save(self, *args, **kwargs):
         self.name = self.name.capitalize()
@@ -177,7 +180,6 @@ class Street(models.Model):
         obj = {}
         obj['id'] = self.pk
         obj['city'] = self.city.pk
-        obj['city__name'] = self.city.name
         obj['name'] = self.name
         obj['code'] = self.code
         obj['deleted'] = self.deleted
@@ -193,15 +195,24 @@ class House(models.Model):
     deleted = models.BooleanField(default=False)
     comment = models.TextField(blank=True, null=True)
 
-    def __unicode__(self):
-        return self.num
-
     class Meta:
         ordering = ['num']
+        
+    def __unicode__(self):
+        return self.num
 
     def save(self, *args, **kwargs):
         self.num = self.num.upper()
         super(self.__class__, self).save(*args,**kwargs)
+
+    def store_record(self):
+        obj = {}
+        obj['id'] = self.pk
+        obj['num'] = self.num
+        obj['code'] = self.code
+        obj['deleted'] = self.deleted
+        obj['comment'] = self.comment
+        return obj
 
 
 
@@ -231,6 +242,14 @@ class Building(models.Model):
     def save(self, *args, **kwargs):
         self.sorting = "%s%s, %s" % (self.street.city.label, self.street.name, self.house.num)
         super(self.__class__, self).save(*args,**kwargs)
+
+    def store_record(self):
+        obj = {}
+        obj['id'] = self.pk
+        obj['street'] = self.street.id
+        obj['house'] = self.house.id
+        obj['comment'] = self.comment
+        return obj
 
 
 
@@ -293,6 +312,7 @@ class Bill(models.Model):
         return res
 
 
+
 class Abonent(models.Model):
     person = models.ForeignKey(Person, related_name='abonents')
     address = models.ForeignKey(Address, related_name='abonents')
@@ -302,6 +322,12 @@ class Abonent(models.Model):
     sorting = models.CharField(blank=True, max_length=150)
     bill = models.ForeignKey(Bill)
 
+    class Meta:
+        ordering = ['sorting']
+        unique_together = (("person", "address",),)
+
+    def __unicode__(self):
+        return "%s" % (self.sorting,)
 
     @property
     def bin_id(self):
@@ -310,14 +336,6 @@ class Abonent(models.Model):
     @property
     def bin_card(self):
         return int_to_4byte_wrapped((self.card_id-1)*2)
-
-    def __unicode__(self):
-        return "%s" % (self.sorting,)
-
-    class Meta:
-        ordering = ['sorting']
-        unique_together = (("person", "address",),)
-
 
     def save(self, *args, **kwargs):
         self.sorting = "%s, [ %s ]" % (self.address.sorting, self.person.fio_short())

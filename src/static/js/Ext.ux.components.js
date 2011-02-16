@@ -160,7 +160,9 @@ Ext.ux.menu = {
             'text': 'Касса',
             'menu': [
                 {
-                    'text': 'Item One'
+                    'id': 'menu-cashier-abonent-button',
+                    'handler': Engine.menu.cashier.abonent.openGrid,
+                    'text': 'Пользователи'
                 },{
                     'text': 'Item Two'
                 },{
@@ -187,9 +189,11 @@ Ext.ux.menu = {
                     'text': 'Улицы'
                 },{
                     'id': 'menu-address-house-button',
+                    'handler': Engine.menu.address.house.openGrid,
                     'text': 'Номера домов'
                 },{
                     'id': 'menu-address-building-button',
+                    'handler': Engine.menu.address.building.openGrid,
                     'text': 'Дома'
                 }
             ]
@@ -349,45 +353,97 @@ Ext.ux.StreetGrid = Ext.extend(Ext.ux.CustomGrid ,{
                 {header: "Id", dataIndex: 'id'},
                 {header: "City", dataIndex: 'city',
                     editor: new Ext.form.ComboBox({
-                         store: Ext.ux.cities_store,
-                         editable: false,
-                         lazyRender: false,
-                         triggerAction: 'all',
-                         valueField: 'id',
-                         displayField: 'name'
+                        store: Ext.ux.cities_combo_store,
+                        editable: true,
+                        lazyRender: false,
+                        triggerAction: 'all',
+                        valueField: 'id',
+                        displayField: 'name',
+                        mode: 'local'
                     }),
                     renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-                         index = Ext.ux.cities_store.find('id',value)
+                         index = Ext.ux.cities_combo_store.find('id',value)
                          if (index>=0) {
-                            return Ext.ux.cities_store.getAt(index).data.name
+                            return Ext.ux.cities_combo_store.getAt(index).data.name
                          } else {
                             return 'undefined'
                          }
-                    }
+                    },                    
+                    scope: this
                 },
                 {header: "Name", dataIndex: 'name', editor: new Ext.form.TextField()},
-                {header: "Code", dataIndex: 'label', editor: new Ext.form.TextField()},
+                {header: "Label", dataIndex: 'label', editor: new Ext.form.TextField()},
+                {header: "Code", dataIndex: 'code', editor: new Ext.form.TextField()},
                 {header: "Comment", dataIndex: 'comment', editor: new Ext.form.TextField()},
             ]
 });
 
-/*
-Ext.ux.ChannelGrid = new Ext.grid.GridPanel({
-    initComponent: function(){
-        var config = {
-            frame:true,
-            title: 'Movie Database',
-            height:200,
-            width:500,
-            store: channels-store,
+Ext.ux.HouseNumGrid = Ext.extend(Ext.ux.CustomGrid ,{
+            store: 'house-num-store',
+            ds_model: house_num_ds_model,
+            title: 'Номера домов',
             columns: [
                 {header: "Id", dataIndex: 'id'},
-                {header: "Name", dataIndex: 'name'},
-                {header: "Comment", dataIndex: 'comment'},
+                {header: "Num", dataIndex: 'num', editor: new Ext.form.TextField()},
+                {header: "Code", dataIndex: 'code', editor: new Ext.form.TextField()},
+                {header: "Comment", dataIndex: 'comment', editor: new Ext.form.TextField()},
             ]
-        }
-        Ext.apply(this, Ext.apply(this.initialConfig, config));
-        Ext.ux.ChannelGrid.superclass.initComponent.apply(this, arguments);
-    }
 });
-*/
+
+Ext.ux.BuildingGrid = Ext.extend(Ext.ux.CustomGrid ,{
+            store: 'building-store',
+            ds_model: building_ds_model,
+            title: 'Дома',
+            columns: [
+                {header: "Id", dataIndex: 'id'},
+                {header: "Street", dataIndex: 'street',
+                    editor: new Ext.form.ComboBox({
+                        store: Ext.ux.streets_combo_store,
+                        editable: true,
+                        lazyRender: false,
+                        triggerAction: 'all',
+                        valueField: 'id',
+                        displayField: 'name',
+                        mode: 'local'
+                    }),
+                    renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                         index = Ext.ux.streets_combo_store.find('id',value)
+                         if (index>=0) {
+                            return Ext.ux.streets_combo_store.getAt(index).data.name
+                         } else {
+                            return 'undefined'
+                         }
+                    },
+                    scope: this
+                },
+                {header: "House", dataIndex: 'house',
+                    editor: new Ext.form.ComboBox({
+                        store: Ext.ux.houses_combo_store,
+                        editable: true,
+                        lazyRender: false,
+                        triggerAction: 'all',
+                        valueField: 'id',
+                        displayField: 'num',
+                        mode: 'local'
+                    }),
+                    renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                         index = Ext.ux.houses_combo_store.find('id',value)
+                         if (index>=0) {
+                            return Ext.ux.houses_combo_store.getAt(index).data.num
+                         } else {
+                            return 'undefined'
+                         }
+                    },
+                    scope: this
+                },                
+                {header: "Comment", dataIndex: 'comment', editor: new Ext.form.TextField()},
+            ]
+});
+
+Ext.ux.AbonentGrid = Ext.extend(Ext.ux.CustomGrid ,{
+            store: 'abonents-store',
+            ds_model: null,
+            title: 'Список абонентов',
+            columns: [
+            ]
+});

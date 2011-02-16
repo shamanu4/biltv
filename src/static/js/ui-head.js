@@ -73,7 +73,7 @@ Engine = {
                 openGrid: function() {
                     grid = Engine.getComponent(Ext.ux.CityGrid,'Ext.ux.CityGrid')
                     if (grid.store && grid.rendered) {
-                        grid.store.reload()
+                        grid.store.load()
                     }
                     Ext.getCmp('tab-panel').toolbars[0].add(grid);
                     Ext.getCmp('tab-panel').toolbars[0].add(grid);
@@ -84,7 +84,7 @@ Engine = {
                 openGrid: function() {
                     grid = Engine.getComponent(Ext.ux.StreetGrid,'Ext.ux.StreetGrid')
                     if (grid.store && grid.rendered) {
-                        grid.store.reload()
+                        grid.store.load()
                     }
                     Ext.getCmp('tab-panel').toolbars[0].add(grid);
                     Ext.getCmp('tab-panel').toolbars[0].add(grid);
@@ -93,12 +93,37 @@ Engine = {
             },
             house: {
                 openGrid: function() {
-
+                    grid = Engine.getComponent(Ext.ux.HouseNumGrid,'Ext.ux.HouseNumGrid')
+                    if (grid.store && grid.rendered) {
+                        grid.store.load()
+                    }
+                    Ext.getCmp('tab-panel').toolbars[0].add(grid);
+                    Ext.getCmp('tab-panel').toolbars[0].add(grid);
+                    Ext.getCmp('tab-panel').toolbars[0].doLayout()
                 }
             },
             building: {
                 openGrid: function() {
-
+                    grid = Engine.getComponent(Ext.ux.BuildingGrid,'Ext.ux.BuildingGrid')
+                    if (grid.store && grid.rendered) {
+                        grid.store.load()
+                    }
+                    Ext.getCmp('tab-panel').toolbars[0].add(grid);
+                    Ext.getCmp('tab-panel').toolbars[0].add(grid);
+                    Ext.getCmp('tab-panel').toolbars[0].doLayout()
+                }
+            }
+        },
+        cashier: {
+            abonent: {
+                openGrid: function() {
+                    grid = Engine.getComponent(Ext.ux.BuildingGrid,'Ext.ux.AbonentGrid')
+                    if (grid.store && grid.rendered) {
+                        grid.store.load()
+                    }
+                    Ext.getCmp('tab-panel').toolbars[0].add(grid);
+                    Ext.getCmp('tab-panel').toolbars[0].add(grid);
+                    Ext.getCmp('tab-panel').toolbars[0].doLayout()
                 }
             }
         }

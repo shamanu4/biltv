@@ -30,7 +30,8 @@ def store_read(func):
                     if query:
                         result = result.filter(query)
             if 'filter' in rdata:
-                result = result.filter(rdata['filter'])
+                if not rdata['filter']=='':
+                    result = result.filter(rdata['filter'])
             if 'start' in rdata and 'limit' in rdata:
                 result = result[rdata['start']:rdata['start']+rdata['limit']]
             result = [obj.store_record() for obj in result]

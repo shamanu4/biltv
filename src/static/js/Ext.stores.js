@@ -40,13 +40,40 @@ Ext.ux.cities_store = new Ext.data.DirectStore({
     }
 });
 
+Ext.ux.cities_combo_store = new Ext.data.DirectStore({
+    api: {
+        read: CityGrid.read,
+        create: CityGrid.create,
+        update: CityGrid.update,
+        destroy: CityGrid.destroy
+    },
+    restful: true,
+    autoLoad: true,
+    storeId: 'cities-combo-store',
+    reader: new Ext.data.JsonReader({
+        root: 'data',
+        totalProperty: 'total',
+        //idProperty: 'id',
+        fields: [
+            'id',
+            'name',
+            'label',
+            'comment',
+        ]
+    }),
+    baseParams : {
+        filter_fields:['name'],
+        filter_value:'',
+        filter:''
+    }
+});
+
 var cities_ds_model = Ext.data.Record.create([
     'id',
     'name',
     'label',
     'comment',
 ]);
-
 
 Ext.ux.streets_store = new Ext.data.DirectStore({
     api: {
@@ -91,6 +118,35 @@ Ext.ux.streets_store = new Ext.data.DirectStore({
     }
 });
 
+Ext.ux.streets_combo_store = new Ext.data.DirectStore({
+    api: {
+        read: StreetGrid.read,
+        create: StreetGrid.create,
+        update: StreetGrid.update,
+        destroy: StreetGrid.destroy
+    },
+    restful: true,
+    autoLoad: true,
+    autoSave: false,
+    storeId: 'streets-combo-store',
+    reader: new Ext.data.JsonReader({
+        root: 'data',
+        totalProperty: 'total',
+        //idProperty: 'id',
+        fields: [
+            'id',
+            'city',
+            'name',
+            'code',
+            'comment',
+        ]
+    }),
+    baseParams : {
+        filter_fields:['name','code'],
+        filter_value:''
+    }    
+});
+
 var streets_ds_model = Ext.data.Record.create([
     'id',
     'city',
@@ -99,3 +155,129 @@ var streets_ds_model = Ext.data.Record.create([
     'comment',
 ]);
 
+Ext.ux.house_num_store = new Ext.data.DirectStore({
+    api: {
+        read: HouseNumGrid.read,
+        create: HouseNumGrid.create,
+        update: HouseNumGrid.update,
+        destroy: HouseNumGrid.destroy
+    },
+    restful: true,
+    autoLoad: true,
+    autoSave: false,
+    storeId: 'house-num-store',
+    reader: new Ext.data.JsonReader({
+        root: 'data',
+        totalProperty: 'total',
+        //idProperty: 'id',
+        fields: [
+            'id',
+            'num',
+            'code',
+            'comment',
+        ]
+    }),
+    writer: new Ext.data.JsonWriter({
+        encode: false,
+        writeAllFields: true,
+        listful: true
+    }),
+    baseParams : {
+        start:0,
+        limit:10,
+        filter_fields:['num'],
+        filter_value:''
+    },
+    listeners:{
+        write: function (store,action,result,res,rs) {
+            if(store.client && store.client.onWrite) {
+                store.client.onWrite(res.result)
+            }
+        }
+    }
+});
+
+Ext.ux.houses_combo_store = new Ext.data.DirectStore({
+    api: {
+        read: HouseNumGrid.read,
+        create: HouseNumGrid.create,
+        update: HouseNumGrid.update,
+        destroy: HouseNumGrid.destroy
+    },
+    restful: true,
+    autoLoad: true,
+    autoSave: false,
+    storeId: 'houses-combo-store',
+    reader: new Ext.data.JsonReader({
+        root: 'data',
+        totalProperty: 'total',
+        //idProperty: 'id',
+        fields: [
+            'id',
+            'num',
+            'code',
+            'comment',
+        ]
+    }),
+    baseParams : {
+        filter_fields:['num'],
+        filter_value:'',
+        filter:''
+    }    
+});
+
+var house_num_ds_model = Ext.data.Record.create([
+    'id',
+    'num',
+    'code',
+    'comment',
+]);
+
+Ext.ux.building_store = new Ext.data.DirectStore({
+    api: {
+        read: BuildingGrid.read,
+        create: BuildingGrid.create,
+        update: BuildingGrid.update,
+        destroy: BuildingGrid.destroy
+    },
+    restful: true,
+    autoLoad: true,
+    autoSave: false,
+    storeId: 'building-store',
+    reader: new Ext.data.JsonReader({
+        root: 'data',
+        totalProperty: 'total',
+        //idProperty: 'id',
+        fields: [
+            'id',
+            'street',
+            'house',
+            'comment',
+        ]
+    }),
+    writer: new Ext.data.JsonWriter({
+        encode: false,
+        writeAllFields: true,
+        listful: true
+    }),
+    baseParams : {
+        start:0,
+        limit:10,
+        filter_fields:['street__name','house__num'],
+        filter_value:''
+    },
+    listeners:{
+        write: function (store,action,result,res,rs) {
+            if(store.client && store.client.onWrite) {
+                store.client.onWrite(res.result)
+            }
+        }
+    }
+});
+
+var building_ds_model = Ext.data.Record.create([
+    'id',
+    'street',
+    'house',
+    'comment',
+]);

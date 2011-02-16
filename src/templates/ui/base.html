@@ -27,10 +27,20 @@
                 if(isInt(line)) {
                     data = batch[line]
                     if(data.result.msg && data.result.title) {
-                        if(data.result.success) {
-                            Ext.ux.msg(data.result.title, data.result.msg, Ext.Msg.INFO);
+                        if(typeof(data.result.msg) == 'object') {
+                            for(line in data.result.msg) {
+                                if(data.result.success) {
+                                    Ext.ux.msg(data.result.title, line+": "+data.result.msg[line], Ext.Msg.INFO);
+                                } else {
+                                    Ext.ux.msg(data.result.title, line+": "+data.result.msg[line], Ext.Msg.ERROR);
+                                }
+                            }
                         } else {
-                            Ext.ux.msg(data.result.title, data.result.msg, Ext.Msg.ERROR);
+                            if(data.result.success) {
+                                Ext.ux.msg(data.result.title, data.result.msg, Ext.Msg.INFO);
+                            } else {
+                                Ext.ux.msg(data.result.title, data.result.msg, Ext.Msg.ERROR);
+                            }
                         }
                     }                    
                 }

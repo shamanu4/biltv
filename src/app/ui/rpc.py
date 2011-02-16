@@ -82,7 +82,7 @@ class GridApiClass(object):
                 msg = res[2]
             else:
                 ok = False
-                msg = 'form validation failed'
+                msg = form._errors
         if ok:
             return dict(success=True, title="Сохранено", msg="saved", data=result)
         else:
@@ -100,7 +100,7 @@ class GridApiClass(object):
             msg = res[2]
         else:
             ok = False
-            msg = 'form validation failed'
+            msg = form._errors
         if ok:
             return dict(success=True, title="Сохранено", msg="saved", data=result)
         else:
@@ -114,13 +114,15 @@ class GridApiClass(object):
 class Router(RpcRouter):
     
     def __init__(self):
-        from abon.models import City,Street
-        from abon.forms import CityForm,StreetForm
+        from abon.models import City,Street,House,Building
+        from abon.forms import CityForm,StreetForm,HouseNumForm,BuildingForm
         self.url = 'ui:router'
         self.actions = {
             'MainApi': MainApiClass(),
             'TvApi': TvApiClass(),
             'CityGrid': GridApiClass(City,CityForm),
             'StreetGrid': GridApiClass(Street,StreetForm),
+            'HouseNumGrid': GridApiClass(House,HouseNumForm),
+            'BuildingGrid': GridApiClass(Building,BuildingForm),
         }                
         self.enable_buffer = 50
