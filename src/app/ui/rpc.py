@@ -2,6 +2,7 @@
 
 from extjs import RpcRouter, store_read
 from tv.rpc import TvApiClass
+from abon.rpc import AbonApiClass
 
 class MainApiClass(object):
 
@@ -67,6 +68,8 @@ class GridApiClass(object):
     read._args_len = 1
 
     def update(self,rdata,request):
+        if not self.form:
+            return dict(success=False, title="Ошибка записи", msg="Только для чтения", data={})
         result = []
         data = rdata['data']
         try:
@@ -90,6 +93,8 @@ class GridApiClass(object):
     update._args_len = 1
 
     def create(self,rdata,request):
+        if not self.form:
+            return dict(success=False, title="Ошибка записи", msg="Только для чтения", data={})
         result = []
         data = rdata['data']
         form = self.form(data)
@@ -114,15 +119,17 @@ class GridApiClass(object):
 class Router(RpcRouter):
     
     def __init__(self):
-        from abon.models import City,Street,House,Building
+        from abon.models import City,Street,House,Building,Abonent
         from abon.forms import CityForm,StreetForm,HouseNumForm,BuildingForm
         self.url = 'ui:router'
         self.actions = {
             'MainApi': MainApiClass(),
             'TvApi': TvApiClass(),
+            'AbonApi':  AbonApiClass(),
             'CityGrid': GridApiClass(City,CityForm),
             'StreetGrid': GridApiClass(Street,StreetForm),
             'HouseNumGrid': GridApiClass(House,HouseNumForm),
             'BuildingGrid': GridApiClass(Building,BuildingForm),
+            'AbonentGrid': GridApiClass(Abonent,None),
         }                
         self.enable_buffer = 50

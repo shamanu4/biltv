@@ -60,4 +60,14 @@
     text-align:center;
     height:auto;
 }
+
+.inline_edit_button {
+    display: block;
+    width: 16px;
+    height: 16px;
+    background: transparent;
+    background-image: url(../../custom/pencil_16.png);
+    cursor: pointer;
+}
+
 /***************************/

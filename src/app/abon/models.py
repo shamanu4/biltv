@@ -53,8 +53,8 @@ class Person(models.Model):
         self.firstname = self.firstname.capitalize()
         self.lastname = self.lastname.capitalize()
         self.middlename = self.middlename.capitalize()
-        self.sorting = self.fio()
-        for abonent in self.abonents:
+        self.sorting = self.fio_short()
+        for abonent in self.abonents.all():
             abonent.save()
         super(self.__class__, self).save(*args, **kwargs)
 
@@ -103,6 +103,16 @@ class Person(models.Model):
             c.value=value
             c.save()
             return True
+
+    def store_record(self):
+        obj = {}
+        obj['id'] = self.pk
+        obj['person_id'] = self.pk
+        obj['firstname'] = self.firstname
+        obj['lastname'] = self.lastname
+        obj['middlename'] = self.middlename
+        obj['passport'] = self.passport
+        return obj
 
 
 
@@ -161,26 +171,30 @@ class Street(models.Model):
 
     city = models.ForeignKey(City, default=1, related_name='streets')
     name = models.CharField(max_length=40)
-    code = models.CharField(max_length=5, unique=True)
+    code = models.CharField(max_length=2, unique=True)
     deleted = models.BooleanField(default=False)
     comment = models.TextField(blank=True, null=True)
+    sorting = models.CharField(max_length=80)
 
     class Meta:
         ordering = ['name']
         unique_together = (("city", "name",),)
 
     def __unicode__(self):
-        return "%s%s" % (self.city.label, self.name)
+        return "%s" % (self.sorting)
 
     def save(self, *args, **kwargs):
         self.name = self.name.capitalize()
+        self.sorting = "%s%s" % (self.city.label, self.name)
+        for building in self.buildings.all():
+            building.save()
         super(self.__class__, self).save(*args,**kwargs)
 
     def store_record(self):
         obj = {}
         obj['id'] = self.pk
         obj['city'] = self.city.pk
-        obj['name'] = self.name
+        obj['name'] = self.sorting
         obj['code'] = self.code
         obj['deleted'] = self.deleted
         obj['comment'] = self.comment
@@ -203,6 +217,9 @@ class House(models.Model):
 
     def save(self, *args, **kwargs):
         self.num = self.num.upper()
+        self.code =  self.code + '0' * (5-len(self.code))
+        for building in self.buildings.all():
+            building.save()
         super(self.__class__, self).save(*args,**kwargs)
 
     def store_record(self):
@@ -218,8 +235,9 @@ class House(models.Model):
 
 class Building(models.Model):
 
-    street = models.ForeignKey(Street, related_name='houses')
-    house = models.ForeignKey(House, related_name='houses')
+    street = models.ForeignKey(Street, related_name='buildings')
+    house = models.ForeignKey(House, related_name='buildings')
+    code = models.CharField(max_length=2)
     deleted = models.BooleanField(default=False)
     comment = models.TextField(blank=True, null=True)
     sorting = models.CharField(blank=True, max_length=100, unique=True)
@@ -233,14 +251,21 @@ class Building(models.Model):
 
     def get_or_create(self,street,house):
         try:
-            building = Building.objects.get(street=street,house=house)
+            building = Building.objects.get(street__sorting=street,house__num=house)
         except Building.DoesNotExist:
-            building = Building(street=street,house=house)
+            s = Street.objects.get(sorting=street)
+            h = House.objects.get(num=house)
+            building = Building(street=s,house=h)
             building.save()
         return building
 
+    def get_code(self):
+        return "%s%s%s" % (self.street.code, self.house.code, self.code)
+
     def save(self, *args, **kwargs):
         self.sorting = "%s%s, %s" % (self.street.city.label, self.street.name, self.house.num)
+        for address in self.addresses.all():
+            address.save()
         super(self.__class__, self).save(*args,**kwargs)
 
     def store_record(self):
@@ -256,7 +281,8 @@ class Building(models.Model):
 class Address(models.Model):
 
     building = models.ForeignKey(Building, related_name='addresses')
-    flat = models.CharField(max_length=10)
+    flat = models.PositiveSmallIntegerField()
+    code = models.CharField(max_length=2)
     deleted = models.BooleanField(default=False)
     comment = models.TextField(blank=True, null=True)
     sorting = models.CharField(blank=True, max_length=100, unique=True)
@@ -276,16 +302,28 @@ class Address(models.Model):
             address.save()
         return address
 
-    def save(self, *args, **kwargs):
-        self.flat = self.flat.lower()
-        self.sorting = "%s, kv %s" % (self.building.sorting, self.flat)
+    def get_code(self):
+        return "%s%s%s" % (self.building.get_code(), '0' * (3-len(str(self.flat))) + str(self.flat), self.code)
+
+    def save(self, *args, **kwargs):        
+        self.sorting = unicode("%s%s, %s, kv %s" % (self.building.street.city.label, self.building.street.name, self.building.house.num, self.flat))
         super(self.__class__, self).save(*args,**kwargs)
+
+    def store_record(self):
+        obj = {}
+        obj['id'] = self.pk
+        obj['address_id'] = self.pk
+        obj['ext'] = self.code
+        obj['street'] = self.building.street.__unicode__()
+        obj['house'] = self.building.house.__unicode__()
+        obj['flat'] = self.flat
+        return obj
 
 
 
 class Bill(models.Model):
 
-    balance = models.FloatField()
+    balance = models.FloatField(default=0)
     deleted = models.BooleanField(default=False)
 
     def __unicode__(self):
@@ -321,6 +359,7 @@ class Abonent(models.Model):
     comment = models.TextField(blank=True, null=True)
     sorting = models.CharField(blank=True, max_length=150)
     bill = models.ForeignKey(Bill)
+    code = models.CharField(blank=False, max_length=20)
 
     class Meta:
         ordering = ['sorting']
@@ -336,9 +375,30 @@ class Abonent(models.Model):
     @property
     def bin_card(self):
         return int_to_4byte_wrapped((self.card_id-1)*2)
+    
+    def get_code(self):
+        return "%s" % (self.address.get_code())
 
     def save(self, *args, **kwargs):
+        try:
+            self.bill
+        except Bill.DoesNotExist:
+            bill = Bill()
+            bill.save()
+            self.bill = bill
+        self.code = self.get_code()
         self.sorting = "%s, [ %s ]" % (self.address.sorting, self.person.fio_short())
         super(self.__class__, self).save(*args,**kwargs)
+
+    def store_record(self):
+        obj = {}
+        obj['id'] = self.pk        
+        obj['code'] = self.code
+        obj['person'] = self.person.fio_short()
+        obj['passport'] = self.person.passport
+        obj['address'] = self.address.__unicode__()
+        obj['comment'] = self.comment
+        return obj
+
 
 

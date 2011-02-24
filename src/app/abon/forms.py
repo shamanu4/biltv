@@ -116,3 +116,92 @@ class BuildingForm(forms.Form):
         else:
             return (True,obj,'')
 
+
+class PersonForm(forms.Form):
+    firstname = forms.CharField(required=True, max_length=40)
+    lastname = forms.CharField(required=True, max_length=40)
+    middlename = forms.CharField(required=True, max_length=40)
+    passport = forms.CharField(required=True, max_length=20)
+    deleted = forms.BooleanField(required=False)
+    comment = forms.CharField(required=False)
+
+    def save(self,obj):
+        from abon.models import Person
+        if not obj:
+            obj = Person()
+        obj.firstname = self.cleaned_data['firstname']
+        obj.lastname = self.cleaned_data['lastname']
+        obj.middlename = self.cleaned_data['middlename']
+        obj.passport = self.cleaned_data['passport']
+        obj.deleted = self.cleaned_data['deleted'] or False
+        obj.comment = self.cleaned_data['comment']
+        try:
+            obj.save()
+        except IntegrityError as error:
+            return (False,obj,error[1].decode('utf8'))
+        else:
+            return (True,obj,'')
+
+
+class AddressForm(forms.Form):
+
+    street = forms.CharField(required=True, max_length=40)
+    house = forms.CharField(required=True, max_length=40)
+    flat = forms.CharField(required=True, max_length=40)
+    ext = forms.CharField(required=False, max_length=2)
+    deleted = forms.BooleanField(required=False)
+    comment = forms.CharField(required=False)
+
+    def save(self,obj):
+        from abon.models import Address,Building
+        if not obj:
+            obj = Address()
+        b = Building()
+        b = b.get_or_create(self.cleaned_data['street'],self.cleaned_data['house'])
+        try:
+            b.save()
+        except IntegrityError as error:
+            return (False,obj,error[1].decode('utf8'))
+        obj = obj.get_or_create(b,self.cleaned_data['flat'])
+        obj.code = self.cleaned_data['ext'] or ''
+        obj.deleted = self.cleaned_data['deleted'] or False
+        obj.comment = self.cleaned_data['comment']
+        try:
+            obj.save()
+        except IntegrityError as error:
+            return (False,obj,error[1].decode('utf8'))
+        else:
+            return (True,obj,'')
+
+
+class AbonentForm(forms.Form):
+
+    person_id = forms.IntegerField(required=True)
+    address_id = forms.IntegerField(required=True)
+    deleted = forms.BooleanField(required=False)
+    comment = forms.CharField(required=False)
+
+    def save(self,obj):
+        from abon.models import Address,Person,Abonent,Bill
+        if not obj:
+            obj = Abonent()
+        try:
+            address = Address.objects.get(pk=self.cleaned_data['address_id'])
+        except Address.DoesNotExist:
+            return (False,obj,'address not found')
+        try:
+            person = Person.objects.get(pk=self.cleaned_data['person_id'])
+        except Person.DoesNotExist:
+            return (False,obj,'person not found')
+
+        obj.person = person
+        obj.address = address
+        obj.deleted = self.cleaned_data['deleted'] or False
+        obj.comment = self.cleaned_data['comment']
+        try:
+            obj.save()
+        except IntegrityError as error:
+            print 'integrity error'
+            return (False,obj,error[1].decode('utf8'))
+        else:
+            return (True,obj,'')

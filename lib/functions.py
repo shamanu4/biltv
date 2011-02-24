@@ -71,7 +71,20 @@ def byte_xor(list1,list2):
     return res
 
 def latinaze(str):
-    return str
+    str = str.upper()
+    res = []
+    en = ['A','B','C','E','H','I','K','M','O','P','T','X','Y','0','1','2','3','4','5','6','7','8','9']
+    ru = [u'А',u'В',u'С',u'Е',u'Н',u'І',u'К',u'М',u'О',u'Р',u'Т',u'Х',u'У']
+    for char in str:
+        if char in en:
+            res.append(char)
+            continue
+        if char in ru:
+            index = ru.index(char)
+            res.append(en[index])
+        else:
+            return False
+    return ''.join(res)
 
 
 def date_formatter(date=None):

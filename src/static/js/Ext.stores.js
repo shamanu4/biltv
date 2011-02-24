@@ -281,3 +281,47 @@ var building_ds_model = Ext.data.Record.create([
     'house',
     'comment',
 ]);
+
+Ext.ux.abonent_store = new Ext.data.DirectStore({
+    api: {
+        read: AbonentGrid.read,
+        create: AbonentGrid.create,
+        update: AbonentGrid.update,
+        destroy: AbonentGrid.destroy
+    },
+    restful: true,
+    autoLoad: true,
+    autoSave: false,
+    storeId: 'abonent-store',
+    reader: new Ext.data.JsonReader({
+        root: 'data',
+        totalProperty: 'total',
+        //idProperty: 'id',
+        fields: [
+            'id',
+            'code',
+            'person',
+            'passport',
+            'address',
+            'comment',
+        ]
+    }),
+    writer: new Ext.data.JsonWriter({
+        encode: false,
+        writeAllFields: true,
+        listful: true
+    }),
+    baseParams : {
+        start:0,
+        limit:10,
+        filter_fields:['person__firstname','person__lastname','person__passport','code'],
+        filter_value:''
+    },
+    listeners:{
+        write: function (store,action,result,res,rs) {
+            if(store.client && store.client.onWrite) {
+                store.client.onWrite(res.result)
+            }
+        }
+    }
+});

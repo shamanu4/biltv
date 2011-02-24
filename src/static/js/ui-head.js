@@ -17,9 +17,28 @@ Engine = {
             return Engine.components[string]
         }
     },
+    getComponentFromPool: function(component,string,params,instances) {
+        if(!instances) {
+            instances=10;
+        }
+        if(!(string in Engine.components)) {
+            Engine.components[string] = {
+                index : 0,
+                data : []
+            }
+        }
+        Engine.components[string].index++;
+        var index = Engine.components[string].index;
+        Engine.components[string].data[index]=new component(params);
+        if(Engine.components[string].index-instances>0) {
+            Engine.components[string].data[index-instances].destroy();
+            Engine.components[string].data[index-instances]=null;
+        }
+        return Engine.components[string].data[index];
+    },
     auth: {
         doAuth: function() {
-            lw = new Ext.ux.LoginWindow()
+            var lw = new Ext.ux.LoginWindow()
             lw.show()
             lw.caller = this
             lw.loginSuccess = (function(){
@@ -71,59 +90,65 @@ Engine = {
         address: {
             city: {
                 openGrid: function() {
-                    grid = Engine.getComponent(Ext.ux.CityGrid,'Ext.ux.CityGrid')
+                    var grid = Engine.getComponent(Ext.ux.CityGrid,'Ext.ux.CityGrid')
                     if (grid.store && grid.rendered) {
                         grid.store.load()
                     }
                     Ext.getCmp('tab-panel').toolbars[0].add(grid);
                     Ext.getCmp('tab-panel').toolbars[0].add(grid);
-                    Ext.getCmp('tab-panel').toolbars[0].doLayout()
+                    Ext.getCmp('tab-panel').toolbars[0].doLayout();
                 }
             },
             street: {
                 openGrid: function() {
-                    grid = Engine.getComponent(Ext.ux.StreetGrid,'Ext.ux.StreetGrid')
+                    var grid = Engine.getComponent(Ext.ux.StreetGrid,'Ext.ux.StreetGrid')
                     if (grid.store && grid.rendered) {
                         grid.store.load()
                     }
                     Ext.getCmp('tab-panel').toolbars[0].add(grid);
                     Ext.getCmp('tab-panel').toolbars[0].add(grid);
-                    Ext.getCmp('tab-panel').toolbars[0].doLayout()
+                    Ext.getCmp('tab-panel').toolbars[0].doLayout();
                 }
             },
             house: {
                 openGrid: function() {
-                    grid = Engine.getComponent(Ext.ux.HouseNumGrid,'Ext.ux.HouseNumGrid')
+                    var grid = Engine.getComponent(Ext.ux.HouseNumGrid,'Ext.ux.HouseNumGrid')
                     if (grid.store && grid.rendered) {
                         grid.store.load()
                     }
                     Ext.getCmp('tab-panel').toolbars[0].add(grid);
                     Ext.getCmp('tab-panel').toolbars[0].add(grid);
-                    Ext.getCmp('tab-panel').toolbars[0].doLayout()
+                    Ext.getCmp('tab-panel').toolbars[0].doLayout();
                 }
             },
             building: {
                 openGrid: function() {
-                    grid = Engine.getComponent(Ext.ux.BuildingGrid,'Ext.ux.BuildingGrid')
+                    var grid = Engine.getComponent(Ext.ux.BuildingGrid,'Ext.ux.BuildingGrid')
                     if (grid.store && grid.rendered) {
                         grid.store.load()
                     }
                     Ext.getCmp('tab-panel').toolbars[0].add(grid);
                     Ext.getCmp('tab-panel').toolbars[0].add(grid);
-                    Ext.getCmp('tab-panel').toolbars[0].doLayout()
+                    Ext.getCmp('tab-panel').toolbars[0].doLayout();
                 }
             }
         },
         cashier: {
             abonent: {
                 openGrid: function() {
-                    grid = Engine.getComponent(Ext.ux.BuildingGrid,'Ext.ux.AbonentGrid')
+                    var grid = Engine.getComponent(Ext.ux.AbonentGrid,'Ext.ux.AbonentGrid')
                     if (grid.store && grid.rendered) {
                         grid.store.load()
                     }
                     Ext.getCmp('tab-panel').toolbars[0].add(grid);
                     Ext.getCmp('tab-panel').toolbars[0].add(grid);
-                    Ext.getCmp('tab-panel').toolbars[0].doLayout()
+                    Ext.getCmp('tab-panel').toolbars[0].doLayout();
+                },
+                openForm: function(id,code) {
+                    var form = Engine.getComponentFromPool(Ext.ux.AbonentForm,'Ext.ux.AbonentForm',{'oid':id,'code':code})
+                    Ext.getCmp('tab-panel').toolbars[0].add(form);
+                    Ext.getCmp('tab-panel').toolbars[0].add(form);
+                    Ext.getCmp('tab-panel').toolbars[0].doLayout();
                 }
             }
         }

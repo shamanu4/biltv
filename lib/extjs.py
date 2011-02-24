@@ -10,6 +10,7 @@ from django.utils.functional import update_wrapper
 
 def store_read(func):
     def wrapper(*args, **kwargs):
+        from lib.functions import latinaze
         result = func(*args, **kwargs)
         rdata = args[1]
         if isinstance(result, tuple):
@@ -23,10 +24,14 @@ def store_read(func):
                 if not rdata['filter_value']=='':
                     query=None
                     for node in rdata['filter_fields']:
-                        if query:
-                            query = query | Q(**{"%s__icontains" % str(node):rdata['filter_value']})
+                        if 'passport' in node:
+                            val=latinaze(rdata['filter_value'])
                         else:
-                            query = Q(**{"%s__icontains" % str(node):rdata['filter_value']})
+                            val=rdata['filter_value']
+                        if query:
+                            query = query | Q(**{"%s__icontains" % str(node):val})
+                        else:
+                            query = Q(**{"%s__icontains" % str(node):val})
                     if query:
                         result = result.filter(query)
             if 'filter' in rdata:
