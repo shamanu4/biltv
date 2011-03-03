@@ -54,7 +54,8 @@ class MainApiClass(object):
 
 class GridApiClass(object):
 
-    def __init__(self,model,form):
+    def __init__(self,model,form,filter=None):
+        self.filter = filter
         self.model = model
         self.form = form
 
@@ -64,7 +65,11 @@ class GridApiClass(object):
     
     @store_read
     def read(self,rdata,request):
-        return self.model.objects.all()
+        if self.filter:
+            return self.model.objects.all().filter(self.filter)
+        else:
+            return self.model.objects.all()
+
     read._args_len = 1
 
     def update(self,rdata,request):
@@ -120,7 +125,10 @@ class Router(RpcRouter):
     
     def __init__(self):
         from abon.models import City,Street,House,Building,Abonent
+        from tv.models import Card
         from abon.forms import CityForm,StreetForm,HouseNumForm,BuildingForm
+        from tv.forms import CardForm
+        from django.db.models import Q
         self.url = 'ui:router'
         self.actions = {
             'MainApi': MainApiClass(),
@@ -131,5 +139,6 @@ class Router(RpcRouter):
             'HouseNumGrid': GridApiClass(House,HouseNumForm),
             'BuildingGrid': GridApiClass(Building,BuildingForm),
             'AbonentGrid': GridApiClass(Abonent,None),
+            'CardGrid':GridApiClass(Card,CardForm,Q(**{"num__gte":0})),            
         }                
         self.enable_buffer = 50

@@ -143,9 +143,9 @@ Ext.ux.menu = {
             'text': 'Скрамблер',
             'menu': [
                 {
-                    'text': 'Каналы',
-                    'handler': Engine.menu.address.city.openGrid,
-                    'text': 'Города'
+                    'id': 'menu-scrambler-card-button',
+                    'handler': Engine.menu.scrambler.card.openGrid,
+                    'text': 'Карточки'                    
                 },{
                     'text': 'Стволы'
                 },
@@ -242,7 +242,6 @@ Ext.ux.CustomGridNE = Ext.extend(Ext.grid.EditorGridPanel,{
     initComponent: function(){
         var config = {
             frame:true,
-            closable: true,
             tbar: [
             {
                 text: 'Add',
@@ -325,7 +324,8 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
             this.selModel.selectRow(this.unsaved_row)
         }
     },
-    initComponent: function(){
+    initComponent: function(options) {
+        options = options || {}
         var config = {
             frame:true,
             closable: true,
@@ -398,25 +398,27 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                             return false;
                         }
                     }
-            },
-            sm: new Ext.grid.RowSelectionModel({
+            }
+          /*  sm: new Ext.grid.RowSelectionModel({
                 singleSelect: true,
                 listeners: {
                     rowselect: {
-                        fn: function(sm,index,record) {                            
+                        fn: function(sm,index,record) {
                             //if(this.current_row != index) {
                             //    this.unsaved_row = this.current_row
                             //    this.current_row = index
                             //    this.store.save()
-                            //    //this.store.commitChanges();
+                            //    this.store.commitChanges();
                             //}
                         },
                         scope: this
                     }
                 }
             })
+          */
         }
         Ext.apply(this, Ext.apply(this.initialConfig, config));
+        Ext.apply(this, options);
         Ext.ux.CustomGrid.superclass.initComponent.apply(this, arguments);
     }
 });
@@ -432,6 +434,8 @@ Ext.ux.CityGrid = Ext.extend(Ext.ux.CustomGrid ,{
                 {header: "Comment", dataIndex: 'comment', editor: new Ext.form.TextField()},
             ]
 });
+
+Ext.reg('ext:ux:city-grid', Ext.ux.CityGrid);
 
 Ext.ux.StreetGrid = Ext.extend(Ext.ux.CustomGrid ,{
             store: 'streets-store',
@@ -530,6 +534,7 @@ Ext.ux.BuildingGrid = Ext.extend(Ext.ux.CustomGrid ,{
 Ext.ux.AbonentGrid = Ext.extend(Ext.ux.CustomGridNE ,{
             store: 'abonent-store',
             title: 'Список абонентов',
+            closable: true,
             columns: [
                 {header: "Id", dataIndex: 'id', width:100},
                 {header: "Code", dataIndex: 'code', width:100},
@@ -557,6 +562,19 @@ Ext.ux.AbonentGrid = Ext.extend(Ext.ux.CustomGridNE ,{
             }
 });
 
+Ext.ux.CardGrid = Ext.extend(Ext.ux.CustomGrid ,{
+            store: 'card-store',
+            title: 'Карточки',
+            ds_model: card_ds_model,
+            columns: [
+                {header: "Id", dataIndex: 'id', width:100},
+                {header: "Num", dataIndex: 'num', width:100, editor: new Ext.form.TextField()},
+                {header: "Owner", dataIndex: 'owner', width:300},
+                {header: "Active", dataIndex: 'active', width:100, xtype: 'booleancolumn'},
+                {header: "Activated", dataIndex: 'activated', width:150},
+            ]         
+});
+
 /*
  *  Forms and panels
  */
@@ -565,7 +583,8 @@ Ext.ux.PersonForm = Ext.extend(Ext.FormPanel, {
     initComponent: function(){
         var config = {
             border : true,
-            width: 500,
+            width: 300,
+            height: 180,
             defaults: {
                 frame: true,
                 split: true,
@@ -687,7 +706,6 @@ Ext.ux.PersonForm = Ext.extend(Ext.FormPanel, {
 
 Ext.reg('ext:ux:person-form', Ext.ux.PersonForm );
 
-
 Ext.ux.StreetCombo = Ext.extend(Ext.form.ComboBox, {
     initComponent: function() {
         var config = {
@@ -706,7 +724,6 @@ Ext.ux.StreetCombo = Ext.extend(Ext.form.ComboBox, {
 }),
 
 Ext.reg('ext:ux:street-combo', Ext.ux.StreetCombo);
-
 
 Ext.ux.HouseCombo = Ext.extend(Ext.form.ComboBox, {
     initComponent: function() {
@@ -739,7 +756,8 @@ Ext.ux.AddressForm = Ext.extend(Ext.FormPanel, {
     initComponent: function(){
         var config = {
             border : true,
-            width: 500,
+            width: 400,
+            height: 180,
             defaults: {
                 frame: true,
                 split: true,
@@ -839,12 +857,324 @@ Ext.ux.AddressForm = Ext.extend(Ext.FormPanel, {
 
 Ext.reg('ext:ux:address-form', Ext.ux.AddressForm);
 
+Ext.ux.BalanceForm = Ext.extend(Ext.FormPanel, {
+    initComponent: function(){
+        var config = {
+            border : true,
+            width: 300,
+            height: 180,
+            buttons:[{
+                text: 'Внести оплату',
+                handler: function(){
+                    alert("not implemented yet")
+                },
+                scope: this
+            },{
+                text: 'зняти',
+                handler: function(){
+                    alert("not implemented yet")
+                },
+                scope: this
+            }],
+            listeners: {
+                afterrender : {
+                    fn: function(obj) {
+                        AbonApi.balance_get({
+                            uid: (this.oid || 0)
+                        },function (result,e) {
+                            if (result.data.balance==null) {
+                                this.body.dom.innerHTML='<div class="balance_digits_negative">...</div>'
+                            }
+                            else if (result.data.balance<0) {
+                                this.body.dom.innerHTML='<div class="balance_digits_negative">'+result.data.balance+' грн.</div>'
+                            } else {
+                                this.body.dom.innerHTML='<div class="balance_digits_positive">'+result.data.balance+' грн.</div>'
+                            }
+                        }.createDelegate(this));
+                    },
+                    scope: this
+                }
+            }
+        }
+        Ext.apply(this, Ext.apply(this.initialConfig, config));
+        Ext.ux.AddressForm.superclass.initComponent.apply(this, arguments);
+    }
+})
+
+Ext.reg('ext:ux:balance-form', Ext.ux.BalanceForm);
+
+Ext.ux.FreeCardCombo = Ext.extend(Ext.form.ComboBox, {
+    initComponent: function() {
+        var config = {
+            store: Ext.ux.free_card_combo_store,
+            editable: true,
+            forceSelection: true,
+            lazyRender: false,
+            triggerAction: 'all',
+            valueField: 'id',
+            displayField: 'num',
+            mode: 'local'
+        }
+        Ext.apply(this, Ext.apply(this.initialConfig, config));
+        Ext.ux.FreeCardCombo.superclass.initComponent.apply(this, arguments);
+    }
+}),
+
+Ext.reg('ext:ux:free-cards-combo', Ext.ux.FreeCardCombo);
+
+Ext.ux.AbonCardsGrid = Ext.extend(Ext.ux.CustomGrid ,{
+    initComponent: function(){        
+        var config = {
+            store: new Ext.data.DirectStore({
+                restful: true,
+                autoLoad: true,
+                autoSave: false,
+                reader: new Ext.data.JsonReader({
+                    root: 'data',
+                    totalProperty: 'total',
+                    fields: [
+                        'id',
+                        'num',
+                        'active',
+                        'activated',
+                    ]
+                }),
+                writer: new Ext.data.JsonWriter({
+                    encode: false,
+                    writeAllFields: true,
+                    listful: true
+                }),
+                api: {
+                    read: AbonApi.cards_get,
+                    create: AbonApi.cards_set,
+                    update: AbonApi.foo,
+                    destroy: AbonApi.foo
+                },
+                baseParams : {
+                    start:0,
+                    limit:10,
+                    uid:this.oid,
+                    filter_fields:['num'],
+                    filter_value:''
+                }
+            }),
+            listeners: {
+                afterrender : {
+                    fn: function(obj) {
+                        obj.parent_form.children_forms.cards.obj=obj
+                    },
+                    scope: this
+                }
+            },
+            sm: new Ext.grid.RowSelectionModel({
+                singleSelect: true,
+                listeners: {
+                    rowselect: {
+                        fn: function(sm,index,record) {                            
+                            var store = sm.grid.parent_form.children_forms.tariffs.obj.store
+                            if (typeof(record.id)=='number') {
+                                store.setBaseParam('card_id',record.id)
+                                store.load()
+                            } else {
+                                this.store.load()
+                            }
+                        },
+                        scope: this
+                    }
+                }
+            })
+        }        
+        Ext.apply(this, Ext.apply(this.initialConfig, config));
+        Ext.ux.AbonCardsGrid.superclass.initComponent.apply(this, [config]);
+    },
+    title: 'Карточки',
+    ds_model: card_ds_model,
+    columns: [
+        {header: "Id", dataIndex: 'id', width:40},
+        {header: "Num", dataIndex: 'num', width:80,
+            renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                if (value===undefined) {
+                    this.editable=true
+                }
+                if (value<0) {
+                    return '<b>CaTV</b>';
+                } else {
+                    return value;
+                }
+            },
+            editor: new Ext.ux.FreeCardCombo(),
+            editable: false
+        },
+        {header: "Active", dataIndex: 'active', width:40,
+            renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                if (value==true) {
+                    return '<img src="/static/extjs/custom/tick_16.png">';
+                } else {
+                    return '<img src="/static/extjs/custom/block_16.png">';
+                }
+            }
+        },
+        {header: "Activated", dataIndex: 'activated', width:120},
+        {header: "", dataIndex: 'id', width:26,
+            renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                return '<img src="/static/extjs/custom/delete_16.png">';
+            }
+        }
+    ]    
+});
+
+Ext.reg('ext:ux:abon-cards-grid', Ext.ux.AbonCardsGrid);
+
+Ext.ux.AbonCardsTpGrid = Ext.extend(Ext.ux.CustomGrid ,{
+    initComponent: function(){
+        var config = {
+            store: new Ext.data.DirectStore({
+                restful: true,
+                autoLoad: true,
+                autoSave: false,
+                reader: new Ext.data.JsonReader({
+                    root: 'data',
+                    totalProperty: 'total',
+                    fields: [
+                        'id',
+                        'tariff',
+                        'active',
+                        'activated',
+                    ]
+                }),
+                writer: new Ext.data.JsonWriter({
+                    encode: false,
+                    writeAllFields: true,
+                    listful: true
+                }),
+                api: {
+                    read: AbonApi.cards_tp_get,
+                    create: AbonApi.cards_tp_set,
+                    update: AbonApi.foo,
+                    destroy: AbonApi.foo
+                },
+                baseParams : {
+                    start:0,
+                    limit:10,
+                    uid:this.oid,
+                    card_id:0,
+                    filter_fields:['num'],
+                    filter_value:''
+                }
+            }),
+            listeners: {
+                afterrender : {
+                    fn: function(obj) {
+                        obj.parent_form.children_forms.tariffs.obj=obj
+                    },
+                    scope: this
+                }
+            },
+            sm: new Ext.grid.RowSelectionModel({
+                singleSelect: true,
+                listeners: {
+                    rowselect: {
+                        fn: function(sm,index,record) {
+                            //sm.grid.parent_form.children_forms.tariffs.obj.setTitle('13')
+                        },
+                    scope: this
+                    }
+                }
+            })
+        }
+        Ext.apply(this, Ext.apply(this.initialConfig, config));
+        Ext.ux.AbonCardsGrid.superclass.initComponent.apply(this, [config]);
+    },
+    title: 'Карточки',
+    ds_model: card_ds_model,
+    columns: [
+        {header: "Id", dataIndex: 'id', width:40},
+        {header: "Tariff", dataIndex: 'tariff', width:120},
+        {header: "Active", dataIndex: 'active', width:40,
+            renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                if (value==true) {
+                    return '<img src="/static/extjs/custom/tick_16.png">';
+                } else {
+                    return '<img src="/static/extjs/custom/block_16.png">';
+                }
+            }
+        },
+        {header: "Activated", dataIndex: 'activated', width:120},
+    ]
+});
+
+Ext.reg('ext:ux:abon-cards-tp-grid', Ext.ux.AbonCardsTpGrid);
+
+Ext.ux.AbonInfoPanel = Ext.extend(Ext.Panel ,{
+    initComponent: function() {
+        var config = {
+            closable: true,
+            title: 'Информация',
+            border : true,
+            defaults: {
+                frame: true,
+                split: true    
+            },
+            tbar: new Ext.ux.TabPanel({
+                width: 1000,
+                height: 300,
+                items: [{
+                        title: 'Информация',
+                        xtype: 'panel',
+                        layout: 'column',
+                        items: [
+                        {
+                            title: 'Карточки',
+                            xtype: 'ext:ux:abon-cards-grid',
+                            columnWidth: .5,
+                            height: 280,
+                            oid: this.oid,
+                            parent_form: function(scope){return scope;}(this)
+                        },{                            
+                            title: 'Тарифы',
+                            xtype: 'ext:ux:abon-cards-tp-grid',
+                            columnWidth: .5,
+                            height: 280,
+                            oid: this.oid,
+                            parent_form: function(scope){return scope;}(this)
+                        }]
+                    },{
+                        title: 'Оплаты',
+                        xtype: 'panel',
+                        oid: this.oid,
+                        parent_form: this
+                    },{
+                        title: 'Снятия денег',
+                        xtype: 'panel',
+                        oid: this.oid,
+                        parent_form: this
+                    }]
+            }),
+            children_forms:{
+                cards : {
+                    obj: null
+                },
+                tariffs: {
+                    obj: null
+                }
+            }
+        }
+        Ext.apply(this, Ext.apply(this.initialConfig, config));
+        Ext.ux.AbonentForm.superclass.initComponent.apply(this, arguments);
+    }
+});
+
+Ext.reg('ext:ux:abon-info-panel', Ext.ux.AbonInfoPanel);
+
 Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
     initComponent: function() {
         var config = {
             closable: true,
             title: 'абонент '+(this.oid || 'новый'),
-            layout: 'anchor',
+            layout: 'table',
+            layoutConfig: {
+                columns: 3
+            },
             border : true,
             defaults: {
                 frame: true,
@@ -853,24 +1183,34 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
             },
             items: [{
                 title: 'Абонент',
-                region: 'west',
                 xtype: 'ext:ux:person-form',
                 oid: this.oid,
                 parent_form: this
             },{
                 title: 'Адреса',
-                region: 'west',
                 xtype: 'ext:ux:address-form',
                 oid: this.oid,
                 parent_form: this
             },{
+                title: 'Баланс',
+                xtype: 'ext:ux:balance-form',
+                oid: this.oid,
+                parent_form: this
+            },{
                 text: 'ОК',
+                colspan: 3,
                 xtype: 'button',
                 width: 100,
                 handler: function(){
                     (function(){this.submitprep();}).defer(500,this);
                 },
                 scope: this
+            }
+            ,{
+                colspan: 3,
+                xtype: 'ext:ux:abon-info-panel',
+                oid: this.oid,
+                parent_form: this
             }],
             submitprep: function() {
                 this.children_forms_ready()

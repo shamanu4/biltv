@@ -379,6 +379,29 @@ class Abonent(models.Model):
     def get_code(self):
         return "%s" % (self.address.get_code())
 
+    def create_catv_card(self):
+        from tv.models import Card, CardService, TariffPlan
+        from settings import DEFAULT_CATV_TP_ID
+        try:
+            t = TariffPlan.objects.get(pk=DEFAULT_CATV_TP_ID)
+        except TariffPlan.DoesNotExist:
+            return False
+        try:
+            c = Card.objects.get(num=-self.pk)
+        except Card.DoesNotExist:
+            c = Card()
+        else:
+            c.detach()
+        c.num = -self.pk
+        c.owner=self
+        c.save()
+        s = CardService()
+        s.card = c
+        s.tp = t
+        s.save()
+        c.activate()
+        return True
+
     def save(self, *args, **kwargs):
         try:
             self.bill
@@ -389,6 +412,9 @@ class Abonent(models.Model):
         self.code = self.get_code()
         self.sorting = "%s, [ %s ]" % (self.address.sorting, self.person.fio_short())
         super(self.__class__, self).save(*args,**kwargs)
+        if len(self.card_set.filter(num__lte=0))==0:
+            print "creating CaTV card ..."
+            self.create_catv_card()
 
     def store_record(self):
         obj = {}

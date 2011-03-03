@@ -97,9 +97,8 @@ def date_formatter(date=None):
     weekday = date.weekday()
     month = date.month
     year = date.year
-
     thisday = datetime.datetime(year, month, day)
-    thisweek = datetime.datetime(year, month, day-weekday)
+    thisweek = datetime.datetime(year, month, day)-datetime.timedelta(weekday)
     thismonth = datetime.datetime(year, month, 1)
     thisyear = datetime.datetime(year, 1, 1)
 

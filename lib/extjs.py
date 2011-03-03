@@ -17,6 +17,7 @@ def store_read(func):
             result, success = result
         else:
             success = True
+        total=0
         if isinstance(result, QuerySet):
             total = result.count()
             print rdata

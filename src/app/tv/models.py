@@ -533,7 +533,7 @@ class Card(models.Model):
                     action = CARD_OWNER_ADDED
                     oid = self.owner.pk
                     
-        if not action == None:
+        if old and not action == None:
             c = CardHistory()
             c.card= self
             c.action = action
@@ -541,14 +541,18 @@ class Card(models.Model):
             c.save()
 
         print "saving..."
-        if not self.owner:
+
+        if not self.owner and self.pk:
             if 'deactivation_processed' in kwargs and kwargs['deactivation_processed']:
                 del kwargs['deactivation_processed']
             else:
                 self.detach()
                 self.deactivate()
+
         super(self.__class__, self).save(*args, **kwargs)
-        self.send()
+
+        if self.num:
+            self.send()
 
     def save_formset(self, *args, **kwargs):
         print "saving formset..."
@@ -615,7 +619,21 @@ class Card(models.Model):
         self.save(deactivation_processed=True)
 
     def detach(self):
-        self.tps.all().delete()
+        self.services.all().delete()
+
+    def store_record(self):
+        obj = {}
+        obj['id'] = self.pk
+        obj['num'] = self.num
+        if self.owner:
+            obj['owner'] = self.owner.__unicode__()
+        else:
+            obj['owner'] = '<free>'
+        obj['active'] = self.active
+        obj['activated'] = self.activated
+        obj['deleted'] = self.deleted
+        obj['comment'] = self.comment
+        return obj
 
 
 class CardService(models.Model):
@@ -676,13 +694,15 @@ class CardService(models.Model):
             print fees
             ok = True
             total = 0
+            allow_negative = True
             prepared = []
             for fee in fees:
                 f = fee.check_fee(self.card,hold=True)
                 if f[0]: prepared.append(f[1])
             for fee in prepared:
+                allow_negative = allow_negative and fee.fee_type.allow_negative
                 total += fee.sum
-            if total>0 and self.card.balance - total >0:
+            if allow_negative or (total>0 and self.card.balance - total >0):
                 for fee in prepared:
                     ok = ok and fee.make()[0]
             else:
@@ -707,5 +727,14 @@ class CardService(models.Model):
             self.active=False
             self.save()
         return True
+
+    def store_record(self):
+        obj = {}
+        obj['id'] = self.pk
+        obj['tariff'] = self.tp.__unicode__()
+        obj['active'] = self.active
+        obj['activated'] = self.activated
+        obj['comment'] = self.comment
+        return obj
 
 

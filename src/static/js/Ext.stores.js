@@ -325,3 +325,89 @@ Ext.ux.abonent_store = new Ext.data.DirectStore({
         }
     }
 });
+
+Ext.ux.card_store = new Ext.data.DirectStore({
+    api: {
+        read: CardGrid.read,
+        create: CardGrid.create,
+        update: CardGrid.update,
+        destroy: CardGrid.destroy
+    },
+    restful: true,
+    autoLoad: true,
+    autoSave: false,
+    storeId: 'card-store',
+    reader: new Ext.data.JsonReader({
+        root: 'data',
+        totalProperty: 'total',
+        //idProperty: 'id',
+        fields: [
+            'id',
+            'num',
+            'owner',
+            'active',
+            'activated',            
+        ]
+    }),
+    writer: new Ext.data.JsonWriter({
+        encode: false,
+        writeAllFields: true,
+        listful: true
+    }),
+    baseParams : {
+        start:0,
+        limit:10,
+        filter_fields:['num'],
+        filter_value:''
+    },
+    listeners:{
+        write: function (store,action,result,res,rs) {
+            if(store.client && store.client.onWrite) {
+                store.client.onWrite(res.result)
+            }
+        }
+    }
+});
+
+var card_ds_model = Ext.data.Record.create([
+    'id',
+    'num',
+    'owner',
+    'active',
+    'activated'
+]);
+
+Ext.ux.free_card_combo_store = new Ext.data.DirectStore({
+                restful: true,
+                autoLoad: true,
+                autoSave: false,
+                storeId: 'free_card_combo_store',
+                reader: new Ext.data.JsonReader({
+                    root: 'data',
+                    totalProperty: 'total',
+                    fields: [
+                        'id',
+                        'num',
+                        'active',
+                        'activated',
+                    ]
+                }),
+                writer: new Ext.data.JsonWriter({
+                    encode: false,
+                    writeAllFields: true,
+                    listful: true
+                }),
+                api: {
+                    read: AbonApi.free_cards_get,
+                    create: CardGrid.create,
+                    update: CardGrid.update,
+                    destroy: CardGrid.destroy
+                },
+                baseParams : {
+                    start:0,
+                    limit:10,
+                    uid:this.oid,
+                    filter_fields:['num'],
+                    filter_value:''
+                }
+            })

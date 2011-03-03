@@ -115,6 +115,8 @@ INSTALLED_APPS = (
     'abon',
 )
 
+DEFAULT_CATV_TP_ID = 3
+
 try:
     from settings_local import *
 except ImportError:

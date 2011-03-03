@@ -1,0 +1,14 @@
+
+.balance_digits_positive {
+    color: #509050;
+    font-weight: bolder;
+    font-family: 'Times New Roman', Times, serif; /* Гарнитура текста */
+    font-size: 300%; /* Размер шрифта в процентах */
+}
+
+.balance_digits_negative {
+    color: #d03030;
+    font-weight: bolder;
+    font-family: 'Times New Roman', Times, serif; /* Гарнитура текста */
+    font-size: 300%; /* Размер шрифта в процентах */
+}
