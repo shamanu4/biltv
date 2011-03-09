@@ -205,7 +205,7 @@ class Street(models.Model):
 class House(models.Model):
 
     num = models.CharField(max_length=10, unique=True)
-    code = models.CharField(max_length=5, unique=True)
+    code = models.CharField(max_length=7)
     deleted = models.BooleanField(default=False)
     comment = models.TextField(blank=True, null=True)
 
@@ -281,11 +281,12 @@ class Building(models.Model):
 class Address(models.Model):
 
     building = models.ForeignKey(Building, related_name='addresses')
-    flat = models.PositiveSmallIntegerField()
+    flat = models.PositiveIntegerField()
     code = models.CharField(max_length=2)
     deleted = models.BooleanField(default=False)
     comment = models.TextField(blank=True, null=True)
     sorting = models.CharField(blank=True, max_length=100, unique=True)
+    override = models.CharField(max_length=20, unique=True, default="")
 
     class Meta:
         ordering = ['sorting']
@@ -294,26 +295,33 @@ class Address(models.Model):
     def __unicode__(self):
         return "%s" % (self.sorting,)
 
-    def get_or_create(self,building,flat):
+    def get_or_create(self,building,flat,override=''):
         try:
             address = Address.objects.get(building=building,flat=flat)
         except Address.DoesNotExist:
-            address = Address(building=building,flat=flat)
+            address = Address(building=building,flat=flat,override=override)
             address.save()
         return address
 
     def get_code(self):
+        if len(self.override)>0:
+            return self.override
         return "%s%s%s" % (self.building.get_code(), '0' * (3-len(str(self.flat))) + str(self.flat), self.code)
 
+    @property
+    def ordernum(self):
+        return self.get_code()
+
     def save(self, *args, **kwargs):        
-        self.sorting = unicode("%s%s, %s, kv %s" % (self.building.street.city.label, self.building.street.name, self.building.house.num, self.flat))
+        self.sorting = unicode("%s%s, %s, %s %s" % (self.building.street.city.label, self.building.street.name, self.building.house.num, u'кв.', self.flat))
         super(self.__class__, self).save(*args,**kwargs)
 
     def store_record(self):
         obj = {}
         obj['id'] = self.pk
         obj['address_id'] = self.pk
-        obj['ext'] = self.code
+        #obj['ext'] = self.code
+        obj['ext'] = self.override
         obj['street'] = self.building.street.__unicode__()
         obj['house'] = self.building.house.__unicode__()
         obj['flat'] = self.flat

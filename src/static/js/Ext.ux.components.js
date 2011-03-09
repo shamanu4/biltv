@@ -746,9 +746,9 @@ Ext.reg('ext:ux:house-combo', Ext.ux.HouseCombo);
 
 Ext.apply(Ext.form.VTypes, {
     decimal:  function(v) {
-        return /^\d{1,3}$/.test(v);
+        return /^\d{1,5}$/.test(v);
     },
-    decimalText: 'Должно быть числом 0-999',
+    decimalText: 'Должно быть числом 0-99999',
     decimalMask: /[\d]/i
 });
 
@@ -796,9 +796,9 @@ Ext.ux.AddressForm = Ext.extend(Ext.FormPanel, {
                 allowBlank:false,
                 vtype:'decimal'
             },{
-                fieldLabel: 'Ext',
+                fieldLabel: 'Номер счёта',
                 name: 'ext',
-                allowBlank:true
+                allowBlank:false
             }],
         /*
             buttons:[{
@@ -1230,6 +1230,7 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
             },
             submitcallback: function(result,e) {                
                 if(result.success) {
+                    console.log(result)
                     this.oid = result.data[0]['id']
                     this.setTitle("абон: "+(result.data[0]['code'] || '<новый>'))
                     Ext.ux.abonent_store.load()                    
@@ -1256,9 +1257,17 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
             listeners: {
                 afterrender : {
                     fn: function(obj) {
-                        this.setTitle("абон: "+(this.code || '<новый>'))
+                        AbonApi.abonent_get({
+                            uid: (this.oid || 0)
+                        },this.submitcallback.createDelegate(this));
                     },
                     scope: this
+                },
+                beforeclose: {
+                    fn: function(obj) {
+                        obj.hide()
+                        obj.destroy().defer(100);
+                    }
                 }
             }
         }

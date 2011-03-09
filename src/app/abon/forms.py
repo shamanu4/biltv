@@ -148,7 +148,7 @@ class AddressForm(forms.Form):
     street = forms.CharField(required=True, max_length=40)
     house = forms.CharField(required=True, max_length=40)
     flat = forms.CharField(required=True, max_length=40)
-    ext = forms.CharField(required=False, max_length=2)
+    ext = forms.CharField(required=True, max_length=20)
     deleted = forms.BooleanField(required=False)
     comment = forms.CharField(required=False)
 
@@ -163,7 +163,9 @@ class AddressForm(forms.Form):
         except IntegrityError as error:
             return (False,obj,error[1].decode('utf8'))
         obj = obj.get_or_create(b,self.cleaned_data['flat'])
-        obj.code = self.cleaned_data['ext'] or ''
+        #obj.code = self.cleaned_data['ext'] or ''
+        obj.code = ''
+        obj.override = self.cleaned_data['ext']
         obj.deleted = self.cleaned_data['deleted'] or False
         obj.comment = self.cleaned_data['comment']
         try:

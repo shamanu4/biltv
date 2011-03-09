@@ -250,11 +250,14 @@ class Payment(models.Model):
         super(self.__class__, self).save(*args, **kwargs)
 
     def make(self):
+        if self.maked:
+            return (True,self)
         self.prev = self.bill.balance
-        self.save()
         self.bill.balance = self.bill.balance + self.sum
-        self.bill.balance.save()
+        self.bill.save()
         self.maked=True
+        self.save()
+        return (True,self)
 
     @property
     def rolled(self):
@@ -304,11 +307,13 @@ class Fee(models.Model):
     def save(self, *args, **kwargs):
         super(self.__class__, self).save(*args, **kwargs)
 
-    def make(self):        
+    def make(self):
+        if self.maked:
+            return (True,self)
         self.prev = self.bill.balance
-        if not self.fee_type.allow_negative:
+        if self.fee_type and not self.fee_type.allow_negative:
             if self.sum > 0 and self.bill.balance - self.sum < 0:
-                self.inner_descr = "Not enough money"
+                self.descr = "Not enough money"
                 self.save()
                 return (False,"Not enougn money")
         self.bill.balance = self.bill.balance - self.sum
@@ -551,7 +556,7 @@ class Card(models.Model):
 
         super(self.__class__, self).save(*args, **kwargs)
 
-        if self.num:
+        if self.num>0:
             self.send()
 
     def save_formset(self, *args, **kwargs):
@@ -672,7 +677,8 @@ class CardService(models.Model):
             c.save()
 
         super(self.__class__, self).save(*args, **kwargs)
-        self.card.send()
+        if self.card.num>0:
+            self.card.send()
 
     def delete(self, *args, **kwargs):
 
