@@ -17,7 +17,7 @@ class MainApiClass(object):
 
     def login(self, rdata, request):
         from forms import LoginForm
-
+                
         form = LoginForm(rdata, request.user)
         if form.is_valid():
             return form.save(request)
@@ -37,7 +37,6 @@ class MainApiClass(object):
     logout._args_len = 0
 
     def menu(self,request):
-        from ui.components import MenuSection
         menuitems = []
         user = request.user
         if user.has_perm('tv.manage_trunk'):
@@ -125,7 +124,7 @@ class Router(RpcRouter):
     
     def __init__(self):
         from abon.models import City,Street,House,Building,Abonent
-        from tv.models import Card, Payment
+        from tv.models import Card
         from abon.forms import CityForm,StreetForm,HouseNumForm,BuildingForm
         from tv.forms import CardForm
         from django.db.models import Q

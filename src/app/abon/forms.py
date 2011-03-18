@@ -185,7 +185,7 @@ class AbonentForm(forms.Form):
     comment = forms.CharField(required=False)
 
     def save(self,obj):
-        from abon.models import Address,Person,Abonent,Bill
+        from abon.models import Address,Person,Abonent
         if not obj:
             obj = Abonent()
         try:

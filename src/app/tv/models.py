@@ -622,7 +622,7 @@ class Card(models.Model):
 
     def activate(self):
         if not self.owner:
-            return false
+            return False
         for service in self.services.all():
             service.activate()
         self.active=True

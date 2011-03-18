@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from extjs import store_read
+from lib.extjs import store_read
 
 class TvApiClass(object):
 

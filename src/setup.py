@@ -1,7 +1,7 @@
 __author__="maxim"
 __date__ ="$16.09.2010 11:45:47$"
 
-from setuptools import setup,find_packages
+from setuptools import setup, find_packages
 
 setup (
   name = 'biltv2',

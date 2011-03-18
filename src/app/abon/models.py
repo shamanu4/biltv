@@ -47,7 +47,7 @@ class Person(models.Model):
         return "%s (%s)" % (self.sorting,self.passport)
 
     def save(self, *args, **kwargs):
-        from functions import latinaze
+        from lib.functions import latinaze            
         self.passport=latinaze(self.passport)
         self.firstname = self.firstname.capitalize()
         self.lastname = self.lastname.capitalize()
@@ -346,10 +346,12 @@ class Bill(models.Model):
 
     @property
     def bin_balance(self):
+        from lib.functions import int_to_4byte_wrapped
         return int_to_4byte_wrapped(self.balance_int)
 
     @property
-    def bin_flags(self):
+    def bin_flags(self):        
+        from tv.models import Trunk
         res = []
         trunks = Trunk.objects.all()
         for t in trunks:
@@ -378,10 +380,12 @@ class Abonent(models.Model):
 
     @property
     def bin_id(self):
+        from lib.functions import int_to_4byte_wrapped
         return int_to_4byte_wrapped(self.pk)
 
     @property
     def bin_card(self):
+        from lib.functions import int_to_4byte_wrapped
         return int_to_4byte_wrapped((self.card_id-1)*2)
     
     def get_code(self):

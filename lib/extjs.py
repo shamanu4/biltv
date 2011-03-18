@@ -151,7 +151,6 @@ class RpcRouter(object):
         extra_kwargs.update(self.action_extra_kwargs(action, request, *args, **kwargs))
 
         func_args, varargs, varkw, func_defaults = getargspec(func)
-        print ">>%s<<" % varkw
         if 'self' in func_args:
             func_args.remove('self')
         for name in extra_kwargs.keys():
