@@ -179,6 +179,7 @@ class AbonentForm(forms.Form):
     person_id = forms.IntegerField(required=True)
     address_id = forms.IntegerField(required=True)
     deleted = forms.BooleanField(required=False)
+    confirmed = forms.BooleanField(required=False)
     comment = forms.CharField(required=False)
 
     def save(self,obj):
@@ -197,6 +198,7 @@ class AbonentForm(forms.Form):
         obj.person = person
         obj.address = address
         obj.deleted = self.cleaned_data['deleted'] or False
+        obj.confirmed = self.cleaned_data['confirmed'] or False
         obj.comment = self.cleaned_data['comment']
         try:
             obj.save()

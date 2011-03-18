@@ -83,7 +83,7 @@ def latinaze(str):
             index = ru.index(char)
             res.append(en[index])
         else:
-            return False
+            return str
     return ''.join(res)
 
 

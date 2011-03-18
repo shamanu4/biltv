@@ -12,3 +12,19 @@
     font-family: 'Times New Roman', Times, serif; /* Гарнитура текста */
     font-size: 300%; /* Размер шрифта в процентах */
 }
+
+.abonent_ok_status_false {
+    display: block;
+    width: 16px;
+    height: 16px;
+    background: transparent;
+    background-image: url(/static/extjs/custom/delete_16.png);
+}
+
+.abonent_ok_status_true {
+    display: block;
+    width: 16px;
+    height: 16px;
+    background: transparent;
+    background-image: url(/static/extjs/custom/tick_16.png);
+}

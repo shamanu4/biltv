@@ -14,11 +14,13 @@ Ext.ux.msg = function(){
     return function(title, text, type, callback){
         if(type=="ext-mb-error") {
             var delay = 10;
+        } else if (type=="ext-mb-invisible") {
+            var delay = 0
         } else {
             var delay = 3
         }
         if(!msgCt){
-            msgCt = Ext.DomHelper.insertFirst(document.body, {id:'msg-div'}, true);
+            msgCt = Ext.DomHelper.insertFirst(document.body, {id:'msg-div'}, true)
         }
         msgCt.alignTo(document, 't-t');
         var m = Ext.DomHelper.append(msgCt, {html:createBox(title, text, type)}, true);
@@ -253,29 +255,39 @@ Ext.ux.CustomGridNE = Ext.extend(Ext.grid.EditorGridPanel,{
                 scope: this
             },
             new Ext.Toolbar.Spacer(),
-            this.searchfield = new Ext.form.TextField(),
+            this.searchfield = new Ext.form.TextField({
+                listeners: {
+                    specialkey: {
+                        fn: function(field, e){                            
+                            if (e.getKey() == e.ENTER) {                                
+                                this.searchAction()
+                            }
+                        },
+                        scope: this
+                    }
+                }
+            }),
             new Ext.Toolbar.Spacer(),
             {
                 icon: '/static/extjs/custom/search_16.png',
                 cls: 'x-btn-text-icon',
                 handler: function() {
-                    this.store.baseParams.filter_value = this.searchfield.getValue()
-                    this.store.reload()
+                    this.searchAction()
                 },
                 scope: this
             },{
                 icon: '/static/extjs/custom/delete_16.png',
                 cls: 'x-btn-text-icon',
-                handler: function() {
+                handler: function() {                    
                     this.searchfield.setValue('')
                     this.store.baseParams.filter_value = ''
-                    this.store.reload()
+                    this.store.load()
                 },
                 scope: this
             },
             ],
             bbar: new Ext.PagingToolbar({
-                pageSize: 16,
+                pageSize: this.pageSize || 16,
                 store: this.store
             }),
             listeners: {
@@ -295,7 +307,11 @@ Ext.ux.CustomGridNE = Ext.extend(Ext.grid.EditorGridPanel,{
                             return false;
                         }
                     }
-            }            
+            },
+            searchAction: function() {
+                this.store.baseParams.filter_value = this.searchfield.getValue()
+                this.store.load()
+            }
         }
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.CustomGrid.superclass.initComponent.apply(this, arguments);
@@ -362,14 +378,24 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                 scope: this
             },
             new Ext.Toolbar.Spacer(),
-            this.searchfield = new Ext.form.TextField(),
+             this.searchfield = new Ext.form.TextField({
+                listeners: {
+                    specialkey: {
+                        fn: function(field, e){
+                            if (e.getKey() == e.ENTER) {
+                                this.searchAction()
+                            }
+                        },
+                        scope: this
+                    }                
+                }
+            }),
             new Ext.Toolbar.Spacer(),
             {
                 icon: '/static/extjs/custom/search_16.png',
                 cls: 'x-btn-text-icon',
                 handler: function() {
-                    this.store.baseParams.filter_value = this.searchfield.getValue()
-                    this.store.reload()                  
+                    this.searchAction()
                 },
                 scope: this
             },{
@@ -378,13 +404,13 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                 handler: function() {
                     this.searchfield.setValue('')
                     this.store.baseParams.filter_value = ''
-                    this.store.reload()
+                    this.store.load()
                 },
                 scope: this
             },
             ],
             bbar: new Ext.PagingToolbar({
-                pageSize: 16,
+                pageSize:  this.pageSize || 16,
                 store: this.store
             }),
             listeners: {
@@ -398,6 +424,10 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                             return false;
                         }
                     }
+            },
+            searchAction: function() {
+                this.store.baseParams.filter_value = this.searchfield.getValue()
+                this.store.load()
             }
           /*  sm: new Ext.grid.RowSelectionModel({
                 singleSelect: true,
@@ -536,15 +566,20 @@ Ext.ux.AbonentGrid = Ext.extend(Ext.ux.CustomGridNE ,{
             title: 'Список абонентов',
             closable: true,
             columns: [
-                {header: "Id", dataIndex: 'id', width:100},
-                {header: "Code", dataIndex: 'code', width:100},
-                {header: "Person", dataIndex: 'person', width:300},
-                {header: "Passport", dataIndex: 'passport', width:100},
-                {header: "Address", dataIndex: 'address', width:300},
+                {header: "Id", dataIndex: 'id', width:100, sortable:true},
+                {header: "Code", dataIndex: 'code', width:100, sortable:true},
+                {header: "Person", dataIndex: 'person', width:300, sortable:true},
+                {header: "Passport", dataIndex: 'person__passport', width:100, sortable:true},
+                {header: "Address", dataIndex: 'address', width:300, sortable:true},
                 //{header: "Comment", dataIndex: 'comment'},
+                {header: "OK", dataIndex: 'confirmed', width: 36, sortable:true,
+                    renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                        return '<div class="abonent_ok_status_'+value+'"></div>'
+                    }
+                },
                 {header: " ", dataIndex: 'id', width: 28,
-                    renderer: function(value, metaData, record, rowIndex, colIndex, store) {                        
-                        return '<div class="inline_edit_button abonent_edit_button" id="'+value+'" code="'+record.data.code+'"></div>'
+                    renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                        return '<div class="inline_edit_button abonent_edit_button" id="'+value+'" code="'+record.data.code+'" confirmed="'+record.data.confirmed+'"></div>'
                     }
                 },
             ],
@@ -555,7 +590,7 @@ Ext.ux.AbonentGrid = Ext.extend(Ext.ux.CustomGridNE ,{
                 afterrender : {
                     fn: function(obj) {
                         $(".abonent_edit_button").live('click', function(e) {
-                            Engine.menu.cashier.abonent.openForm(this.id,$(this).attr('code'));
+                            Engine.menu.cashier.abonent.openForm(this.id,$(this).attr('code'),$(this).attr('confirmed'));
                         })
                     }
                 }
@@ -796,7 +831,7 @@ Ext.ux.AddressForm = Ext.extend(Ext.FormPanel, {
                 allowBlank:false,
                 vtype:'decimal'
             },{
-                fieldLabel: 'Ext',
+                fieldLabel: 'Особовий рахунок',
                 name: 'ext',
                 allowBlank:true
             }],
@@ -971,12 +1006,12 @@ Ext.ux.AbonCardsGrid = Ext.extend(Ext.ux.CustomGrid ,{
                 listeners: {
                     rowselect: {
                         fn: function(sm,index,record) {                            
-                            var store = sm.grid.parent_form.children_forms.tariffs.obj.store
+                            var store = Ext.ux.free_card_combo_store
                             if (typeof(record.id)=='number') {
                                 store.setBaseParam('card_id',record.id)
                                 store.load()
                             } else {
-                                this.store.load()
+                                //this.store.load()
                             }
                         },
                         scope: this
@@ -1105,6 +1140,80 @@ Ext.ux.AbonCardsTpGrid = Ext.extend(Ext.ux.CustomGrid ,{
 
 Ext.reg('ext:ux:abon-cards-tp-grid', Ext.ux.AbonCardsTpGrid);
 
+Ext.ux.AbonPaymentsGrid = Ext.extend(Ext.ux.CustomGridNE ,{
+    initComponent: function(){
+        var config = {
+            store: new Ext.data.DirectStore({
+                restful: true,
+                autoLoad: true,
+                autoSave: false,
+                remoteSort: true,
+                reader: new Ext.data.JsonReader({
+                    root: 'data',
+                    totalProperty: 'total',
+                    fields: [
+                        'id',
+                        'bill',
+                        'timestamp',
+                        'sum',
+                        'prev',
+                        'maked',
+                        'descr',
+                        'inner_descr'
+                    ]
+                }),
+                writer: new Ext.data.JsonWriter({
+                    encode: false,
+                    writeAllFields: true,
+                    listful: true
+                }),
+                api: {
+                    read: AbonApi.payments_get,
+                    create: AbonApi.foo,
+                    update: AbonApi.foo,
+                    destroy: AbonApi.foo
+                },
+                baseParams : {
+                    start:0,
+                    limit:12,
+                    foo:'bar',
+                    uid:this.oid,
+                    filter_fields:['num'],
+                    filter_value:''
+                }
+            }),            
+            listeners: {
+                afterrender : {
+                    fn: function(obj) {
+                        //obj.parent_form.children_forms.cards.obj=obj
+                    },
+                    scope: this
+                }
+            }
+        }
+        Ext.apply(this, Ext.apply(this.initialConfig, config));
+        Ext.ux.AbonCardsGrid.superclass.initComponent.apply(this, [config]);
+    },    
+    columns: [
+        {header: "Id", dataIndex: 'id', width:40},
+        {header: "Bill", dataIndex: 'bill', width:40},
+        {header: "Timestamp", dataIndex: 'timestamp', width:90, sortable: true},
+        {header: "Sum", dataIndex: 'sum', width:50, sortable: true},
+        {header: "Prev", dataIndex: 'prev', width:50},
+        {header: "Maked", dataIndex: 'maked', width:40},
+        {header: "Descr", dataIndex: 'inner_descr', width:100},
+        {header: "", dataIndex: 'id', width:26,
+            renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                return '<img src="/static/extjs/custom/delete_16.png">';
+            }
+        }
+    ],
+    pageSize: 12,
+    height: 450
+});
+
+Ext.reg('ext:ux:abon-payments-grid', Ext.ux.AbonPaymentsGrid);
+
 Ext.ux.AbonInfoPanel = Ext.extend(Ext.Panel ,{
     initComponent: function() {
         var config = {
@@ -1117,12 +1226,12 @@ Ext.ux.AbonInfoPanel = Ext.extend(Ext.Panel ,{
             },
             tbar: new Ext.ux.TabPanel({
                 width: 1000,
-                height: 300,
+                height: 480,
                 items: [{
-                        title: 'Информация',
-                        xtype: 'panel',
-                        layout: 'column',
-                        items: [
+                    title: 'Тарифы',
+                    xtype: 'panel',
+                    layout: 'column',
+                    items: [
                         {
                             title: 'Карточки',
                             xtype: 'ext:ux:abon-cards-grid',
@@ -1141,8 +1250,11 @@ Ext.ux.AbonInfoPanel = Ext.extend(Ext.Panel ,{
                     },{
                         title: 'Оплаты',
                         xtype: 'panel',
-                        oid: this.oid,
-                        parent_form: this
+                        parent_form: this,
+                        items: [{
+                            xtype:'ext:ux:abon-payments-grid',
+                            oid: this.oid
+                        }]
                     },{
                         title: 'Снятия денег',
                         xtype: 'panel',
@@ -1197,16 +1309,43 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                 oid: this.oid,
                 parent_form: this
             },{
-                text: 'ОК',
+                xtype: 'toolbar',
                 colspan: 3,
-                xtype: 'button',
-                width: 100,
-                handler: function(){
-                    (function(){this.submitprep();}).defer(500,this);
-                },
-                scope: this
-            }
-            ,{
+                items: [{
+                        xtype: 'tbbutton',
+                        cls: 'x-btn-text-icon',
+                        icon: '/static/extjs/custom/tick_16.png',
+                        text: 'Сохранить',
+                        colspan: 3,
+                        width: 100,
+                        handler: function(){
+                            (function(){this.submitprep();}).defer(500,this);
+                        },
+                        scope: this                        
+                    },{
+                        xtype: 'tbseparator'
+                    },{
+                        boxLabel: 'Проверено',
+                        colspan: 3,
+                        xtype: 'checkbox',
+                        width: 100,
+                        handler: function(obj){
+                            //debugger;
+                        },
+                        listeners: {
+                            afterrender : {
+                                fn: function(obj) {
+                                    this.children_forms.abonent.obj=obj
+                                    if(this.confirmed=="true") {
+                                        obj.setValue(true)
+                                    }
+                                },
+                                scope: this
+                            }
+                        },
+                        scope: this
+                    }]
+            },{
                 colspan: 3,
                 xtype: 'ext:ux:abon-info-panel',
                 oid: this.oid,
@@ -1225,7 +1364,8 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                 AbonApi.abonent_set({
                     uid: (this.oid || 0),
                     person_id: this.children_forms.person.oid,
-                    address_id: this.children_forms.address.oid                   
+                    address_id: this.children_forms.address.oid,
+                    confirmed: this.children_forms.abonent.obj.checked
                 },this.submitcallback.createDelegate(this));
             },
             submitcallback: function(result,e) {                
@@ -1251,7 +1391,10 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                     ready2: false,
                     oid: null,
                     obj: null
-                }                
+                },
+                abonent: {
+                    obj: null
+                }
             },
             listeners: {
                 afterrender : {
@@ -1259,6 +1402,11 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                         this.setTitle("абон: "+(this.code || '<новый>'))
                     },
                     scope: this
+                },
+                beforeclose: {
+                    fn: function(obj) {
+                        obj.hide()
+                    }
                 }
             }
         }

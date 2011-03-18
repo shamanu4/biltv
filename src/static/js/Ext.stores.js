@@ -27,7 +27,7 @@ Ext.ux.cities_store = new Ext.data.DirectStore({
     }),
     baseParams : {
         start:0,
-        limit:10,
+        limit:16,
         filter_fields:['name'],
         filter_value:''
     },
@@ -105,7 +105,7 @@ Ext.ux.streets_store = new Ext.data.DirectStore({
     }),
     baseParams : {
         start:0,
-        limit:10,
+        limit:16,
         filter_fields:['name','code'],
         filter_value:''
     },
@@ -184,7 +184,7 @@ Ext.ux.house_num_store = new Ext.data.DirectStore({
     }),
     baseParams : {
         start:0,
-        limit:10,
+        limit:16,
         filter_fields:['num'],
         filter_value:''
     },
@@ -262,7 +262,7 @@ Ext.ux.building_store = new Ext.data.DirectStore({
     }),
     baseParams : {
         start:0,
-        limit:10,
+        limit:16,
         filter_fields:['street__name','house__num'],
         filter_value:''
     },
@@ -289,6 +289,7 @@ Ext.ux.abonent_store = new Ext.data.DirectStore({
         update: AbonentGrid.update,
         destroy: AbonentGrid.destroy
     },
+    remoteSort: true,
     restful: true,
     autoLoad: true,
     autoSave: false,
@@ -301,9 +302,10 @@ Ext.ux.abonent_store = new Ext.data.DirectStore({
             'id',
             'code',
             'person',
-            'passport',
+            'person__passport',
             'address',
             'comment',
+            'confirmed',
         ]
     }),
     writer: new Ext.data.JsonWriter({
@@ -313,7 +315,7 @@ Ext.ux.abonent_store = new Ext.data.DirectStore({
     }),
     baseParams : {
         start:0,
-        limit:10,
+        limit:16,
         filter_fields:['person__firstname','person__lastname','person__passport','code'],
         filter_value:''
     },
@@ -356,7 +358,7 @@ Ext.ux.card_store = new Ext.data.DirectStore({
     }),
     baseParams : {
         start:0,
-        limit:10,
+        limit:16,
         filter_fields:['num'],
         filter_value:''
     },
@@ -405,7 +407,7 @@ Ext.ux.free_card_combo_store = new Ext.data.DirectStore({
                 },
                 baseParams : {
                     start:0,
-                    limit:10,
+                    limit:16,
                     uid:this.oid,
                     filter_fields:['num'],
                     filter_value:''

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from extjs import store_read
-from django.db.utils import IntegrityError
 
 class AbonApiClass(object):
 
@@ -11,7 +10,7 @@ class AbonApiClass(object):
     foo._args_len = 1
 
     def person_get(self, rdata, request):
-        from abon.models import Abonent,Person
+        from abon.models import Abonent, Person
         from lib.functions import latinaze
         
         if 'uid' in rdata:
@@ -45,20 +44,20 @@ class AbonApiClass(object):
         passport = latinaze(passport)
         if not passport:
             return dict(success=False, title='Неправильный номер паспорта', msg='passport number is invalid', errors='')
-        if uid>0:
-            try:
-                abonent=Abonent.objects.get(pk=uid)
-            except Abonent.DoesNotExist:
-                return dict(success=False, title='Сбой загрузки формы', msg='abonent not found', errors='')
-            else:
-                person = abonent.person
-        elif len(passport)>0:
+        if len(passport)>0:
             try:
                 person=Person.objects.get(passport=passport)
             except Person.DoesNotExist:
                 person=Person()
             else:
                 pass
+        elif uid>0:
+            try:
+                abonent=Abonent.objects.get(pk=uid)
+            except Abonent.DoesNotExist:
+                return dict(success=False, title='Сбой загрузки формы', msg='abonent not found', errors='')
+            else:
+                person = abonent.person        
         else:
             person=Person()
 
@@ -238,4 +237,20 @@ class AbonApiClass(object):
         return dict(success=False, title='Сбой загрузки тарифов', msg='not implemented yet', errors='', data={})
 
     cards_tp_set._args_len = 1
-    
+
+    @store_read
+    def payments_get(self,rdata,request):
+        from tv.models import Payment
+        from abon.models import Abonent
+        print rdata
+        uid = int(rdata['uid'])
+        if uid>0:
+            try:
+                abonent=Abonent.objects.get(pk=uid)
+            except Abonent.DoesNotExist:
+                return dict(success=False, title='Сбой загрузки платежей', msg='abonent not found', errors='', data={} )                    
+        payments=Payment.objects.filter(bill=abonent.bill)
+        return payments
+    payments_get._args_len = 1
+
+

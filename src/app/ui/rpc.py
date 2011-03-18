@@ -125,7 +125,7 @@ class Router(RpcRouter):
     
     def __init__(self):
         from abon.models import City,Street,House,Building,Abonent
-        from tv.models import Card
+        from tv.models import Card, Payment
         from abon.forms import CityForm,StreetForm,HouseNumForm,BuildingForm
         from tv.forms import CardForm
         from django.db.models import Q
@@ -139,6 +139,6 @@ class Router(RpcRouter):
             'HouseNumGrid': GridApiClass(House,HouseNumForm),
             'BuildingGrid': GridApiClass(Building,BuildingForm),
             'AbonentGrid': GridApiClass(Abonent,None),
-            'CardGrid':GridApiClass(Card,CardForm,Q(**{"num__gte":0})),            
+            'CardGrid':GridApiClass(Card,CardForm,Q(**{"num__gte":0})),
         }                
         self.enable_buffer = 50

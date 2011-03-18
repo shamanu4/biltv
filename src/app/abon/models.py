@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-
-from datetime import date, datetime
+from datetime import date
 from django.db import models
 
 class Group(models.Model):
@@ -360,6 +359,7 @@ class Abonent(models.Model):
     sorting = models.CharField(blank=True, max_length=150)
     bill = models.ForeignKey(Bill)
     code = models.CharField(blank=False, max_length=20)
+    confirmed = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['sorting']
@@ -421,9 +421,10 @@ class Abonent(models.Model):
         obj['id'] = self.pk        
         obj['code'] = self.code
         obj['person'] = self.person.fio_short()
-        obj['passport'] = self.person.passport
+        obj['person__passport'] = self.person.passport
         obj['address'] = self.address.__unicode__()
         obj['comment'] = self.comment
+        obj['confirmed'] = self.confirmed
         return obj
 
 

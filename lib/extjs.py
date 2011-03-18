@@ -18,9 +18,7 @@ def store_read(func):
         else:
             success = True
         total=0
-        if isinstance(result, QuerySet):
-            total = result.count()
-            print rdata
+        if isinstance(result, QuerySet):                        
             if 'filter_fields' in rdata and 'filter_value' in rdata:
                 if not rdata['filter_value']=='':
                     query=None
@@ -38,8 +36,14 @@ def store_read(func):
             if 'filter' in rdata:
                 if not rdata['filter']=='':
                     result = result.filter(rdata['filter'])
+            if 'sort' in rdata:
+                if 'dir' in rdata and rdata['dir']=='DESC':
+                    result = result.order_by('-%s' % rdata['sort'])
+                else:
+                    result = result.order_by('%s' % rdata['sort'])
+            total = result.count()
             if 'start' in rdata and 'limit' in rdata:
-                result = result[rdata['start']:rdata['start']+rdata['limit']]
+                result = result[rdata['start']:rdata['start']+rdata['limit']]            
             result = [obj.store_record() for obj in result]
         return dict(data=result, success=success, total=total)
     return update_wrapper(wrapper, func)
@@ -147,6 +151,7 @@ class RpcRouter(object):
         extra_kwargs.update(self.action_extra_kwargs(action, request, *args, **kwargs))
 
         func_args, varargs, varkw, func_defaults = getargspec(func)
+        print ">>%s<<" % varkw
         if 'self' in func_args:
             func_args.remove('self')
         for name in extra_kwargs.keys():

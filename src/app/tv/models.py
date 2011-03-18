@@ -249,6 +249,19 @@ class Payment(models.Model):
     def save(self, *args, **kwargs):
         super(self.__class__, self).save(*args, **kwargs)
 
+    def store_record(self):
+        obj = {}
+        obj['id'] = self.pk
+        obj['timestamp'] = self.timestamp
+        obj['bill'] = self.bill.pk
+        obj['sum'] = self.sum
+        obj['prev'] = self.prev
+        obj['maked'] = self.maked
+        obj['descr'] = self.descr
+        obj['inner_descr'] = self.inner_descr
+        return obj
+
+
     def make(self):
         self.prev = self.bill.balance
         self.save()
