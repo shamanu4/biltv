@@ -122,6 +122,16 @@ class AbonApiClass(object):
 
     address_set._form_handler = True
 
+    def abonent_get(self, rdata, request):
+        from abon.models import Abonent
+        try:
+            a=Abonent.objects.get(pk=rdata['uid'])
+        except Abonent.DoesNotExist:
+            return dict(success=False, title='Сбой загрузки формы', msg='abonent not found', errors='')
+        else:
+            return dict(success=True, data=[a.store_record()])
+    abonent_get._args_len = 1
+
     def abonent_set(self, rdata, request):
         from abon.models import Abonent
         from abon.forms import AbonentForm

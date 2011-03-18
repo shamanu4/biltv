@@ -108,14 +108,14 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.admin',
-    'django_extensions',          # optional, neede for development only
+#    'django_extensions',          # optional, neede for development only
     'accounts',
     'logger',
     'tv',
     'abon',
 )
 
-DEFAULT_CATV_TP_ID = 3
+DEFAULT_CATV_TP_ID = 1
 
 try:
     from settings_local import *
