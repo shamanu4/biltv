@@ -10,7 +10,6 @@
 </pydev_variables_property>
 <pydev_pathproperty name="org.python.pydev.PROJECT_SOURCE_PATH">
 <path>/biltv2/src</path>
-<path>/biltv2/lib</path>
 <path>/biltv2</path>
 <path>/biltv2/src/app</path>
 <path>/biltv2/src/app/abon</path>
@@ -18,6 +17,5 @@
 <path>/biltv2/src/app/logger</path>
 <path>/biltv2/src/app/tv</path>
 <path>/biltv2/src/app/ui</path>
-<path>/biltv2/lib</path>
 </pydev_pathproperty>
 </pydev_project>

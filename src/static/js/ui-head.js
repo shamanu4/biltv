@@ -144,8 +144,8 @@ Engine = {
                     Ext.getCmp('tab-panel').toolbars[0].add(grid);
                     Ext.getCmp('tab-panel').toolbars[0].doLayout();
                 },
-                openForm: function(id,code,confirmed) {
-                    var form = Engine.getComponentFromPool(Ext.ux.AbonentForm,'Ext.ux.AbonentForm',{'oid':id,'code':code,'confirmed':confirmed})
+                openForm: function(id,code,confirmed,dis) {
+                    var form = Engine.getComponentFromPool(Ext.ux.AbonentForm,'Ext.ux.AbonentForm',{'oid':id,'code':code,'confirmed':confirmed,'dis':dis})
                     Ext.getCmp('tab-panel').toolbars[0].add(form);
                     Ext.getCmp('tab-panel').toolbars[0].add(form);
                     Ext.getCmp('tab-panel').toolbars[0].doLayout();

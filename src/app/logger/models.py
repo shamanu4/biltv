@@ -26,7 +26,7 @@ class Log(models.Model):
 
 def logging_abstract(instance, action, **kwargs):
     from django.utils import simplejson
-    from serializers import DatetimeJSONEncoderQt
+    from lib.serializers import DatetimeJSONEncoderQt
     from django.conf import settings
 
     data = {}

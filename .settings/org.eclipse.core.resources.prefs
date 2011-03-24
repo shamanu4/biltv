@@ -1,4 +1,4 @@
-#Fri Mar 18 17:55:43 EET 2011
+#Mon Mar 21 09:16:59 EET 2011
 eclipse.preferences.version=1
 encoding//lib/functions.py=utf-8
 encoding//src/app/abon/admin.py=utf-8
@@ -15,3 +15,4 @@ encoding//src/app/tv/forms.py=utf-8
 encoding//src/app/tv/models.py=utf-8
 encoding//src/app/tv/rpc.py=utf-8
 encoding//src/app/ui/rpc.py=utf-8
+encoding//src/serializers.py=utf-8

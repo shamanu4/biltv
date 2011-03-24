@@ -143,7 +143,7 @@ class AbonApiClass(object):
                 return dict(success=False, title='Сбой загрузки формы', msg='abonent not found', errors='')
         else:
             abonent = Abonent()
-
+        print rdata
         form = AbonentForm(rdata)
         result = []
 
@@ -251,7 +251,7 @@ class AbonApiClass(object):
     @store_read
     def payments_get(self,rdata,request):
         from tv.models import Payment
-        from abon.models import Abonent
+        from abon.models import Abonent 
         print rdata
         uid = int(rdata['uid'])
         if uid>0:
@@ -260,7 +260,20 @@ class AbonApiClass(object):
             except Abonent.DoesNotExist:
                 return dict(success=False, title='Сбой загрузки платежей', msg='abonent not found', errors='', data={} )                    
         payments=Payment.objects.filter(bill=abonent.bill)
-        return payments
+        return payments.order_by('-timestamp')
     payments_get._args_len = 1
 
-
+    @store_read
+    def fees_get(self,rdata,request):
+        from tv.models import Fee
+        from abon.models import Abonent
+        print rdata
+        uid = int(rdata['uid'])
+        if uid>0:
+            try:
+                abonent=Abonent.objects.get(pk=uid)
+            except Abonent.DoesNotExist:
+                return dict(success=False, title='Сбой загрузки платежей', msg='abonent not found', errors='', data={} )                    
+        fees=Fee.objects.filter(bill=abonent.bill)
+        return fees.order_by('-timestamp')
+    fees_get._args_len = 1

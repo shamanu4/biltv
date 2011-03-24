@@ -370,6 +370,7 @@ class Abonent(models.Model):
     bill = models.ForeignKey(Bill)
     code = models.CharField(blank=False, max_length=20)
     confirmed = models.BooleanField(default=False)
+    disabled = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['sorting']
@@ -437,6 +438,7 @@ class Abonent(models.Model):
         obj['address'] = self.address.__unicode__()
         obj['comment'] = self.comment
         obj['confirmed'] = self.confirmed
+        obj['disabled'] = self.disabled
         return obj
 
 

@@ -306,6 +306,7 @@ Ext.ux.abonent_store = new Ext.data.DirectStore({
             'address',
             'comment',
             'confirmed',
+			'disabled',
         ]
     }),
     writer: new Ext.data.JsonWriter({

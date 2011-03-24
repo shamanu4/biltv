@@ -156,10 +156,16 @@ class FeeCustomRangesAdmin(admin.ModelAdmin):
     pass
 admin.site.register(FeeCustomRanges, FeeCustomRangesAdmin)
 
-
 """
 Payment
 """
 class PaymentAdmin(admin.ModelAdmin):
     pass
 admin.site.register(Payment, PaymentAdmin)
+
+"""
+PaymentSource
+"""
+class PaymentSourceAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(PaymentSource, PaymentSourceAdmin)

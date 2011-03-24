@@ -2,7 +2,7 @@
 
 from django.db import models
 from logger.models import logging_postsave, logging_postdelete
-from datetime import datetime
+from datetime import datetime, date
 
 class Trunk(models.Model):
 
@@ -23,7 +23,7 @@ class Trunk(models.Model):
 
     @property
     def channel_mask(self):
-        from functions import short_to_2byte_wrapped
+        from lib.functions import short_to_2byte_wrapped
         return short_to_2byte_wrapped(self.cached)
     
     @property
@@ -230,6 +230,13 @@ class TariffPlanChannelRelationship(models.Model):
         unique_together = (('tp', 'chrel'),)
 
 
+class PaymentSource(models.Model):
+    name = models.CharField(max_length="40")
+    descr = models.TextField()
+    
+    def __unicode__(self):
+        return self.name
+        
 
 class Payment(models.Model):
 
@@ -242,6 +249,9 @@ class Payment(models.Model):
     rolled_by = models.OneToOneField("tv.Payment", blank=True, null=True)
     descr = models.TextField()
     inner_descr = models.TextField()
+    admin = models.ForeignKey("accounts.User", blank=True, null=True)
+    source = models.ForeignKey("tv.PaymentSource")
+    bank_date = models.DateField(default=date.today)
 
     def __unicode__(self):
         return "%s" % self.sum
@@ -259,6 +269,8 @@ class Payment(models.Model):
         obj['maked'] = self.maked
         obj['descr'] = self.descr
         obj['inner_descr'] = self.inner_descr
+        obj['source__name'] = self.source.__unicode__()
+        obj['bank_date'] = self.bank_date
         return obj
 
 
@@ -319,6 +331,18 @@ class Fee(models.Model):
 
     def save(self, *args, **kwargs):
         super(self.__class__, self).save(*args, **kwargs)
+        
+    def store_record(self):
+        obj = {}
+        obj['id'] = self.pk
+        obj['timestamp'] = self.timestamp
+        obj['bill'] = self.bill.pk
+        obj['sum'] = self.sum
+        obj['prev'] = self.prev
+        obj['maked'] = self.maked
+        obj['descr'] = self.descr
+        obj['inner_descr'] = self.inner_descr
+        return obj
 
     def make(self):
         if self.maked:
@@ -374,7 +398,7 @@ class TariffPlanFeeRelationship(models.Model):
         return "%s - %s" % (self.tp.name, self.fee_type.name)
 
     def check_fee(self,card,**kwargs):
-        from functions import date_formatter
+        from lib.functions import date_formatter
         date = date_formatter()
         print "checking fee ..."
         my_maked_fees = Fee.objects.filter(card__exact=card, tp__exact=self.tp, fee_type__exact=self.fee_type, maked__exact=True, deleted__exact=False)
