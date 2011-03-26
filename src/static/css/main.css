@@ -43,3 +43,11 @@
     background: transparent;
     background-image: url(/static/extjs/custom/delete_16.png);
 }
+
+.maked_true_class {
+	background-color: #e0ffe0;
+}
+
+.maked_false_class {
+	background-color: #ffc0c0;
+}

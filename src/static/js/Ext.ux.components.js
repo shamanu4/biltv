@@ -1198,7 +1198,7 @@ Ext.ux.AbonPaymentsGrid = Ext.extend(Ext.ux.CustomGridNE ,{
                     },
                     scope: this
                 }
-            }
+            },
         }
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.AbonCardsGrid.superclass.initComponent.apply(this, [config]);
@@ -1206,12 +1206,11 @@ Ext.ux.AbonPaymentsGrid = Ext.extend(Ext.ux.CustomGridNE ,{
     columns: [
         {header: "Id", dataIndex: 'id', width:40},
         {header: "Bill", dataIndex: 'bill', width:40},
-        {header: "Timestamp", dataIndex: 'timestamp', width:180, sortable: true},
+        {header: "Timestamp", dataIndex: 'timestamp', width:120, sortable: true},
         {header: "Sum", dataIndex: 'sum', width:50, sortable: true},
         {header: "Prev", dataIndex: 'prev', width:50},
-        {header: "Maked", dataIndex: 'maked', width:40},
-		{header: "Source", dataIndex: 'source__name', width:40, sortable: true},
-		{header: "Bank date", dataIndex: 'bank_date', width:80, sortable: true},
+		{header: "Source", dataIndex: 'source__name', width:120, sortable: true},
+		{header: "Bank date", dataIndex: 'bank_date', width:120, sortable: true},
         {header: "Descr", dataIndex: 'inner_descr', width:200},
         {header: "", dataIndex: 'id', width:26,
             renderer: function(value, metaData, record, rowIndex, colIndex, store) {
@@ -1219,9 +1218,21 @@ Ext.ux.AbonPaymentsGrid = Ext.extend(Ext.ux.CustomGridNE ,{
             }
         }
     ],
+	viewConfig: {
+        forceFit: true,
+		getRowClass: function(record, index, rowParams, store) {
+            var c = record.get('maked');
+            if (c) {
+				return 'maked_true_class';
+			} else {
+				return 'maked_false_class';				
+			}
+        }
+    },
     pageSize: 12,
     height: 450
 });
+
 
 Ext.reg('ext:ux:abon-payments-grid', Ext.ux.AbonPaymentsGrid);
 
@@ -1295,6 +1306,17 @@ Ext.ux.AbonFeesGrid = Ext.extend(Ext.ux.CustomGridNE ,{
             }
         }
     ],
+	viewConfig: {
+        forceFit: true,
+		getRowClass: function(record, index, rowParams, store) {
+            var c = record.get('maked');
+            if (c) {
+				return 'maked_true_class';
+			} else {
+				return 'maked_false_class';				
+			}
+        }
+    },
     pageSize: 12,
     height: 450
 });

@@ -228,15 +228,70 @@ class TariffPlanChannelRelationship(models.Model):
     class Meta:
         ordering = ('tp__name','chrel__channel__name')
         unique_together = (('tp', 'chrel'),)
-
+        
+        
 
 class PaymentSource(models.Model):
+    
     name = models.CharField(max_length="40")
     descr = models.TextField()
     
     def __unicode__(self):
         return self.name
-        
+
+
+
+class PaymentRegister(models.Model):
+    
+    source = models.ForeignKey("tv.PaymentSource")
+    total = models.FloatField(default=0)
+    closed = models.BooleanField(default=False)
+    start = models.DateField(default=date.today)
+    end = models.DateField(default=date.today)
+            
+    def __unicode__(self):
+        return "%s (%s %s) [%s]" % (self.source.name, self.start, self.end, self.total)
+
+    def get_current_sum(self):
+        money = Payment.objects.filter(register=self).aggregate(current=models.Sum('sum'))
+        return money['current'] or 0
+    
+    def try_this_payment(self,sum):
+        if not (self.get_current_sum() + sum) > self.total:
+            return True
+        return False
+    
+    def get_stamps(self):
+        return PaymentRegisterStamp.filter(register=self)
+
+    @property
+    def is_confirmed(self):
+        if self.get_stamps().filter(confirmed=False).count()>0:
+            return False
+        return True
+    
+    @property
+    def is_filled(self):
+        return self.get_current_sum() == self.total 
+    
+    def try_close(self):
+        if self.is_confirmed and self.is_filled:
+            self.closed = True
+            self.save()
+        return self.closed
+
+
+    
+class PaymentRegisterStamp(models.Model):
+    
+    register = models.ForeignKey("tv.PaymentRegister")
+    admin = models.ForeignKey("accounts.User")
+    confirmed = models.BooleanField(default=False)
+    
+    def __unicode__(self):
+        return self.register.__unicode__()
+
+
 
 class Payment(models.Model):
 
@@ -251,6 +306,7 @@ class Payment(models.Model):
     inner_descr = models.TextField()
     admin = models.ForeignKey("accounts.User", blank=True, null=True)
     source = models.ForeignKey("tv.PaymentSource")
+    register = models.ForeignKey("tv.PaymentRegister", blank=True, null=True)
     bank_date = models.DateField(default=date.today)
 
     def __unicode__(self):
@@ -272,7 +328,6 @@ class Payment(models.Model):
         obj['source__name'] = self.source.__unicode__()
         obj['bank_date'] = self.bank_date
         return obj
-
 
     def make(self):
         if self.maked:
