@@ -15,7 +15,7 @@ Ext.ux.msg = function(){
         if(type=="ext-mb-error") {
             var delay = 10;
         } else if (type=="ext-mb-invisible") {
-            var delay = 0
+            var delay = 1
         } else {
             var delay = 3
         }
