@@ -568,18 +568,23 @@ Ext.ux.AbonentGrid = Ext.extend(Ext.ux.CustomGridNE ,{
             columns: [
                 {header: "Id", dataIndex: 'id', width:100, sortable:true},
                 {header: "Code", dataIndex: 'code', width:100, sortable:true},
-                {header: "Person", dataIndex: 'person', width:300, sortable:true},
+                {header: "Person", dataIndex: 'person', width:260, sortable:true},
                 {header: "Passport", dataIndex: 'person__passport', width:100, sortable:true},
-                {header: "Address", dataIndex: 'address', width:300, sortable:true},
+                {header: "Address", dataIndex: 'address', width:280, sortable:true},
                 //{header: "Comment", dataIndex: 'comment'},
                 {header: "OK", dataIndex: 'confirmed', width: 36, sortable:true,
                     renderer: function(value, metaData, record, rowIndex, colIndex, store) {
                         return '<div class="abonent_ok_status_'+value+'"></div>'
                     }
                 },
+				{header: "Откл.", dataIndex: 'disabled', width: 56, sortable:true,
+                    renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                        return '<div class="abonent_disabled_status_'+value+'"></div>'
+                    }
+                },
                 {header: " ", dataIndex: 'id', width: 28,
                     renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-                        return '<div class="inline_edit_button abonent_edit_button" id="'+value+'" code="'+record.data.code+'" confirmed="'+record.data.confirmed+'"></div>'
+                        return '<div class="inline_edit_button abonent_edit_button" id="'+value+'" code="'+record.data.code+'" confirmed="'+record.data.confirmed+'" dis="'+record.data.disabled+'"></div>'
                     }
                 },
             ],
@@ -590,7 +595,7 @@ Ext.ux.AbonentGrid = Ext.extend(Ext.ux.CustomGridNE ,{
                 afterrender : {
                     fn: function(obj) {
                         $(".abonent_edit_button").live('click', function(e) {
-                            Engine.menu.cashier.abonent.openForm(this.id,$(this).attr('code'),$(this).attr('confirmed'));
+                            Engine.menu.cashier.abonent.openForm(this.id,$(this).attr('code'),$(this).attr('confirmed'),$(this).attr('dis'));
                         })
                     }
                 }
@@ -1007,8 +1012,10 @@ Ext.ux.AbonCardsGrid = Ext.extend(Ext.ux.CustomGrid ,{
                     rowselect: {
                         fn: function(sm,index,record) {                            
                             var store = Ext.ux.free_card_combo_store
-                            if (typeof(record.id)=='number') {
-                                store.setBaseParam('card_id',record.id)
+							var tpstore = sm.grid.parent_form.children_forms.tariffs.obj.store
+                            if (typeof(record.id)=='number') {								
+                                tpstore.setBaseParam('card_id',record.id)
+								tpstore.load()
                                 store.load()
                             } else {
                                 //this.store.load()
@@ -1158,6 +1165,8 @@ Ext.ux.AbonPaymentsGrid = Ext.extend(Ext.ux.CustomGridNE ,{
                         'sum',
                         'prev',
                         'maked',
+						'source__name',
+						'bank_date',
                         'descr',
                         'inner_descr'
                     ]
@@ -1197,11 +1206,13 @@ Ext.ux.AbonPaymentsGrid = Ext.extend(Ext.ux.CustomGridNE ,{
     columns: [
         {header: "Id", dataIndex: 'id', width:40},
         {header: "Bill", dataIndex: 'bill', width:40},
-        {header: "Timestamp", dataIndex: 'timestamp', width:90, sortable: true},
+        {header: "Timestamp", dataIndex: 'timestamp', width:180, sortable: true},
         {header: "Sum", dataIndex: 'sum', width:50, sortable: true},
         {header: "Prev", dataIndex: 'prev', width:50},
         {header: "Maked", dataIndex: 'maked', width:40},
-        {header: "Descr", dataIndex: 'inner_descr', width:100},
+		{header: "Source", dataIndex: 'source__name', width:40, sortable: true},
+		{header: "Bank date", dataIndex: 'bank_date', width:80, sortable: true},
+        {header: "Descr", dataIndex: 'inner_descr', width:200},
         {header: "", dataIndex: 'id', width:26,
             renderer: function(value, metaData, record, rowIndex, colIndex, store) {
                 return '<img src="/static/extjs/custom/delete_16.png">';
@@ -1213,6 +1224,107 @@ Ext.ux.AbonPaymentsGrid = Ext.extend(Ext.ux.CustomGridNE ,{
 });
 
 Ext.reg('ext:ux:abon-payments-grid', Ext.ux.AbonPaymentsGrid);
+
+Ext.reg('ext:ux:abon-cards-tp-grid', Ext.ux.AbonCardsTpGrid);
+
+Ext.ux.AbonFeesGrid = Ext.extend(Ext.ux.CustomGridNE ,{
+    initComponent: function(){
+        var config = {
+            store: new Ext.data.DirectStore({
+                restful: true,
+                autoLoad: true,
+                autoSave: false,
+                remoteSort: true,
+                reader: new Ext.data.JsonReader({
+                    root: 'data',
+                    totalProperty: 'total',
+                    fields: [
+                        'id',
+                        'bill',
+                        'timestamp',
+                        'sum',
+                        'prev',
+                        'maked',
+                        'descr',
+                        'inner_descr'
+                    ]
+                }),
+                writer: new Ext.data.JsonWriter({
+                    encode: false,
+                    writeAllFields: true,
+                    listful: true
+                }),
+                api: {
+                    read: AbonApi.fees_get,
+                    create: AbonApi.foo,
+                    update: AbonApi.foo,
+                    destroy: AbonApi.foo
+                },
+                baseParams : {
+                    start:0,
+                    limit:12,
+                    foo:'bar',
+                    uid:this.oid,
+                    filter_fields:['num'],
+                    filter_value:''
+                }
+            }),            
+            listeners: {
+                afterrender : {
+                    fn: function(obj) {
+                        //obj.parent_form.children_forms.cards.obj=obj
+                    },
+                    scope: this
+                }
+            }
+        }
+        Ext.apply(this, Ext.apply(this.initialConfig, config));
+        Ext.ux.AbonCardsGrid.superclass.initComponent.apply(this, [config]);
+    },    
+    columns: [
+        {header: "Id", dataIndex: 'id', width:40},
+        {header: "Bill", dataIndex: 'bill', width:40},
+        {header: "Timestamp", dataIndex: 'timestamp', width:180, sortable: true},
+        {header: "Sum", dataIndex: 'sum', width:50, sortable: true},
+        {header: "Prev", dataIndex: 'prev', width:50},
+        {header: "Maked", dataIndex: 'maked', width:40},
+        {header: "Descr", dataIndex: 'inner_descr', width:200},
+        {header: "", dataIndex: 'id', width:26,
+            renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                return '<img src="/static/extjs/custom/delete_16.png">';
+            }
+        }
+    ],
+    pageSize: 12,
+    height: 450
+});
+
+Ext.reg('ext:ux:abon-fees-grid', Ext.ux.AbonFeesGrid);
+
+Ext.ux.AbonCommentsPanel = Ext.extend(Ext.Panel ,{
+	    initComponent: function() {
+        var config = {
+            closable: false,
+            defaults: {
+                frame: true,
+                split: true    
+            },            
+            items: [{
+					xtype: 'textarea',
+					width: 900,
+			},{
+                        xtype: 'tbbutton',
+                        cls: 'x-btn-text-icon',
+                        icon: '/static/extjs/custom/tick_16.png',
+                        text: 'Сохранить',
+			}]            
+        }
+        Ext.apply(this, Ext.apply(this.initialConfig, config));
+        Ext.ux.AbonCommentsPanel.superclass.initComponent.apply(this, arguments);
+    }
+});
+
+Ext.reg('ext:ux:abon-comments-panel', Ext.ux.AbonCommentsPanel );
 
 Ext.ux.AbonInfoPanel = Ext.extend(Ext.Panel ,{
     initComponent: function() {
@@ -1256,10 +1368,21 @@ Ext.ux.AbonInfoPanel = Ext.extend(Ext.Panel ,{
                             oid: this.oid
                         }]
                     },{
-                        title: 'Снятия денег',
+                        title: 'Снятия',
                         xtype: 'panel',
-                        oid: this.oid,
-                        parent_form: this
+                        parent_form: this,
+                        items: [{
+                            xtype:'ext:ux:abon-fees-grid',
+                            oid: this.oid
+                        }]
+                    },{
+                        title: 'Дополнительно',
+                        xtype: 'panel',
+                        parent_form: this,
+                        items: [{
+                            xtype:'ext:ux:abon-comments-panel',
+                            oid: this.oid
+                        }]
                     }]
             }),
             children_forms:{
@@ -1335,8 +1458,30 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                         listeners: {
                             afterrender : {
                                 fn: function(obj) {
-                                    this.children_forms.abonent.obj=obj
+                                    this.children_forms.confirmed.obj=obj
                                     if(this.confirmed=="true") {
+                                        obj.setValue(true)
+                                    }
+                                },
+                                scope: this
+                            }
+                        },
+                        scope: this
+                    },{
+                        xtype: 'tbseparator'
+                    },{
+                        boxLabel: 'Отключен',
+                        colspan: 3,
+                        xtype: 'checkbox',
+                        width: 100,
+                        handler: function(obj){
+                            //debugger;
+                        },
+                        listeners: {
+                            afterrender : {
+                                fn: function(obj) {
+                                    this.children_forms.disabled.obj=obj
+                                    if(this.dis=="true") {
                                         obj.setValue(true)
                                     }
                                 },
@@ -1365,12 +1510,13 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                     uid: (this.oid || 0),
                     person_id: this.children_forms.person.oid,
                     address_id: this.children_forms.address.oid,
-                    confirmed: this.children_forms.abonent.obj.checked
+                    confirmed: this.children_forms.confirmed.obj.checked,
+					disabled: this.children_forms.disabled.obj.checked
                 },this.submitcallback.createDelegate(this));
             },
             submitcallback: function(result,e) {                
                 if(result.success) {
-                    console.log(result)
+                    //console.log(result)
                     this.oid = result.data[0]['id']
                     this.setTitle("абон: "+(result.data[0]['code'] || '<новый>'))
                     Ext.ux.abonent_store.load()                    
@@ -1393,7 +1539,10 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                     oid: null,
                     obj: null
                 },
-                abonent: {
+                confirmed: {
+                    obj: null
+                },
+				disabled: {
                     obj: null
                 }
             },
