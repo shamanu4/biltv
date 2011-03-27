@@ -170,6 +170,11 @@ Ext.ux.menu = {
                     'id': 'menu-cashier-register-button',
                     'handler': Engine.menu.cashier.register.openGrid,
                     'text': 'Реестры'
+                },{
+                    'id': 'menu-cashier-payment-button',
+                    'handler': Engine.menu.cashier.payment.openForm,
+                    'text': 'Оплаты',
+					'oid': 0
                 }
             ]
         }
@@ -631,7 +636,7 @@ Ext.ux.SourceCombo = Ext.extend(Ext.form.ComboBox, {
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.SourceCombo.superclass.initComponent.apply(this, arguments);
     }
-}),
+});
 
 Ext.ux.RegisterGrid = Ext.extend(Ext.ux.CustomGrid ,{
             store: 'register-store',
@@ -976,7 +981,7 @@ Ext.ux.BalanceForm = Ext.extend(Ext.FormPanel, {
             buttons:[{
                 text: 'Внести оплату',
                 handler: function(){
-                    alert("not implemented yet")
+					Engine.menu.cashier.payment.openForm(this.oid)
                 },
                 scope: this
             },{
@@ -1256,7 +1261,7 @@ Ext.ux.AbonPaymentsGrid = Ext.extend(Ext.ux.CustomGridNE ,{
                     start:0,
                     limit:12,
                     foo:'bar',
-                    uid:this.oid,
+                    uid:this.oid || 0,
                     filter_fields:['num'],
                     filter_value:''
                 }
@@ -1345,7 +1350,7 @@ Ext.ux.AbonFeesGrid = Ext.extend(Ext.ux.CustomGridNE ,{
                     start:0,
                     limit:12,
                     foo:'bar',
-                    uid:this.oid,
+                    uid:this.oid || 0,
                     filter_fields:['num'],
                     filter_value:''
                 }
@@ -1606,12 +1611,13 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                 },this.submitcallback.createDelegate(this));
             },
             submitcallback: function(result,e) {                
-                if(result.success) {
-                    //console.log(result)
-                    this.oid = result.data[0]['id']
-                    this.setTitle("абон: "+(result.data[0]['code'] || '<новый>'))
-                    Ext.ux.abonent_store.load()                    
-                    //this.destroy();
+                if(result.success) {                    
+                    Ext.ux.abonent_store.load()
+					this.setTitle("абон: "+(result.data[0]['code'] || '<новый>'))
+					if (!this.oid) {
+						this.destroy();
+						Engine.menu.cashier.abonent.openForm(result.data[0]['id'], result.data[0]['code'], result.data[0]['confirmed'], result.data[0]['disabled']);
+					}					
                 }
             },
             children_forms_ready: function() {
@@ -1657,3 +1663,239 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
         Ext.ux.AbonentForm.superclass.initComponent.apply(this, arguments);
     }    
 });
+
+Ext.ux.PaymentForm = Ext.extend(Ext.Panel ,{
+	initComponent: function() {
+        var config = {
+            closable: true,
+            title: 'Оплаты'+(this.oid || ''),
+            layout: 'table',
+            layoutConfig: {
+                columns: 1
+            },
+            border : true,
+            defaults: {
+                frame: true,
+                split: true,
+                bodyStyle: 'padding:15px'
+            },
+            items: [
+				{
+					xtype: 'panel',
+					width:  500,
+					layout: 'column',
+					columnWidth: 1,
+					items: [
+						this.registercombo = new Ext.form.ComboBox({
+							store: new Ext.data.DirectStore({
+    							api: {
+        							read: AbonApi.registers_get,
+        							create: AbonApi.foo,
+        							update: AbonApi.foo,
+        							destroy: AbonApi.foo
+    							},
+    							remoteSort: true,
+    							restful: true,
+    							autoLoad: true,
+    							autoSave: false,
+    							reader: new Ext.data.JsonReader({
+        							root: 'data',
+        							totalProperty: 'total',
+        							//idProperty: 'id',
+        							fields: [
+            							'id',
+										'unicode',
+            							'source',
+										'total',
+										'current',
+										'start',
+										'end',            						
+									]
+    							}),
+    							baseParams : {
+        							start:0,
+        							limit:100,        							
+    							},
+    						}),
+							width: 400,
+							valueField: 'unicode',
+            				displayField: 'unicode',
+							triggerAction: 'all',
+							editable: false,							
+							forceSelection: true,
+							emptyText: 'Реестр',
+							listeners: {
+								select: {
+									fn: function(combo,record,index) {
+										this.register = record.data.id
+									},
+									scope: this
+								}
+							}
+						}),												
+					]					
+				},
+				{
+					xtype: 'panel',
+					width:  500,
+					layout: 'column',
+					columnWidth: 1,
+					items: [
+						this.searchfield = new Ext.form.ComboBox({
+							store: new Ext.data.DirectStore({
+    							api: {
+        							read: AbonentGrid.read,
+        							create: AbonApi.foo,
+        							update: AbonApi.foo,
+        							destroy: AbonApi.foo
+    							},
+    							restful: true,
+    							autoLoad: true,
+    							autoSave: false,
+    							reader: new Ext.data.JsonReader({
+        							root: 'data',
+        							totalProperty: 'total',
+        							//idProperty: 'id',
+        							fields: [
+            							'id',
+            							'code',						
+									]
+    							}),
+    							baseParams : {
+        							start:0,
+        							limit:8,
+        							filter_fields:['code'],
+        							filter_value:''
+    							},
+    						}),
+							valueField: 'code',
+            				displayField: 'code',
+							triggerAction: 'all',							
+							minChars: 1,
+							hideTrigger: true,
+							forceSelection: true,
+							emptyText: 'Личный счёт',
+							listeners: {
+								change: {
+									fn: function(combo,newval,oldval) {
+										AbonApi.abonent_get({
+                            				code: (this.searchfield.getValue() || 0)
+                        				},this.preload.createDelegate(this));
+									},
+									scope: this
+								}
+							}
+						}),						
+						{
+                			icon: '/static/extjs/custom/search_16.png',
+                			cls: 'x-btn-text-icon',
+							xtype: 'button',
+                			handler: function() {
+                    			AbonApi.abonent_get({
+                            		code: (this.searchfield.getValue() || 0)
+                        		},this.preload.createDelegate(this));
+                			},
+                			scope: this
+            			},
+						this.personfield = new Ext.form.Label({
+							text: '...',
+							width: 200
+						}),
+						this.addressfield = new Ext.form.Label({
+							text: '...',
+							width: 200
+						}),								
+						
+					]
+				},{
+					xtype: 'form',
+					width:  500,
+					items: [
+						this.bankdate = new Ext.form.DateField({
+							fieldLabel: 'Дата квитанции',
+							format: 'Y-m-d'
+						}),
+						this.sum = new Ext.form.NumberField({
+							fieldLabel: 'Сумма',
+							baseChars: '1234567890.'
+						}),
+						this.descr = new Ext.form.TextField({
+							fieldLabel: 'Описание',							
+						}),					
+					],
+					bbar:[{					
+                        xtype: 'tbbutton',
+                        cls: 'x-btn-text-icon',
+                        icon: '/static/extjs/custom/tick_16.png',
+                        text: 'Сохранить',
+                        colspan: 3,
+                        width: 100,
+                        handler: function(){
+                            if(this.register<1) {
+								Ext.ux.msg('Ошибка ввода',"выберите реестр оплат",Ext.Msg.ERROR)
+								return false
+							}
+							if(this.abonent<1) {
+								Ext.ux.msg('Ошибка ввода',"выберите абонента",Ext.Msg.ERROR)
+								return false
+							}
+							if (!this.bankdate.getValue()) {
+								Ext.ux.msg('Ошибка ввода',"введите правильную дату",Ext.Msg.ERROR)
+								return false
+							}
+							if (parseFloat(this.sum.getValue() || 0) <= 0) {
+								Ext.ux.msg('Ошибка ввода',"введите правильную сумму",Ext.Msg.ERROR)
+								return false
+							}
+							AbonApi.make_payment({
+								register: this.register,
+								abonent: this.abonent,
+								bankdate: this.bankdate.getValue(),
+								sum: parseFloat(this.sum.getValue()),	
+								descr: this.bankdate.getValue()
+							},this.payment_callback.createDelegate(this));
+                        },
+                        scope: this                        
+                    }]
+				}			
+			],
+            listeners: {
+                activate: {
+                    fn: function(obj) {
+						if (parseInt(this.oid)>0) {
+							AbonApi.abonent_get({
+                            	uid: (parseInt(this.oid) || 0)
+                        	},this.preload.createDelegate(this));
+						}
+                    },
+                    scope: this
+                },
+                beforeclose: {
+                    fn: function(obj) {
+                        obj.hide()
+                    }
+                },
+				beforedestroy: {
+                    fn: function(e) {
+                        return false;
+                    }
+                }
+            },
+			preload: function(response) {
+				if(response.success) {	
+					this.searchfield.setValue(response.data[0]['code'])
+					this.personfield.setText(response.data[0]['person'])
+					this.addressfield.setText(response.data[0]['address'])
+					this.abonent = response.data[0]['id']
+				}
+			},
+			payment_callback: function(response) {
+				debugger;
+			},
+			register: 0,
+			abonent: 0
+        }
+        Ext.apply(this, Ext.apply(this.initialConfig, config));
+        Ext.ux.PaymentForm.superclass.initComponent.apply(this, arguments);
+    }    
+})

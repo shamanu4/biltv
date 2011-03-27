@@ -20,8 +20,15 @@ def store_read(func):
         total=0
         if isinstance(result, QuerySet):                        
             if 'filter_fields' in rdata and 'filter_value' in rdata:
-                if not rdata['filter_value']=='':
-                    query=None
+                query=None
+                if 'query' in rdata:
+                    for node in rdata['filter_fields']:
+                        val=rdata['query']                    
+                        if query:
+                            query = query | Q(**{"%s__istartswith" % str(node):val})
+                        else:
+                            query = Q(**{"%s__istartswith" % str(node):val})
+                if not rdata['filter_value']=='':                    
                     for node in rdata['filter_fields']:
                         if 'passport' in node:
                             val=latinaze(rdata['filter_value'])
@@ -31,8 +38,8 @@ def store_read(func):
                             query = query | Q(**{"%s__icontains" % str(node):val})
                         else:
                             query = Q(**{"%s__icontains" % str(node):val})
-                    if query:
-                        result = result.filter(query)
+                if query:
+                    result = result.filter(query)
             if 'filter' in rdata:
                 if not rdata['filter']=='':
                     result = result.filter(rdata['filter'])

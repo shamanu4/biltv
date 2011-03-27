@@ -103,7 +103,7 @@ class AbonApiClass(object):
                 address = abonent.address
         else:
             address=Address()
-
+        print rdata
         form = AddressForm(rdata)
         result = []
 
@@ -124,12 +124,24 @@ class AbonApiClass(object):
 
     def abonent_get(self, rdata, request):
         from abon.models import Abonent
-        try:
-            a=Abonent.objects.get(pk=rdata['uid'])
-        except Abonent.DoesNotExist:
-            return dict(success=False, title='Сбой загрузки формы', msg='abonent not found', errors='')
+        if 'uid' in rdata and rdata['uid']>0:
+            try:
+                a=Abonent.objects.get(pk=rdata['uid'])
+            except Abonent.DoesNotExist:
+                return dict(success=False, title='Сбой загрузки формы', msg='abonent not found', errors='')
+            else:
+                return dict(success=True, data=[a.store_record()])
+        elif 'code' in rdata:
+            try:
+                a=Abonent.objects.get(code__iexact=rdata['code'])
+            except Abonent.DoesNotExist:
+                return dict(success=False, title='Сбой загрузки формы', msg='abonent not found', errors='')
+            else:
+                return dict(success=True, data=[a.store_record()])
         else:
-            return dict(success=True, data=[a.store_record()])
+            return dict(success=False, errors='')
+            #return dict(success=False, title='Сбой загрузки формы', msg='abonent not found', errors='')
+        
     abonent_get._args_len = 1
 
     def abonent_set(self, rdata, request):
@@ -259,8 +271,9 @@ class AbonApiClass(object):
                 abonent=Abonent.objects.get(pk=uid)
             except Abonent.DoesNotExist:
                 return dict(success=False, title='Сбой загрузки платежей', msg='abonent not found', errors='', data={} )                    
-        payments=Payment.objects.filter(bill=abonent.bill)
-        return payments.order_by('-timestamp')
+            payments=Payment.objects.filter(bill=abonent.bill)
+            return payments.order_by('-timestamp')
+        return {}
     payments_get._args_len = 1
 
     @store_read
@@ -274,6 +287,56 @@ class AbonApiClass(object):
                 abonent=Abonent.objects.get(pk=uid)
             except Abonent.DoesNotExist:
                 return dict(success=False, title='Сбой загрузки платежей', msg='abonent not found', errors='', data={} )                    
-        fees=Fee.objects.filter(bill=abonent.bill)
-        return fees.order_by('-timestamp')
+            fees=Fee.objects.filter(bill=abonent.bill)
+            return fees.order_by('-timestamp')
+        return {}
     fees_get._args_len = 1
+    
+    @store_read
+    def registers_get(self,rdata,request):
+        from tv.models import PaymentRegister
+        return PaymentRegister.objects.filter(closed__exact=False)
+    
+    registers_get._args_len = 1
+    
+    def make_payment(self,rdata,request):
+        from tv.models import PaymentRegister, Payment
+        from abon.models import Abonent
+        from datetime import datetime
+        
+        print rdata
+        
+        register_id = int(rdata['register'])
+        uid = int(rdata['abonent'])
+        sum = float(rdata['sum'])
+        tmpdate = rdata['bankdate']
+        descr = rdata['descr'] or ''
+        
+        try:
+            register = PaymentRegister.objects.get(pk=register_id)
+        except PaymentRegister.DoesNotExist:
+            return dict(success=False, title='Сбой проведения оплаты', msg='register not found', errors='', data={} )
+        
+        try:
+            abonent = Abonent.objects.get(pk=uid)
+        except Abonent.DoesNotExist:
+            return dict(success=False, title='Сбой проведения оплаты', msg='abonent not found', errors='', data={} )
+        
+        try:
+            bank_date = datetime.strptime(tmpdate,'%Y-%m-%dT%H:%M:%S').date()
+        except ValueError:
+            return dict(success=False, title='Сбой проведения оплаты', msg='invalid date', errors='', data={} )    
+        
+        p = Payment()
+        p.register = register
+        p.source = register.source
+        p.bill = abonent.bill
+        p.sum = sum
+        p.inner_descr = descr
+        p.admin= request.user
+        p.bank_date = bank_date
+        p.save()
+                    
+        return dict(success=False, title='Сбой проведения оплаты', msg='not implemented', errors='', data={} )
+    
+    make_payment._args_len = 1

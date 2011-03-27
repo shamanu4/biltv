@@ -296,6 +296,7 @@ class PaymentRegister(models.Model):
         obj['closed'] = self.closed
         obj['start'] = self.start
         obj['end'] = self.end
+        obj['unicode'] = self.__unicode__()
         return obj
         
         
