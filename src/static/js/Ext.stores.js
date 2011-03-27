@@ -68,6 +68,32 @@ Ext.ux.cities_combo_store = new Ext.data.DirectStore({
     }
 });
 
+Ext.ux.sources_combo_store = new Ext.data.DirectStore({
+    api: {
+        read: SourceGrid.read,
+        create: SourceGrid.foo,
+        update: SourceGrid.foo,
+        destroy: SourceGrid.foo
+    },
+    restful: true,
+    autoLoad: true,
+    storeId: 'sources-combo-store',
+    reader: new Ext.data.JsonReader({
+        root: 'data',
+        totalProperty: 'total',
+        //idProperty: 'id',
+        fields: [
+            'id',
+            'name',
+        ]
+    }),
+    baseParams : {
+        filter_fields:['name'],
+        filter_value:'',
+        filter:''
+    }
+});
+
 var cities_ds_model = Ext.data.Record.create([
     'id',
     'name',
@@ -414,3 +440,59 @@ Ext.ux.free_card_combo_store = new Ext.data.DirectStore({
                     filter_value:''
                 }
             })
+			
+
+Ext.ux.register_store = new Ext.data.DirectStore({
+    api: {
+        read: RegisterGrid.read,
+        create: RegisterGrid.create,
+        update: RegisterGrid.update,
+        destroy: RegisterGrid.destroy
+    },
+    restful: true,
+    autoLoad: true,
+    autoSave: false,
+    storeId: 'register-store',
+    reader: new Ext.data.JsonReader({
+        root: 'data',
+        totalProperty: 'total',
+        //idProperty: 'id',
+        fields: [
+            'id',
+			'source',
+            'total',
+            'current',
+            'closed',
+            'start',
+			'end'            
+        ]
+    }),
+    writer: new Ext.data.JsonWriter({
+        encode: false,
+        writeAllFields: true,
+        listful: true
+    }),
+    baseParams : {
+        start:0,
+        limit:16,
+        filter_fields:['num'],
+        filter_value:''
+    },
+    listeners:{
+        write: function (store,action,result,res,rs) {
+            if(store.client && store.client.onWrite) {
+                store.client.onWrite(res.result)
+            }
+        }
+    }
+});
+
+var register_ds_model = Ext.data.Record.create([
+			'id',
+			'source',
+            'total',
+            'current',
+            'closed',
+            'start',
+			'end'
+]);

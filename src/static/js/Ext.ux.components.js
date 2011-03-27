@@ -167,9 +167,9 @@ Ext.ux.menu = {
                     'handler': Engine.menu.cashier.abonent.openGrid,
                     'text': 'Пользователи'
                 },{
-                    'text': 'Item Two'
-                },{
-                    'text': 'Item Three'
+                    'id': 'menu-cashier-register-button',
+                    'handler': Engine.menu.cashier.register.openGrid,
+                    'text': 'Реестры'
                 }
             ]
         }
@@ -226,6 +226,7 @@ Ext.ux.MenuBar = Ext.extend(Ext.Toolbar,{
 Ext.ux.CustomGridNE = Ext.extend(Ext.grid.EditorGridPanel,{
     store: null,
     ds_model: null,
+	closable: true,
     columns: [],
     height: 500,
     boxMaxWidth: 1000,
@@ -613,6 +614,75 @@ Ext.ux.CardGrid = Ext.extend(Ext.ux.CustomGrid ,{
                 {header: "Active", dataIndex: 'active', width:100, xtype: 'booleancolumn'},
                 {header: "Activated", dataIndex: 'activated', width:150},
             ]         
+});
+
+Ext.ux.SourceCombo = Ext.extend(Ext.form.ComboBox, {
+    initComponent: function() {
+        var config = {
+            store: Ext.ux.sources_combo_store,
+            editable: true,
+            forceSelection: true,
+            lazyRender: false,
+            triggerAction: 'all',
+            valueField: 'id',
+            displayField: 'name',
+            mode: 'local'
+        }
+        Ext.apply(this, Ext.apply(this.initialConfig, config));
+        Ext.ux.SourceCombo.superclass.initComponent.apply(this, arguments);
+    }
+}),
+
+Ext.ux.RegisterGrid = Ext.extend(Ext.ux.CustomGrid ,{
+            store: 'register-store',
+            title: 'Реестры',
+            ds_model: register_ds_model,
+            columns: [
+                {header: "Id", dataIndex: 'id', width:100, editable:false},
+                {header: "Source", dataIndex: 'source', width:100, editable:false, editor: new Ext.ux.SourceCombo(),
+					renderer: function(value, metaData, record, rowIndex, colIndex, store){
+						if (value === undefined) {
+							this.editable = true
+						}
+						return value;
+					}
+                },
+                {header: "Total", dataIndex: 'total', width:100, editable:false, editor: new Ext.form.TextField(),
+					renderer: function(value, metaData, record, rowIndex, colIndex, store){
+						if (value === undefined) {
+							this.editable = true
+						}
+						return value;
+					} 
+				},
+                {header: "Current", dataIndex: 'current', width:100, editable:false},
+                {header: "Start", dataIndex: 'start', width:180, editable:false, editor: new Ext.form.DateField({format:'Y-m-d'}),
+					renderer: function(value, metaData, record, rowIndex, colIndex, store){
+						if (value === undefined) {
+							this.editable = true
+						}
+						return value;
+					},
+                	listeners: {
+                    	change : {
+                        	fn: function(obj) {
+                            	tfoo=1
+								debugger;
+                        	},
+                        	scope: this
+                    	}
+                	}
+				},
+				{header: "End", dataIndex: 'end', width:180, editable:false, editor: new Ext.form.DateField({format:'Y-m-d'}),
+					renderer: function(value, metaData, record, rowIndex, colIndex, store){
+						if (value === undefined) {
+							this.editable = true
+						}
+						return value;
+					}
+				},
+				{header: "Closed", dataIndex: 'closed', width:100, editable:false},
+            ],       
 });
 
 /*
@@ -1298,7 +1368,6 @@ Ext.ux.AbonFeesGrid = Ext.extend(Ext.ux.CustomGridNE ,{
         {header: "Timestamp", dataIndex: 'timestamp', width:180, sortable: true},
         {header: "Sum", dataIndex: 'sum', width:50, sortable: true},
         {header: "Prev", dataIndex: 'prev', width:50},
-        {header: "Maked", dataIndex: 'maked', width:40},
         {header: "Descr", dataIndex: 'inner_descr', width:200},
         {header: "", dataIndex: 'id', width:26,
             renderer: function(value, metaData, record, rowIndex, colIndex, store) {

@@ -119,14 +119,16 @@ class GridApiClass(object):
     def destroy(self,rdata,request):
         print request.POST
 
+    def foo(self,rdata,request):
+        print rdata
 
 class Router(RpcRouter):
     
     def __init__(self):
         from abon.models import City,Street,House,Building,Abonent
-        from tv.models import Card
+        from tv.models import Card, PaymentRegister, PaymentSource
         from abon.forms import CityForm,StreetForm,HouseNumForm,BuildingForm
-        from tv.forms import CardForm
+        from tv.forms import CardForm, RegisterForm
         from django.db.models import Q
         self.url = 'ui:router'
         self.actions = {
@@ -139,5 +141,7 @@ class Router(RpcRouter):
             'BuildingGrid': GridApiClass(Building,BuildingForm),
             'AbonentGrid': GridApiClass(Abonent,None),
             'CardGrid':GridApiClass(Card,CardForm,Q(**{"num__gte":0})),
+            'RegisterGrid':GridApiClass(PaymentRegister,RegisterForm),
+            'SourceGrid':GridApiClass(PaymentSource,None),
         }                
         self.enable_buffer = 50

@@ -150,7 +150,18 @@ Engine = {
                     Ext.getCmp('tab-panel').toolbars[0].add(form);
                     Ext.getCmp('tab-panel').toolbars[0].doLayout();
                 }
-            }
+            },
+			register: {
+				openGrid: function() {
+                    var grid = Engine.getComponent(Ext.ux.RegisterGrid,'Ext.ux.RegisterGrid')
+                    if (grid.store && grid.rendered) {
+                        grid.store.load()
+                    }
+                    Ext.getCmp('tab-panel').toolbars[0].add(grid);
+                    Ext.getCmp('tab-panel').toolbars[0].add(grid);
+                    Ext.getCmp('tab-panel').toolbars[0].doLayout();
+                },
+			}
         },
         scrambler: {
             card: {

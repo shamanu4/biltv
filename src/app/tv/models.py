@@ -234,10 +234,17 @@ class TariffPlanChannelRelationship(models.Model):
 class PaymentSource(models.Model):
     
     name = models.CharField(max_length="40")
-    descr = models.TextField()
+    descr = models.TextField(blank=True, null=True)
     
     def __unicode__(self):
         return self.name
+    
+    def store_record(self):
+        obj = {}
+        obj['id'] = self.id
+        obj['name'] = self.name
+        return obj
+        
 
 
 
@@ -252,12 +259,12 @@ class PaymentRegister(models.Model):
     def __unicode__(self):
         return "%s (%s %s) [%s]" % (self.source.name, self.start, self.end, self.total)
 
-    def get_current_sum(self):
-        money = Payment.objects.filter(register=self).aggregate(current=models.Sum('sum'))
-        return money['current'] or 0
+    @property
+    def current(self):
+        return Payment.objects.filter(register=self).aggregate(current=models.Sum('sum'))['current'] or 0
     
     def try_this_payment(self,sum):
-        if not (self.get_current_sum() + sum) > self.total:
+        if not (self.current + sum) > self.total:
             return True
         return False
     
@@ -272,15 +279,26 @@ class PaymentRegister(models.Model):
     
     @property
     def is_filled(self):
-        return self.get_current_sum() == self.total 
+        return self.current == self.total 
     
     def try_close(self):
         if self.is_confirmed and self.is_filled:
             self.closed = True
             self.save()
         return self.closed
-
-
+    
+    def store_record(self):
+        obj = {}
+        obj['id'] = self.pk
+        obj['source'] = self.source.name
+        obj['total'] = self.total
+        obj['current'] = self.current
+        obj['closed'] = self.closed
+        obj['start'] = self.start
+        obj['end'] = self.end
+        return obj
+        
+        
     
 class PaymentRegisterStamp(models.Model):
     
