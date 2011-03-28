@@ -229,6 +229,8 @@ class TariffPlanChannelRelationship(models.Model):
         ordering = ('tp__name','chrel__channel__name')
         unique_together = (('tp', 'chrel'),)
 
+class PaymentRegister(models.Model):
+    pass
 
 class PaymentSource(models.Model):
     name = models.CharField(max_length="40")
