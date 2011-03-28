@@ -169,3 +169,10 @@ PaymentSource
 class PaymentSourceAdmin(admin.ModelAdmin):
     pass
 admin.site.register(PaymentSource, PaymentSourceAdmin)
+
+"""
+PaymentRegister
+"""
+class PaymentRegisterAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(PaymentRegister, PaymentRegisterAdmin)

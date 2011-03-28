@@ -153,6 +153,7 @@ class AddressForm(forms.Form):
     comment = forms.CharField(required=False)
 
     def save(self,obj):
+        print self.cleaned_data
         from abon.models import Address,Building
         if not obj:
             obj = Address()
@@ -162,10 +163,9 @@ class AddressForm(forms.Form):
             b.save()
         except IntegrityError as error:
             return (False,obj,error[1].decode('utf8'))
-        obj = obj.get_or_create(b,self.cleaned_data['flat'])
+        obj = obj.get_or_create(b,self.cleaned_data['flat'],self.cleaned_data['ext'])
         #obj.code = self.cleaned_data['ext'] or ''
         obj.code = ''
-        obj.override = self.cleaned_data['ext']
         obj.deleted = self.cleaned_data['deleted'] or False
         obj.comment = self.cleaned_data['comment']
         try:

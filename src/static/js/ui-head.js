@@ -9,12 +9,13 @@ Engine = {
     components: {
         
     },
-    getComponent: function(component,string) {
+    getComponent: function(component,string,params) {
         if(string in Engine.components) {
-            return Engine.components[string]
+            Ext.apply(Engine.components[string], params);            
+			return Engine.components[string]
         } else {
-            Engine.components[string] = new component()
-            return Engine.components[string]
+            Engine.components[string] = new component(params)
+			return Engine.components[string]
         }
     },
     getComponentFromPool: function(component,string,params,instances) {
@@ -150,7 +151,30 @@ Engine = {
                     Ext.getCmp('tab-panel').toolbars[0].add(form);
                     Ext.getCmp('tab-panel').toolbars[0].doLayout();
                 }
-            }
+            },
+			register: {
+				openGrid: function() {
+                    var grid = Engine.getComponent(Ext.ux.RegisterGrid,'Ext.ux.RegisterGrid')
+                    if (grid.store && grid.rendered) {
+                        grid.store.load()
+                    }
+                    Ext.getCmp('tab-panel').toolbars[0].add(grid);
+                    Ext.getCmp('tab-panel').toolbars[0].add(grid);
+                    Ext.getCmp('tab-panel').toolbars[0].doLayout();
+                },
+			},
+			payment: {
+				openForm: function(oid) {
+					if ((typeof oid == 'object') && ('oid' in oid)) {
+						oid = oid['oid']
+					}
+					var form = Engine.getComponent(Ext.ux.PaymentForm,'Ext.ux.PaymentForm',{'oid':oid})
+                    Ext.getCmp('tab-panel').toolbars[0].add(form);
+                    Ext.getCmp('tab-panel').toolbars[0].add(form);
+                    Ext.getCmp('tab-panel').toolbars[0].doLayout();
+				}
+			}
+			
         },
         scrambler: {
             card: {

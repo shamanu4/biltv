@@ -15,4 +15,6 @@ encoding//src/app/tv/forms.py=utf-8
 encoding//src/app/tv/models.py=utf-8
 encoding//src/app/tv/rpc.py=utf-8
 encoding//src/app/ui/rpc.py=utf-8
+encoding//src/settings_local.py=utf-8
 encoding//src/serializers.py=utf-8
+
