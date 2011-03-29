@@ -86,7 +86,9 @@ class AbonApiClass(object):
         except Abonent.DoesNotExist:
             return dict(success=False, title='Сбой загрузки формы', msg='abonent not found', errors='')
         else:
-            return dict(success=True, data=a.address.store_record())
+            data = a.address.store_record()
+            data.update({'activated':a.activated.date()}) #страшний бидлокод. 
+            return dict(success=True, data=data)
 
     address_get._args_len = 1
 

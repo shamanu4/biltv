@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from datetime import date
+from datetime import date, datetime
 from django.db import models
 
 class Group(models.Model):
@@ -364,6 +364,7 @@ class Abonent(models.Model):
     person = models.ForeignKey(Person, related_name='abonents')
     address = models.ForeignKey(Address, related_name='abonents')
     group = models.ForeignKey(Group, default=1, related_name='members')
+    activated = models.DateTimeField(default=datetime.now)
     deleted = models.BooleanField(default=False)
     comment = models.TextField(blank=True, null=True)
     sorting = models.CharField(blank=True, max_length=150)
@@ -412,7 +413,7 @@ class Abonent(models.Model):
         s.card = c
         s.tp = t
         s.save()
-        c.activate()
+        c.activate(self.activated)
         return True
 
     def save(self, *args, **kwargs):
@@ -438,6 +439,7 @@ class Abonent(models.Model):
         obj['address'] = self.address.__unicode__()
         obj['comment'] = self.comment
         obj['confirmed'] = self.confirmed
+        obj['activated'] = self.activated
         obj['disabled'] = self.disabled
         return obj
 

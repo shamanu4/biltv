@@ -914,7 +914,14 @@ Ext.ux.AddressForm = Ext.extend(Ext.FormPanel, {
                 fieldLabel: 'Номер счёта',
                 name: 'ext',
                 allowBlank:false
-            }],
+            },
+			this.activated_field = new Ext.form.DateField({
+                fieldLabel: 'Подключен',
+                name: 'activated',
+				xtype: 'datefield',
+				format: 'Y-m-d',
+                allowBlank: false
+            })],
         /*
             buttons:[{
                 text: 'ОК',
@@ -929,8 +936,8 @@ Ext.ux.AddressForm = Ext.extend(Ext.FormPanel, {
                     params: {
                         uid: (this.oid || 0)
                     },
-                    success: function(form, action) {                        
-                        this.parent_form.children_forms.address.ready2=true
+                    success: function(form, action) {    
+						this.parent_form.children_forms.address.ready2=true
                         this.parent_form.children_forms.address.oid = action.result.data['id']
                     },
                     scope: this
@@ -1593,7 +1600,7 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                 parent_form: this
             }],
             submitprep: function() {
-                this.children_forms_ready()
+				this.children_forms_ready()
                 if(!this.children_forms.person.ready2) {
                     this.children_forms.person.obj.submitaction()                    
                 }
@@ -1607,7 +1614,8 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                     person_id: this.children_forms.person.oid,
                     address_id: this.children_forms.address.oid,
                     confirmed: this.children_forms.confirmed.obj.checked,
-					disabled: this.children_forms.disabled.obj.checked
+					disabled: this.children_forms.disabled.obj.checked,
+					activated: this.children_forms.address.obj.activated_field.value                
                 },this.submitcallback.createDelegate(this));
             },
             submitcallback: function(result,e) {                
