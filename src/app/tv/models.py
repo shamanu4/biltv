@@ -229,8 +229,14 @@ class TariffPlanChannelRelationship(models.Model):
     class Meta:
         ordering = ('tp__name','chrel__channel__name')
         unique_together = (('tp', 'chrel'),)
+<<<<<<< HEAD
+
+class PaymentRegister(models.Model):
+    pass
+=======
         
         
+>>>>>>> b72a2615af55ff5def0dd698c8496a318d85f091
 
 class PaymentSource(models.Model):
     
