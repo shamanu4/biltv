@@ -227,15 +227,8 @@ class TariffPlanChannelRelationship(models.Model):
 
     class Meta:
         ordering = ('tp__name','chrel__channel__name')
-        unique_together = (('tp', 'chrel'),)
-<<<<<<< HEAD
-
-class PaymentRegister(models.Model):
-    pass
-=======
-        
-        
->>>>>>> b72a2615af55ff5def0dd698c8496a318d85f091
+        unique_together = (('tp', 'chrel'),)        
+                
 
 class PaymentSource(models.Model):
     
@@ -651,7 +644,6 @@ class Card(models.Model):
                     else:
                         action = CARD_OWNER_CHANGED
                         oid = self.owner.pk
-                else:
                     action = CARD_OWNER_ADDED
                     oid = self.owner.pk
                     
