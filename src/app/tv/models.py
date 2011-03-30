@@ -145,13 +145,14 @@ class FeeType(models.Model):
         return u'Снятие денег | %s (%s)' % (self.name, self.sum)
 
     def get_sum(self,date=None):
+        from lib.functions import date_formatter
         if not self.ftype == FEE_TYPE_CUSTOM:
             return {'fee':self.sum,'ret':0}
 
         if not date:
-            date=datetime.now()
+            date=date_formatter()
 
-        day = date.day
+        day = date['day'].day
         sum = 0
         ret = 0
 
@@ -191,7 +192,7 @@ class TariffPlan(models.Model):
         return "%s" % self.name
 
     def send(self):
-        for service in self.services.all():
+        for service in self.services.filter(card__num__gte=0):
             service.card.send()
 
     def save(self, *args, **kwargs):
@@ -470,56 +471,57 @@ class TariffPlanFeeRelationship(models.Model):
     def __unicode__(self):
         return "%s - %s" % (self.tp.name, self.fee_type.name)
 
-    def check_fee(self,card,**kwargs):
-        from lib.functions import date_formatter
-        date = date_formatter()
+    def check_fee(self,card,fee_date=None,**kwargs):
+        from lib.functions import date_formatter         
+        date = date_formatter(fee_date)
         print "checking fee ..."
+        print date
         my_maked_fees = Fee.objects.filter(card__exact=card, tp__exact=self.tp, fee_type__exact=self.fee_type, maked__exact=True, deleted__exact=False)
         if not card.bill:
             return (False,"This card have not account with bill")
         if self.fee_type.ftype == FEE_TYPE_ONCE:
-            return self.make_fee(card,**kwargs)
+            return self.make_fee(card,date,**kwargs)
 
         if self.fee_type.ftype == FEE_TYPE_CUSTOM:
-            return self.make_fee(card,**kwargs)
+            return self.make_fee(card,date,**kwargs)
 
         if self.fee_type.ftype == FEE_TYPE_DAILY:
             c = my_maked_fees.filter(timestamp__gte=date['day'])
             if c.count()>0:
                 return (False,"Fee already maked")
             else:
-                return self.make_fee(card,**kwargs)
+                return self.make_fee(card,date,**kwargs)
 
         if self.fee_type.ftype == FEE_TYPE_WEEKLY:
             c = my_maked_fees.filter(timestamp__gte=date['week'])
             if c.count()>0:
                 return (False,"Fee already maked")
             else:
-                return self.make_fee(card,**kwargs)
+                return self.make_fee(card,date,**kwargs)
 
         if self.fee_type.ftype == FEE_TYPE_MONTHLY:
             c = my_maked_fees.filter(timestamp__gte=date['month'])
             if c.count()>0:
                 return (False,"Fee already maked")
             else:
-                return self.make_fee(card,**kwargs)
+                return self.make_fee(card,date,**kwargs)
 
         if self.fee_type.ftype == FEE_TYPE_YEARLY:
             c = my_maked_fees.filter(timestamp__gte=date['year'])
             if c.count()>0:
                 return (False,"Fee already maked")
             else:
-                return self.make_fee(card,**kwargs)
+                return self.make_fee(card,date,**kwargs)
 
 
-    def make_fee(self,card,**kwargs):
+    def make_fee(self,card,date=None,**kwargs):
         print "making fee ..."
         fee = Fee()
         fee.bill = card.bill
         fee.card = card
         fee.tp = self.tp
         fee.fee_type = self.fee_type
-        fee.sum = self.fee_type.get_sum()['fee']
+        fee.sum = self.fee_type.get_sum(date)['fee']
         fee.save()
         if 'hold' in kwargs and kwargs['hold']:
             print "holding fee"
@@ -617,6 +619,8 @@ class Card(models.Model):
         return "%s" % self.num
 
     def send(self):
+        if self.num<0:
+            return False
         print "sending..."
         from scrambler import scrambler
         u = scrambler.UserQuery(self.num)
@@ -716,13 +720,13 @@ class Card(models.Model):
         return int_to_4byte_wrapped(self.balance_int)
 
 
-    def activate(self):
+    def activate(self,activated=None):
         if not self.owner:
             return False
         for service in self.services.all():
-            service.activate()
+            service.activate(activated)
         self.active=True
-        self.activated=datetime.now()
+        self.activated= activated or datetime.now()
         self.save()
         return True
 
@@ -803,16 +807,17 @@ class CardService(models.Model):
         super(self.__class__, self).delete(*args, **kwargs)
         self.card.send()
 
-    def activate(self):
+    def activate(self,activated = None):
         if not self.active:
             fees = self.tp.fees.all()
             print fees
+            print "activation date: %s" % activated
             ok = True
             total = 0
             allow_negative = True
             prepared = []
             for fee in fees:
-                f = fee.check_fee(self.card,hold=True)
+                f = fee.check_fee(self.card,activated,hold=True)
                 if f[0]: prepared.append(f[1])
             for fee in prepared:
                 allow_negative = allow_negative and fee.fee_type.allow_negative
@@ -827,7 +832,7 @@ class CardService(models.Model):
                     fee.save()
             if ok:
                 self.active=True
-                self.activated=datetime.now()
+                self.activated=activated or datetime.now()
             else:
                 self.deactivate()
                 return False
