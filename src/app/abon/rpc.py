@@ -339,6 +339,56 @@ class AbonApiClass(object):
         p.bank_date = bank_date
         p.save()
                     
-        return dict(success=False, title='Сбой проведения оплаты', msg='not implemented', errors='', data={} )
+        return dict(success=True, title='Оплата принята', msg='...', errors='', data={} )
     
     make_payment._args_len = 1
+    
+    @store_read    
+    def feetypes_get(self,rdata,request):
+        from tv.models import FeeType, FEE_TYPE_ONCE
+        return FeeType.objects.filter(ftype=FEE_TYPE_ONCE)
+    
+    feetypes_get._args_len = 1
+    
+    def make_fee(self,rdata,request):
+        from tv.models import FeeType, Fee
+        from abon.models import Abonent
+        from datetime import datetime
+        
+        print rdata
+        
+        ftype_id = int(rdata['type'])
+        uid = int(rdata['abonent'])
+        sum = float(rdata['sum'])
+        tmpdate = rdata['bankdate']
+        descr = rdata['descr'] or ''
+        
+        
+        try:
+            ftype = FeeType.objects.get(pk=ftype_id)
+        except FeeType.DoesNotExist:
+            return dict(success=False, title='Сбой снятия денег', msg='register not found', errors='', data={} )
+        
+        try:
+            abonent = Abonent.objects.get(pk=uid)
+        except Abonent.DoesNotExist:
+            return dict(success=False, title='Сбой снятия денег', msg='abonent not found', errors='', data={} )
+        
+        try:
+            bank_date = datetime.strptime(tmpdate,'%Y-%m-%dT%H:%M:%S').date()
+        except ValueError:
+            return dict(success=False, title='Сбой снятия денег', msg='invalid date', errors='', data={} )    
+        
+        f = Fee()
+        f.fee_type = ftype
+        f.bill = abonent.bill
+        f.sum = sum
+        f.inner_descr = descr
+        f.admin= request.user
+        f.bank_date = bank_date
+        f.save()
+        f.make()
+                    
+        return dict(success=True, title='Снятие проведено', msg='...', errors='', data={} )        
+    
+    make_fee._args_len = 1

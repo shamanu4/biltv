@@ -163,6 +163,13 @@ class FeeType(models.Model):
 
         return {'fee':sum,'ret':ret}
 
+    def store_record(self):
+        obj = {}
+        obj['id'] = self.pk
+        obj['unicode'] = self.__unicode__()
+        obj['sum'] = self.get_sum()['fee']
+        return obj
+
 
 
 
@@ -399,6 +406,7 @@ class Fee(models.Model):
     inner_descr = models.TextField()
     tp = models.ForeignKey(TariffPlan, blank=True, null=True)
     fee_type = models.ForeignKey(FeeType, blank=True, null=True)
+    admin = models.ForeignKey("accounts.User", blank=True, null=True)    
 
     def __unicode__(self):
         return "%s" % self.sum

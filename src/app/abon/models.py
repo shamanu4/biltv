@@ -441,6 +441,7 @@ class Abonent(models.Model):
         obj['confirmed'] = self.confirmed
         obj['activated'] = self.activated
         obj['disabled'] = self.disabled
+        obj['fee'] = 25
         return obj
 
 
