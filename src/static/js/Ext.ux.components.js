@@ -687,8 +687,35 @@ Ext.ux.RegisterGrid = Ext.extend(Ext.ux.CustomGrid ,{
 					}
 				},
 				{header: "Closed", dataIndex: 'closed', width:100, editable:false},
-            ],       
+				{header: " ", dataIndex: 'id', width: 28,
+                    renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                        return '<div class="inline_edit_button abonent_edit_button" id="'+value+'" code="'+record.data.code+'" confirmed="'+record.data.confirmed+'" dis="'+record.data.disabled+'"></div>'
+                    }
+                },
+            ],
+            addAction: function(){
+                Engine.menu.cashier.abonent.openForm()
+            },
+            listeners: {
+                afterrender : {
+                    fn: function(obj) {
+                        $(".abonent_edit_button").live('click', function(e) {
+                            Engine.menu.cashier.abonent.openForm(this.id,$(this).attr('code'),$(this).attr('confirmed'),$(this).attr('dis'));
+                        })
+                    }
+                }
+            }
 });
+
+Ext.ux.RegisterForm = Ext.extend(Ext.FormPanel, {
+    initComponent: function(){
+		var config = {
+			
+		}
+		Ext.apply(this, Ext.apply(this.initialConfig, config));
+        Ext.ux.RegisterForm.superclass.initComponent.apply(this, arguments);
+	} 
+}); 
 
 /*
  *  Forms and panels
