@@ -707,11 +707,139 @@ Ext.ux.RegisterGrid = Ext.extend(Ext.ux.CustomGrid ,{
             }
 });
 
-Ext.ux.RegisterForm = Ext.extend(Ext.FormPanel, {
+Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
     initComponent: function(){
 		var config = {
 			title: 'Реестр #'+this.oid,
-		}
+			closable: true,
+			layout: 'anchor',
+			register: null,			
+			items: [
+				this.filterform = new Ext.FormPanel({
+					frame: true,
+					items: [
+						this.registercombo = new Ext.form.ComboBox({
+							store: new Ext.data.DirectStore({
+    							api: {
+        							read: AbonApi.registers_get,
+        							create: AbonApi.foo,
+        							update: AbonApi.foo,
+        							destroy: AbonApi.foo
+    							},
+    							remoteSort: true,
+    							restful: true,
+    							autoLoad: true,
+    							autoSave: false,
+    							reader: new Ext.data.JsonReader({
+        							root: 'data',
+        							totalProperty: 'total',
+        							//idProperty: 'id',
+        							fields: [
+            							'id',
+										'unicode',
+            							'source',
+										'total',
+										'current',
+										'start',
+										'end',            						
+									]
+    							}),
+    							baseParams : {
+        							start:0,
+        							limit:100,        							
+    							},
+    						}),
+							width: 400,
+							valueField: 'unicode',
+            				displayField: 'unicode',
+							triggerAction: 'all',
+							editable: false,							
+							forceSelection: true,
+							fieldLabel: 'Реестр',
+							listeners: {
+								select: {
+									fn: function(combo,record,index) {
+										this.register = record.data.id
+									},
+									scope: this
+								}
+							}
+						})
+					]					
+				}),
+				this.resultsgrid = new Ext.grid.GridPanel({
+					store: new Ext.data.DirectStore({
+                		restful: true,
+                		autoLoad: false,
+                		reader: new Ext.data.JsonReader({
+                    		root: 'data',
+                    		totalProperty: 'total',
+                    		fields: [
+                     			'id',
+                        		'bill',
+                        		'timestamp',
+                        		'sum',
+                        		'prev',
+                        		'maked',
+								'source__name',
+								'bank_date',
+                        		'descr',
+                        		'inner_descr'
+                    		]
+                		}),
+                		api: {
+                    		read: AbonApi.reg_payments_get,
+                    		create: AbonApi.foo,
+                    		update: AbonApi.foo,
+                    		destroy: AbonApi.foo
+                		},
+                		baseParams : {
+                    		register_id:this.register,
+                    		admin_id:this.admin,
+                    		start_date:this.start_date,
+							end_date:this.start_date,
+                		}
+					}),
+					columns: [
+        				{header: "Id", dataIndex: 'id', width:40},
+        				{header: "Bill", dataIndex: 'bill', width:40},
+        				{header: "Timestamp", dataIndex: 'timestamp', width:120, sortable: true},
+        				{header: "Sum", dataIndex: 'sum', width:50, sortable: true},
+        				{header: "Prev", dataIndex: 'prev', width:50},
+						{header: "Source", dataIndex: 'source__name', width:120, sortable: true},
+						{header: "Bank date", dataIndex: 'bank_date', width:120, sortable: true},
+        				{header: "Descr", dataIndex: 'inner_descr', width:200},
+        				{header: "", dataIndex: 'id', width:26,
+            				renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                				return '<img src="/static/extjs/custom/delete_16.png">';
+            				}
+        				}
+    				],
+				})
+			],
+			listeners: {
+            	afterrender: {
+                	fn: function(obj) {                             
+                    	this.registercombo.store.load({
+							callback: function(response) {
+								index = this.registercombo.store.indexOfId(parseInt(this.oid))								
+								if (index>=0) {
+									this.registercombo.setValue(response[index].data.unicode)
+									this.register = this.oid
+									this.preload()
+								}								
+							},
+							scope: this
+						})		
+                    },
+                    scope: this
+                }
+            },
+			preload: function() {
+				this.resultsgrid.store.setBaseParam('register_id',this.register)
+				this.resultsgrid.store.load()
+			}			
+		}		
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.RegisterForm.superclass.initComponent.apply(this, arguments);
 	} 

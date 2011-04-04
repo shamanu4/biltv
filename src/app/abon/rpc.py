@@ -392,3 +392,18 @@ class AbonApiClass(object):
         return dict(success=True, title='Снятие проведено', msg='...', errors='', data={} )        
     
     make_fee._args_len = 1
+    
+    @store_read    
+    def reg_payments_get(self,rdata,request):
+        from tv.models import Payment, PaymentRegister
+        
+        register_id = int(rdata['register_id'])
+        
+        try:
+            register = PaymentRegister.objects.get(pk=register_id)
+        except PaymentRegister.DoesNotExist:
+            return dict(success=False, title='Сбой получения статистики оплат', msg='register not found', errors='', data={} )
+                
+        return Payment.objects.filter(register=register)
+    
+    reg_payments_get._args_len = 1
