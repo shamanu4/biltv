@@ -162,6 +162,12 @@ Engine = {
                     Ext.getCmp('tab-panel').toolbars[0].add(grid);
                     Ext.getCmp('tab-panel').toolbars[0].doLayout();
                 },
+				openForm: function(id) {
+                    var form = Engine.getComponentFromPool(Ext.ux.RegisterForm,'Ext.ux.RegisterForm',{'oid':id,})
+                    Ext.getCmp('tab-panel').toolbars[0].add(form);
+                    Ext.getCmp('tab-panel').toolbars[0].add(form);
+                    Ext.getCmp('tab-panel').toolbars[0].doLayout();
+                }
 			},
 			payment: {
 				openForm: function(oid) {

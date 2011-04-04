@@ -689,7 +689,7 @@ Ext.ux.RegisterGrid = Ext.extend(Ext.ux.CustomGrid ,{
 				{header: "Closed", dataIndex: 'closed', width:100, editable:false},
 				{header: " ", dataIndex: 'id', width: 28,
                     renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-                        return '<div class="inline_edit_button abonent_edit_button" id="'+value+'" code="'+record.data.code+'" confirmed="'+record.data.confirmed+'" dis="'+record.data.disabled+'"></div>'
+                        return '<div class="inline_edit_button register_edit_button" id="'+value+'" code="'+record.data.code+'" confirmed="'+record.data.confirmed+'" dis="'+record.data.disabled+'"></div>'
                     }
                 },
             ],
@@ -699,8 +699,8 @@ Ext.ux.RegisterGrid = Ext.extend(Ext.ux.CustomGrid ,{
             listeners: {
                 afterrender : {
                     fn: function(obj) {
-                        $(".abonent_edit_button").live('click', function(e) {
-                            Engine.menu.cashier.abonent.openForm(this.id,$(this).attr('code'),$(this).attr('confirmed'),$(this).attr('dis'));
+                        $(".register_edit_button").live('click', function(e) {
+                            Engine.menu.cashier.register.openForm(this.id);
                         })
                     }
                 }
@@ -710,7 +710,7 @@ Ext.ux.RegisterGrid = Ext.extend(Ext.ux.CustomGrid ,{
 Ext.ux.RegisterForm = Ext.extend(Ext.FormPanel, {
     initComponent: function(){
 		var config = {
-			
+			title: 'Реестр #'+this.oid,
 		}
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.RegisterForm.superclass.initComponent.apply(this, arguments);
