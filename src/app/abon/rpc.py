@@ -301,6 +301,13 @@ class AbonApiClass(object):
     
     registers_get._args_len = 1
     
+    @store_read
+    def registers_get_last(self,rdata,request):
+        from tv.models import PaymentRegister
+        return PaymentRegister.objects.all().order_by('-timestamp')[:20]
+    
+    registers_get_last._args_len = 1
+    
     def make_payment(self,rdata,request):
         from tv.models import PaymentRegister, Payment
         from abon.models import Abonent
@@ -392,18 +399,45 @@ class AbonApiClass(object):
         return dict(success=True, title='Снятие проведено', msg='...', errors='', data={} )        
     
     make_fee._args_len = 1
-    
+
     @store_read    
     def reg_payments_get(self,rdata,request):
+        from accounts.models import User
         from tv.models import Payment, PaymentRegister
+        from django.db import models
         
         register_id = int(rdata['register_id'])
+        
+        if 'admin_id' in rdata and rdata['admin_id']>0:            
+            try:
+                admin = User.objects.get(pk=rdata['admin_id'])
+            except User.DoesNotExist:
+                return dict(success=False, title='Сбой получения статистики оплат', msg='operator not found', errors='', data={} )
+        else:
+            admin = None
         
         try:
             register = PaymentRegister.objects.get(pk=register_id)
         except PaymentRegister.DoesNotExist:
             return dict(success=False, title='Сбой получения статистики оплат', msg='register not found', errors='', data={} )
-                
-        return Payment.objects.filter(register=register)
+                                
+        payments = Payment.objects.filter(register=register)
+        
+        if admin:
+            payments = payments.filter(admin=admin)
+        
+        sum = payments.aggregate(current=models.Sum('sum'))['current'] or 0
+        count = payments.count()
+        
+        return (payments,{'sum':sum,'count':count})    
     
     reg_payments_get._args_len = 1
+    
+    @store_read
+    def admins_get(self,rdata,request):
+        from accounts.models import User
+    
+        return User.objects.all()
+    
+    admins_get._args_len = 1
+        

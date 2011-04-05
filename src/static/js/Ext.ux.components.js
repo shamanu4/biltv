@@ -175,6 +175,10 @@ Ext.ux.menu = {
                     'handler': Engine.menu.cashier.payment.openForm,
                     'text': 'Оплаты',
 					'oid': 0
+                },{
+                    'id': 'menu-cashier-registers-form-button',
+                    'handler': Engine.menu.cashier.register.openForm,
+                    'text': 'Отчёт по оплатам',
                 }
             ]
         }
@@ -707,17 +711,80 @@ Ext.ux.RegisterGrid = Ext.extend(Ext.ux.CustomGrid ,{
             }
 });
 
+
+
 Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
     initComponent: function(){
 		var config = {
-			title: 'Реестр #'+this.oid,
+			title: 'Реестр',
 			closable: true,
 			layout: 'anchor',
-			register: null,			
+			register: null,	
+			admin: null,	
 			items: [
 				this.filterform = new Ext.FormPanel({
 					frame: true,
 					items: [
+						{
+							xtype: 'buttongroup',
+							title: 'Оператор',
+							items: [
+							this.admincombo = new Ext.form.ComboBox({
+								store: new Ext.data.DirectStore({
+    								api: {
+        								read: AbonApi.admins_get,
+        								create: AbonApi.foo,
+        								update: AbonApi.foo,
+        								destroy: AbonApi.foo
+    								},
+    								remoteSort: true,
+    								restful: true,
+    								autoLoad: true,
+    								autoSave: false,
+    								reader: new Ext.data.JsonReader({
+        								root: 'data',
+        								totalProperty: 'total',
+        								//idProperty: 'id',
+        								fields: [
+            								'id',
+											'username',          						
+										]
+    								}),
+    								baseParams : {
+        								start:0,
+        								limit:100,        							
+    								},
+    							}),
+								valueField: 'username',
+            					displayField: 'username',
+								triggerAction: 'all',
+								editable: false,							
+								forceSelection: true,
+								fieldLabel: 'Оператор',
+								listeners: {
+									select: {
+										fn: function(combo,record,index) {
+											this.admin = record.data.id
+											this.preload()
+										},
+										scope: this
+									}
+								}
+							}),
+							this.resetbutton = new Ext.Button({
+								text: 'сбросить',
+								listeners: {
+									click: {
+										fn: function(button, event) {
+											this.admincombo.reset()
+											this.admin = null,
+											this.preload()
+										},
+										scope: this
+									}
+								}
+							})
+						]},
 						this.registercombo = new Ext.form.ComboBox({
 							store: new Ext.data.DirectStore({
     							api: {
@@ -749,7 +816,7 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
         							limit:100,        							
     							},
     						}),
-							width: 400,
+							width: 320,
 							valueField: 'unicode',
             				displayField: 'unicode',
 							triggerAction: 'all',
@@ -760,57 +827,40 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
 								select: {
 									fn: function(combo,record,index) {
 										this.register = record.data.id
+										this.setTitle('Реестр #'+record.data.id)
+										this.preload()
 									},
 									scope: this
 								}
 							}
 						}),
-						this.admincombo = new Ext.form.ComboBox({
-							store: new Ext.data.DirectStore({
-    							api: {
-        							read: AbonApi.admins_get,
-        							create: AbonApi.foo,
-        							update: AbonApi.foo,
-        							destroy: AbonApi.foo
-    							},
-    							remoteSort: true,
-    							restful: true,
-    							autoLoad: true,
-    							autoSave: false,
-    							reader: new Ext.data.JsonReader({
-        							root: 'data',
-        							totalProperty: 'total',
-        							//idProperty: 'id',
-        							fields: [
-            							'id',
-										'unicode',          						
-									]
-    							}),
-    							baseParams : {
-        							start:0,
-        							limit:100,        							
-    							},
-    						}),
-							width: 400,
-							valueField: 'unicode',
-            				displayField: 'unicode',
-							triggerAction: 'all',
-							editable: false,							
-							forceSelection: true,
-							fieldLabel: 'Оператор',
+						this.countfield = new Ext.form.TextField({
+							fieldLabel: 'Количество',
+							readOnly: true,
+						}),
+						this.sumfield = new Ext.form.TextField({
+							fieldLabel: 'Сумма',
+							readOnly: true,
+						}),
+						this.refreshbutton = new Ext.Button({
+							text: 'обновить',
 							listeners: {
-								select: {
-									fn: function(combo,record,index) {
-										this.register = record.data.id
+								click: {
+									fn: function(button, event) {
+										this.preload()
 									},
 									scope: this
 								}
 							}
 						}),
+						this.loading = new Ext.form.Label({
+							text: 'обработка запроса ...'
+						}) 
 					]					
 				}),
 				this.resultsgrid = new Ext.grid.GridPanel({
-					height: 800,
+					height: 400,
+					width: 1100,
 					store: new Ext.data.DirectStore({
                 		restful: true,
                 		autoLoad: false,
@@ -823,11 +873,14 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
                         		'timestamp',
                         		'sum',
                         		'prev',
+								'onwer_code',
+								'onwer_name',
+								'admin',
                         		'maked',
 								'source__name',
 								'bank_date',
                         		'descr',
-                        		'inner_descr'
+                        		'inner_descr',								
                     		]
                 		}),
                 		api: {
@@ -844,31 +897,29 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
                 		}
 					}),
 					columns: [
-        				{header: "Id", dataIndex: 'id', width:40},
-        				{header: "Bill", dataIndex: 'bill', width:40},
-        				{header: "Timestamp", dataIndex: 'timestamp', width:120, sortable: true},
-        				{header: "Sum", dataIndex: 'sum', width:50, sortable: true},
-        				{header: "Prev", dataIndex: 'prev', width:50},
-						{header: "Source", dataIndex: 'source__name', width:120, sortable: true},
-						{header: "Bank date", dataIndex: 'bank_date', width:120, sortable: true},
-        				{header: "Descr", dataIndex: 'inner_descr', width:200},
-        				{header: "", dataIndex: 'id', width:26,
-            				renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-                				return '<img src="/static/extjs/custom/delete_16.png">';
-            				}
-        				}
+        				{header: "Id", dataIndex: 'id', width:45},
+        				{header: "Timestamp", dataIndex: 'timestamp', width:125, sortable: true},
+        				{header: "Абонент", dataIndex: 'onwer_code', width:125},
+						{header: "ФИО", dataIndex: 'onwer_name', width:180},        				
+						{header: "Сума", dataIndex: 'sum', width:50, sortable: true},
+						{header: "Оператор", dataIndex: 'admin', width:100, sortable: true},
+        				{header: "Банк", dataIndex: 'source__name', width:120, sortable: true},
+						{header: "Дата квитанции", dataIndex: 'bank_date', width:120, sortable: true},
+        				{header: "Описание", dataIndex: 'inner_descr', width:200},        				
     				],
 				})
 			],
 			listeners: {
             	afterrender: {
-                	fn: function(obj) {                             
-                    	this.registercombo.store.load({
+                	fn: function(obj) {
+						this.loading.hide()
+                    	this.registercombo.store.load({							
 							callback: function(response) {
 								index = this.registercombo.store.indexOfId(parseInt(this.oid))								
 								if (index>=0) {
+									this.setTitle('Реестр #'+response[index].data.id)
 									this.registercombo.setValue(response[index].data.unicode)
-									this.register = this.oid
+									this.register = this.oid									
 									this.preload()
 								}								
 							},
@@ -878,15 +929,29 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
                     scope: this
                 }
             },
-			preload: function() {
+			preload: function() {				
+				if(!this.register) {
+					Ext.ux.msg('Выберите реестр','',Ext.Msg.ERROR)
+					return false
+				}
+				this.loading.show()
 				this.resultsgrid.store.setBaseParam('register_id',this.register)
-				this.resultsgrid.store.load()
+				this.resultsgrid.store.setBaseParam('admin_id',this.admin)
+				this.resultsgrid.store.load({
+					callback: function(response) {
+						this.loading.hide()
+						extras = this.resultsgrid.store.reader.jsonData.extras
+						this.countfield.setValue(extras.count)
+						this.sumfield.setValue(extras.sum)						
+					},
+					scope: this
+				})
 			}			
 		}		
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.RegisterForm.superclass.initComponent.apply(this, arguments);
 	} 
-}); 
+});
 
 /*
  *  Forms and panels
@@ -1606,6 +1671,7 @@ Ext.ux.AbonCommentsPanel = Ext.extend(Ext.Panel ,{
 	    initComponent: function() {
         var config = {
             closable: false,
+			frame: true,
             defaults: {
                 frame: true,
                 split: true    

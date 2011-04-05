@@ -264,7 +264,10 @@ class PaymentRegister(models.Model):
     end = models.DateField(default=date.today)
             
     def __unicode__(self):
-        return "%s (%s %s) [%s]" % (self.source.name, self.start, self.end, self.total)
+        mark = ''
+        if self.closed:
+            mark = ' [x]'
+        return "%s (%s %s) [%s]%s" % (self.source.name, self.start, self.end, self.total, mark)
 
     @property
     def current(self):
@@ -355,6 +358,7 @@ class Payment(models.Model):
         obj['bank_date'] = self.bank_date
         obj['onwer_code'] = self.owner.get_code() or None
         obj['onwer_name'] = self.owner.person.__unicode__() or None
+        obj['admin'] = self.admin.first_name or self.admin.username 
         return obj
 
     def make(self):
@@ -394,10 +398,10 @@ class Payment(models.Model):
 
     @property    
     def owner(self):
-        if not self.abonents.all().count():
+        if not self.bill.abonents.all().count():
             return None
         else:
-            return self.abonents.all()[0]
+            return self.bill.abonents.all()[0]
 
 
 

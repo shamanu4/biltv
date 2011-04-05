@@ -14,9 +14,11 @@ def store_read(func):
         result = func(*args, **kwargs)
         rdata = args[1]
         if isinstance(result, tuple):
-            result, success = result
+            result, extras = result
+            success = True
         else:
             success = True
+            extras = {}
         total=0
         if isinstance(result, QuerySet):                        
             if 'filter_fields' in rdata and 'filter_value' in rdata:
@@ -52,7 +54,7 @@ def store_read(func):
             if 'start' in rdata and 'limit' in rdata:
                 result = result[rdata['start']:rdata['start']+rdata['limit']]            
             result = [obj.store_record() for obj in result]
-        return dict(data=result, success=success, total=total)
+        return dict(data=result, success=success, total=total, extras=extras)
     return update_wrapper(wrapper, func)
 
 class RpcRouterJSONEncoder(simplejson.JSONEncoder):

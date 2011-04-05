@@ -7,6 +7,14 @@ class User(BaseUser):
     icq = models.DecimalField(max_digits=9, decimal_places=0, blank=True, null=True)
 
     objects = UserManager()
+    
+    def store_record(self):
+        print self
+        print self.__dict__
+        obj = {}
+        obj['id'] = self.pk
+        obj['username'] = self.first_name or self.username 
+        return obj
 
 def create_custom_user(sender, instance, created, **kwargs):
     if created:
