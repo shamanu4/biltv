@@ -764,10 +764,53 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
 									scope: this
 								}
 							}
-						})
+						}),
+						this.admincombo = new Ext.form.ComboBox({
+							store: new Ext.data.DirectStore({
+    							api: {
+        							read: AbonApi.admins_get,
+        							create: AbonApi.foo,
+        							update: AbonApi.foo,
+        							destroy: AbonApi.foo
+    							},
+    							remoteSort: true,
+    							restful: true,
+    							autoLoad: true,
+    							autoSave: false,
+    							reader: new Ext.data.JsonReader({
+        							root: 'data',
+        							totalProperty: 'total',
+        							//idProperty: 'id',
+        							fields: [
+            							'id',
+										'unicode',          						
+									]
+    							}),
+    							baseParams : {
+        							start:0,
+        							limit:100,        							
+    							},
+    						}),
+							width: 400,
+							valueField: 'unicode',
+            				displayField: 'unicode',
+							triggerAction: 'all',
+							editable: false,							
+							forceSelection: true,
+							fieldLabel: 'Оператор',
+							listeners: {
+								select: {
+									fn: function(combo,record,index) {
+										this.register = record.data.id
+									},
+									scope: this
+								}
+							}
+						}),
 					]					
 				}),
 				this.resultsgrid = new Ext.grid.GridPanel({
+					height: 800,
 					store: new Ext.data.DirectStore({
                 		restful: true,
                 		autoLoad: false,

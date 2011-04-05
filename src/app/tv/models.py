@@ -353,6 +353,8 @@ class Payment(models.Model):
         obj['inner_descr'] = self.inner_descr
         obj['source__name'] = self.source.__unicode__()
         obj['bank_date'] = self.bank_date
+        obj['onwer_code'] = self.owner.get_code() or None
+        obj['onwer_name'] = self.owner.person.__unicode__() or None
         return obj
 
     def make(self):
@@ -389,6 +391,13 @@ class Payment(models.Model):
             self.save()
             return (True,r)
         return (False,"Already rolled back")
+
+    @property    
+    def owner(self):
+        if not self.abonents.all().count():
+            return None
+        else:
+            return self.abonents.all()[0]
 
 
 

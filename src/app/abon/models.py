@@ -368,7 +368,7 @@ class Abonent(models.Model):
     deleted = models.BooleanField(default=False)
     comment = models.TextField(blank=True, null=True)
     sorting = models.CharField(blank=True, max_length=150)
-    bill = models.ForeignKey(Bill)
+    bill = models.ForeignKey(Bill, related_name="abonents")
     code = models.CharField(blank=False, max_length=20)
     confirmed = models.BooleanField(default=False)
     disabled = models.BooleanField(default=False)
