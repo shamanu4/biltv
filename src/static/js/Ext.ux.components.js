@@ -816,7 +816,7 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
         							limit:100,        							
     							},
     						}),
-							width: 320,
+							width: 380,
 							valueField: 'unicode',
             				displayField: 'unicode',
 							triggerAction: 'all',
