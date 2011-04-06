@@ -2164,7 +2164,8 @@ Ext.ux.PaymentForm = Ext.extend(Ext.Panel ,{
 			payment_callback: function(response) {
 				this.searchfield.setRawValue('')
 				this.personfield.setRawValue('')
-				this.addressfield.setRawValue('')				
+				this.addressfield.setRawValue('')
+				this.abonent = 0				
 			},
 			register: 0,
 			abonent: 0

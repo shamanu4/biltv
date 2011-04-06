@@ -135,7 +135,7 @@ class AbonApiClass(object):
                 return dict(success=True, data=[a.store_record()])
         elif 'code' in rdata:
             try:
-                a=Abonent.objects.get(code__iexact=rdata['code'])
+                a=Abonent.objects.get(code__iexact=rdata['code'],disabled__exact=False)
             except Abonent.DoesNotExist:
                 return dict(success=False, title='Сбой загрузки формы', msg='abonent not found', errors='')
             else:
