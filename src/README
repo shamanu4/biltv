@@ -1,1 +1,6 @@
+<<<<<<< HEAD
 this is development branch. 
+=======
+this is stable branch.
+use it on production server
+>>>>>>> stable
