@@ -336,6 +336,11 @@ class AbonApiClass(object):
         except ValueError:
             return dict(success=False, title='Сбой проведения оплаты', msg='invalid date', errors='', data={} )    
         
+        pr = Payment.objects.latest('id')
+        pt = Payment.objects.filter(id__gte=pr.id-5,bill=abonent.bill)
+        if pt.count()>0:
+            return dict(success=False, title='Сбой проведения оплаты', msg='Возможно повторный ввод квитанции', errors='', data={} )
+        
         p = Payment()
         p.register = register
         p.source = register.source
