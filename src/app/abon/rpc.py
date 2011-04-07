@@ -304,7 +304,7 @@ class AbonApiClass(object):
     @store_read
     def registers_get_last(self,rdata,request):
         from tv.models import PaymentRegister
-        return PaymentRegister.objects.all().order_by('-timestamp')[:20]
+        return PaymentRegister.objects.all().order_by('closed').order_by('-start')[:20]
     
     registers_get_last._args_len = 1
     
@@ -405,8 +405,36 @@ class AbonApiClass(object):
         from accounts.models import User
         from tv.models import Payment, PaymentRegister
         from django.db import models
+        from datetime import datetime, timedelta
+                
+        if 'start_date' in rdata and rdata['start_date']>0:
+            start_date = rdata['start_date']
+            try:
+                start_date = datetime.strptime(start_date,'%Y-%m-%dT%H:%M:%S').date()
+            except ValueError:
+                return dict(success=False, title='Сбой получения статистики оплат', msg='invalid date', errors='', data={} )
+        else:
+            start_date = None
+            
+        if 'end_date' in rdata and rdata['end_date']>0:
+            end_date = rdata['end_date']
+            try:
+                end_date = datetime.strptime(end_date,'%Y-%m-%dT%H:%M:%S').date()+timedelta(days=1)
+            except ValueError:
+                return dict(success=False, title='Сбой получения статистики оплат', msg='invalid date', errors='', data={} ) 
+        else:
+            end_date = None
+            start_date = None
+        print start_date
+        print end_date        
         
-        register_id = int(rdata['register_id'])
+        if 'register_id' in rdata and rdata['register_id']>0:            
+            try:
+                register = PaymentRegister.objects.get(pk=rdata['register_id'])
+            except PaymentRegister.DoesNotExist:
+                return dict(success=False, title='Сбой получения статистики оплат', msg='register not found', errors='', data={} )        
+        else:
+            register = None
         
         if 'admin_id' in rdata and rdata['admin_id']>0:            
             try:
@@ -416,13 +444,20 @@ class AbonApiClass(object):
         else:
             admin = None
         
-        try:
-            register = PaymentRegister.objects.get(pk=register_id)
-        except PaymentRegister.DoesNotExist:
-            return dict(success=False, title='Сбой получения статистики оплат', msg='register not found', errors='', data={} )
-                                
-        payments = Payment.objects.filter(register=register)
+        if not register and not start_date:
+            return dict(success=False, title='Сбой получения статистики оплат', msg='выберите реестр или интервал', errors='', data={} )
         
+        payments = None
+        
+        if not register == None:                            
+            payments = Payment.objects.filter(register=register)
+                
+        if not start_date == None:
+            if not payments == None:
+                payments = payments.filter(timestamp__gte=start_date).filter(timestamp__lte=end_date)
+            else:
+                payments = Payment.objects.filter(timestamp__gte=start_date).filter(timestamp__lte=end_date)
+                
         if admin:
             payments = payments.filter(admin=admin)
         

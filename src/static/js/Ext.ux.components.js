@@ -726,6 +726,77 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
 					items: [
 						{
 							xtype: 'buttongroup',
+							title: 'Реестр',
+							items: [
+								this.registercombo = new Ext.form.ComboBox({
+									store: new Ext.data.DirectStore({
+    									api: {
+        									read: AbonApi.registers_get_last,
+        									create: AbonApi.foo,
+        									update: AbonApi.foo,
+        									destroy: AbonApi.foo
+    									},
+    									remoteSort: true,
+    									restful: true,
+    									autoLoad: false,
+    									autoSave: false,
+    									reader: new Ext.data.JsonReader({
+        									root: 'data',
+        									totalProperty: 'total',
+        									//idProperty: 'id',
+        									fields: [
+            									'id',
+												'unicode',
+            									'source',
+												'total',
+												'current',
+												'start',
+												'end',            						
+											]
+    									}),
+    									baseParams : {
+        									start:0,
+        									limit:100,        							
+    									},
+    								}),
+									width: 380,
+									valueField: 'unicode',
+            						displayField: 'unicode',
+									triggerAction: 'all',
+									editable: false,							
+									forceSelection: true,
+									fieldLabel: 'Реестр',
+									listeners: {
+										select: {
+											fn: function(combo,record,index) {
+												this.register = record.data.id
+												this.setTitle('Реестр #'+record.data.id)
+												this.startdate.setValue(record.data.start)
+												this.enddate.setValue(record.data.end)
+												//this.preload()
+											},
+											scope: this
+										}
+									}
+								}),	
+								this.resetregister = new Ext.Button({
+									width: 64,
+									text: 'сбросить',
+									listeners: {
+										click: {
+											fn: function(button, event) {
+												this.registercombo.reset()
+												this.register = null
+												//this.preload()
+											},
+											scope: this
+										}
+									}
+								})						
+							]
+						},					
+						{
+							xtype: 'buttongroup',
 							title: 'Оператор',
 							items: [
 							this.admincombo = new Ext.form.ComboBox({
@@ -754,6 +825,7 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
         								limit:100,        							
     								},
     							}),
+								width: 200,
 								valueField: 'username',
             					displayField: 'username',
 								triggerAction: 'all',
@@ -770,7 +842,8 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
 									}
 								}
 							}),
-							this.resetbutton = new Ext.Button({
+							this.resetadmin = new Ext.Button({
+								width: 64,
 								text: 'сбросить',
 								listeners: {
 									click: {
@@ -784,55 +857,35 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
 								}
 							})
 						]},
-						this.registercombo = new Ext.form.ComboBox({
-							store: new Ext.data.DirectStore({
-    							api: {
-        							read: AbonApi.registers_get,
-        							create: AbonApi.foo,
-        							update: AbonApi.foo,
-        							destroy: AbonApi.foo
-    							},
-    							remoteSort: true,
-    							restful: true,
-    							autoLoad: false,
-    							autoSave: false,
-    							reader: new Ext.data.JsonReader({
-        							root: 'data',
-        							totalProperty: 'total',
-        							//idProperty: 'id',
-        							fields: [
-            							'id',
-										'unicode',
-            							'source',
-										'total',
-										'current',
-										'start',
-										'end',            						
-									]
-    							}),
-    							baseParams : {
-        							start:0,
-        							limit:100,        							
-    							},
-    						}),
-							width: 380,
-							valueField: 'unicode',
-            				displayField: 'unicode',
-							triggerAction: 'all',
-							editable: false,							
-							forceSelection: true,
-							fieldLabel: 'Реестр',
-							listeners: {
-								select: {
-									fn: function(combo,record,index) {
-										this.register = record.data.id
-										this.setTitle('Реестр #'+record.data.id)
-										//this.preload()
-									},
-									scope: this
-								}
-							}
-						}),
+						{
+							xtype: 'buttongroup',
+							title: 'Интервал',
+						 	items: [
+								this.startdate = new Ext.form.DateField({
+									width: 100,
+									value: new Date(),
+									format: 'Y-m-d',
+								}),
+								this.enddate = new Ext.form.DateField({
+									width: 100,
+									value: new Date(),
+									format: 'Y-m-d',
+								}),
+								this.resetadmin = new Ext.Button({
+									width: 64,
+									text: 'сегодня',
+									listeners: {
+										click: {
+											fn:function(button, event) {
+												this.startdate.setValue(new Date());
+												this.enddate.setValue(new Date());												
+											},
+											scope: this
+										}
+									}
+								})
+							] 
+						},
 						this.countfield = new Ext.form.TextField({
 							fieldLabel: 'Количество',
 							readOnly: true,
@@ -888,8 +941,8 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
                 		baseParams : {
                     		register_id:this.register,
                     		admin_id:this.admin,
-                    		start_date:this.start_date,
-							end_date:this.start_date,
+                    		start_date:null,
+							end_date:null,
                 		}
 					}),
 					columns: [
@@ -908,8 +961,10 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
 			listeners: {
             	afterrender: {
                 	fn: function(obj) {
-						this.loading.hide()
-                    	this.registercombo.store.load({							
+						if(!this.oid) {
+							return false	
+						}							
+						this.registercombo.store.load({							
 							callback: function(response) {
 								index = this.registercombo.store.indexOfId(parseInt(this.oid))								
 								if (index>=0) {
@@ -926,14 +981,16 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
                 }
             },
 			preload: function() {				
-				if(!this.register) {
-					Ext.ux.msg('Выберите реестр','',Ext.Msg.ERROR)
-					return falsey
-				}
+				//if(!this.register) {
+				//	Ext.ux.msg('Выберите реестр','',Ext.Msg.ERROR)
+				//  return false
+				//}
 				Ext.get('loading').show();
             	Ext.get('loading-mask-half').show();
 				this.resultsgrid.store.setBaseParam('register_id',this.register)
 				this.resultsgrid.store.setBaseParam('admin_id',this.admin)
+				this.resultsgrid.store.setBaseParam('start_date',this.startdate.getValue())
+				this.resultsgrid.store.setBaseParam('end_date',this.enddate.getValue())
 				this.resultsgrid.store.load({
 					callback: function(response) {
 						Ext.get('loading').hide();
