@@ -60,9 +60,11 @@
 
 {% block body %}
     <div id="loading-mask" style=""></div>
+    <div id="loading-mask-half" style=""></div>
     <div id="loading">
         <div class="loading-indicator">
-            <img src="{{ MEDIA_URL }}img/ajax-loader.gif" width="100" height="100" style="margin-right:8px;" align="absmiddle"/>
+            <!-- <img src="{{ MEDIA_URL }}img/ajax-loader2.gif" width="100" height="100" style="margin-right:8px;" align="absmiddle"/>
+			-->
         </div>
     </div>
         
@@ -99,9 +101,8 @@
           }              
       	}, this);
 		
-        setTimeout(function(){
-            Ext.get('loading').remove();
-            Ext.get('loading-mask').fadeOut({remove:true});
+        setTimeout(function(){            
+            Ext.get('loading-mask').fadeOut();
         }, 250);
     });
     </script> 

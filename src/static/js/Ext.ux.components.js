@@ -664,7 +664,6 @@ Ext.ux.RegisterGrid = Ext.extend(Ext.ux.CustomGrid ,{
 						return value;
 					} 
 				},
-                {header: "Current", dataIndex: 'current', width:100, editable:false},
                 {header: "Start", dataIndex: 'start', width:180, editable:false, editor: new Ext.form.DateField({format:'Y-m-d'}),
 					renderer: function(value, metaData, record, rowIndex, colIndex, store){
 						if (value === undefined) {
@@ -739,7 +738,7 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
     								},
     								remoteSort: true,
     								restful: true,
-    								autoLoad: true,
+    								autoLoad: false,
     								autoSave: false,
     								reader: new Ext.data.JsonReader({
         								root: 'data',
@@ -765,7 +764,7 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
 									select: {
 										fn: function(combo,record,index) {
 											this.admin = record.data.id
-											this.preload()
+											//this.preload()
 										},
 										scope: this
 									}
@@ -777,8 +776,8 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
 									click: {
 										fn: function(button, event) {
 											this.admincombo.reset()
-											this.admin = null,
-											this.preload()
+											this.admin = null
+											//this.preload()
 										},
 										scope: this
 									}
@@ -795,7 +794,7 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
     							},
     							remoteSort: true,
     							restful: true,
-    							autoLoad: true,
+    							autoLoad: false,
     							autoSave: false,
     							reader: new Ext.data.JsonReader({
         							root: 'data',
@@ -828,7 +827,7 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
 									fn: function(combo,record,index) {
 										this.register = record.data.id
 										this.setTitle('Реестр #'+record.data.id)
-										this.preload()
+										//this.preload()
 									},
 									scope: this
 								}
@@ -853,9 +852,6 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
 								}
 							}
 						}),
-						this.loading = new Ext.form.Label({
-							text: 'обработка запроса ...'
-						}) 
 					]					
 				}),
 				this.resultsgrid = new Ext.grid.GridPanel({
@@ -932,14 +928,16 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
 			preload: function() {				
 				if(!this.register) {
 					Ext.ux.msg('Выберите реестр','',Ext.Msg.ERROR)
-					return false
+					return falsey
 				}
-				this.loading.show()
+				Ext.get('loading').show();
+            	Ext.get('loading-mask-half').show();
 				this.resultsgrid.store.setBaseParam('register_id',this.register)
 				this.resultsgrid.store.setBaseParam('admin_id',this.admin)
 				this.resultsgrid.store.load({
 					callback: function(response) {
-						this.loading.hide()
+						Ext.get('loading').hide();
+            			Ext.get('loading-mask-half').fadeOut('fast');
 						extras = this.resultsgrid.store.reader.jsonData.extras
 						this.countfield.setValue(extras.count)
 						this.sumfield.setValue(extras.sum)						
@@ -1312,7 +1310,7 @@ Ext.ux.AbonCardsGrid = Ext.extend(Ext.ux.CustomGrid ,{
         var config = {
             store: new Ext.data.DirectStore({
                 restful: true,
-                autoLoad: true,
+                autoLoad: false,
                 autoSave: false,
                 reader: new Ext.data.JsonReader({
                     root: 'data',
@@ -1417,7 +1415,7 @@ Ext.ux.AbonCardsTpGrid = Ext.extend(Ext.ux.CustomGrid ,{
         var config = {
             store: new Ext.data.DirectStore({
                 restful: true,
-                autoLoad: true,
+                autoLoad: false,
                 autoSave: false,
                 reader: new Ext.data.JsonReader({
                     root: 'data',
@@ -1497,7 +1495,7 @@ Ext.ux.AbonPaymentsGrid = Ext.extend(Ext.ux.CustomGridNE ,{
         var config = {
             store: new Ext.data.DirectStore({
                 restful: true,
-                autoLoad: true,
+                autoLoad: false,
                 autoSave: false,
                 remoteSort: true,
                 reader: new Ext.data.JsonReader({
@@ -1588,7 +1586,7 @@ Ext.ux.AbonFeesGrid = Ext.extend(Ext.ux.CustomGridNE ,{
         var config = {
             store: new Ext.data.DirectStore({
                 restful: true,
-                autoLoad: true,
+                autoLoad: false,
                 autoSave: false,
                 remoteSort: true,
                 reader: new Ext.data.JsonReader({
@@ -1968,7 +1966,7 @@ Ext.ux.PaymentForm = Ext.extend(Ext.Panel ,{
     							},
     							remoteSort: true,
     							restful: true,
-    							autoLoad: true,
+    							autoLoad: false,
     							autoSave: false,
     							reader: new Ext.data.JsonReader({
         							root: 'data',
@@ -2022,7 +2020,7 @@ Ext.ux.PaymentForm = Ext.extend(Ext.Panel ,{
         							destroy: AbonApi.foo
     							},
     							restful: true,
-    							autoLoad: true,
+    							autoLoad: false,
     							autoSave: false,
     							reader: new Ext.data.JsonReader({
         							root: 'data',
@@ -2207,7 +2205,7 @@ Ext.ux.FeeForm = Ext.extend(Ext.Panel ,{
     							},
     							remoteSort: true,
     							restful: true,
-    							autoLoad: true,
+    							autoLoad: false,
     							autoSave: false,
     							reader: new Ext.data.JsonReader({
         							root: 'data',
@@ -2258,7 +2256,7 @@ Ext.ux.FeeForm = Ext.extend(Ext.Panel ,{
         							destroy: AbonApi.foo
     							},
     							restful: true,
-    							autoLoad: true,
+    							autoLoad: false,
     							autoSave: false,
     							reader: new Ext.data.JsonReader({
         							root: 'data',

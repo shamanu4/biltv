@@ -317,7 +317,7 @@ Ext.ux.abonent_store = new Ext.data.DirectStore({
     },
     remoteSort: true,
     restful: true,
-    autoLoad: true,
+    autoLoad: false,
     autoSave: false,
     storeId: 'abonent-store',
     reader: new Ext.data.JsonReader({
@@ -363,7 +363,7 @@ Ext.ux.card_store = new Ext.data.DirectStore({
         destroy: CardGrid.destroy
     },
     restful: true,
-    autoLoad: true,
+    autoLoad: false,
     autoSave: false,
     storeId: 'card-store',
     reader: new Ext.data.JsonReader({
@@ -408,7 +408,7 @@ var card_ds_model = Ext.data.Record.create([
 
 Ext.ux.free_card_combo_store = new Ext.data.DirectStore({
                 restful: true,
-                autoLoad: true,
+                autoLoad: false,
                 autoSave: false,
                 storeId: 'free_card_combo_store',
                 reader: new Ext.data.JsonReader({
@@ -450,7 +450,7 @@ Ext.ux.register_store = new Ext.data.DirectStore({
         destroy: RegisterGrid.destroy
     },
     restful: true,
-    autoLoad: true,
+    autoLoad: false,
     autoSave: false,
     storeId: 'register-store',
     reader: new Ext.data.JsonReader({

@@ -302,7 +302,7 @@ class PaymentRegister(models.Model):
         obj['id'] = self.pk
         obj['source'] = self.source.name
         obj['total'] = self.total
-        obj['current'] = self.current
+        #obj['current'] = self.current
         obj['closed'] = self.closed
         obj['start'] = self.start
         obj['end'] = self.end

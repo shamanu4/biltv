@@ -40,6 +40,20 @@
     z-index:20000;
     background-color:white;
 }
+#loading-mask-half{
+    position:absolute;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    z-index:20000;
+    background-color:black;
+    filter:alpha(opacity=30);
+    -moz-opacity: 0.3;
+    -khtml-opacity: 0.3;
+    opacity: 0.3;
+
+}
 #loading{
     position:absolute;
     left:45%;
@@ -52,13 +66,14 @@
     margin-bottom:5px;
 }
 #loading .loading-indicator{
-    background:white;
-    color:#555;
     font:bold 13px tahoma,arial,helvetica;
     padding:10px;
     margin:0;
     text-align:center;
     height:auto;
+	background-image: url(/static/img/ajax-loader2.gif);
+	width: 100px;
+	height: 100px;
 }
 
 .inline_edit_button {

@@ -39,6 +39,8 @@ Engine = {
     },
     auth: {
         doAuth: function() {
+			Ext.get('loading').hide();
+			Ext.get('loading-mask-half').hide();
             var lw = new Ext.ux.LoginWindow()
             lw.show()
             lw.caller = this
@@ -69,13 +71,15 @@ Engine = {
             }, this)
         },
         loadMenu: function() {
-            MainApi.menu(function(response){
+			MainApi.menu(function(response){
                 for (i in response.menuitems) {
                 if(isInt(i)) {
                         Ext.getCmp('menu-bar').toolbars[0].add(Ext.ux.menu[response.menuitems[i]]);
                     }
                 }
                 Ext.getCmp('menu-bar').toolbars[0].doLayout()
+				Ext.get('loading').hide();
+				Ext.get('loading-mask-half').hide();
             }, this)
         }
     },
