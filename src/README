@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-this is development branch. 
-=======
 this is stable branch.
 use it on production server
->>>>>>> stable
+v 0.1 release
