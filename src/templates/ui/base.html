@@ -59,6 +59,7 @@
 {% endblock %}
 
 {% block body %}
+	{% csrf_token %}
     <div id="loading-mask" style=""></div>
     <div id="loading-mask-half" style=""></div>
     <div id="loading">
