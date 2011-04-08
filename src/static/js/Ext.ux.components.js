@@ -108,7 +108,7 @@ Ext.ux.LoginForm = Ext.extend(Ext.form.FormPanel,{
 Ext.ux.LoginWindow = Ext.extend(Ext.Window,{
     initComponent: function(){
         var config = {
-            title: '"ТРК "TIM" вход в защищённую зону',
+            title: 'Панель оператора КТБ',
             layout: 'fit',
             height: 140,
             width: 260,
