@@ -359,7 +359,6 @@ class Bill(models.Model):
         return res
 
 
-
 class Abonent(models.Model):
     person = models.ForeignKey(Person, related_name='abonents')
     address = models.ForeignKey(Address, related_name='abonents')
