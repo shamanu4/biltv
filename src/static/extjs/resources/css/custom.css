@@ -85,4 +85,12 @@
     cursor: pointer;
 }
 
+.inline_delete_button {
+    display: block;
+    width: 16px;
+    height: 16px;
+    background: transparent;
+    background-image: url(../../custom/delete_16.png);
+    cursor: pointer;
+}
 /***************************/

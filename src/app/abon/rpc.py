@@ -472,7 +472,26 @@ class AbonApiClass(object):
         return (payments,{'sum':sum,'count':count})    
     
     reg_payments_get._args_len = 1
-    
+        
+    def reg_payments_delete(self,rdata,request):
+        from tv.models import Payment
+        if 'payment_id' in rdata and rdata['payment_id']>0:
+            payment_id = rdata['payment_id']
+            try:
+                payment = Payment.objects.get(pk=payment_id)
+            except Payment.DoesNotExist:
+                return dict(success=False, title='Сбой удаления оплат', msg='payment not found', errors='', data={} )
+            else:                
+                if payment.maked:
+                    return dict(success=False, title='Сбой удаления оплат', msg='платёж уже засчитан', errors='', data={} )
+                else:
+                    payment.delete()
+                    return dict(success=True, title='Оплата удалена', msg='deleted', errors='', data={} )
+        else:
+            return dict(success=False, title='Сбой удаления оплат', msg='payment not found', errors='', data={} )
+        
+    reg_payments_delete._args_len = 1
+                
     @store_read
     def admins_get(self,rdata,request):
         from accounts.models import User

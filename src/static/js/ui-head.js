@@ -84,6 +84,7 @@ Engine = {
         }
     },
     user: {
+		id: null,
         permissions: [
 
         ],
@@ -171,7 +172,20 @@ Engine = {
                     Ext.getCmp('tab-panel').toolbars[0].add(form);
                     Ext.getCmp('tab-panel').toolbars[0].add(form);
                     Ext.getCmp('tab-panel').toolbars[0].doLayout();
-                }
+                },
+				deletePayment: function(id,obj) {
+					this.obj=obj					
+					if(confirm('Удалить платёж?')) {
+						AbonApi.reg_payments_delete({
+                            payment_id: (id || 0)
+                        },this.deletePaymentCallback.createDelegate(this));
+					}
+				},
+				deletePaymentCallback: function(response) {
+					if (response.success) {
+						$(this.obj).parent().parent().parent().hide('slow')						
+					}
+				}
 			},
 			payment: {
 				openForm: function(oid) {

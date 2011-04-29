@@ -954,7 +954,16 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
 						{header: "Оператор", dataIndex: 'admin', width:100, sortable: true},
         				{header: "Банк", dataIndex: 'source__name', width:120, sortable: true},
 						{header: "Дата квитанции", dataIndex: 'bank_date', width:120, sortable: true},
-        				{header: "Описание", dataIndex: 'inner_descr', width:200},        				
+        				{header: "Описание", dataIndex: 'inner_descr', width:180},
+						{header: " ", dataIndex: 'id', width: 28,
+                    		renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+								if(record.data.maked) {
+									return ''
+								} else {
+									return '<div class="inline_delete_button register_delete_payment" id="'+value+'"></div>'	
+								}                        		
+                    		}
+                		},   				
     				],
 				})
 			],
@@ -975,7 +984,10 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
 								}								
 							},
 							scope: this
-						})		
+						})
+						$(".register_delete_payment").live('click', function(e) {
+                            Engine.menu.cashier.register.deletePayment(this.id,this);
+                        })
                     },
                     scope: this
                 }
@@ -1594,7 +1606,9 @@ Ext.ux.AbonPaymentsGrid = Ext.extend(Ext.ux.CustomGridNE ,{
             listeners: {
                 afterrender : {
                     fn: function(obj) {
-                        //obj.parent_form.children_forms.cards.obj=obj
+                       	$(".abonent_delete_payment").live('click', function(e) {
+                            Engine.menu.cashier.register.deletePayment(this.id,this);
+                        })
                     },
                     scope: this
                 }
@@ -1613,9 +1627,13 @@ Ext.ux.AbonPaymentsGrid = Ext.extend(Ext.ux.CustomGridNE ,{
 		{header: "Bank date", dataIndex: 'bank_date', width:120, sortable: true},
         {header: "Descr", dataIndex: 'inner_descr', width:200},
         {header: "", dataIndex: 'id', width:26,
-            renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-                return '<img src="/static/extjs/custom/delete_16.png">';
-            }
+			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+				if(record.data.maked) {
+					return ''
+				} else {
+					return '<div class="inline_delete_button abonent_delete_payment" id="'+value+'"></div>'	
+				}                        		
+        	}
         }
     ],
 	viewConfig: {
