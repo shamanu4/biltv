@@ -878,4 +878,17 @@ class CardService(models.Model):
         obj['comment'] = self.comment
         return obj
 
+    
+class FeesCalendar(models.Model):
+    
+    timestamp = models.DateField(default=date.today)
+    
+    class Meta:
+        ordering = ('-timestamp',)
+    
+    def __unicode__(self):
+        return "%s" % self.timestamp
+
+    
+
 
