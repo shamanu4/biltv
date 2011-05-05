@@ -204,8 +204,13 @@ class AbonentForm(forms.Form):
         obj.activated = self.cleaned_data['activated']    
         obj.deleted = self.cleaned_data['deleted'] or False
         obj.confirmed = self.cleaned_data['confirmed'] or False
-        print obj.confirmed 
-        obj.disabled = self.cleaned_data['disabled'] or False
+        if obj.disabled and not self.cleaned_data['disabled']:
+            other = Abonent.objects.filter(address__override__iexact=address.override, disabled__exact=False)
+            if other.count()>0:
+                return (False,obj,'Другой абонент включён по этому адресу.')
+            obj.disabled = self.cleaned_data['disabled'] or False
+        else:
+            obj.disabled = self.cleaned_data['disabled'] or False
         obj.comment = self.cleaned_data['comment']
         try:
             obj.save()
