@@ -428,6 +428,13 @@ class Abonent(models.Model):
         if len(self.card_set.filter(num__lte=0))==0:
             print "creating CaTV card ..."
             self.create_catv_card()
+            
+    def make_fees(self,date):
+        if self.deleted or self.disabled:
+            return False
+        for card in self.cards.all():
+            card.make_fees(date)
+        return True
 
     def store_record(self):
         obj = {}

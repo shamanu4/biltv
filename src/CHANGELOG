@@ -3,6 +3,8 @@
 	* Added ability to delete non-confirmed (not maked) payments without rollback feeature. 
 	  Only payments with mistakes should be deleted this way.
 	* Added version control to prevent client from caching scripts.
+	* Django framework upgraded to 1.3 final release.
+	* Fees engine mostly completed
 
 === Version 0.1 (2011-04-07)=== 
 	* Interface to register payments mostly finished and can be usable.
