@@ -150,9 +150,9 @@ class FeeType(models.Model):
             return {'fee':self.sum,'ret':0}
 
         if not date:
-            date=date_formatter()
+            date=date_formatter()['day']
 
-        day = date['day'].day
+        day = date.day
         sum = 0
         ret = 0
 
@@ -501,38 +501,38 @@ class TariffPlanFeeRelationship(models.Model):
         if not card.bill:
             return (False,"This card have not account with bill")
         if self.fee_type.ftype == FEE_TYPE_ONCE:
-            return self.make_fee(card,date,**kwargs)
+            return self.make_fee(card,date['day'],**kwargs)
 
         if self.fee_type.ftype == FEE_TYPE_CUSTOM:
-            return self.make_fee(card,date,**kwargs)
+            return self.make_fee(card,date['day'],**kwargs)
 
         if self.fee_type.ftype == FEE_TYPE_DAILY:
             c = my_maked_fees.filter(timestamp__gte=date['day'])
             if c.count()>0:
                 return (False,"Fee already maked")
             else:
-                return self.make_fee(card,date,**kwargs)
+                return self.make_fee(card,date['day'],**kwargs)
 
         if self.fee_type.ftype == FEE_TYPE_WEEKLY:
             c = my_maked_fees.filter(timestamp__gte=date['week'])
             if c.count()>0:
                 return (False,"Fee already maked")
             else:
-                return self.make_fee(card,date,**kwargs)
+                return self.make_fee(card,date['week'],**kwargs)
 
         if self.fee_type.ftype == FEE_TYPE_MONTHLY:
             c = my_maked_fees.filter(timestamp__gte=date['month'])
             if c.count()>0:
                 return (False,"Fee already maked")
             else:
-                return self.make_fee(card,date,**kwargs)
+                return self.make_fee(card,date['month'],**kwargs)
 
         if self.fee_type.ftype == FEE_TYPE_YEARLY:
             c = my_maked_fees.filter(timestamp__gte=date['year'])
             if c.count()>0:
                 return (False,"Fee already maked")
             else:
-                return self.make_fee(card,date,**kwargs)
+                return self.make_fee(card,date['year'],**kwargs)
 
 
     def make_fee(self,card,date=None,**kwargs):
@@ -543,6 +543,9 @@ class TariffPlanFeeRelationship(models.Model):
         fee.tp = self.tp
         fee.fee_type = self.fee_type
         fee.sum = self.fee_type.get_sum(date)['fee']
+        fee.inner_descr = "%s | %s" % (card.name, fee.fee_type.__unicode__())
+        if date:
+            fee.timestamp = date
         fee.save()
         if 'hold' in kwargs and kwargs['hold']:
             print "holding fee"
@@ -634,10 +637,17 @@ class Card(models.Model):
     deleted = models.BooleanField(default=False)
     comment = models.TextField(blank=True, null=True)
     activated = models.DateTimeField(default=datetime.now)
-    owner = models.ForeignKey("abon.Abonent", blank=True, null=True)
+    owner = models.ForeignKey("abon.Abonent", blank=True, null=True, related_name='cards')
 
     def __unicode__(self):
         return "%s" % self.num
+    
+    @property
+    def name(self):
+        if self.num > 0:
+            return "Карточка %s " % self.num
+        else:
+            return "CaTV"
 
     def send(self):
         if self.num<0:
@@ -759,6 +769,12 @@ class Card(models.Model):
 
     def detach(self):
         self.services.all().delete()
+        
+    def make_fees(self,date):
+        if not self.active or self.deleted:
+            return False
+        for service in self.services.all():
+            service.make_fees(date)
 
     def store_record(self):
         obj = {}
@@ -869,6 +885,14 @@ class CardService(models.Model):
             self.save()
         return True
 
+    def make_fees(self,date):
+        for fee in self.tp.fees.all():
+            print "checking"
+            print fee.fee_type
+            if fee.fee_type.ftype in (FEE_TYPE_DAILY, FEE_TYPE_WEEKLY, FEE_TYPE_MONTHLY, FEE_TYPE_YEARLY):
+                print self.card.owner
+                fee.check_fee(self.card,date)
+
     def store_record(self):
         obj = {}
         obj['id'] = self.pk
@@ -888,7 +912,37 @@ class FeesCalendar(models.Model):
     
     def __unicode__(self):
         return "%s" % self.timestamp
-
     
+    @classmethod
+    def get_last_fee_date(cls):
+        return cls.objects.latest('timestamp')
+
+    @classmethod
+    def check_next_fee(cls,date):
+        from lib.functions import date_formatter
+        month = date_formatter(date)['month']
+        if cls.get_last_fee_date().timestamp < month.date():
+            return True
+        else:
+            return False
+          
+    @classmethod
+    def make_fees(cls,date):
+        from abon.models import Abonent
+        active = Abonent.objects.filter(disabled__exact=False, deleted__exact=False)
+        for abonent in active:
+            abonent.make_fees(date)
+    
+    @classmethod
+    def push_next_fee(cls,date):
+        if cls.check_next_fee(date):
+            from lib.functions import date_formatter
+            month = date_formatter(date)['month']
+            cls.make_fees(month)            
+            instance = cls(timestamp=month)
+            instance.save()
+    
+    
+            
 
 
