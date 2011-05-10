@@ -5,6 +5,8 @@
 	* Added version control to prevent client from caching scripts.
 	* Django framework upgraded to 1.3 final release.
 	* Fees engine mostly completed
+	* Partially closed registers creation enabled 	
+	* Abonent comments added
 
 === Version 0.1 (2011-04-07)=== 
 	* Interface to register payments mostly finished and can be usable.

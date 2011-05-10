@@ -204,7 +204,7 @@ class AbonApiClass(object):
             except Abonent.DoesNotExist:
                 return dict(success=False, title='Сбой загрузки карт', msg='abonent not found', errors='' )
             else:                
-                return abonent.card_set.all()
+                return abonent.cards.all()
         else:
             return dict(success=True, data={} )
 
@@ -521,4 +521,38 @@ class AbonApiClass(object):
         return User.objects.all()
     
     admins_get._args_len = 1
+    
+    def comment_get(self,rdata,request):
+        from abon.models import Abonent
+        uid = int(rdata['uid'])
+        if uid>0:
+            try:
+                abonent=Abonent.objects.get(pk=uid)
+            except Abonent.DoesNotExist:
+                return dict(success=False, title='Сбой загрузки ', msg='abonent not found', errors='' )
+            else:
+                return dict(success=True, data={'comment':abonent.comment} )
+        else:
+            return dict(success=True, data={'comment':None} )
+        
+    comment_get._args_len = 1
+    
+    def comment_set(self,rdata,request):
+        from abon.models import Abonent
+        if not 'uid' in rdata or not 'comment' in rdata:
+            return dict(success=False, title='Сбой записи коментария', msg='invalid parameters', errors='' )
+        uid = int(rdata['uid'])
+        if uid>0:
+            try:
+                abonent=Abonent.objects.get(pk=uid)
+            except Abonent.DoesNotExist:
+                return dict(success=False, title='Сбой записи коментария', msg='abonent not found', errors='' )
+            else:
+                abonent.comment=rdata['comment']
+                abonent.save()
+                return dict(success=True, title='Сохранено', msg='saved', errors='' )
+        else:
+            return dict(success=False, title='Сбой загрузки ', msg='abonent not found', errors='' )
+        
+    comment_set._args_len = 1
         

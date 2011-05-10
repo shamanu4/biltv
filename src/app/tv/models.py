@@ -151,16 +151,21 @@ class FeeType(models.Model):
 
         if not date:
             date=date_formatter()['day']
-
-        day = date.day
+        
+        print "custim fee"
+        day = date.day    
+        print date    
+        print day        
         sum = 0
         ret = 0
 
         ranges = self.ranges.filter(startday__lte=day).filter(endday__gte=day)
+        print ranges
         for range in ranges:
             sum += range.sum
             ret += range.ret
-
+            
+        print "sum: %s ret: %s" % (sum,ret)
         return {'fee':sum,'ret':ret}
 
     def store_record(self):
@@ -854,6 +859,9 @@ class CardService(models.Model):
             allow_negative = True
             prepared = []
             for fee in fees:
+                if not fee.fee_type.ftype in (FEE_TYPE_ONCE, FEE_TYPE_CUSTOM ):
+                    print "skipping regular fee..."
+                    continue
                 f = fee.check_fee(self.card,activated,hold=True)
                 if f[0]: prepared.append(f[1])
             for fee in prepared:

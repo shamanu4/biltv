@@ -425,7 +425,7 @@ class Abonent(models.Model):
         self.code = self.get_code()
         self.sorting = "%s, [ %s ]" % (self.address.sorting, self.person.fio_short())
         super(self.__class__, self).save(*args,**kwargs)
-        if len(self.card_set.filter(num__lte=0))==0:
+        if len(self.cards.filter(num__lte=0))==0:
             print "creating CaTV card ..."
             self.create_catv_card()
             
