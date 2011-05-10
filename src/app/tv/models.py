@@ -882,6 +882,7 @@ class CardService(models.Model):
                 self.deactivate()
                 return False
             self.save()
+        self.check_past_activation(activated.date())
         return True
 
     def deactivate(self):
@@ -900,6 +901,17 @@ class CardService(models.Model):
             if fee.fee_type.ftype in (FEE_TYPE_DAILY, FEE_TYPE_WEEKLY, FEE_TYPE_MONTHLY, FEE_TYPE_YEARLY):
                 print self.card.owner
                 fee.check_fee(self.card,date)
+    
+    def check_past_activation(self,activated):
+        from lib.functions import date_formatter, add_months
+        last_fee_date = FeesCalendar.get_last_fee_date().timestamp
+        if activated < last_fee_date:
+            next_fee_date = add_months(date_formatter(activated)['month'].date(),1)
+            self.make_fees(next_fee_date)
+            self.check_past_activation(next_fee_date)
+        else:
+            return True
+        
 
     def store_record(self):
         obj = {}
