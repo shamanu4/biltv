@@ -695,6 +695,11 @@ Ext.ux.RegisterGrid = Ext.extend(Ext.ux.CustomGrid ,{
                         return '<div class="inline_edit_button register_edit_button" id="'+value+'" code="'+record.data.code+'" confirmed="'+record.data.confirmed+'" dis="'+record.data.disabled+'"></div>'
                     }
                 },
+				{header: " ", dataIndex: 'id', width: 28,
+                    renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                        return '<div class="inline_cash_button register_cash_button" id="'+value+'" source="'+record.data.source+'"></div>'
+                    }
+                },
             ],
             addAction: function(){
                 Engine.menu.cashier.abonent.openForm()
@@ -704,6 +709,9 @@ Ext.ux.RegisterGrid = Ext.extend(Ext.ux.CustomGrid ,{
                     fn: function(obj) {
                         $(".register_edit_button").live('click', function(e) {
                             Engine.menu.cashier.register.openForm(this.id);
+                        })
+						$(".register_cash_button").live('click', function(e) {
+                            Engine.menu.cashier.register.partiallyConfirm(this.id, $(this).attr('source'));
                         })
                     }
                 }

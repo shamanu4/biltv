@@ -51,3 +51,32 @@
 .maked_false_class {
 	background-color: #ffc0c0;
 }
+
+.inline_edit_button {
+    display: block;
+    width: 16px;
+    height: 16px;
+    background: transparent;
+    background-image: url(/static/extjs/custom/pencil_16.png);
+    cursor: pointer;
+}
+
+.inline_delete_button {
+    display: block;
+    width: 16px;
+    height: 16px;
+    background: transparent;
+    background-image: url(/static/extjs/custom/delete_16.png);
+    cursor: pointer;
+}
+
+.inline_cash_button {
+    display: block;
+    width: 16px;
+    height: 16px;
+    background: transparent;
+    background-image: url('/static/img/icons/green/16x16/Currency Dollar.png');
+	cursor: pointer;
+}
+
+

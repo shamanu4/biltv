@@ -335,7 +335,7 @@ class Payment(models.Model):
     inner_descr = models.TextField()
     admin = models.ForeignKey("accounts.User", blank=True, null=True)
     source = models.ForeignKey("tv.PaymentSource")
-    register = models.ForeignKey("tv.PaymentRegister", blank=True, null=True)
+    register = models.ForeignKey("tv.PaymentRegister", blank=True, null=True, related_name="payments")
     bank_date = models.DateField(default=date.today)
 
     def __unicode__(self):

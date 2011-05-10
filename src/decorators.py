@@ -39,3 +39,13 @@ def render_to_json(func):
         json = simplejson.dumps(result, cls=DjangoJSONEncoder)
         return HttpResponse(json, mimetype="application/json")
     return wrapper
+
+def has_perm(func, perm=None):
+    def wrapper(request, *args, **kwargs):
+        result = func(request, *args, **kwargs)
+        print "decorator has_perm"
+        print perm
+        print "decorator has+perm end"
+        return result
+    return wrapper
+    

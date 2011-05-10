@@ -185,7 +185,20 @@ Engine = {
 					if (response.success) {
 						$(this.obj).parent().parent().parent().hide('slow')						
 					}
-				}
+				},
+				partiallyConfirm: function(id,source) {
+					if(confirm('Засчитать платежи реестра '+source+'?')) {
+						AbonApi.reg_payments_partially_confirm({
+                            register_id: (id || 0)
+                        },this.partiallyConfirmCallback.createDelegate(this));
+						Ext.get('loading').show();
+            			Ext.get('loading-mask-half').show();						
+					}
+				},
+				partiallyConfirmCallback: function(response){
+					Ext.get('loading').hide();
+            		Ext.get('loading-mask-half').fadeOut('fast');
+				}				
 			},
 			payment: {
 				openForm: function(oid) {
