@@ -75,22 +75,4 @@
 	width: 100px;
 	height: 100px;
 }
-
-.inline_edit_button {
-    display: block;
-    width: 16px;
-    height: 16px;
-    background: transparent;
-    background-image: url(../../custom/pencil_16.png);
-    cursor: pointer;
-}
-
-.inline_delete_button {
-    display: block;
-    width: 16px;
-    height: 16px;
-    background: transparent;
-    background-image: url(../../custom/delete_16.png);
-    cursor: pointer;
-}
 /***************************/

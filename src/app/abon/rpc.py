@@ -204,7 +204,7 @@ class AbonApiClass(object):
             except Abonent.DoesNotExist:
                 return dict(success=False, title='Сбой загрузки карт', msg='abonent not found', errors='' )
             else:                
-                return abonent.card_set.all()
+                return abonent.cards.all()
         else:
             return dict(success=True, data={} )
 
@@ -491,7 +491,29 @@ class AbonApiClass(object):
             return dict(success=False, title='Сбой удаления оплат', msg='payment not found', errors='', data={} )
         
     reg_payments_delete._args_len = 1
-                
+    
+    def reg_payments_partially_confirm(self,rdata,request):
+        from tv.models import PaymentRegister
+        if 'register_id' in rdata and rdata['register_id']>0:
+            register_id = rdata['register_id']
+            try:
+                register = PaymentRegister.objects.get(pk=register_id)
+            except PaymentRegister.DoesNotExist:
+                return dict(success=False, title='Сбой подтверждение платежей', msg='register not found', errors='', data={} )
+            else:                
+                if register.closed:
+                    return dict(success=False, title='Сбой подтверждение платежей', msg='реестр закрыт', errors='', data={} )
+                else:
+                    payments = register.payments.filter(maked__exact=False,deleted__exact=False)
+                    count = payments.count()
+                    for payment in payments:
+                        payment.make()
+                    return dict(success=True, title='Подтверждение платежей', msg='подтверждено: %s' % count, errors='', data={} )
+        else:
+            return dict(success=False, title='Сбой подтверждение платежей', msg='register not found', errors='', data={} )
+        
+    reg_payments_partially_confirm._args_len = 1
+                    
     @store_read
     def admins_get(self,rdata,request):
         from accounts.models import User
@@ -499,4 +521,38 @@ class AbonApiClass(object):
         return User.objects.all()
     
     admins_get._args_len = 1
+    
+    def comment_get(self,rdata,request):
+        from abon.models import Abonent
+        uid = int(rdata['uid'])
+        if uid>0:
+            try:
+                abonent=Abonent.objects.get(pk=uid)
+            except Abonent.DoesNotExist:
+                return dict(success=False, title='Сбой загрузки ', msg='abonent not found', errors='' )
+            else:
+                return dict(success=True, data={'comment':abonent.comment} )
+        else:
+            return dict(success=True, data={'comment':None} )
+        
+    comment_get._args_len = 1
+    
+    def comment_set(self,rdata,request):
+        from abon.models import Abonent
+        if not 'uid' in rdata or not 'comment' in rdata:
+            return dict(success=False, title='Сбой записи коментария', msg='invalid parameters', errors='' )
+        uid = int(rdata['uid'])
+        if uid>0:
+            try:
+                abonent=Abonent.objects.get(pk=uid)
+            except Abonent.DoesNotExist:
+                return dict(success=False, title='Сбой записи коментария', msg='abonent not found', errors='' )
+            else:
+                abonent.comment=rdata['comment']
+                abonent.save()
+                return dict(success=True, title='Сохранено', msg='saved', errors='' )
+        else:
+            return dict(success=False, title='Сбой загрузки ', msg='abonent not found', errors='' )
+        
+    comment_set._args_len = 1
         

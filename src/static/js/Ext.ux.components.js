@@ -695,6 +695,11 @@ Ext.ux.RegisterGrid = Ext.extend(Ext.ux.CustomGrid ,{
                         return '<div class="inline_edit_button register_edit_button" id="'+value+'" code="'+record.data.code+'" confirmed="'+record.data.confirmed+'" dis="'+record.data.disabled+'"></div>'
                     }
                 },
+				{header: " ", dataIndex: 'id', width: 28,
+                    renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                        return '<div class="inline_cash_button register_cash_button" id="'+value+'" source="'+record.data.source+'"></div>'
+                    }
+                },
             ],
             addAction: function(){
                 Engine.menu.cashier.abonent.openForm()
@@ -704,6 +709,9 @@ Ext.ux.RegisterGrid = Ext.extend(Ext.ux.CustomGrid ,{
                     fn: function(obj) {
                         $(".register_edit_button").live('click', function(e) {
                             Engine.menu.cashier.register.openForm(this.id);
+                        })
+						$(".register_cash_button").live('click', function(e) {
+                            Engine.menu.cashier.register.partiallyConfirm(this.id, $(this).attr('source'));
                         })
                     }
                 }
@@ -1749,15 +1757,41 @@ Ext.ux.AbonCommentsPanel = Ext.extend(Ext.Panel ,{
                 frame: true,
                 split: true    
             },            
-            items: [{
-					xtype: 'textarea',
-					width: 900,
-			},{
-                        xtype: 'tbbutton',
-                        cls: 'x-btn-text-icon',
-                        icon: '/static/extjs/custom/tick_16.png',
-                        text: 'Сохранить',
-			}]            
+            items: [
+			this.comment_field = new Ext.form.TextArea({
+				xtype: 'textarea',
+				width: 900,
+			}),
+			{
+            	xtype: 'tbbutton',
+            	cls: 'x-btn-text-icon',
+            	icon: '/static/extjs/custom/tick_16.png',
+            	text: 'Сохранить',
+				listeners: {
+                	click : {
+                    	fn: function(obj) {
+							AbonApi.comment_set({
+                            	uid: (this.oid || 0),
+								comment: this.comment_field.getValue()
+                        	});
+                    	},
+                    	scope: this
+                	},
+            	},
+			}],
+			listeners: {
+                afterrender : {
+                    fn: function(obj) {
+						AbonApi.comment_get({
+                            uid: (this.oid || 0),							
+                        },this.getCommentCallback.createDelegate(this));
+                    },
+                    scope: this
+                },
+            },
+			getCommentCallback: function(response) {
+				this.comment_field.setValue(response.data.comment)
+			},
         }
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.AbonCommentsPanel.superclass.initComponent.apply(this, arguments);
