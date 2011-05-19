@@ -88,6 +88,7 @@ class AbonApiClass(object):
         else:
             data = a.address.store_record()
             data.update({'activated':a.activated.date()}) #страшний бидлокод. 
+            data.update({'deactivated':a.deactivated.date()}) #страшний бидлокод.2
             return dict(success=True, data=data)
 
     address_get._args_len = 1

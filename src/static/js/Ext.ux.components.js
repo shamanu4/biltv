@@ -648,7 +648,7 @@ Ext.ux.RegisterGrid = Ext.extend(Ext.ux.CustomGrid ,{
             ds_model: register_ds_model,
             columns: [
                 {header: "Id", dataIndex: 'id', width:100, editable:false},
-                {header: "Source", dataIndex: 'source', width:100, editable:false, editor: new Ext.ux.SourceCombo(),
+                {header: "Source", dataIndex: 'source', width:180, editable:false, editor: new Ext.ux.SourceCombo(),
 					renderer: function(value, metaData, record, rowIndex, colIndex, store){
 						if (value === undefined) {
 							this.editable = true
@@ -664,7 +664,7 @@ Ext.ux.RegisterGrid = Ext.extend(Ext.ux.CustomGrid ,{
 						return value;
 					} 
 				},
-                {header: "Start", dataIndex: 'start', width:180, editable:false, editor: new Ext.form.DateField({format:'Y-m-d'}),
+                {header: "Start", dataIndex: 'start', width:100, editable:false, editor: new Ext.form.DateField({format:'Y-m-d'}),
 					renderer: function(value, metaData, record, rowIndex, colIndex, store){
 						if (value === undefined) {
 							this.editable = true
@@ -681,7 +681,7 @@ Ext.ux.RegisterGrid = Ext.extend(Ext.ux.CustomGrid ,{
                     	}
                 	}
 				},
-				{header: "End", dataIndex: 'end', width:180, editable:false, editor: new Ext.form.DateField({format:'Y-m-d'}),
+				{header: "End", dataIndex: 'end', width:100, editable:false, editor: new Ext.form.DateField({format:'Y-m-d'}),
 					renderer: function(value, metaData, record, rowIndex, colIndex, store){
 						if (value === undefined) {
 							this.editable = true
@@ -689,7 +689,15 @@ Ext.ux.RegisterGrid = Ext.extend(Ext.ux.CustomGrid ,{
 						return value;
 					}
 				},
-				{header: "Closed", dataIndex: 'closed', width:100, editable:false},
+				{header: "Bank", dataIndex: 'bank', width:100, editable:false, editor: new Ext.form.DateField({format:'Y-m-d'}),
+					renderer: function(value, metaData, record, rowIndex, colIndex, store){
+						if (value === undefined) {
+							this.editable = true
+						}
+						return value;
+					}
+				},
+				{header: "Closed", dataIndex: 'closed', width:80, editable:false},
 				{header: " ", dataIndex: 'id', width: 28,
                     renderer: function(value, metaData, record, rowIndex, colIndex, store) {
                         return '<div class="inline_edit_button register_edit_button" id="'+value+'" code="'+record.data.code+'" confirmed="'+record.data.confirmed+'" dis="'+record.data.disabled+'"></div>'
@@ -1037,7 +1045,7 @@ Ext.ux.PersonForm = Ext.extend(Ext.FormPanel, {
         var config = {
             border : true,
             width: 300,
-            height: 180,
+            height: 210,
             defaults: {
                 frame: true,
                 split: true,
@@ -1210,7 +1218,7 @@ Ext.ux.AddressForm = Ext.extend(Ext.FormPanel, {
         var config = {
             border : true,
             width: 400,
-            height: 180,
+            height: 210,
             defaults: {
                 frame: true,
                 split: true,
@@ -1259,7 +1267,16 @@ Ext.ux.AddressForm = Ext.extend(Ext.FormPanel, {
 				xtype: 'datefield',
 				format: 'Y-m-d',
                 allowBlank: false
-            })],
+            }),
+			this.deactivated_field = new Ext.form.DateField({
+                fieldLabel: 'Отключен',
+                name: 'deactivated',
+				xtype: 'datefield',
+				format: 'Y-m-d',
+                allowBlank: true
+            })
+			],
+			
         /*
             buttons:[{
                 text: 'ОК',
@@ -1322,7 +1339,7 @@ Ext.ux.BalanceForm = Ext.extend(Ext.FormPanel, {
         var config = {
             border : true,
             width: 300,
-            height: 180,
+            height: 210,
             buttons:[{
                 text: 'Внести оплату',
                 handler: function(){
@@ -1986,7 +2003,8 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                     address_id: this.children_forms.address.oid,
                     confirmed: this.children_forms.confirmed.obj.checked,
 					disabled: this.children_forms.disabled.obj.checked,
-					activated: this.children_forms.address.obj.activated_field.value                
+					activated: this.children_forms.address.obj.activated_field.value,
+					deactivated: this.children_forms.address.obj.deactivated_field.value                       
                 },this.submitcallback.createDelegate(this));
             },
             submitcallback: function(result,e) {                

@@ -8,6 +8,9 @@
 	* Partially closed registers creation enabled 	
 	* Abonent comments added
 	* Fixed fee calculation on very past activation
+	* Registers bank date added
+	* Abonent deactivation date added
+	
 
 === Version 0.1 (2011-04-07)=== 
 	* Interface to register payments mostly finished and can be usable.

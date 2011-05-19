@@ -142,7 +142,7 @@ class FeeType(models.Model):
     comment = models.TextField(blank=True, null=True)
 
     def __unicode__(self):
-        return u'Снятие денег | %s (%s)' % (self.name, self.sum)
+        return u'Снятие денег | %s (%s)' % (self.name, self.sum or 'Активація')
 
     def get_sum(self,date=None):
         from lib.functions import date_formatter
@@ -267,6 +267,7 @@ class PaymentRegister(models.Model):
     closed = models.BooleanField(default=False)
     start = models.DateField(default=date.today)
     end = models.DateField(default=date.today)
+    bank = models.DateField(blank=True,null=True)
             
     def __unicode__(self):
         mark = ''
@@ -311,6 +312,7 @@ class PaymentRegister(models.Model):
         obj['closed'] = self.closed
         obj['start'] = self.start
         obj['end'] = self.end
+        obj['bank'] = self.bank
         obj['unicode'] = self.__unicode__()
         return obj
         

@@ -32,6 +32,7 @@ class RegisterForm(forms.Form):
     closed = forms.BooleanField(required=False)
     start = forms.DateField(required=True)
     end = forms.DateField(required=True)
+    bank = forms.DateField(required=True)
     
     def __init__(self,rdata):
         import re
@@ -42,7 +43,11 @@ class RegisterForm(forms.Form):
         rtst = r.match(rdata['end'])
         if rtst:
             rdata['end'] = rtst.group(1)
+        rtst = r.match(rdata['bank'])
+        if rtst:
+            rdata['bank'] = rtst.group(1)
         super(self.__class__, self).__init__(rdata)
+        
         
     def clean_source(self):
         from tv.models import PaymentSource
@@ -62,6 +67,7 @@ class RegisterForm(forms.Form):
         obj.closed = self.cleaned_data['closed'] or False
         obj.start = self.cleaned_data['start']
         obj.end = self.cleaned_data['end']
+        obj.bank = self.cleaned_data['bank']
         try:
             obj.save()
         except IntegrityError as error:
