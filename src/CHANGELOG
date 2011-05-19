@@ -10,6 +10,7 @@
 	* Fixed fee calculation on very past activation
 	* Registers bank date added
 	* Abonent deactivation date added
+	* Payment to disabled abonent added
 	
 
 === Version 0.1 (2011-04-07)=== 
