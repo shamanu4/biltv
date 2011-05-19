@@ -88,7 +88,8 @@ class AbonApiClass(object):
         else:
             data = a.address.store_record()
             data.update({'activated':a.activated.date()}) #страшний бидлокод. 
-            data.update({'deactivated':a.deactivated.date()}) #страшний бидлокод.2
+            if a.deactivated:
+                data.update({'deactivated':a.deactivated.date()}) #страшний бидлокод.2
             return dict(success=True, data=data)
 
     address_get._args_len = 1
@@ -135,12 +136,13 @@ class AbonApiClass(object):
             else:
                 return dict(success=True, data=[a.store_record()])
         elif 'code' in rdata:
-            try:
-                a=Abonent.objects.get(code__iexact=rdata['code'],disabled__exact=False)
-            except Abonent.DoesNotExist:
+            a=Abonent.objects.filter(code__iexact=rdata['code'])
+            if a.count()>1:
+                a.filter(disabled__exact=False)
+            if a.count()==0:
                 return dict(success=False, title='Сбой загрузки формы', msg='abonent not found', errors='')
-            else:
-                return dict(success=True, data=[a.store_record()])
+            a = a[0]
+            return dict(success=True, data=[a.store_record()])
         else:
             return dict(success=False, errors='')
             #return dict(success=False, title='Сбой загрузки формы', msg='abonent not found', errors='')
