@@ -464,7 +464,8 @@ Ext.ux.register_store = new Ext.data.DirectStore({
             'current',
             'closed',
             'start',
-			'end'            
+			'end',
+			'bank'
         ]
     }),
     writer: new Ext.data.JsonWriter({
@@ -494,5 +495,6 @@ var register_ds_model = Ext.data.Record.create([
             'current',
             'closed',
             'start',
-			'end'
+			'end',
+			'bank'
 ]);

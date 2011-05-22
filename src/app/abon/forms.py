@@ -183,6 +183,7 @@ class AbonentForm(forms.Form):
     deleted = forms.BooleanField(required=False)
     confirmed = forms.BooleanField(required=False)
     activated = forms.DateTimeField(required=True)
+    deactivated = forms.DateTimeField(required=False)
     disabled = forms.BooleanField(required=False)
     comment = forms.CharField(required=False)
 
@@ -201,7 +202,8 @@ class AbonentForm(forms.Form):
 
         obj.person = person
         obj.address = address
-        obj.activated = self.cleaned_data['activated']    
+        obj.activated = self.cleaned_data['activated']
+        obj.deactivated = self.cleaned_data['deactivated']
         obj.deleted = self.cleaned_data['deleted'] or False
         obj.confirmed = self.cleaned_data['confirmed'] or False
         if obj.disabled and not self.cleaned_data['disabled']:
@@ -212,6 +214,8 @@ class AbonentForm(forms.Form):
         else:
             obj.disabled = self.cleaned_data['disabled'] or False
         obj.comment = self.cleaned_data['comment']
+        print obj
+        print self.cleaned_data
         try:
             obj.save()
         except IntegrityError as error:

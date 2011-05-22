@@ -364,6 +364,7 @@ class Abonent(models.Model):
     address = models.ForeignKey(Address, related_name='abonents')
     group = models.ForeignKey(Group, default=1, related_name='members')
     activated = models.DateTimeField(default=datetime.now)
+    deactivated = models.DateTimeField(blank=True, null=True)
     deleted = models.BooleanField(default=False)
     comment = models.TextField(blank=True, null=True)
     sorting = models.CharField(blank=True, max_length=150)
@@ -446,6 +447,7 @@ class Abonent(models.Model):
         obj['comment'] = self.comment
         obj['confirmed'] = self.confirmed
         obj['activated'] = self.activated
+        obj['deactivated'] = self.deactivated
         obj['disabled'] = self.disabled
         obj['fee'] = 25
         return obj
