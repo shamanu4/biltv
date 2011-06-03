@@ -149,6 +149,20 @@ class AbonApiClass(object):
         
     abonent_get._args_len = 1
 
+    @store_read
+    def abonent_get_by_code(self, rdata, request):
+        from abon.models import Abonent
+        if 'code' in rdata:
+            print rdata['code']
+            a=Abonent.objects.filter(code__iexact=rdata['code']).order_by('disabled')
+            print a            
+            return a
+        else:
+            return []
+            #return dict(success=False, title='Сбой загрузки формы', msg='abonent not found', errors='')
+        
+    abonent_get_by_code._args_len = 1
+
     def abonent_set(self, rdata, request):
         from abon.models import Abonent
         from abon.forms import AbonentForm
