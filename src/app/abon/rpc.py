@@ -421,7 +421,16 @@ class AbonApiClass(object):
         return dict(success=True, title='Снятие проведено', msg='...', errors='', data={} )        
     
     make_fee._args_len = 1
-
+        
+    def make_fransfer(self,rdata,request):
+        from tv.models import FeeType, Fee
+        from abon.models import Abonent
+        from datetime import datetime        
+        print rdata                
+        return dict(success=True, title='Перенос средств успешен', msg='...', errors='', data={} )
+    
+    make_fransfer._args_len = 1
+    
     @store_read    
     def reg_payments_get(self,rdata,request):
         from accounts.models import User

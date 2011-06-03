@@ -222,6 +222,17 @@ Engine = {
                     Ext.getCmp('tab-panel').toolbars[0].doLayout();
 				}
 			},
+			transfer: {
+				openForm: function(oid) {
+					if ((typeof oid == 'object') && ('oid' in oid)) {
+						oid = oid['oid']
+					}
+					var form = Engine.getComponent(Ext.ux.TransferForm,'Ext.ux.TransferForm',{'oid':oid})
+                    Ext.getCmp('tab-panel').toolbars[0].add(form);
+                    Ext.getCmp('tab-panel').toolbars[0].add(form);
+                    Ext.getCmp('tab-panel').toolbars[0].doLayout();
+				}
+			}
 			
         },
         scrambler: {
