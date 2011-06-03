@@ -153,10 +153,7 @@ class AbonApiClass(object):
     def abonent_get_by_code(self, rdata, request):
         from abon.models import Abonent
         if 'code' in rdata:
-            print rdata['code']
-            a=Abonent.objects.filter(code__iexact=rdata['code']).order_by('disabled')
-            print a            
-            return a
+            return Abonent.objects.filter(code__iexact=rdata['code']).order_by('disabled')
         else:
             return []
             #return dict(success=False, title='Сбой загрузки формы', msg='abonent not found', errors='')

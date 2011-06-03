@@ -1341,17 +1341,17 @@ Ext.ux.BalanceForm = Ext.extend(Ext.FormPanel, {
             width: 300,
             height: 210,
             buttons:[{
-                text: 'Внести оплату',
+                text: 'оплата',
                 handler: function(){
 					Engine.menu.cashier.payment.openForm(this.oid)
                 },
                 scope: this
             },{
-                text: 'зняти',
+                text: 'снятие',
                 handler: function(){
                     Engine.menu.cashier.fee.openForm(this.oid)
                 },
-                scope: this
+                scope: this                
             }],
             listeners: {
                 afterrender : {
@@ -1913,7 +1913,7 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                 oid: this.oid,
                 parent_form: this
             },{
-                title: 'Адреса',
+                title: 'Адрес',
                 xtype: 'ext:ux:address-form',
                 oid: this.oid,
                 parent_form: this
@@ -2329,6 +2329,7 @@ Ext.ux.PaymentForm = Ext.extend(Ext.Panel ,{
 			},
 			payment_callback: function(response) {
 				this.searchfield.setRawValue('')
+				this.personfield.setRawValue('')
 				this.abonent = 0				
 			},
 			register: 0,
@@ -2376,7 +2377,6 @@ Ext.ux.FeeForm = Ext.extend(Ext.Panel ,{
     							reader: new Ext.data.JsonReader({
         							root: 'data',
         							totalProperty: 'total',
-        							//idProperty: 'id',
         							fields: [
             							'id',
 										'unicode',
@@ -2393,7 +2393,7 @@ Ext.ux.FeeForm = Ext.extend(Ext.Panel ,{
             				displayField: 'unicode',
 							triggerAction: 'all',
 							editable: false,							
-							forceSelection: true,
+							//forceSelection: true,
 							emptyText: 'Тип услуги',
 							listeners: {
 								select: {
@@ -2469,15 +2469,48 @@ Ext.ux.FeeForm = Ext.extend(Ext.Panel ,{
                 			},
                 			scope: this
             			},
-						this.personfield = new Ext.form.Label({
-							text: '...',
-							width: 200
-						}),
-						this.addressfield = new Ext.form.Label({
-							text: '...',
-							width: 200
-						}),								
-						
+						this.personfield = new Ext.form.ComboBox({
+							store: new Ext.data.DirectStore({
+    							api: {
+        							read: AbonApi.abonent_get_by_code,
+        							create: AbonApi.foo,
+        							update: AbonApi.foo,
+        							destroy: AbonApi.foo
+    							},
+    							restful: true,
+    							autoLoad: false,
+    							autoSave: false,
+    							reader: new Ext.data.JsonReader({
+        							root: 'data',
+        							totalProperty: 'total',
+        							//pizdec
+        							fields: [
+            							'id',
+            							'person',
+            							'disabled',						
+									]
+    							}),
+    							baseParams : {
+        							start:0,
+        							limit:8,        							
+    							},
+    						}),
+							valueField: 'id',
+            				displayField: 'person',
+							forceSelection: true,
+							emptyText: 'Абонент',
+							editable: false,
+    						triggerAction: 'all',    							
+							listeners: {
+								change: {
+									fn: function(combo,newval,oldval) {
+										this.abonent = newval		
+										this.oid=0								
+									},
+									scope: this
+								}
+							}
+						}),														
 					]
 				},{
 					xtype: 'form',
@@ -2554,17 +2587,25 @@ Ext.ux.FeeForm = Ext.extend(Ext.Panel ,{
                 }
             },
 			preload: function(response) {
-				if(response.success) {	
+				if(response.success) {						
 					this.searchfield.setValue(response.data[0]['code'])					
-					this.personfield.setText(response.data[0]['person'])
-					this.addressfield.setText(response.data[0]['address'])
-					this.abonent = response.data[0]['id']
+					//this.personfield.setText(response.data[0]['person'])
+					this.personfield.setRawValue('')
+					this.personfield.store.setBaseParam('code',response.data[0]['code'])
+					this.personfield.store.load({
+						callback: this.afterload.createDelegate(this),
+					})					
 				}
 			},
+			afterload: function(response) {
+				this.personfield.setValue(parseInt(this.oid) || this.personfield.store.getAt(0).id)				
+				this.abonent = parseInt(this.oid) || this.personfield.store.getAt(0).id
+				this.oid=0
+			},
 			fee_callback: function(response) {
-				this.searchfield.setValue('')
-				this.personfield.setText('...')
-				this.addressfield.setText('...')				
+				this.searchfield.setRawValue('')
+				this.personfield.setRawValue('')
+				this.abonent = 0			
 			},
 			register: 0,
 			abonent: 0
