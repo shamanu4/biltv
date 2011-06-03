@@ -5,6 +5,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.utils import simplejson
 
 from django.db.models.query import QuerySet
+from lib.functions import QuerySetChain
 from django.db.models import Q
 from django.utils.functional import update_wrapper
 
@@ -20,7 +21,7 @@ def store_read(func):
             success = True
             extras = {}
         total=0
-        if isinstance(result, QuerySet):                        
+        if isinstance(result, QuerySet) or isinstance(result, QuerySetChain):                        
             if 'filter_fields' in rdata and 'filter_value' in rdata:
                 query=None
                 if 'query' in rdata:

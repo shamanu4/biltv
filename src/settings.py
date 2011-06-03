@@ -116,7 +116,7 @@ INSTALLED_APPS = (
 )
 
 DEFAULT_CATV_TP_ID = 1
-PROGRAM_VERSION = 'v0.10.007b'
+PROGRAM_VERSION = 'v0.10.007c'
 
 try:
     from settings_local import *

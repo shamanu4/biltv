@@ -306,8 +306,11 @@ class AbonApiClass(object):
     @store_read
     def registers_get_last(self,rdata,request):
         from tv.models import PaymentRegister
-        return PaymentRegister.objects.all().order_by('closed').order_by('-start')[:20]
-    
+        from lib.functions import QuerySetChain
+        opened = PaymentRegister.objects.filter(closed__exact=False)
+        closed = PaymentRegister.objects.filter(closed__exact=True)[:10]
+        return QuerySetChain(opened,closed)
+         
     registers_get_last._args_len = 1
     
     def make_payment(self,rdata,request):
