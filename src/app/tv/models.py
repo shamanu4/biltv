@@ -142,7 +142,7 @@ class FeeType(models.Model):
     comment = models.TextField(blank=True, null=True)
 
     def __unicode__(self):
-        return u'Снятие денег | %s (%s)' % (self.name, self.sum or 'Активація')
+        return u'Снятие денег | %s (%s)' % (self.name, self.sum or self.comment or u'---')
 
     def get_sum(self,date=None):
         from lib.functions import date_formatter

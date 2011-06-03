@@ -12,10 +12,5 @@
 <path>/biltv2/src</path>
 <path>/biltv2</path>
 <path>/biltv2/src/app</path>
-<path>/biltv2/src/app/abon</path>
-<path>/biltv2/src/app/accounts</path>
-<path>/biltv2/src/app/logger</path>
-<path>/biltv2/src/app/tv</path>
-<path>/biltv2/src/app/ui</path>
 </pydev_pathproperty>
 </pydev_project>

@@ -61,7 +61,7 @@ class ChannelPacket(BasicPacket):
 class UserPacket(BasicPacket):
 
     def __init__(self,card_id):
-        from functions import int_to_4byte_wrapped
+        from lib.functions import int_to_4byte_wrapped
         BasicPacket.__init__(self)
         self.data.append(0xad)
         from tv.models import Card

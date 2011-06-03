@@ -108,7 +108,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.admin',
-    'django_extensions',          # optional, neede for development only
+    # 'django_extensions',          # optional, neede for development only
     'accounts',
     'logger',
     'tv',
@@ -116,7 +116,7 @@ INSTALLED_APPS = (
 )
 
 DEFAULT_CATV_TP_ID = 1
-PROGRAM_VERSION = 'v0.10.008'
+PROGRAM_VERSION = 'v0.10.008a'
 
 try:
     from settings_local import *
