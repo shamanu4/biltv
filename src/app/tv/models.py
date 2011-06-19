@@ -341,7 +341,7 @@ class Payment(models.Model):
     descr = models.TextField()
     inner_descr = models.TextField()
     admin = models.ForeignKey("accounts.User", blank=True, null=True)
-    source = models.ForeignKey("tv.PaymentSource")
+    source = models.ForeignKey("tv.PaymentSource", blank=True, null=True)
     register = models.ForeignKey("tv.PaymentRegister", blank=True, null=True, related_name="payments")
     bank_date = models.DateField(default=date.today)
 
@@ -361,7 +361,10 @@ class Payment(models.Model):
         obj['maked'] = self.maked
         obj['descr'] = self.descr
         obj['inner_descr'] = self.inner_descr
-        obj['source__name'] = self.source.__unicode__()
+        if self.source:
+            obj['source__name'] = self.source.__unicode__()
+        else:
+            obj['source__name'] = 'Корректировка'
         obj['bank_date'] = self.bank_date
         obj['onwer_code'] = self.owner.get_code() or None
         obj['onwer_name'] = self.owner.person.__unicode__() or None
@@ -773,6 +776,7 @@ class Card(models.Model):
             service.deactivate()
         self.active=False
         self.save(deactivation_processed=True)
+        self.check_past_deactivation()
 
     def detach(self):
         self.services.all().delete()
@@ -782,6 +786,9 @@ class Card(models.Model):
             return False
         for service in self.services.all():
             service.make_fees(date)
+    
+    def check_past_deactivation(self,activated):
+        pass
 
     def store_record(self):
         obj = {}
@@ -914,7 +921,6 @@ class CardService(models.Model):
         else:
             return True
         
-
     def store_record(self):
         obj = {}
         obj['id'] = self.pk

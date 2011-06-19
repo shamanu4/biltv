@@ -2026,6 +2026,8 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
             children_forms_ready: function() {
                 if((this.children_forms.person.ready2)&&(this.children_forms.address.ready2)) {
                     this.submitaction()
+                } else {
+                	Ext.ux.msg('Ошибка ввода',"заполните обязательные поля",Ext.Msg.ERROR)
                 }
             },
             children_forms:{
@@ -2231,11 +2233,19 @@ Ext.ux.PaymentForm = Ext.extend(Ext.Panel ,{
 							forceSelection: true,
 							emptyText: 'Абонент',
 							editable: false,
-    						triggerAction: 'all',    							
+    						triggerAction: 'all',
 							listeners: {
 								change: {
 									fn: function(combo,newval,oldval) {
-										this.abonent = newval		
+										var record_new = combo.store.getAt(combo.store.findExact('id',newval))
+										var record_old = combo.store.getAt(combo.store.findExact('id',oldval))
+										if(record_new.data.disabled) {
+											alert("Внимание! Абонент отключен")
+											combo.addClass('combo-bg-red')
+										} else {
+											combo.removeClass('combo-bg-red')
+										}
+										this.abonent = newval
 										this.oid=0								
 									},
 									scope: this
@@ -2510,6 +2520,14 @@ Ext.ux.FeeForm = Ext.extend(Ext.Panel ,{
 							listeners: {
 								change: {
 									fn: function(combo,newval,oldval) {
+										var record_new = combo.store.getAt(combo.store.findExact('id',newval))
+										var record_old = combo.store.getAt(combo.store.findExact('id',oldval))
+										if(record_new.data.disabled) {
+											alert("Внимание! Абонент отключен")
+											combo.addClass('combo-bg-red')
+										} else {
+											combo.removeClass('combo-bg-red')
+										}
 										this.abonent = newval		
 										this.oid=0								
 									},

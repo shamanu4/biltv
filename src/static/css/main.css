@@ -79,4 +79,10 @@
 	cursor: pointer;
 }
 
+.combo-bg-red {
+	background-color: #b00000 !important;
+	font-weight: bold !important;
+	color: red !important;
+}
+
 

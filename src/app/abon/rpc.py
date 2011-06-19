@@ -73,7 +73,7 @@ class AbonApiClass(object):
             ok = False
             msg = form._errors
         if ok:
-            return dict(success=True, title="Сохранено", msg="saved", data=result)
+            return dict(success=True, data=result)
         else:
             return dict(success=False, title="Ошибка записи", msg=msg, data={})        
 
@@ -120,7 +120,7 @@ class AbonApiClass(object):
             ok = False
             msg = form._errors
         if ok:
-            return dict(success=True, title="Сохранено", msg="saved", data=result)
+            return dict(success=True, data=result)
         else:
             return dict(success=False, title="Ошибка записи", msg=msg, data={})
 
@@ -423,9 +423,61 @@ class AbonApiClass(object):
     make_fee._args_len = 1
         
     def make_fransfer(self,rdata,request):
-        from tv.models import FeeType, Fee
+        from tv.models import Fee, Payment
         from abon.models import Abonent
-        from datetime import datetime        
+        from datetime import datetime
+        
+        descr = rdata['descr'] or ''
+        
+        if 'abonent_from' in rdata and rdata['abonent_from']>0:
+            pass
+        else:
+            return dict(success=False, title='Сбой переносa средств', msg='Invalid option value: abonent_from', errors='', data={} ) 
+        
+        if 'abonent_to' in rdata and rdata['abonent_to']>0:
+            pass        
+        else:
+            return dict(success=False, title='Сбой переносa средств', msg='Invalid option value: abonent_to', errors='', data={} )
+        
+        if 'sum' in rdata and rdata['sum']>0:
+            pass
+        else:
+            return dict(success=False, title='Сбой переносa средств', msg='Invalid option value: sum', errors='', data={} )
+        
+        if 'date' in rdata and rdata['date']>0:
+            date = rdata['date']
+            try:
+                date = datetime.strptime(date,'%Y-%m-%dT%H:%M:%S').date()
+            except ValueError:
+                return dict(success=False, title='Сбой переносa средств', msg='invalid date', errors='', data={} )
+        else:
+            return dict(success=False, title='Сбой переносa средств', msg='invalid date', errors='', data={} )
+        try:
+            abon_from = Abonent.objects.get(pk=rdata['abonent_from'])
+            abon_to = Abonent.objects.get(pk=rdata['abonent_to'])
+        except Abonent.DoesNotExist:
+            return dict(success=False, title='Сбой переносa средств', msg='Abonent not found', errors='', data={} )
+        else:
+            f = Fee()            
+            f.bill = abon_from.bill
+            f.sum = rdata['sum']
+            f.descr = 'Трансфер средств. recipient client id = %s ' % abon_to.pk
+            f.inner_descr = descr
+            f.admin= request.user
+            f.bank_date = date
+            f.save()
+            f.make()
+            
+            p = Payment()
+            p.bill = abon_to.bill
+            p.sum = rdata['sum']
+            p.descr = 'Трансфер средств. source client id = %s ' % abon_from.pk            
+            p.inner_descr = descr
+            p.admin= request.user
+            p.bank_date = date
+            p.save()
+            p.make()
+                                
         print rdata                
         return dict(success=True, title='Перенос средств успешен', msg='...', errors='', data={} )
     
