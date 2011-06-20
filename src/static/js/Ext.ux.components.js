@@ -1640,7 +1640,9 @@ Ext.ux.AbonPaymentsGrid = Ext.extend(Ext.ux.CustomGridNE ,{
                     filter_fields:['num'],
                     filter_value:''
                 }
-            }),            
+            }),
+            pageSize: 12,
+    		height: 380,    
             listeners: {
                 afterrender : {
                     fn: function(obj) {
@@ -1686,13 +1688,11 @@ Ext.ux.AbonPaymentsGrid = Ext.extend(Ext.ux.CustomGridNE ,{
         }
     },
     pageSize: 12,
-    height: 450
+    height: 380
 });
 
 
 Ext.reg('ext:ux:abon-payments-grid', Ext.ux.AbonPaymentsGrid);
-
-Ext.reg('ext:ux:abon-cards-tp-grid', Ext.ux.AbonCardsTpGrid);
 
 Ext.ux.AbonFeesGrid = Ext.extend(Ext.ux.CustomGridNE ,{
     initComponent: function(){
@@ -1735,7 +1735,9 @@ Ext.ux.AbonFeesGrid = Ext.extend(Ext.ux.CustomGridNE ,{
                     filter_fields:['num'],
                     filter_value:''
                 }
-            }),            
+            }),
+            pageSize: 12,
+    		height: 380,       
             listeners: {
                 afterrender : {
                     fn: function(obj) {
@@ -1773,10 +1775,71 @@ Ext.ux.AbonFeesGrid = Ext.extend(Ext.ux.CustomGridNE ,{
         }
     },
     pageSize: 12,
-    height: 450
+    height: 3800
 });
 
 Ext.reg('ext:ux:abon-fees-grid', Ext.ux.AbonFeesGrid);
+
+Ext.ux.AbonHistoryGrid = Ext.extend(Ext.ux.CustomGridNE ,{
+    initComponent: function(){
+        var config = {
+            store: new Ext.data.DirectStore({
+                restful: true,
+                autoLoad: false,
+                autoSave: false,
+                remoteSort: true,
+                reader: new Ext.data.JsonReader({
+                    root: 'data',
+                    totalProperty: 'total',
+                    fields: [
+                        'id',                        
+                        'timestamp',
+                        'text'
+                    ]
+                }),
+                writer: new Ext.data.JsonWriter({
+                    encode: false,
+                    writeAllFields: true,
+                    listful: true
+                }),
+                api: {
+                    read: AbonApi.abon_history_get,
+                    create: AbonApi.foo,
+                    update: AbonApi.foo,
+                    destroy: AbonApi.foo
+                },
+                baseParams : {
+                    start:0,
+                    limit:12,
+                    foo:'bar',
+                    uid:this.oid || 0,
+                }
+            }),
+            pageSize: 12,
+    		height: 380,   
+            listeners: {
+                afterrender : {
+                    fn: function(obj) {
+                        //obj.parent_form.children_forms.cards.obj=obj
+                    },
+                    scope: this
+                }
+            }
+        }
+        Ext.apply(this, Ext.apply(this.initialConfig, config));
+        Ext.ux.AbonHistoryGrid.superclass.initComponent.apply(this, [config]);
+    },    
+    columns: [
+        {header: "Id", dataIndex: 'id', width:40},
+        {header: "Timestamp", dataIndex: 'timestamp', width:180, sortable: true},
+        {header: "Text", dataIndex: 'text', width:200},        
+    ],
+    pageSize: 12,
+    height: 380
+});
+
+Ext.reg('ext:ux:abon-history-grid', Ext.ux.AbonHistoryGrid);
+
 
 Ext.ux.AbonCommentsPanel = Ext.extend(Ext.Panel ,{
 	    initComponent: function() {
@@ -1887,6 +1950,14 @@ Ext.ux.AbonInfoPanel = Ext.extend(Ext.Panel ,{
                             xtype:'ext:ux:abon-comments-panel',
                             oid: this.oid
                         }]
+                    },{                            
+                        title: 'История',
+                        xtype: 'panel',
+                        parent_form: this,
+                        items: [{
+                        	xtype: 'ext:ux:abon-history-grid',
+                        	oid: this.oid,
+                        }]
                     }]
             }),
             children_forms:{
@@ -1986,8 +2057,10 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                             afterrender : {
                                 fn: function(obj) {
                                     this.children_forms.disabled.obj=obj
-                                    if(this.dis=="true") {
-                                        obj.setValue(true)
+                                    if(this.dis=="false") {
+                                        obj.setValue(false)
+                                    } else {
+                                    	obj.setValue(true)
                                     }
                                 },
                                 scope: this
@@ -2010,12 +2083,12 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
 						listeners: {
                             afterrender : {
                                 fn: function(obj) {
-									if(this.dis=="true") {
-                                        obj.setText("Подключить")
-										obj.setIcon("/static/extjs/custom/tick_16.png")
+									if(this.dis=="false") {
+                                        obj.setText("Отключить")
+										obj.setIcon("/static/extjs/custom/delete_16.png")                                        
                                     } else {
-										obj.setText("Отключить")
-										obj.setIcon("/static/extjs/custom/delete_16.png")
+										obj.setText("Подключить")
+										obj.setIcon("/static/extjs/custom/tick_16.png")
 									}
                                 },
                                 scope: this
@@ -2060,10 +2133,10 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                 }
             },
 			disable_enable:function() {
-				if(this.dis=="true") {
-					this.abon_enable()
+				if(this.dis=="false") {
+					this.abon_disable()					
 				} else {
-					this.abon_disable()
+					this.abon_enable()
 				}
 			},
 			abon_enable: function() {
@@ -2076,7 +2149,7 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                 if((this.children_forms.person.ready2)&&(this.children_forms.address.ready2)) {
                     this.submitaction()
                 } else {
-                	Ext.ux.msg('Ошибка ввода',"заполните обязательные поля",Ext.Msg.ERROR)
+                	//Ext.ux.msg('Ошибка ввода',"заполните обязательные поля",Ext.Msg.ERROR)
                 }
             },			
             children_forms:{

@@ -564,6 +564,7 @@ class TariffPlanFeeRelationship(models.Model):
 
     def make_ret(self,card,date=None,**kwargs):
         print "making ret ..."
+        print date
         fee = Fee()
         fee.bill = card.bill
         fee.card = card
@@ -571,6 +572,8 @@ class TariffPlanFeeRelationship(models.Model):
         fee.fee_type = self.fee_type
         fee.sum = - self.fee_type.get_sum(date)['ret']
         fee.inner_descr = "Money return on service deactivation"
+        if date:
+            fee.timestamp = date
         fee.save()
         return fee.make()
 
@@ -605,10 +608,10 @@ CARD_USER_ACTIONS = (
 class CardHistory(models.Model):
 
     CARD_ACTIONS = (
-        (CARD_SERVICE_ACTIVATED, u'service activated'),
-        (CARD_SERVICE_DEACTIVATED, u'service deactivated'),
-        (CARD_SERVICE_ADDED, u'service added'),
-        (CARD_SERVICE_REMOVED, u'service removed'),
+        (CARD_SERVICE_ACTIVATED, u'включён'),
+        (CARD_SERVICE_DEACTIVATED, u'отключен'),
+        (CARD_SERVICE_ADDED, u'добавлен'),
+        (CARD_SERVICE_REMOVED, u'удалён'),
         (CARD_OWNER_ADDED, u'owner added'),
         (CARD_OWNER_REMOVED, u'owner removed'),
         (CARD_OWNER_CHANGED, u'owner changed'),
@@ -620,6 +623,9 @@ class CardHistory(models.Model):
     oid = models.PositiveIntegerField()
     descr = models.TextField()
 
+    class Meta:
+        ordering = ('-timestamp',)
+        
     @property
     def obj_instance(self):
         from abon.models import Abonent
@@ -636,8 +642,14 @@ class CardHistory(models.Model):
         return None
 
     def __unicode__(self):
-        return "%s | %s | %s" % (self.timestamp, self.get_action_display(), self.obj_instance)
+        return "%s | %s" % (self.get_action_display(), self.obj_instance)
 
+    def store_record(self):
+        obj = {}
+        obj['id'] = self.pk
+        obj['timestamp'] = self.timestamp
+        obj['text'] = self.__unicode__()
+        return obj
     
 
 class Card(models.Model):
@@ -781,6 +793,8 @@ class Card(models.Model):
         return True
 
     def deactivate(self,deactivated=None,descr=''):
+        print "card deactivate..."
+        print deactivated
         for service in self.services.all():
             service.deactivate(deactivated,descr)
         self.active=False
@@ -798,7 +812,10 @@ class Card(models.Model):
             service.make_fees(date)
     
     def check_past_deactivation(self,deactivated):
-        pass
+        fees = self.fee_set.filter(maked=True,rolled_by=None,sum__gt=0,timestamp__gt=deactivated)
+        for fee in fees:
+            if not fee.fee_type.ftype == FEE_TYPE_ONCE and not fee.fee_type.ftype == FEE_TYPE_CUSTOM:  
+                fee.rollback()
     
     # WARNING! This method was used once during MIGRATION. Future uses RESTRICTED! This will cause  history DATA CORRUPT!  
     def timestamp_and_activation_fix(self):
@@ -938,6 +955,8 @@ class CardService(models.Model):
         return True
 
     def deactivate(self,deactivated = None, descr =''):
+        print "card service deactivate..."
+        print deactivated
         if self.active:
             fees = self.tp.fees.filter(fee_type__ftype__exact=FEE_TYPE_CUSTOM)
             for fee in fees:

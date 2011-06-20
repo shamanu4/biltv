@@ -402,7 +402,8 @@ class Abonent(models.Model):
         else:
             self.disabled=True
             self.save()
-            print "abonent disabled..."        
+            print "abonent disabled..." 
+            print date       
             return self.catv_card.deactivate(date,descr)
     
     def enable(self,date=None,descr=''):
@@ -436,7 +437,7 @@ class Abonent(models.Model):
         s.card = c
         s.tp = t
         s.save()
-        c.activate(self.activated)
+        #c.activate(self.activated)
         return True
 
     def save(self, *args, **kwargs):

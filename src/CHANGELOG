@@ -11,7 +11,7 @@
 	* Registers bank date added
 	* Abonent deactivation date added
 	* Payment to disabled abonent added
-	
+	* Activation/Deactivation interface for abonents with automatic Fees calculation	
 
 === Version 0.1 (2011-04-07)=== 
 	* Interface to register payments mostly finished and can be usable.

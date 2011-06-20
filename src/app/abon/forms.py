@@ -182,15 +182,14 @@ class AbonentForm(forms.Form):
     address_id = forms.IntegerField(required=True)
     deleted = forms.BooleanField(required=False)
     confirmed = forms.BooleanField(required=False)
-    activated = forms.DateTimeField(required=True)
+    activated = forms.DateTimeField(required=False)
     deactivated = forms.DateTimeField(required=False)
     disabled = forms.BooleanField(required=False)
     comment = forms.CharField(required=False)
 
-    def save(self,obj):
+    def save(self,obj=None):
         from abon.models import Address,Person,Abonent
-        if not obj:
-            obj = Abonent()
+                
         try:
             address = Address.objects.get(pk=self.cleaned_data['address_id'])
         except Address.DoesNotExist:
@@ -199,7 +198,28 @@ class AbonentForm(forms.Form):
             person = Person.objects.get(pk=self.cleaned_data['person_id'])
         except Person.DoesNotExist:
             return (False,obj,'person not found')
-
+        
+        msg=''
+        print "---1"
+        print obj
+        if obj and obj.pk:
+            pass
+            print 'obj!'
+        else:
+            print 'not obj'
+            try: 
+                obj = Abonent.objects.get(person=person,address=address)
+            except Abonent.DoesNotExist:
+                pass
+                print 'not exist'
+                print person
+                print address
+                obj = Abonent()
+            else:
+                print 'exists'
+                msg='Абонент существует... режим редактирования включён...'            
+                            
+                
         obj.person = person
         obj.address = address
         obj.activated = self.cleaned_data['activated']
@@ -222,4 +242,4 @@ class AbonentForm(forms.Form):
             print 'integrity error'
             return (False,obj,error[1].decode('utf8'))
         else:
-            return (True,obj,'')
+            return (True,obj,msg)

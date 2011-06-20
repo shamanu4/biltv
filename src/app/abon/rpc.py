@@ -87,10 +87,11 @@ class AbonApiClass(object):
             return dict(success=False, title='Сбой загрузки формы', msg='abonent not found', errors='')
         else:
             data = a.address.store_record()
+        if a.activated: 
             data.update({'activated':a.activated.date()}) #страшний бидлокод.
 	    if a.deactivated: 
 	        data.update({'deactivated':a.deactivated.date()}) #страшний бидлокод.2
-            return dict(success=True, data=data)
+        return dict(success=True, data=data)
 
     address_get._args_len = 1
 
@@ -184,7 +185,7 @@ class AbonApiClass(object):
             ok = False
             msg = form._errors
         if ok:
-            return dict(success=True, title="Сохранено", msg="saved", data=result)
+            return dict(success=True, title="Сохранено", msg=msg, data=result)
         else:
             return dict(success=False, title="Ошибка записи !!!", msg=msg, data={})
 
@@ -205,7 +206,7 @@ class AbonApiClass(object):
         try:
             date = datetime.strptime(tmpdate,'%Y-%m-%dT%H:%M:%S').date()
         except ValueError:
-            return dict(success=False, title='Сбой включения', msg='invalid date', errors='', data={} )                    
+            return dict(success=False, title='Сбой включения', msg='invalid date', errors='' )                    
         abonent.enable(date=date,descr=rdata['descr'])
         return dict(success=True, title="Абонент включен", msg="saved")
 
@@ -228,7 +229,7 @@ class AbonApiClass(object):
         except ValueError:
             return dict(success=False, title='Сбой отключения', msg='invalid date', errors='', data={} )                    
         abonent.disable(date=date,descr=rdata['descr'])
-        return dict(success=True, title="Сохранено", msg="saved", data=result)
+        return dict(success=True, title="Абонент отключен", msg="saved")
 
     disable._args_len = 1
     
@@ -265,6 +266,26 @@ class AbonApiClass(object):
             return dict(success=True, data={} )
 
     cards_get._args_len = 1
+    
+    @store_read
+    def abon_history_get(self,rdata,request):
+        from abon.models import Abonent
+        try:
+            uid = int(rdata['uid'])
+        except KeyError:
+            return dict(success=False, title='Сбой загрузки карт', msg='abonent not found', errors='' )
+        if uid>0:
+            try:
+                abonent=Abonent.objects.get(pk=uid)
+            except Abonent.DoesNotExist:
+                return dict(success=False, title='Сбой загрузки карт', msg='abonent not found', errors='' )
+            else:                
+                return abonent.catv_card.service_log.all()
+        else:
+            return dict(success=True, data={} )
+
+    abon_history_get._args_len = 1
+
 
     def cards_set(self,rdata,request):
         from abon.models import Abonent
@@ -330,7 +351,7 @@ class AbonApiClass(object):
             except Abonent.DoesNotExist:
                 return dict(success=False, title='Сбой загрузки платежей', msg='abonent not found', errors='', data={} )                    
             payments=Payment.objects.filter(bill=abonent.bill)
-            return payments.order_by('-timestamp')
+            return payments.order_by('-timestamp','-pk')
         return {}
     payments_get._args_len = 1
 
@@ -346,7 +367,7 @@ class AbonApiClass(object):
             except Abonent.DoesNotExist:
                 return dict(success=False, title='Сбой загрузки платежей', msg='abonent not found', errors='', data={} )                    
             fees=Fee.objects.filter(bill=abonent.bill)
-            return fees.order_by('-timestamp')
+            return fees.order_by('-timestamp','-pk')
         return {}
     fees_get._args_len = 1
     
