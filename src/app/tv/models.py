@@ -562,14 +562,14 @@ class TariffPlanFeeRelationship(models.Model):
             return (True,fee)
         return fee.make()
 
-    def make_ret(self,card):
+    def make_ret(self,card,date=None,**kwargs):
         print "making ret ..."
         fee = Fee()
         fee.bill = card.bill
         fee.card = card
         fee.tp = self.tp
         fee.fee_type = self.fee_type
-        fee.sum = - self.fee_type.get_sum()['ret']
+        fee.sum = - self.fee_type.get_sum(date)['ret']
         fee.inner_descr = "Money return on service deactivation"
         fee.save()
         return fee.make()
@@ -618,6 +618,7 @@ class CardHistory(models.Model):
     card = models.ForeignKey("tv.Card",related_name='service_log')
     action = models.PositiveSmallIntegerField(choices=CARD_ACTIONS)
     oid = models.PositiveIntegerField()
+    descr = models.TextField()
 
     @property
     def obj_instance(self):
@@ -691,23 +692,31 @@ class Card(models.Model):
                         oid = self.owner.pk
                     action = CARD_OWNER_ADDED
                     oid = self.owner.pk
+        
+        if 'descr' in kwargs:
+            descr = kwargs['descr']
+            del kwargs['descr']
+        else:
+            descr = ''
                     
         if old and not action == None:
+            kwargs['descr']
             c = CardHistory()
             c.card= self
             c.action = action
             c.oid = oid
+            c.descr = descr
             c.save()
 
         print "saving..."
 
-        if not self.owner and self.pk:
-            if 'deactivation_processed' in kwargs and kwargs['deactivation_processed']:
+        if 'deactivation_processed' in kwargs and kwargs['deactivation_processed']:
                 del kwargs['deactivation_processed']
-            else:
+        else:
+            if not self.owner and self.pk:
                 self.detach()
                 self.deactivate()
-
+        
         super(self.__class__, self).save(*args, **kwargs)
 
         if self.num>0:
@@ -761,22 +770,23 @@ class Card(models.Model):
         return int_to_4byte_wrapped(self.balance_int)
 
 
-    def activate(self,activated=None):
+    def activate(self,activated=None,descr=''):
         if not self.owner:
             return False
         for service in self.services.all():
-            service.activate(activated)
+            service.activate(activated,descr)
         self.active=True
         self.activated= activated or datetime.now()
-        self.save()
+        self.save(descr=descr)
         return True
 
-    def deactivate(self):
+    def deactivate(self,deactivated=None,descr=''):
         for service in self.services.all():
-            service.deactivate()
+            service.deactivate(deactivated,descr)
         self.active=False
-        self.save(deactivation_processed=True)
-        self.check_past_deactivation()
+        self.save(deactivation_processed=True,descr=descr)
+        self.check_past_deactivation(deactivated)
+        return True
 
     def detach(self):
         self.services.all().delete()
@@ -787,9 +797,42 @@ class Card(models.Model):
         for service in self.services.all():
             service.make_fees(date)
     
-    def check_past_deactivation(self,activated):
+    def check_past_deactivation(self,deactivated):
         pass
-
+    
+    # WARNING! This method was used once during MIGRATION. Future uses RESTRICTED! This will cause  history DATA CORRUPT!  
+    def timestamp_and_activation_fix(self):
+        from django.core.exceptions import ObjectDoesNotExist
+        print self
+        if self.num>0:
+            print "    THIS IS NOT CaTV CARD"
+            return False
+        try:
+            print self.owner
+        except ObjectDoesNotExist:
+            self.detach()
+            self.delete()
+            print "    DELETED"
+            return False            
+        self.activated = self.service_log.all().order_by('timestamp')[0].timestamp
+        catv_service_q = self.services.all()
+        if catv_service_q:
+            catv_service = catv_service_q[0]
+        else:
+            print "    THIS CARD HAS NO SERVICES"
+            return False
+        catv_service.activated = self.service_log.filter(action=CARD_SERVICE_ACTIVATED).latest(field_name="timestamp").timestamp
+        if self.service_log.latest(field_name="timestamp").action == CARD_SERVICE_DEACTIVATED:
+            self.active=False
+            catv_service.active=False
+            print "    DEACTIVATED"
+        else:
+            self.active=True
+            catv_service.active=True
+            print "    ACTIVATED"
+        self.save()
+        catv_service.save()
+        
     def store_record(self):
         obj = {}
         obj['id'] = self.pk
@@ -858,7 +901,7 @@ class CardService(models.Model):
         super(self.__class__, self).delete(*args, **kwargs)
         self.card.send()
 
-    def activate(self,activated = None):
+    def activate(self,activated = None, descr =''):
         if not self.active:
             fees = self.tp.fees.all()
             print fees
@@ -886,19 +929,19 @@ class CardService(models.Model):
                     fee.save()
             if ok:
                 self.active=True
-                self.activated=activated or datetime.now()
+                self.activated=activated or date.today()
             else:
                 self.deactivate()
                 return False
             self.save()
-        self.check_past_activation(activated.date())
+        self.check_past_activation(activated)
         return True
 
-    def deactivate(self):
+    def deactivate(self,deactivated = None, descr =''):
         if self.active:
             fees = self.tp.fees.filter(fee_type__ftype__exact=FEE_TYPE_CUSTOM)
             for fee in fees:
-                fee.make_ret(self.card)
+                fee.make_ret(self.card,deactivated)
             self.active=False
             self.save()
         return True

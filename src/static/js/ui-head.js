@@ -232,8 +232,29 @@ Engine = {
                     Ext.getCmp('tab-panel').toolbars[0].add(form);
                     Ext.getCmp('tab-panel').toolbars[0].doLayout();
 				}
-			}
-			
+			},
+			abon_disable: { 
+				openForm: function(oid) {
+					if ((typeof oid == 'object') && ('oid' in oid)) {
+						oid = oid['oid']
+					}
+					var form = Engine.getComponent(Ext.ux.DisableForm,'Ext.ux.DisableForm',{'oid':oid})
+                    Ext.getCmp('tab-panel').toolbars[0].add(form);
+                    Ext.getCmp('tab-panel').toolbars[0].add(form);
+                    Ext.getCmp('tab-panel').toolbars[0].doLayout();
+				}
+			},
+			abon_enable: { 
+				openForm: function(oid) {
+					if ((typeof oid == 'object') && ('oid' in oid)) {
+						oid = oid['oid']
+					}
+					var form = Engine.getComponent(Ext.ux.EnableForm,'Ext.ux.EnableForm',{'oid':oid})
+                    Ext.getCmp('tab-panel').toolbars[0].add(form);
+                    Ext.getCmp('tab-panel').toolbars[0].add(form);
+                    Ext.getCmp('tab-panel').toolbars[0].doLayout();
+				}
+			},
         },
         scrambler: {
             card: {

@@ -190,6 +190,46 @@ class AbonApiClass(object):
 
     abonent_set._args_len = 1
 
+    def enable(self, rdata, request):
+        from abon.models import Abonent
+        from datetime import datetime
+        
+        uid = int(rdata['abonent'])
+        if uid>0:
+            try:
+                abonent=Abonent.objects.get(pk=uid)
+            except Abonent.DoesNotExist:
+                return dict(success=False, title='Сбой загрузки формы', msg='abonent not found', errors='')
+        
+        tmpdate = rdata['date']
+        try:
+            date = datetime.strptime(tmpdate,'%Y-%m-%dT%H:%M:%S').date()
+        except ValueError:
+            return dict(success=False, title='Сбой включения', msg='invalid date', errors='', data={} )                    
+        abonent.enable(date=date,descr=rdata['descr'])
+
+    enable._args_len = 1
+    
+    def disable(self, rdata, request):
+        from abon.models import Abonent
+        from datetime import datetime
+        
+        uid = int(rdata['abonent'])
+        if uid>0:
+            try:
+                abonent=Abonent.objects.get(pk=uid)
+            except Abonent.DoesNotExist:
+                return dict(success=False, title='Сбой загрузки формы', msg='abonent not found', errors='')
+
+        tmpdate = rdata['date']
+        try:
+            date = datetime.strptime(tmpdate,'%Y-%m-%dT%H:%M:%S').date()
+        except ValueError:
+            return dict(success=False, title='Сбой отключения', msg='invalid date', errors='', data={} )                    
+        abonent.disable(date=date,descr=rdata['descr'])
+
+    disable._args_len = 1
+    
     def balance_get(self, rdata, request):
         from abon.models import Abonent
         uid = int(rdata['uid'])
@@ -422,7 +462,7 @@ class AbonApiClass(object):
     
     make_fee._args_len = 1
         
-    def make_fransfer(self,rdata,request):
+    def make_transfer(self,rdata,request):
         from tv.models import Fee, Payment
         from abon.models import Abonent
         from datetime import datetime
@@ -481,7 +521,7 @@ class AbonApiClass(object):
         print rdata                
         return dict(success=True, title='Перенос средств успешен', msg='...', errors='', data={} )
     
-    make_fransfer._args_len = 1
+    make_transfer._args_len = 1
     
     @store_read    
     def reg_payments_get(self,rdata,request):

@@ -1261,6 +1261,7 @@ Ext.ux.AddressForm = Ext.extend(Ext.FormPanel, {
                 name: 'ext',
                 allowBlank:false
             },
+			/*
 			this.activated_field = new Ext.form.DateField({
                 fieldLabel: 'Подключен',
                 name: 'activated',
@@ -1275,6 +1276,7 @@ Ext.ux.AddressForm = Ext.extend(Ext.FormPanel, {
 				format: 'Y-m-d',
                 allowBlank: true
             })
+            */
 			],
 			
         /*
@@ -1970,6 +1972,7 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                         boxLabel: 'Отключен',
                         colspan: 3,
                         xtype: 'checkbox',
+						disabled: true,
                         width: 100,
                         handler: function(obj){
                             //debugger;
@@ -1986,6 +1989,34 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                             }
                         },
                         scope: this
+                    },{
+                        xtype: 'tbseparator'
+                    },
+					this.disable_enable_btn = {
+                        xtype: 'tbbutton',
+                        cls: 'x-btn-text-icon',
+                        icon: '/static/extjs/custom/tick_16.png',
+                        text: 'loading...',
+                        colspan: 3,
+                        width: 100,
+                        handler: function(){
+                            (function(){this.disable_enable();}).defer(500,this);
+                        },
+						listeners: {
+                            afterrender : {
+                                fn: function(obj) {
+									if(this.dis=="true") {
+                                        obj.setText("Подключить")
+										obj.setIcon("/static/extjs/custom/tick_16.png")
+                                    } else {
+										obj.setText("Отключить")
+										obj.setIcon("/static/extjs/custom/delete_16.png")
+									}
+                                },
+                                scope: this
+                            }
+                        },
+                        scope: this                        
                     }]
             },{
                 colspan: 3,
@@ -2008,9 +2039,9 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                     person_id: this.children_forms.person.oid,
                     address_id: this.children_forms.address.oid,
                     confirmed: this.children_forms.confirmed.obj.checked,
-					disabled: this.children_forms.disabled.obj.checked,
-					activated: this.children_forms.address.obj.activated_field.value,
-					deactivated: this.children_forms.address.obj.deactivated_field.value                       
+					//disabled: this.children_forms.disabled.obj.checked,
+					//activated: this.children_forms.address.obj.activated_field.value,
+					//deactivated: this.children_forms.address.obj.deactivated_field.value                       
                 },this.submitcallback.createDelegate(this));
             },
             submitcallback: function(result,e) {                
@@ -2023,13 +2054,26 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
 					}					
                 }
             },
-            children_forms_ready: function() {
+			disable_enable:function() {
+				if(this.dis=="true") {
+					this.abon_enable()
+				} else {
+					this.abon_disable()
+				}
+			},
+			abon_enable: function() {
+				Engine.menu.cashier.abon_enable.openForm(this.oid)
+			},
+			abon_disable: function() {
+				Engine.menu.cashier.abon_disable.openForm(this.oid)
+			},
+			children_forms_ready: function() {
                 if((this.children_forms.person.ready2)&&(this.children_forms.address.ready2)) {
                     this.submitaction()
                 } else {
                 	Ext.ux.msg('Ошибка ввода',"заполните обязательные поля",Ext.Msg.ERROR)
                 }
-            },
+            },			
             children_forms:{
                 person : {
                     ready2: false,
@@ -2639,6 +2683,442 @@ Ext.ux.FeeForm = Ext.extend(Ext.Panel ,{
     }    
 })
 
+Ext.ux.DisableForm = Ext.extend(Ext.Panel ,{
+	initComponent: function() {
+        var config = {
+            closable: true,
+            title: 'Отключить',
+            layout: 'table',
+            layoutConfig: {
+                columns: 1
+            },
+            border : true,
+            defaults: {
+                frame: true,
+                split: true,
+                bodyStyle: 'padding:15px'
+            },
+            items: [
+				{
+					xtype: 'panel',
+					width:  500,
+					layout: 'column',
+					columnWidth: 1,
+					items: [
+						this.searchfield = new Ext.form.ComboBox({
+							store: new Ext.data.DirectStore({
+    							api: {
+        							read: AbonentGrid.read,
+        							create: AbonApi.foo,
+        							update: AbonApi.foo,
+        							destroy: AbonApi.foo
+    							},
+    							restful: true,
+    							autoLoad: false,
+    							autoSave: false,
+    							reader: new Ext.data.JsonReader({
+        							root: 'data',
+        							totalProperty: 'total',
+        							//idProperty: 'id',
+        							fields: [
+            							'id',
+            							'code',						
+									]
+    							}),
+    							baseParams : {
+        							start:0,
+        							limit:8,
+        							filter_fields:['code'],
+        							filter_value:''
+    							},
+    						}),
+							valueField: 'code',
+            				displayField: 'code',
+							triggerAction: 'all',							
+							minChars: 1,
+							hideTrigger: true,
+							forceSelection: true,
+							emptyText: 'Личный счёт',
+							listeners: {
+								change: {
+									fn: function(combo,newval,oldval) {
+										AbonApi.abonent_get({
+                            				code: (this.searchfield.getValue() || 0)
+                        				},this.preload.createDelegate(this));
+									},
+									scope: this
+								}
+							}
+						}),						
+						{
+                			icon: '/static/extjs/custom/search_16.png',
+                			cls: 'x-btn-text-icon',
+							xtype: 'button',
+                			handler: function() {
+                    			AbonApi.abonent_get({
+                            		code: (this.searchfield.getValue() || 0)
+                        		},this.preload.createDelegate(this));
+                			},
+                			scope: this
+            			},
+						this.personfield = new Ext.form.ComboBox({
+							store: new Ext.data.DirectStore({
+    							api: {
+        							read: AbonApi.abonent_get_by_code,
+        							create: AbonApi.foo,
+        							update: AbonApi.foo,
+        							destroy: AbonApi.foo
+    							},
+    							restful: true,
+    							autoLoad: false,
+    							autoSave: false,
+    							reader: new Ext.data.JsonReader({
+        							root: 'data',
+        							totalProperty: 'total',
+        							//pizdec
+        							fields: [
+            							'id',
+            							'person',
+            							'disabled',						
+									]
+    							}),
+    							baseParams : {
+        							start:0,
+        							limit:8,        							
+    							},
+    						}),
+							valueField: 'id',
+            				displayField: 'person',
+							forceSelection: true,
+							emptyText: 'Абонент',
+							editable: false,
+    						triggerAction: 'all',    							
+							listeners: {
+								change: {
+									fn: function(combo,newval,oldval) {
+										var record_new = combo.store.getAt(combo.store.findExact('id',newval))
+										var record_old = combo.store.getAt(combo.store.findExact('id',oldval))
+										if(record_new.data.disabled) {
+											alert("Внимание! Абонент отключен")
+											combo.addClass('combo-bg-red')
+										} else {
+											combo.removeClass('combo-bg-red')
+										}
+										this.abonent = newval		
+										this.oid=0								
+									},
+									scope: this
+								}
+							}
+						}),														
+					]
+				},{
+					xtype: 'form',
+					width:  500,
+					items: [
+						this.date = new Ext.form.DateField({
+							fieldLabel: 'Дата отключения',
+							format: 'Y-m-d'
+						}),
+						this.descr = new Ext.form.TextField({
+							fieldLabel: 'Описание',							
+						}),					
+					],
+					bbar:[{					
+                        xtype: 'tbbutton',
+                        cls: 'x-btn-text-icon',
+                        icon: '/static/extjs/custom/tick_16.png',
+                        text: 'Сохранить',
+                        colspan: 3,
+                        width: 100,
+                        handler: function(){
+                            if(this.abonent<1) {
+								Ext.ux.msg('Ошибка ввода',"выберите абонента",Ext.Msg.ERROR)
+								return false
+							}
+							if (!this.date.getValue()) {
+								Ext.ux.msg('Ошибка ввода',"введите правильную дату",Ext.Msg.ERROR)
+								return false
+							}
+							AbonApi.disable({
+								abonent: this.abonent,								
+								date: this.date.getValue(),
+								descr: this.descr.getValue()
+							},this.abon_disable_callback.createDelegate(this));
+                        },
+                        scope: this                        
+                    }]
+				}			
+			],
+            listeners: {
+                activate: {
+                    fn: function(obj) {
+						if (parseInt(this.oid)>0) {
+							AbonApi.abonent_get({
+                            	uid: (parseInt(this.oid) || 0)
+                        	},this.preload.createDelegate(this));
+						}
+                    },
+                    scope: this
+                },
+                beforeclose: {
+                    fn: function(obj) {
+                        obj.hide()
+                    }
+                },
+				beforedestroy: {
+                    fn: function(e) {
+                        return false;
+                    }
+                }
+            },
+			preload: function(response) {
+				if(response.success) {						
+					this.searchfield.setValue(response.data[0]['code'])					
+					//this.personfield.setText(response.data[0]['person'])
+					this.personfield.setRawValue('')
+					this.personfield.store.setBaseParam('code',response.data[0]['code'])
+					this.personfield.store.load({
+						callback: this.afterload.createDelegate(this),
+					})					
+				}
+			},
+			afterload: function(response) {
+				this.personfield.setValue(parseInt(this.oid) || this.personfield.store.getAt(0).id)				
+				this.abonent = parseInt(this.oid) || this.personfield.store.getAt(0).id
+				this.oid=0
+			},
+			abon_disable_callback: function(response) {
+				this.searchfield.setRawValue('')
+				this.personfield.setRawValue('')
+				this.abonent = 0			
+			},
+			register: 0,
+			abonent: 0
+        }
+        Ext.apply(this, Ext.apply(this.initialConfig, config));
+        Ext.ux.DisableForm.superclass.initComponent.apply(this, arguments);
+    }    
+})
+
+Ext.ux.EnableForm = Ext.extend(Ext.Panel ,{
+	initComponent: function() {
+        var config = {
+            closable: true,
+            title: 'Включить',
+            layout: 'table',
+            layoutConfig: {
+                columns: 1
+            },
+            border : true,
+            defaults: {
+                frame: true,
+                split: true,
+                bodyStyle: 'padding:15px'
+            },
+            items: [
+				{
+					xtype: 'panel',
+					width:  500,
+					layout: 'column',
+					columnWidth: 1,
+					items: [
+						this.searchfield = new Ext.form.ComboBox({
+							store: new Ext.data.DirectStore({
+    							api: {
+        							read: AbonentGrid.read,
+        							create: AbonApi.foo,
+        							update: AbonApi.foo,
+        							destroy: AbonApi.foo
+    							},
+    							restful: true,
+    							autoLoad: false,
+    							autoSave: false,
+    							reader: new Ext.data.JsonReader({
+        							root: 'data',
+        							totalProperty: 'total',
+        							//idProperty: 'id',
+        							fields: [
+            							'id',
+            							'code',						
+									]
+    							}),
+    							baseParams : {
+        							start:0,
+        							limit:8,
+        							filter_fields:['code'],
+        							filter_value:''
+    							},
+    						}),
+							valueField: 'code',
+            				displayField: 'code',
+							triggerAction: 'all',							
+							minChars: 1,
+							hideTrigger: true,
+							forceSelection: true,
+							emptyText: 'Личный счёт',
+							listeners: {
+								change: {
+									fn: function(combo,newval,oldval) {
+										AbonApi.abonent_get({
+                            				code: (this.searchfield.getValue() || 0)
+                        				},this.preload.createDelegate(this));
+									},
+									scope: this
+								}
+							}
+						}),						
+						{
+                			icon: '/static/extjs/custom/search_16.png',
+                			cls: 'x-btn-text-icon',
+							xtype: 'button',
+                			handler: function() {
+                    			AbonApi.abonent_get({
+                            		code: (this.searchfield.getValue() || 0)
+                        		},this.preload.createDelegate(this));
+                			},
+                			scope: this
+            			},
+						this.personfield = new Ext.form.ComboBox({
+							store: new Ext.data.DirectStore({
+    							api: {
+        							read: AbonApi.abonent_get_by_code,
+        							create: AbonApi.foo,
+        							update: AbonApi.foo,
+        							destroy: AbonApi.foo
+    							},
+    							restful: true,
+    							autoLoad: false,
+    							autoSave: false,
+    							reader: new Ext.data.JsonReader({
+        							root: 'data',
+        							totalProperty: 'total',
+        							//pizdec
+        							fields: [
+            							'id',
+            							'person',
+            							'disabled',						
+									]
+    							}),
+    							baseParams : {
+        							start:0,
+        							limit:8,        							
+    							},
+    						}),
+							valueField: 'id',
+            				displayField: 'person',
+							forceSelection: true,
+							emptyText: 'Абонент',
+							editable: false,
+    						triggerAction: 'all',    							
+							listeners: {
+								change: {
+									fn: function(combo,newval,oldval) {
+										var record_new = combo.store.getAt(combo.store.findExact('id',newval))
+										var record_old = combo.store.getAt(combo.store.findExact('id',oldval))
+										if(record_new.data.disabled) {
+											alert("Внимание! Абонент отключен")
+											combo.addClass('combo-bg-red')
+										} else {
+											combo.removeClass('combo-bg-red')
+										}
+										this.abonent = newval		
+										this.oid=0								
+									},
+									scope: this
+								}
+							}
+						}),														
+					]
+				},{
+					xtype: 'form',
+					width:  500,
+					items: [
+						this.date = new Ext.form.DateField({
+							fieldLabel: 'Дата включения',
+							format: 'Y-m-d'
+						}),
+						this.descr = new Ext.form.TextField({
+							fieldLabel: 'Описание',							
+						}),					
+					],
+					bbar:[{					
+                        xtype: 'tbbutton',
+                        cls: 'x-btn-text-icon',
+                        icon: '/static/extjs/custom/tick_16.png',
+                        text: 'Сохранить',
+                        colspan: 3,
+                        width: 100,
+                        handler: function(){
+                            if(this.abonent<1) {
+								Ext.ux.msg('Ошибка ввода',"выберите абонента",Ext.Msg.ERROR)
+								return false
+							}
+							if (!this.date.getValue()) {
+								Ext.ux.msg('Ошибка ввода',"введите правильную дату",Ext.Msg.ERROR)
+								return false
+							}
+							AbonApi.enable({
+								abonent: this.abonent,								
+								date: this.date.getValue(),
+								descr: this.descr.getValue()
+							},this.abon_enable_callback.createDelegate(this));
+                        },
+                        scope: this                        
+                    }]
+				}			
+			],
+            listeners: {
+                activate: {
+                    fn: function(obj) {
+						if (parseInt(this.oid)>0) {
+							AbonApi.abonent_get({
+                            	uid: (parseInt(this.oid) || 0)
+                        	},this.preload.createDelegate(this));
+						}
+                    },
+                    scope: this
+                },
+                beforeclose: {
+                    fn: function(obj) {
+                        obj.hide()
+                    }
+                },
+				beforedestroy: {
+                    fn: function(e) {
+                        return false;
+                    }
+                }
+            },
+			preload: function(response) {
+				if(response.success) {						
+					this.searchfield.setValue(response.data[0]['code'])					
+					//this.personfield.setText(response.data[0]['person'])
+					this.personfield.setRawValue('')
+					this.personfield.store.setBaseParam('code',response.data[0]['code'])
+					this.personfield.store.load({
+						callback: this.afterload.createDelegate(this),
+					})					
+				}
+			},
+			afterload: function(response) {
+				this.personfield.setValue(parseInt(this.oid) || this.personfield.store.getAt(0).id)				
+				this.abonent = parseInt(this.oid) || this.personfield.store.getAt(0).id
+				this.oid=0
+			},
+			abon_enable_callback: function(response) {
+				this.searchfield.setRawValue('')
+				this.personfield.setRawValue('')
+				this.abonent = 0			
+			},
+			register: 0,
+			abonent: 0
+        }
+        Ext.apply(this, Ext.apply(this.initialConfig, config));
+        Ext.ux.EnableForm.superclass.initComponent.apply(this, arguments);
+    }    
+})
+
 Ext.ux.TransferForm = Ext.extend(Ext.Panel ,{
 	initComponent: function() {
         var config = {
@@ -2828,7 +3308,7 @@ Ext.ux.TransferForm = Ext.extend(Ext.Panel ,{
 								Ext.ux.msg('Ошибка ввода',"введите правильную сумму",Ext.Msg.ERROR)
 								return false
 							}
-							AbonApi.make_fransfer({
+							AbonApi.make_transfer({
 								abonent_from: this.abonent_from,
 								abonent_to: this.abonent_to,
 								date: this.date.getValue(),

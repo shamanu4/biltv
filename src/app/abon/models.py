@@ -372,6 +372,7 @@ class Abonent(models.Model):
     code = models.CharField(blank=False, max_length=20)
     confirmed = models.BooleanField(default=False)
     disabled = models.BooleanField(default=False)
+    extid = models.PositiveIntegerField(default=0, unique=True)
 
     class Meta:
         ordering = ['sorting']
@@ -389,6 +390,28 @@ class Abonent(models.Model):
     def bin_card(self):
         from lib.functions import int_to_4byte_wrapped
         return int_to_4byte_wrapped((self.card_id-1)*2)
+    
+    @property
+    def catv_card(self):
+        return (self.cards.filter(num=-self.pk) or [None])[0]
+    
+    def disable(self,date=None,descr=''):
+        print "abonent disabling..."
+        if not self.catv_card:            
+            return False
+        else:
+            self.disabled=True
+            self.save()
+            print "abonent disabled..."        
+            return self.catv_card.deactivate(date,descr)
+    
+    def enable(self,date=None,descr=''):
+        if not self.catv_card:            
+            return False
+        else:
+            self.disabled=False
+            self.save()
+            return self.catv_card.activate(date,descr)
     
     def get_code(self):
         return "%s" % (self.address.get_code())
@@ -436,7 +459,23 @@ class Abonent(models.Model):
         for card in self.cards.all():
             card.make_fees(date)
         return True
-
+    
+    # WARNING! This method was used once during MIGRATION. Future uses RESTRICTED! This will cause  history DATA CORRUPT!  
+    def import_catv_history(self):        
+        from tv.models import CardHistory, CARD_SERVICE_ACTIVATED, CARD_SERVICE_DEACTIVATED
+        self.catv_card.service_log.filter(timestamp__lt='2011-03-07').delete()
+        print self
+        if not self.catv_card:
+            return False
+        for interval in self.intervals.all():
+            history = CardHistory(timestamp=interval.start, card=self.catv_card, action=CARD_SERVICE_ACTIVATED, descr="%s/%s" % (interval.s1,interval.s2), oid=0)
+            history.save()
+            print "    ACTIVATED: %s" % history.__unicode__()
+            if interval.finish:
+                history = CardHistory(timestamp=interval.finish, card=self.catv_card, action=CARD_SERVICE_DEACTIVATED, descr="", oid=0)
+                history.save()
+                print "    DEACTIVATED: %s" % history.__unicode__()
+            
     def store_record(self):
         obj = {}
         obj['id'] = self.pk        

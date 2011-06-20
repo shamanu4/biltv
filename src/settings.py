@@ -113,10 +113,11 @@ INSTALLED_APPS = (
     'logger',
     'tv',
     'abon',
+    'data',                         # migration data
 )
 
 DEFAULT_CATV_TP_ID = 1
-PROGRAM_VERSION = 'v0.10.008b'
+PROGRAM_VERSION = 'v0.10.009'
 
 try:
     from settings_local import *
