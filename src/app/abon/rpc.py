@@ -207,6 +207,7 @@ class AbonApiClass(object):
         except ValueError:
             return dict(success=False, title='Сбой включения', msg='invalid date', errors='', data={} )                    
         abonent.enable(date=date,descr=rdata['descr'])
+        return dict(success=True, title="Абонент включен", msg="saved")
 
     enable._args_len = 1
     
@@ -227,6 +228,7 @@ class AbonApiClass(object):
         except ValueError:
             return dict(success=False, title='Сбой отключения', msg='invalid date', errors='', data={} )                    
         abonent.disable(date=date,descr=rdata['descr'])
+        return dict(success=True, title="Сохранено", msg="saved", data=result)
 
     disable._args_len = 1
     

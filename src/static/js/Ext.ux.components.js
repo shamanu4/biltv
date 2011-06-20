@@ -1506,6 +1506,11 @@ Ext.ux.AbonCardsGrid = Ext.extend(Ext.ux.CustomGrid ,{
             renderer: function(value, metaData, record, rowIndex, colIndex, store) {
                 return '<img src="/static/extjs/custom/delete_16.png">';
             }
+        },
+		{header: "", dataIndex: 'id', width:26,
+            renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                return '<img src="/static/img/icons/green/16x16/Contact.png">';
+            }
         }
     ]    
 });
@@ -2891,7 +2896,8 @@ Ext.ux.DisableForm = Ext.extend(Ext.Panel ,{
 			abon_disable_callback: function(response) {
 				this.searchfield.setRawValue('')
 				this.personfield.setRawValue('')
-				this.abonent = 0			
+				this.abonent = 0
+				this.hide()
 			},
 			register: 0,
 			abonent: 0
@@ -3109,7 +3115,8 @@ Ext.ux.EnableForm = Ext.extend(Ext.Panel ,{
 			abon_enable_callback: function(response) {
 				this.searchfield.setRawValue('')
 				this.personfield.setRawValue('')
-				this.abonent = 0			
+				this.abonent = 0
+				this.hide()
 			},
 			register: 0,
 			abonent: 0
