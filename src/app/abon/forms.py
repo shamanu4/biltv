@@ -214,7 +214,7 @@ class AbonentForm(forms.Form):
                 print 'not exist'
                 print person
                 print address
-                obj = Abonent()
+                obj = Abonent(disabled=True)
             else:
                 print 'exists'
                 msg='Абонент существует... режим редактирования включён...'            
@@ -226,13 +226,6 @@ class AbonentForm(forms.Form):
         obj.deactivated = self.cleaned_data['deactivated']
         obj.deleted = self.cleaned_data['deleted'] or False
         obj.confirmed = self.cleaned_data['confirmed'] or False
-        if obj.disabled and not self.cleaned_data['disabled']:
-            other = Abonent.objects.filter(address__override__iexact=address.override, disabled__exact=False)
-            if other.count()>0:
-                return (False,obj,'Другой абонент включён по этому адресу.')
-            obj.disabled = self.cleaned_data['disabled'] or False
-        else:
-            obj.disabled = self.cleaned_data['disabled'] or False
         obj.comment = self.cleaned_data['comment']
         print obj
         print self.cleaned_data

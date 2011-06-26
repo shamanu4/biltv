@@ -171,7 +171,7 @@ class AbonApiClass(object):
             except Abonent.DoesNotExist:
                 return dict(success=False, title='Сбой загрузки формы', msg='abonent not found', errors='')
         else:
-            abonent = Abonent()
+            abonent = Abonent(disabled=True)
         print rdata
         form = AbonentForm(rdata)
         result = []
@@ -200,13 +200,17 @@ class AbonApiClass(object):
             try:
                 abonent=Abonent.objects.get(pk=uid)
             except Abonent.DoesNotExist:
-                return dict(success=False, title='Сбой загрузки формы', msg='abonent not found', errors='')
+                return dict(success=False, title='ошибка включения', msg='abonent not found', errors='')
         
+        other = Abonent.objects.filter(address__override__iexact=abonent.address.override, disabled__exact=False)
+        if other.count()>0:
+            return dict(success=False, title="ошибка включения", msg="Другой абонент включён по этому адресу")
+
         tmpdate = rdata['date']
         try:
             date = datetime.strptime(tmpdate,'%Y-%m-%dT%H:%M:%S').date()
         except ValueError:
-            return dict(success=False, title='Сбой включения', msg='invalid date', errors='' )                    
+            return dict(success=False, title='ошибка включения', msg='invalid date', errors='' )                    
         abonent.enable(date=date,descr=rdata['descr'])
         return dict(success=True, title="Абонент включен", msg="saved")
 
@@ -426,6 +430,7 @@ class AbonApiClass(object):
         p.source = register.source
         p.bill = abonent.bill
         p.sum = sum
+        p.descr = descr
         p.inner_descr = descr
         p.admin= request.user
         p.bank_date = bank_date
@@ -453,13 +458,14 @@ class AbonApiClass(object):
         uid = int(rdata['abonent'])
         sum = float(rdata['sum'])
         tmpdate = rdata['bankdate']
-        descr = rdata['descr'] or ''
-        
+        descr = rdata['descr'] or ''        
         
         try:
             ftype = FeeType.objects.get(pk=ftype_id)
         except FeeType.DoesNotExist:
             return dict(success=False, title='Сбой снятия денег', msg='register not found', errors='', data={} )
+
+        inner_descr = "%s (%s)" % (ftype.__unicode__(),rdata['descr'] or '')
         
         try:
             abonent = Abonent.objects.get(pk=uid)
@@ -475,7 +481,8 @@ class AbonApiClass(object):
         f.fee_type = ftype
         f.bill = abonent.bill
         f.sum = sum
-        f.inner_descr = descr
+        f.descr = descr
+        f.inner_descr = inner_descr
         f.admin= request.user
         f.bank_date = bank_date
         f.save()

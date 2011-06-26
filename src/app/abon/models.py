@@ -371,7 +371,7 @@ class Abonent(models.Model):
     bill = models.ForeignKey(Bill, related_name="abonents")
     code = models.CharField(blank=False, max_length=20)
     confirmed = models.BooleanField(default=False)
-    disabled = models.BooleanField(default=False)
+    disabled = models.BooleanField(default=True)
     extid = models.PositiveIntegerField(default=0, unique=True)
 
     class Meta:
@@ -469,11 +469,11 @@ class Abonent(models.Model):
         if not self.catv_card:
             return False
         for interval in self.intervals.all():
-            history = CardHistory(timestamp=interval.start, card=self.catv_card, action=CARD_SERVICE_ACTIVATED, descr="%s/%s" % (interval.s1,interval.s2), oid=0)
+            history = CardHistory(date=interval.start, card=self.catv_card, action=CARD_SERVICE_ACTIVATED, descr="%s/%s" % (interval.s1,interval.s2), oid=1)
             history.save()
             print "    ACTIVATED: %s" % history.__unicode__()
             if interval.finish:
-                history = CardHistory(timestamp=interval.finish, card=self.catv_card, action=CARD_SERVICE_DEACTIVATED, descr="", oid=0)
+                history = CardHistory(date=interval.finish, card=self.catv_card, action=CARD_SERVICE_DEACTIVATED, descr="", oid=1)
                 history.save()
                 print "    DEACTIVATED: %s" % history.__unicode__()
             

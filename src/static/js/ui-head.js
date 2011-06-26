@@ -151,7 +151,7 @@ Engine = {
                     Ext.getCmp('tab-panel').toolbars[0].doLayout();
                 },
                 openForm: function(id,code,confirmed,dis) {
-                    var form = Engine.getComponentFromPool(Ext.ux.AbonentForm,'Ext.ux.AbonentForm',{'oid':id,'code':code,'confirmed':confirmed,'dis':dis})
+                	var form = Engine.getComponentFromPool(Ext.ux.AbonentForm,'Ext.ux.AbonentForm',{'oid':id,'code':code,'confirmed':confirmed,'dis':dis})
                     Ext.getCmp('tab-panel').toolbars[0].add(form);
                     Ext.getCmp('tab-panel').toolbars[0].add(form);
                     Ext.getCmp('tab-panel').toolbars[0].doLayout();
@@ -234,22 +234,22 @@ Engine = {
 				}
 			},
 			abon_disable: { 
-				openForm: function(oid) {
+				openForm: function(oid,my_owner_ct_id) {
 					if ((typeof oid == 'object') && ('oid' in oid)) {
 						oid = oid['oid']
 					}
-					var form = Engine.getComponent(Ext.ux.DisableForm,'Ext.ux.DisableForm',{'oid':oid})
+					var form = Engine.getComponent(Ext.ux.DisableForm,'Ext.ux.DisableForm',{'oid':oid,'my_owner_ct_id':my_owner_ct_id})
                     Ext.getCmp('tab-panel').toolbars[0].add(form);
                     Ext.getCmp('tab-panel').toolbars[0].add(form);
                     Ext.getCmp('tab-panel').toolbars[0].doLayout();
 				}
 			},
 			abon_enable: { 
-				openForm: function(oid) {
+				openForm: function(oid,my_owner_ct_id) {
 					if ((typeof oid == 'object') && ('oid' in oid)) {
 						oid = oid['oid']
 					}
-					var form = Engine.getComponent(Ext.ux.EnableForm,'Ext.ux.EnableForm',{'oid':oid})
+					var form = Engine.getComponent(Ext.ux.EnableForm,'Ext.ux.EnableForm',{'oid':oid,'my_owner_ct_id':my_owner_ct_id})
                     Ext.getCmp('tab-panel').toolbars[0].add(form);
                     Ext.getCmp('tab-panel').toolbars[0].add(form);
                     Ext.getCmp('tab-panel').toolbars[0].doLayout();

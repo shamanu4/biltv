@@ -1045,7 +1045,7 @@ Ext.ux.PersonForm = Ext.extend(Ext.FormPanel, {
         var config = {
             border : true,
             width: 300,
-            height: 210,
+            height: 180,
             defaults: {
                 frame: true,
                 split: true,
@@ -1218,7 +1218,7 @@ Ext.ux.AddressForm = Ext.extend(Ext.FormPanel, {
         var config = {
             border : true,
             width: 400,
-            height: 210,
+            height: 180,
             defaults: {
                 frame: true,
                 split: true,
@@ -1341,8 +1341,14 @@ Ext.ux.BalanceForm = Ext.extend(Ext.FormPanel, {
         var config = {
             border : true,
             width: 300,
-            height: 210,
+            height: 180,
             buttons:[{
+                icon: '/static/img/icons/green/16x16/Refresh.png',
+                handler: function(){
+					this.refresh()
+                },
+                scope: this
+            },{
                 text: 'оплата',
                 handler: function(){
 					Engine.menu.cashier.payment.openForm(this.oid)
@@ -1364,22 +1370,27 @@ Ext.ux.BalanceForm = Ext.extend(Ext.FormPanel, {
             listeners: {
                 afterrender : {
                     fn: function(obj) {
-                        AbonApi.balance_get({
-                            uid: (this.oid || 0)
-                        },function (result,e) {
-                            if (result.data.balance==null) {
-                                this.body.dom.innerHTML='<div class="balance_digits_negative">...</div>'
-                            }
-                            else if (result.data.balance<0) {
-                                this.body.dom.innerHTML='<div class="balance_digits_negative">'+result.data.balance+' грн.</div>'
-                            } else {
-                                this.body.dom.innerHTML='<div class="balance_digits_positive">'+result.data.balance+' грн.</div>'
-                            }
-                        }.createDelegate(this));
+                        this.refresh()
                     },
                     scope: this
                 }
-            }
+            },
+            refresh: function() {
+            	this.body.dom.innerHTML='<div class="balance_digits_positive">...</div>'
+            	AbonApi.balance_get({
+                	uid: (this.oid || 0)
+                },function (result,e) {
+                	if (result.data.balance==null) {
+                    	this.body.dom.innerHTML='<div class="balance_digits_negative">...</div>'
+                    }
+					else if (result.data.balance<0) {
+                    	this.body.dom.innerHTML='<div class="balance_digits_negative">'+result.data.balance+' грн.</div>'
+                    } else {
+                    	this.body.dom.innerHTML='<div class="balance_digits_positive">'+result.data.balance+' грн.</div>'
+                    }
+            	}.createDelegate(this));
+            },
+            scope: this
         }
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.AddressForm.superclass.initComponent.apply(this, arguments);
@@ -1794,7 +1805,9 @@ Ext.ux.AbonHistoryGrid = Ext.extend(Ext.ux.CustomGridNE ,{
                     fields: [
                         'id',                        
                         'timestamp',
-                        'text'
+                        'date',
+                        'text',
+                        'descr'
                     ]
                 }),
                 writer: new Ext.data.JsonWriter({
@@ -1830,9 +1843,11 @@ Ext.ux.AbonHistoryGrid = Ext.extend(Ext.ux.CustomGridNE ,{
         Ext.ux.AbonHistoryGrid.superclass.initComponent.apply(this, [config]);
     },    
     columns: [
-        {header: "Id", dataIndex: 'id', width:40},
+        {header: "Id", dataIndex: 'id', width:45},
         {header: "Timestamp", dataIndex: 'timestamp', width:180, sortable: true},
-        {header: "Text", dataIndex: 'text', width:200},        
+        {header: "Дата", dataIndex: 'date', width:150, sortable: true},
+        {header: "Text", dataIndex: 'text', width:180},
+        {header: "Descr", dataIndex: 'descr', width:180},        
     ],
     pageSize: 12,
     height: 380
@@ -2034,7 +2049,7 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                             afterrender : {
                                 fn: function(obj) {
                                     this.children_forms.confirmed.obj=obj
-                                    if(this.confirmed=="true") {
+                                    if((this.confirmed=="true")||(this.confirmed=="true")) {
                                         obj.setValue(true)
                                     }
                                 },
@@ -2057,7 +2072,7 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                             afterrender : {
                                 fn: function(obj) {
                                     this.children_forms.disabled.obj=obj
-                                    if(this.dis=="false") {
+                                    if((this.dis=="false")||(this.dis==false)) {
                                         obj.setValue(false)
                                     } else {
                                     	obj.setValue(true)
@@ -2083,7 +2098,7 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
 						listeners: {
                             afterrender : {
                                 fn: function(obj) {
-									if(this.dis=="false") {
+                                	if((this.dis=="false")||(this.dis==false)) {
                                         obj.setText("Отключить")
 										obj.setIcon("/static/extjs/custom/delete_16.png")                                        
                                     } else {
@@ -2095,13 +2110,23 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                             }
                         },
                         scope: this                        
-                    }]
+                    },
+                    this.refresh_button = {
+                    	xtype: 'tbbutton',
+                		icon: '/static/img/icons/green/16x16/Refresh.png',
+                		handler: function(){
+							this.refresh()
+                		},
+                		scope: this
+            		}
+            	]
             },{
                 colspan: 3,
                 xtype: 'ext:ux:abon-info-panel',
                 oid: this.oid,
                 parent_form: this
-            }],
+            }],            
+            
             submitprep: function() {
 				this.children_forms_ready()
                 if(!this.children_forms.person.ready2) {
@@ -2127,23 +2152,35 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                     Ext.ux.abonent_store.load()
 					this.setTitle("абон: "+(result.data[0]['code'] || '<новый>'))
 					if (!this.oid) {
-						this.destroy();
+						this.ownerCt.remove(this.id)			
 						Engine.menu.cashier.abonent.openForm(result.data[0]['id'], result.data[0]['code'], result.data[0]['confirmed'], result.data[0]['disabled']);
 					}					
                 }
             },
+            refreshcallback: function(result,e) {                
+                if(result.success) {                    
+                    this.setTitle("абон: "+(result.data[0]['code'] || '<новый>'))						
+					this.ownerCt.remove(this.id)			
+					Engine.menu.cashier.abonent.openForm(result.data[0]['id'], result.data[0]['code'], result.data[0]['confirmed'], result.data[0]['disabled']);					
+                }
+            },
+            refresh: function() {
+            	AbonApi.abonent_get({
+					uid: (this.oid || 0)
+				},this.refreshcallback.createDelegate(this));
+            },
 			disable_enable:function() {
-				if(this.dis=="false") {
+				if((this.dis=="false")||(this.dis==false)) {
 					this.abon_disable()					
 				} else {
 					this.abon_enable()
 				}
 			},
 			abon_enable: function() {
-				Engine.menu.cashier.abon_enable.openForm(this.oid)
+				Engine.menu.cashier.abon_enable.openForm(this.oid,this.id)
 			},
 			abon_disable: function() {
-				Engine.menu.cashier.abon_disable.openForm(this.oid)
+				Engine.menu.cashier.abon_disable.openForm(this.oid,this.id)
 			},
 			children_forms_ready: function() {
                 if((this.children_forms.person.ready2)&&(this.children_forms.address.ready2)) {
@@ -2173,6 +2210,10 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
             listeners: {
                 afterrender : {
                     fn: function(obj) {
+                    	obj.getEl().on('keypress', function(e,o) {
+               				console.log([e.button,e.ctrlKey])               				
+               				e.preventDefault()
+      					}, obj);
                         AbonApi.abonent_get({
                             uid: (this.oid || 0)
                         },this.submitcallback.createDelegate(this));
@@ -2967,10 +3008,13 @@ Ext.ux.DisableForm = Ext.extend(Ext.Panel ,{
 				this.oid=0
 			},
 			abon_disable_callback: function(response) {
-				this.searchfield.setRawValue('')
-				this.personfield.setRawValue('')
-				this.abonent = 0
-				this.hide()
+				this.searchfield.setRawValue('');
+				this.personfield.setRawValue('');
+				this.abonent = 0;					
+				(function(){
+					this.ownerCt.remove(this.id);	
+				}).defer(300,this);
+				Ext.getCmp(this.my_owner_ct_id).refresh()												
 			},
 			register: 0,
 			abonent: 0
@@ -3186,10 +3230,13 @@ Ext.ux.EnableForm = Ext.extend(Ext.Panel ,{
 				this.oid=0
 			},
 			abon_enable_callback: function(response) {
-				this.searchfield.setRawValue('')
-				this.personfield.setRawValue('')
-				this.abonent = 0
-				this.hide()
+				this.searchfield.setRawValue('');
+				this.personfield.setRawValue('');
+				this.abonent = 0;
+				(function(){
+					this.ownerCt.remove(this.id);	
+				}).defer(300,this);
+				Ext.getCmp(this.my_owner_ct_id).refresh();		
 			},
 			register: 0,
 			abonent: 0

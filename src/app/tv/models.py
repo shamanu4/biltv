@@ -364,7 +364,7 @@ class Payment(models.Model):
         if self.source:
             obj['source__name'] = self.source.__unicode__()
         else:
-            obj['source__name'] = 'Корректировка'
+            obj['source__name'] = u'Корректировка'
         obj['bank_date'] = self.bank_date
         obj['onwer_code'] = self.owner.get_code() or None
         obj['onwer_name'] = self.owner.person.__unicode__() or None
@@ -618,13 +618,14 @@ class CardHistory(models.Model):
     )
 
     timestamp = models.DateTimeField(default=datetime.now)
+    date = models.DateField(default=date.today)
     card = models.ForeignKey("tv.Card",related_name='service_log')
     action = models.PositiveSmallIntegerField(choices=CARD_ACTIONS)
     oid = models.PositiveIntegerField()
     descr = models.TextField()
 
     class Meta:
-        ordering = ('-timestamp',)
+        ordering = ('-date',)
         
     @property
     def obj_instance(self):
@@ -648,7 +649,9 @@ class CardHistory(models.Model):
         obj = {}
         obj['id'] = self.pk
         obj['timestamp'] = self.timestamp
+        obj['date'] = self.date
         obj['text'] = self.__unicode__()
+        obj['descr'] = self.descr
         return obj
     
 
@@ -686,7 +689,7 @@ class Card(models.Model):
         oid = None
         old = None
 
-        if self.pk:
+        if self.pk:            
             old = Card.objects.get(pk=self.pk)
 
         if not old:
@@ -710,11 +713,17 @@ class Card(models.Model):
             del kwargs['descr']
         else:
             descr = ''
-                    
+        
+        if 'sdate' in kwargs:
+            sdate = kwargs['sdate']
+            del kwargs['sdate']
+        else:
+            sdate = date.today()
+        
         if old and not action == None:
-            kwargs['descr']
             c = CardHistory()
-            c.card= self
+            c.card = self
+            c.date = sdate
             c.action = action
             c.oid = oid
             c.descr = descr
@@ -789,7 +798,7 @@ class Card(models.Model):
             service.activate(activated,descr)
         self.active=True
         self.activated= activated or datetime.now()
-        self.save(descr=descr)
+        self.save(descr=descr,sdate=activated)
         return True
 
     def deactivate(self,deactivated=None,descr=''):
@@ -798,7 +807,7 @@ class Card(models.Model):
         for service in self.services.all():
             service.deactivate(deactivated,descr)
         self.active=False
-        self.save(deactivation_processed=True,descr=descr)
+        self.save(deactivation_processed=True,descr=descr,sdate=deactivated)
         self.check_past_deactivation(deactivated)
         return True
 
@@ -892,12 +901,27 @@ class CardService(models.Model):
                 else:
                     action = CARD_SERVICE_DEACTIVATED
                     oid = old.tp.pk
+        
+        if 'sdate' in kwargs:
+            sdate = kwargs['sdate']
+            del kwargs['sdate']
+        else:
+            sdate = date.today()
+            
+        if 'descr' in kwargs:
+            descr = kwargs['descr']
+            del kwargs['descr']
+        else:
+            descr = date.today()
+        
 
         if not action == None:
             c = CardHistory()
             c.card = self.card
+            c.date = sdate
             c.action = action
             c.oid = oid
+            c.descr = descr
             c.save()
 
         super(self.__class__, self).save(*args, **kwargs)
@@ -950,7 +974,7 @@ class CardService(models.Model):
             else:
                 self.deactivate()
                 return False
-            self.save()
+            self.save(sdate=activated,descr=descr)
         self.check_past_activation(activated)
         return True
 
@@ -962,7 +986,7 @@ class CardService(models.Model):
             for fee in fees:
                 fee.make_ret(self.card,deactivated)
             self.active=False
-            self.save()
+            self.save(sdate=deactivated,descr=descr)
         return True
 
     def make_fees(self,date):
