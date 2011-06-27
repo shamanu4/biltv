@@ -86,3 +86,18 @@
 }
 
 
+.bold_green {
+    color: #509050;
+    font-weight: bolder !important;
+    font-family: 'Times New Roman', Times, serif; /* Гарнитура текста */
+    font-size: 150%; /* Размер шрифта в процентах */
+}
+
+.bold_red {
+    color: #d03030;
+    font-weight: bolder !important;
+    font-family: 'Times New Roman', Times, serif; /* Гарнитура текста */
+	font-size: 150%;    
+}
+
+

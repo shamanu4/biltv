@@ -185,9 +185,9 @@ class AbonApiClass(object):
             ok = False
             msg = form._errors
         if ok:
-            return dict(success=True, title="Сохранено", msg=msg, data=result)
+            return dict(success=True, title="Сохранено", msg=(msg or 'saved'), data=result)
         else:
-            return dict(success=False, title="Ошибка записи !!!", msg=msg, data={})
+            return dict(success=False, title="Ошибка записи !!!", msg=(msg or 'unknown error'), data={})
 
     abonent_set._args_len = 1
 
@@ -448,7 +448,7 @@ class AbonApiClass(object):
     feetypes_get._args_len = 1
     
     def make_fee(self,rdata,request):
-        from tv.models import FeeType, Fee
+        from tv.models import FeeType, Fee, Payment
         from abon.models import Abonent
         from datetime import datetime
         
@@ -459,6 +459,7 @@ class AbonApiClass(object):
         sum = float(rdata['sum'])
         tmpdate = rdata['bankdate']
         descr = rdata['descr'] or ''        
+        autopay = rdata['autopay'] or False  
         
         try:
             ftype = FeeType.objects.get(pk=ftype_id)
@@ -487,6 +488,19 @@ class AbonApiClass(object):
         f.bank_date = bank_date
         f.save()
         f.make()
+        
+        if autopay:
+            p = Payment()
+            p.register = None
+            p.source = None
+            p.bill = abonent.bill
+            p.sum = sum
+            p.descr = descr
+            p.inner_descr = inner_descr
+            p.admin= request.user
+            p.bank_date = bank_date
+            p.save()
+            p.make()
                     
         return dict(success=True, title='Снятие проведено', msg='...', errors='', data={} )        
     

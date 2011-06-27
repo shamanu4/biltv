@@ -1068,7 +1068,8 @@ Ext.ux.PersonForm = Ext.extend(Ext.FormPanel, {
             {                
                 name: 'person_id',
                 hidden: true
-            },{
+            },
+			this.form_passport_field = {
                 fieldLabel: 'Паспорт',
                 name: 'passport',
                 allowBlank:false,
@@ -1080,15 +1081,18 @@ Ext.ux.PersonForm = Ext.extend(Ext.FormPanel, {
                         scope: this
                     }
                 }
-            },{
+            },
+			this.form_lastname_field ={
                 fieldLabel: 'Фамилия',
                 name: 'lastname',
                 allowBlank:false
-            },{
+            },
+			this.form_firstname_field ={
                 fieldLabel: 'Имя',
                 name: 'firstname',
                 allowBlank:false
-            },{
+            },
+			this.form_middlename_field ={
                 fieldLabel: 'Отчество',
                 name: 'middlename',
                 allowBlank:false
@@ -1154,7 +1158,8 @@ Ext.ux.PersonForm = Ext.extend(Ext.FormPanel, {
                         this.parent_form.children_forms.person.obj=this
                         if(this.oid) {
                             this.loadaction()                            
-                        }                        
+                        }
+						this.getForm().items.items[1].focus(false,100)              
                     },
                     scope: this
                 }
@@ -1241,22 +1246,26 @@ Ext.ux.AddressForm = Ext.extend(Ext.FormPanel, {
             {
                 name: 'address_id',
                 hidden: true
-            },{
+            },
+			this.form_street_field = {
                 fieldLabel: 'Улица',
                 name: 'street',
                 allowBlank:false,
                 xtype: 'ext:ux:street-combo'
-            },{
+            },
+			this.form_house_field = {
                 fieldLabel: 'Дом',
                 name: 'house',
                 allowBlank:false,
                 xtype: 'ext:ux:house-combo'
-            },{
+            },
+			this.form_flat_field = {
                 fieldLabel: 'Квартира',
                 name: 'flat',
                 allowBlank:false,
                 vtype:'decimal'
-            },{
+            },
+			this.form_ext_field = {
                 fieldLabel: 'Номер счёта',
                 name: 'ext',
                 allowBlank:false
@@ -2006,22 +2015,26 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                 split: true,
                 bodyStyle: 'padding:15px'
             },
-            items: [{
+            items: [
+			this.person_form = {
                 title: 'Абонент',
                 xtype: 'ext:ux:person-form',
                 oid: this.oid,
                 parent_form: this
-            },{
+            },
+			this.address_form = {
                 title: 'Адрес',
                 xtype: 'ext:ux:address-form',
                 oid: this.oid,
                 parent_form: this
-            },{
+            },
+			this.balance_form = {
                 title: 'Баланс',
                 xtype: 'ext:ux:balance-form',
                 oid: this.oid,
                 parent_form: this
-            },{
+            },
+			this.mid_toolbar = {
                 xtype: 'toolbar',
                 colspan: 3,
                 items: [{
@@ -2060,22 +2073,19 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                     },{
                         xtype: 'tbseparator'
                     },{
-                        boxLabel: 'Отключен',
                         colspan: 3,
-                        xtype: 'checkbox',
-						disabled: true,
-                        width: 100,
-                        handler: function(obj){
-                            //debugger;
-                        },
+                        xtype: 'tbtext',
+						width: 100,
                         listeners: {
                             afterrender : {
                                 fn: function(obj) {
                                     this.children_forms.disabled.obj=obj
                                     if((this.dis=="false")||(this.dis==false)) {
-                                        obj.setValue(false)
+                                        obj.setText("Подключен")
+										obj.addClass("bold_green")										
                                     } else {
-                                    	obj.setValue(true)
+                                    	obj.setText("Отключен")
+										obj.addClass("bold_red")
                                     }
                                 },
                                 scope: this
@@ -2211,12 +2221,34 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                 afterrender : {
                     fn: function(obj) {
                     	obj.getEl().on('keypress', function(e,o) {
-               				console.log([e.button,e.ctrlKey])               				
-               				e.preventDefault()
+               				console.log([e.button,e.ctrlKey])
+							if(e.ctrlKey) {
+								console.log(e.button)
+								if(e.button==111) {
+									// Ctrl+P 
+									Engine.menu.cashier.payment.openForm(this.oid)									
+								}
+								else if(e.button==101) {
+									// Ctrl+F 
+									Engine.menu.cashier.fee.openForm(this.oid)
+								}
+								else if(e.button==113) {
+									// Ctrl+R
+									this.refresh()
+								}
+								else if(e.button==114) {
+									// Ctrl+S
+									(function(){this.submitprep();}).defer(500,this);
+								}
+								else if(e.button==96) {
+									// Ctrl+A
+									this.disable_enable()
+								}
+							}            				               				
       					}, obj);
                         AbonApi.abonent_get({
                             uid: (this.oid || 0)
-                        },this.submitcallback.createDelegate(this));
+                        },this.submitcallback.createDelegate(this));						
                     },
                     scope: this
                 },
@@ -2713,7 +2745,10 @@ Ext.ux.FeeForm = Ext.extend(Ext.Panel ,{
 						}),
 						this.descr = new Ext.form.TextField({
 							fieldLabel: 'Описание',							
-						}),					
+						}),
+						this.autopay = new Ext.form.Checkbox({
+							fieldLabel: 'Автопополнение',							
+						}),							
 					],
 					bbar:[{					
                         xtype: 'tbbutton',
@@ -2744,7 +2779,8 @@ Ext.ux.FeeForm = Ext.extend(Ext.Panel ,{
 								abonent: this.abonent,
 								bankdate: this.bankdate.getValue(),
 								sum: parseFloat(this.sum.getValue()),	
-								descr: this.descr.getValue()
+								descr: this.descr.getValue(),
+								autopay: this.autopay.getValue()
 							},this.fee_callback.createDelegate(this));
                         },
                         scope: this                        
