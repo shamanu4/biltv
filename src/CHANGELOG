@@ -9,9 +9,10 @@
 	* Abonent comments added
 	* Fixed fee calculation on very past activation
 	* Registers bank date added
-	* Abonent deactivation date added
 	* Payment to disabled abonent added
-	* Activation/Deactivation interface for abonents with automatic Fees calculation	
+	* Activation/Deactivation interface for abonents with automatic Fees calculation
+	* History tab on abonent form
+	* Some hotkeys added
 
 === Version 0.1 (2011-04-07)=== 
 	* Interface to register payments mostly finished and can be usable.
