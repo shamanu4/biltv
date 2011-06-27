@@ -2173,6 +2173,7 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                     Ext.ux.abonent_store.load()
 					this.setTitle("абон: "+(result.data[0]['code'] || '<новый>'))
 					if (!this.oid) {
+						this.hide()
 						this.ownerCt.remove(this.id)			
 						Engine.menu.cashier.abonent.openForm(result.data[0]['id'], result.data[0]['code'], result.data[0]['confirmed'], result.data[0]['disabled']);
 					}					
@@ -2181,6 +2182,7 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
             refreshcallback: function(result,e) {                
                 if(result.success) {                    
                     this.setTitle("абон: "+(result.data[0]['code'] || '<новый>'))						
+					this.hide()
 					this.ownerCt.remove(this.id)			
 					Engine.menu.cashier.abonent.openForm(result.data[0]['id'], result.data[0]['code'], result.data[0]['confirmed'], result.data[0]['disabled']);					
                 }
@@ -3120,6 +3122,7 @@ Ext.ux.DisableForm = Ext.extend(Ext.Panel ,{
 				this.personfield.setRawValue('');
 				this.abonent = 0;					
 				(function(){
+					this.hide()
 					this.ownerCt.remove(this.id);	
 				}).defer(300,this);
 				Ext.getCmp(this.my_owner_ct_id).refresh()												
@@ -3343,6 +3346,7 @@ Ext.ux.EnableForm = Ext.extend(Ext.Panel ,{
 				this.personfield.setRawValue('');
 				this.abonent = 0;
 				(function(){
+					this.hide()
 					this.ownerCt.remove(this.id);	
 				}).defer(300,this);
 				Ext.getCmp(this.my_owner_ct_id).refresh();		
