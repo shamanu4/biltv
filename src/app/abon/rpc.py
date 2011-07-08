@@ -378,7 +378,7 @@ class AbonApiClass(object):
     @store_read
     def registers_get(self,rdata,request):
         from tv.models import PaymentRegister
-        return PaymentRegister.objects.filter(closed__exact=False)
+        return PaymentRegister.objects.filter(closed__exact=False).order_by('pk')
     
     registers_get._args_len = 1
     

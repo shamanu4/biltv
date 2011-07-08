@@ -273,7 +273,7 @@ class PaymentRegister(models.Model):
         mark = ''
         if self.closed:
             mark = ' [x]'
-        return "%s (%s %s) [%s]%s" % (self.source.name, self.start, self.end, self.total, mark)
+        return "%s. %s (%s %s) [%s]%s" % (self.pk, self.source.name, self.start, self.end, self.total, mark)
 
     @property
     def current(self):
