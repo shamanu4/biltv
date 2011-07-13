@@ -16,7 +16,7 @@ class BasicPacket:
         self.data.append(self.calc_crc())
 
     def mk_prefix(self):
-        self.data[1]=len(self.data)-2 & 0xff
+        self.data[1]=len(self.data)-1 & 0xff
 
     def binary(self):
         s = ""
@@ -37,8 +37,8 @@ class VersionPacket(BasicPacket):
     def __init__(self):
         BasicPacket.__init__(self)
         self.data.append(0x03)
-        self.append_crc()
         self.mk_prefix()
+        self.append_crc()
 
 
 
@@ -53,8 +53,8 @@ class ChannelPacket(BasicPacket):
         self.data.append(trunks.count())
         for t in trunks:
             self.data.extend(t.channel_mask)
-        self.append_crc()
         self.mk_prefix()
+        self.append_crc()        
 
 
 
@@ -80,8 +80,9 @@ class UserPacket(BasicPacket):
             self.data.extend(int_to_4byte_wrapped((card.num-1)*2))
             self.data.extend(card.bin_flags)
             self.data.extend(int_to_4byte_wrapped(card.balance or 0))
-            self.append_crc()
             self.mk_prefix()
+            self.append_crc()
+            
 
 
 
