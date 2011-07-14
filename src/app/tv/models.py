@@ -129,6 +129,18 @@ FEE_TYPE_ONCE=4
 FEE_TYPE_CUSTOM=5
 
 
+class FeeIntervals(models.Model):
+    start = models.DateField()
+    end = models.DateField(default=date(2100,1,1))
+    
+    @classmethod
+    def last(cls):
+        return cls.objects.latest('start')
+    
+    def __unicode__(self):
+        return u'%s - %s' % (self.start, self.end)
+
+    
 class FeeType(models.Model):
 
     FEE_TYPES = (
@@ -143,33 +155,43 @@ class FeeType(models.Model):
     name = models.CharField(max_length=32,default='fee type')
     ftype = models.PositiveSmallIntegerField(choices=FEE_TYPES, default=FEE_TYPE_MONTHLY)
     allow_negative = models.BooleanField(default=True)
-    sum = models.FloatField(default=0)
     deleted = models.BooleanField(default=False)
     comment = models.TextField(blank=True, null=True)
+    sum = models.FloatField()
 
     class Meta:
         verbose_name=u'абонплата'
         verbose_name_plural=u'абонплаты'
         
     def __unicode__(self):
-        return u'Снятие денег | %s (%s)' % (self.name, self.sum or self.comment or u'---')
+        return u'%s (%s) %s' % (self.name, self.sum or self.comment or u'---', self.marker())
+
+    def marker(self):
+        if self.ftype == FEE_TYPE_CUSTOM: 
+            return '[*]'
+        else:
+            return ''
 
     def get_sum(self,date=None):
         from lib.functions import date_formatter
-        if not self.ftype == FEE_TYPE_CUSTOM:
-            return {'fee':self.sum,'ret':0}
-
+        
+        sum = 0
+        ret = 0        
         if not date:
             date=date_formatter()['day']
-        
-        print "custim fee"
         day = date.day    
-        print date    
-        print day        
-        sum = 0
-        ret = 0
-
-        ranges = self.ranges.filter(startday__lte=day).filter(endday__gte=day)
+            
+        if not self.ftype == FEE_TYPE_CUSTOM:
+            print "generic fee"        
+            ranges = self.ranges.filter(interval__start__lte=date).filter(interval__end__gte=date)
+            print ranges            
+            for range in ranges:
+                sum += range.sum
+            
+            return {'fee':sum,'ret':0}
+        
+        print "custom fee"
+        ranges = self.customranges.filter(interval__start__lte=date).filter(interval__end__gte=date).filter(startday__lte=day).filter(endday__gte=day)
         print ranges
         for range in ranges:
             sum += range.sum
@@ -187,17 +209,31 @@ class FeeType(models.Model):
 
 
 
+class FeeRanges(models.Model):
+    interval = models.ForeignKey(FeeIntervals, default=FeeIntervals.last)
+    fee_type = models.ForeignKey(FeeType, related_name='ranges')
+    sum = models.FloatField(default=0)
+
+    class Meta:
+        ordering = ('interval',)
+
+    def __unicode__(self):
+        return u'%s | %s Sum: %s;' % (self.interval.__unicode__(), self.fee_type.__unicode__(), self.sum)
+
 
 class FeeCustomRanges(models.Model):
-
-    fee_type = models.ForeignKey(FeeType, related_name='ranges')
+    interval = models.ForeignKey(FeeIntervals, default=FeeIntervals.last)
+    fee_type = models.ForeignKey(FeeType, related_name='customranges')    
     startday = models.PositiveSmallIntegerField()
     endday = models.PositiveSmallIntegerField()
     sum = models.FloatField(default=0)
-    ret = models.FloatField(default=0)
+    ret = models.FloatField(default=0)    
+
+    class Meta:
+        ordering = ['startday']
 
     def __unicode__(self):
-        return u'%s-%s: %s; %s;' % (self.startday, self.endday, self.sum, self.ret)
+        return u'%s | %s Days: %s-%s Sum: %s; %s;' % (self.interval.__unicode__(), self.fee_type.__unicode__(), self.startday, self.endday, self.sum, self.ret)
 
 
 
@@ -414,9 +450,11 @@ class Payment(models.Model):
             r = Payment()
             r.sum = -self.sum
             r.bill = self.bill
-            r.inner_descr = "rollback payment id:%s" % self.pk
+            r.inner_descr = "Возврат payment id:%s" % self.pk
+            r.rolled_by = self
+            r.timestamp = self.timestamp
             r.save()
-            r.make()
+            r.make()            
             self.rolled_by=r
             self.save()
             return (True,r)
@@ -500,7 +538,9 @@ class Fee(models.Model):
             r.card = self.card
             r.tp = self.tp
             r.fee_type = self.fee_type
-            r.inner_descr = "rollback fee id:%s" % self.pk
+            r.inner_descr = "Возврат fee id:%s" % self.pk
+            r.rolled_by=self
+            r.timestamp = self.timestamp
             r.save()
             r.make()
             self.rolled_by=r
@@ -529,7 +569,8 @@ class TariffPlanFeeRelationship(models.Model):
         date = date_formatter(fee_date)
         print "checking fee ..."
         print date
-        my_maked_fees = Fee.objects.filter(card__exact=card, tp__exact=self.tp, fee_type__exact=self.fee_type, maked__exact=True, deleted__exact=False)
+        my_maked_fees = Fee.objects.filter(card__exact=card, tp__exact=self.tp, fee_type__exact=self.fee_type, maked__exact=True, deleted__exact=False, rolled_by__exact=None)
+        print my_maked_fees 
         if not card.bill:
             return (False,"This card have not account with bill")
         if self.fee_type.ftype == FEE_TYPE_ONCE:
@@ -593,7 +634,7 @@ class TariffPlanFeeRelationship(models.Model):
         fee.tp = self.tp
         fee.fee_type = self.fee_type
         fee.sum = - self.fee_type.get_sum(date)['ret']
-        fee.inner_descr = "Money return on service deactivation"
+        fee.inner_descr = "Возврат абонплаты за часть месяца"
         if date:
             fee.timestamp = date
         fee.save()

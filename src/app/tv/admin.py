@@ -159,10 +159,24 @@ class FeeAdmin(admin.ModelAdmin):
 admin.site.register(Fee, FeeAdmin)
 
 """
+FeeIntervals
+"""
+class FeeIntervalsAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(FeeIntervals, FeeIntervalsAdmin)
+
+"""
+FeeRanges
+"""
+class FeeRangesAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(FeeRanges, FeeRangesAdmin)
+
+"""
 FeeCustomRanges
 """
 class FeeCustomRangesAdmin(admin.ModelAdmin):
-    pass
+    list_filter=('fee_type','interval')
 admin.site.register(FeeCustomRanges, FeeCustomRangesAdmin)
 
 """

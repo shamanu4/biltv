@@ -1,10 +1,11 @@
-#Thu Jun 02 09:56:05 EEST 2011
+#Thu Jul 14 16:08:49 EEST 2011
 eclipse.preferences.version=1
 encoding//lib/functions.py=utf-8
 encoding//src/app/abon/admin.py=utf-8
 encoding//src/app/abon/forms.py=utf-8
 encoding//src/app/abon/models.py=utf-8
 encoding//src/app/abon/rpc.py=utf-8
+encoding//src/app/data/models.py=utf-8
 encoding//src/app/logger/admin.py=utf-8
 encoding//src/app/logger/models.py=utf-8
 encoding//src/app/logger/views.py=utf-8
