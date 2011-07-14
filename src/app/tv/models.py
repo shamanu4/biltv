@@ -6,16 +6,18 @@ from datetime import datetime, date
 
 class Trunk(models.Model):
 
-    num = models.IntegerField(default=1,unique=True)
-    enabled = models.BooleanField(default = False)
+    num = models.IntegerField(default=1,unique=True,verbose_name=u'номер')
+    enabled = models.BooleanField(default = False,verbose_name=u'включен')
     cached = models.IntegerField(default=0)
     deleted = models.BooleanField(default=False)
-    comment = models.TextField(blank=True, null=True)
+    comment = models.TextField(blank=True, null=True,verbose_name=u'комментарий')
 
     def __unicode__(self):
         return "%s" % self.num
 
     class Meta:
+        verbose_name=u'ствол'
+        verbose_name_plural=u'стволы'
         ordering = ('num',)
         permissions = (
             ("manage_trunk", "Can manage trunks"),
@@ -59,15 +61,17 @@ class Trunk(models.Model):
 
 class Channel(models.Model):
 
-    name = models.CharField(max_length=32,default='channel name')
+    name = models.CharField(max_length=32,default='channel name',verbose_name=u'название')
     bound = models.ManyToManyField(Trunk, blank=True, null=True, related_name="channels", through='TrunkChannelRelationship')
     deleted = models.BooleanField(default=False)
-    comment = models.TextField(blank=True, null=True)
+    comment = models.TextField(blank=True, null=True,verbose_name=u'комментарий')
 
     def __unicode__(self):
         return "%s" % (self.name)
 
     class Meta:
+        verbose_name=u'канал'
+        verbose_name_plural=u'каналы'
         ordering = ('name',)
         permissions = (
             ("manage_channel", "Can manage channels"),
@@ -97,10 +101,10 @@ class TrunkChannelRelationship(models.Model):
         (15, u'слот 15'),
         (16, u'слот 16'),
     )
-    trunk = models.ForeignKey(Trunk,related_name='slotlist')
-    slot = models.IntegerField(choices=SLOT_CHOICES, blank=True, null=True)
-    channel = models.ForeignKey(Channel)
-    encoded = models.BooleanField(default = False)
+    trunk = models.ForeignKey(Trunk,related_name='slotlist',verbose_name=u'ствол')
+    slot = models.IntegerField(choices=SLOT_CHOICES, blank=True, null=True,verbose_name=u'слот')
+    channel = models.ForeignKey(Channel,verbose_name=u'канал')
+    encoded = models.BooleanField(default = False,verbose_name=u'закодирован')
 
     def save(self, *args, **kwargs):
         super(self.__class__, self).save(*args, **kwargs)
@@ -111,6 +115,8 @@ class TrunkChannelRelationship(models.Model):
         return "%s [%s:%s]" % (self.channel.name,self.trunk.num,self.slot)
 
     class Meta:
+        verbose_name=u'связь канал-ствол'
+        verbose_name_plural=u'связи канал-ствол'
         ordering = ('trunk__num','slot')
         unique_together = (('trunk', 'channel'),)
 
@@ -141,6 +147,10 @@ class FeeType(models.Model):
     deleted = models.BooleanField(default=False)
     comment = models.TextField(blank=True, null=True)
 
+    class Meta:
+        verbose_name=u'абонплата'
+        verbose_name_plural=u'абонплаты'
+        
     def __unicode__(self):
         return u'Снятие денег | %s (%s)' % (self.name, self.sum or self.comment or u'---')
 
@@ -193,13 +203,17 @@ class FeeCustomRanges(models.Model):
 
 class TariffPlan(models.Model):
 
-    name = models.CharField(max_length=64,default='tariff plan')
-    channels = models.ManyToManyField(TrunkChannelRelationship,blank=True,related_name='tps',through='TariffPlanChannelRelationship')
-    enabled = models.BooleanField(default=False)
-    fee_list = models.ManyToManyField(FeeType,blank=True,through='TariffPlanFeeRelationship')
-    deleted = models.BooleanField(default=False)
-    comment = models.TextField(blank=True, null=True)
+    name = models.CharField(max_length=64,default='tariff plan', verbose_name=u'название')
+    channels = models.ManyToManyField(TrunkChannelRelationship,blank=True,related_name='tps',through='TariffPlanChannelRelationship', verbose_name=u'каналы')
+    enabled = models.BooleanField(default=False, verbose_name=u'включен')
+    fee_list = models.ManyToManyField(FeeType,blank=True,through='TariffPlanFeeRelationship', verbose_name=u'абонплаты')
+    deleted = models.BooleanField(default=False, verbose_name=u'удален')
+    comment = models.TextField(blank=True, null=True, verbose_name=u'комментарий')
 
+    class Meta:
+        verbose_name=u'тарифный план'
+        verbose_name_plural=u'тарифные планы'
+        
     def __unicode__(self):
         return "%s" % self.name
 
@@ -232,13 +246,15 @@ class TariffPlan(models.Model):
 
 class TariffPlanChannelRelationship(models.Model):
 
-    tp = models.ForeignKey(TariffPlan)
+    tp = models.ForeignKey(TariffPlan, verbose_name=u'тарифный план')
     chrel = models.ForeignKey(TrunkChannelRelationship, verbose_name=u'канал')
 
     def __unicode__(self):
         return "%s - %s [%s:%s]" % (self.tp.name, self.chrel.channel.name, self.chrel.trunk.num, self.chrel.slot)
 
     class Meta:
+        verbose_name=u'связь канал-тариф'
+        verbose_name_plural=u'связи канал-тариф'        
         ordering = ('tp__name','chrel__channel__name')
         unique_together = (('tp', 'chrel'),)        
                 
@@ -499,6 +515,12 @@ class TariffPlanFeeRelationship(models.Model):
     tp = models.ForeignKey(TariffPlan, related_name="fees")
     fee_type = models.ForeignKey(FeeType)
 
+    class Meta:
+        verbose_name=u'связь тариф-абонплата'
+        verbose_name_plural=u'связи тариф-абонплата'
+        ordering = ('tp__name','fee_type__name')
+        unique_together = (('tp', 'fee_type'),)
+
     def __unicode__(self):
         return "%s - %s" % (self.tp.name, self.fee_type.name)
 
@@ -576,10 +598,7 @@ class TariffPlanFeeRelationship(models.Model):
             fee.timestamp = date
         fee.save()
         return fee.make()
-
-    class Meta:
-        ordering = ('tp__name','fee_type__name')
-        unique_together = (('tp', 'fee_type'),)
+    
 
 
 CARD_SERVICE_ACTIVATED = 0
@@ -657,13 +676,17 @@ class CardHistory(models.Model):
 
 class Card(models.Model):
 
-    num = models.IntegerField(unique=True)
+    num = models.IntegerField(unique=True,verbose_name=u'номер')
     active = models.BooleanField(default=False)
     tps = models.ManyToManyField(TariffPlan, through='CardService')
     deleted = models.BooleanField(default=False)
     comment = models.TextField(blank=True, null=True)
     activated = models.DateTimeField(default=datetime.now)
     owner = models.ForeignKey("abon.Abonent", blank=True, null=True, related_name='cards')
+
+    class Meta:
+        verbose_name=u'карточка'
+        verbose_name_plural=u'карточки'  
 
     def __unicode__(self):
         return "%s" % self.num

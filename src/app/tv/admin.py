@@ -118,12 +118,21 @@ class CardServiceInlineForm(forms.ModelForm):
         fields = ('tp', 'active')
         
 class CardServiceInline(admin.TabularInline):
-    model = CardService
+    model = CardService    
     form = CardServiceInlineForm
     extra = 1
 
 class CardAdmin(admin.ModelAdmin):
+    raw_id_fields=('owner',)
     inlines = (CardServiceInline,)
+    
+    def queryset(self, request):
+        qs = super(CardAdmin, self).queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(num__gte=0)
+
+    
 admin.site.register(Card, CardAdmin)
 
 
@@ -131,7 +140,7 @@ admin.site.register(Card, CardAdmin)
 CardService
 """
 class CardServiceAdmin(admin.ModelAdmin):
-    pass
+    raw_id_fields=('card',)
 admin.site.register(CardService, CardServiceAdmin)
 
 """
