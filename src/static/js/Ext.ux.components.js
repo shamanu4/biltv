@@ -578,9 +578,10 @@ Ext.ux.AbonentGrid = Ext.extend(Ext.ux.CustomGridNE ,{
             columns: [
                 {header: "Id", dataIndex: 'id', width:100, sortable:true},
                 {header: "Code", dataIndex: 'code', width:100, sortable:true},
-                {header: "Person", dataIndex: 'person', width:260, sortable:true},
-                {header: "Passport", dataIndex: 'person__passport', width:100, sortable:true},
-                {header: "Address", dataIndex: 'address', width:280, sortable:true},
+                {header: "ФИО", dataIndex: 'person', width:180, sortable:true},
+                {header: "Паспорт", dataIndex: 'person__passport', width:100, sortable:true},
+                {header: "Адрес", dataIndex: 'address', width:220, sortable:true},
+                {header: "Баланс", dataIndex: 'bill__balance', width:60, sortable:true},
                 //{header: "Comment", dataIndex: 'comment'},
                 {header: "OK", dataIndex: 'confirmed', width: 36, sortable:true,
                     renderer: function(value, metaData, record, rowIndex, colIndex, store) {
@@ -1153,7 +1154,6 @@ Ext.ux.PersonForm = Ext.extend(Ext.FormPanel, {
                 });
             },
             onShow: function() {
-            	console.log('person form onShow')
             	this.getForm().items.items[1].focus(false,100)
             },
             listeners: {
@@ -2139,6 +2139,16 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                 		scope: this
             		},{
                         xtype: 'tbseparator'
+                    },
+                    this.recalculate_button = {
+                    	xtype: 'tbbutton',
+                		icon: '/static/img/icons/green/16x16/Tool.png',
+                		handler: function(){
+							this.recalculate()
+                		},
+                		scope: this
+            		},{
+                        xtype: 'tbseparator'
                     }
             	]
             },{
@@ -2179,6 +2189,11 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
 					}					
                 }
             },
+            refresh: function() {
+            	AbonApi.abonent_get({
+					uid: (this.oid || 0)
+				},this.refreshcallback.createDelegate(this));
+            },
             refreshcallback: function(result,e) {                
                 if(result.success) {                    
                     this.setTitle("абон: "+(result.data[0]['code'] || '<новый>'))						
@@ -2187,12 +2202,23 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
 					Engine.menu.cashier.abonent.openForm(result.data[0]['id'], result.data[0]['code'], result.data[0]['confirmed'], result.data[0]['disabled']);					
                 }
             },
-            refresh: function() {
-            	AbonApi.abonent_get({
-					uid: (this.oid || 0)
-				},this.refreshcallback.createDelegate(this));
+            recalculate: function() {
+            	if (confirm("пересчитать баланс абонента?")) {
+            		Ext.get('loading').show();
+            		Ext.get('loading-mask-half').show();
+					AbonApi.launch_hamster({
+						uid: (this.oid || 0)
+					},this.recalculatecallback.createDelegate(this));
+				}
             },
-			disable_enable:function() {
+			recalculatecallback: function(result,e) {
+				Ext.get('loading').hide();
+            	Ext.get('loading-mask-half').fadeOut('fast');
+                if(result.success) {       
+                	this.refresh()             
+                }
+            },
+            disable_enable:function() {
 				if((this.dis=="false")||(this.dis==false)) {
 					this.abon_disable()					
 				} else {
@@ -2234,9 +2260,7 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                 afterrender : {
                     fn: function(obj) {
                     	obj.getEl().on('keypress', function(e,o) {
-               				console.log([e.button,e.ctrlKey])
-							if(e.ctrlKey) {
-								console.log(e.button)
+               				if(e.ctrlKey) {
 								if(e.button==111) {
 									// Ctrl+P 
 									Engine.menu.cashier.payment.openForm(this.oid)									
@@ -2518,9 +2542,7 @@ Ext.ux.PaymentForm = Ext.extend(Ext.Panel ,{
             	afterrender : {
                     fn: function(obj) {
                     	obj.getEl().on('keypress', function(e,o) {
-               				console.log([e.button,e.ctrlKey])
-							if(e.ctrlKey) {
-								console.log(e.button)
+               				if(e.ctrlKey) {
 								if(e.button==114) {
 									// Ctrl+S
 									(function(){this.submitaction();}).defer(500,this);
@@ -2803,6 +2825,9 @@ Ext.ux.FeeForm = Ext.extend(Ext.Panel ,{
 						this.autopay = new Ext.form.Checkbox({
 							fieldLabel: 'Автопополнение',							
 						}),							
+						this.autoactivate = new Ext.form.Checkbox({
+							fieldLabel: 'Включить абонента',							
+						}),	
 					],
 					bbar:[{					
                         xtype: 'tbbutton',
@@ -2822,9 +2847,7 @@ Ext.ux.FeeForm = Ext.extend(Ext.Panel ,{
             	afterrender : {
                     fn: function(obj) {
                     	obj.getEl().on('keypress', function(e,o) {
-               				console.log([e.button,e.ctrlKey])
-							if(e.ctrlKey) {
-								console.log(e.button)
+               				if(e.ctrlKey) {
 								if(e.button==114) {
 									// Ctrl+S
 									(function(){this.submitaction();}).defer(500,this);
@@ -2878,7 +2901,8 @@ Ext.ux.FeeForm = Ext.extend(Ext.Panel ,{
 								bankdate: this.bankdate.getValue(),
 								sum: parseFloat(this.sum.getValue()),	
 								descr: this.descr.getValue(),
-								autopay: this.autopay.getValue()
+								autopay: this.autopay.getValue(),
+								autoactivate: this.autoactivate.getValue()								
 							},this.fee_callback.createDelegate(this));
             },
 			preload: function(response) {
@@ -3538,9 +3562,7 @@ Ext.ux.TransferForm = Ext.extend(Ext.Panel ,{
             	afterrender : {
                     fn: function(obj) {
                     	obj.getEl().on('keypress', function(e,o) {
-               				console.log([e.button,e.ctrlKey])
-							if(e.ctrlKey) {
-								console.log(e.button)
+               				if(e.ctrlKey) {
 								if(e.button==114) {
 									// Ctrl+S
 									(function(){this.submitaction();}).defer(500,this);

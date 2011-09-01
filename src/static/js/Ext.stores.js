@@ -330,6 +330,7 @@ Ext.ux.abonent_store = new Ext.data.DirectStore({
             'person',
             'person__passport',
             'address',
+            'bill__balance',
             'comment',
             'confirmed',
 			'disabled',

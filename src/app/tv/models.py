@@ -182,22 +182,17 @@ class FeeType(models.Model):
         day = date.day    
             
         if not self.ftype == FEE_TYPE_CUSTOM:
-            print "generic fee"        
             ranges = self.ranges.filter(interval__start__lte=date).filter(interval__end__gte=date)
-            print ranges            
             for range in ranges:
                 sum += range.sum
             
             return {'fee':sum,'ret':0}
         
-        print "custom fee"
         ranges = self.customranges.filter(interval__start__lte=date).filter(interval__end__gte=date).filter(startday__lte=day).filter(endday__gte=day)
-        print ranges
         for range in ranges:
             sum += range.sum
             ret += range.ret
             
-        print "sum: %s ret: %s" % (sum,ret)
         return {'fee':sum,'ret':ret}
 
     def store_record(self):
@@ -258,7 +253,6 @@ class TariffPlan(models.Model):
             service.card.send()
 
     def save(self, *args, **kwargs):
-        print "saving tp..."
         super(self.__class__, self).save(*args, **kwargs)
         self.send()
 
@@ -401,6 +395,7 @@ class Payment(models.Model):
         return "%s" % self.sum
 
     def save(self, *args, **kwargs):
+        #self.prev = self.bill.balance
         super(self.__class__, self).save(*args, **kwargs)
 
     def store_record(self):
@@ -567,10 +562,7 @@ class TariffPlanFeeRelationship(models.Model):
     def check_fee(self,card,fee_date=None,**kwargs):
         from lib.functions import date_formatter         
         date = date_formatter(fee_date)
-        print "checking fee ..."
-        print date
         my_maked_fees = Fee.objects.filter(card__exact=card, tp__exact=self.tp, fee_type__exact=self.fee_type, maked__exact=True, deleted__exact=False, rolled_by__exact=None)
-        print my_maked_fees 
         if not card.bill:
             return (False,"This card have not account with bill")
         if self.fee_type.ftype == FEE_TYPE_ONCE:
@@ -609,7 +601,6 @@ class TariffPlanFeeRelationship(models.Model):
 
 
     def make_fee(self,card,date=None,**kwargs):
-        print "making fee ..."
         fee = Fee()
         fee.bill = card.bill
         fee.card = card
@@ -621,13 +612,10 @@ class TariffPlanFeeRelationship(models.Model):
             fee.timestamp = date
         fee.save()
         if 'hold' in kwargs and kwargs['hold']:
-            print "holding fee"
             return (True,fee)
         return fee.make()
 
     def make_ret(self,card,date=None,**kwargs):
-        print "making ret ..."
-        print date
         fee = Fee()
         fee.bill = card.bill
         fee.card = card
@@ -742,7 +730,6 @@ class Card(models.Model):
     def send(self):
         if self.num<0:
             return False
-        print "sending..."
         from scrambler import scrambler
         u = scrambler.UserQuery(self.num)
         u.run()
@@ -784,6 +771,10 @@ class Card(models.Model):
         else:
             sdate = date.today()
         
+        if 'no_log' in kwargs:
+            action = None
+            del kwargs['no_log']
+        
         if old and not action == None:
             c = CardHistory()
             c.card = self
@@ -793,7 +784,6 @@ class Card(models.Model):
             c.descr = descr
             c.save()
 
-        print "saving..."
 
         if 'deactivation_processed' in kwargs and kwargs['deactivation_processed']:
                 del kwargs['deactivation_processed']
@@ -808,7 +798,6 @@ class Card(models.Model):
             self.send()
 
     def save_formset(self, *args, **kwargs):
-        print "saving formset..."
         super(self.__class__, self).save_formset(*args, **kwargs)
 
 
@@ -866,8 +855,6 @@ class Card(models.Model):
         return True
 
     def deactivate(self,deactivated=None,descr=''):
-        print "card deactivate..."
-        print deactivated
         for service in self.services.all():
             service.deactivate(deactivated,descr)
         self.active=False
@@ -893,35 +880,29 @@ class Card(models.Model):
     # WARNING! This method was used once during MIGRATION. Future uses RESTRICTED! This will cause  history DATA CORRUPT!  
     def timestamp_and_activation_fix(self):
         from django.core.exceptions import ObjectDoesNotExist
-        print self
         if self.num>0:
-            print "    THIS IS NOT CaTV CARD"
             return False
         try:
-            print self.owner
+            self.owner
         except ObjectDoesNotExist:
             self.detach()
             self.delete()
-            print "    DELETED"
             return False            
-        self.activated = self.service_log.all().order_by('timestamp')[0].timestamp
+        self.activated = self.service_log.filter(action=CARD_SERVICE_ACTIVATED).latest(field_name="date").timestamp
         catv_service_q = self.services.all()
         if catv_service_q:
             catv_service = catv_service_q[0]
         else:
-            print "    THIS CARD HAS NO SERVICES"
             return False
-        catv_service.activated = self.service_log.filter(action=CARD_SERVICE_ACTIVATED).latest(field_name="timestamp").timestamp
-        if self.service_log.latest(field_name="timestamp").action == CARD_SERVICE_DEACTIVATED:
+        catv_service.activated = self.service_log.filter(action=CARD_SERVICE_ACTIVATED).latest(field_name="date").timestamp
+        if self.service_log.latest(field_name="date").action == CARD_SERVICE_DEACTIVATED:
             self.active=False
             catv_service.active=False
-            print "    DEACTIVATED"
         else:
             self.active=True
             catv_service.active=True
-            print "    ACTIVATED"
-        self.save()
-        catv_service.save()
+        self.save(no_log=True)
+        catv_service.save(no_log=True)
         
     def store_record(self):
         obj = {}
@@ -978,7 +959,10 @@ class CardService(models.Model):
         else:
             descr = date.today()
         
-
+        if 'no_log' in kwargs:
+            action = None
+            del kwargs['no_log']
+        
         if not action == None:
             c = CardHistory()
             c.card = self.card
@@ -1009,15 +993,12 @@ class CardService(models.Model):
     def activate(self,activated = None, descr =''):
         if not self.active:
             fees = self.tp.fees.all()
-            print fees
-            print "activation date: %s" % activated
             ok = True
             total = 0
             allow_negative = True
             prepared = []
             for fee in fees:
                 if not fee.fee_type.ftype in (FEE_TYPE_ONCE, FEE_TYPE_CUSTOM ):
-                    print "skipping regular fee..."
                     continue
                 f = fee.check_fee(self.card,activated,hold=True)
                 if f[0]: prepared.append(f[1])
@@ -1043,8 +1024,6 @@ class CardService(models.Model):
         return True
 
     def deactivate(self,deactivated = None, descr =''):
-        print "card service deactivate..."
-        print deactivated
         if self.active:
             fees = self.tp.fees.filter(fee_type__ftype__exact=FEE_TYPE_CUSTOM)
             for fee in fees:
@@ -1055,10 +1034,7 @@ class CardService(models.Model):
 
     def make_fees(self,date):
         for fee in self.tp.fees.all():
-            print "checking"
-            print fee.fee_type
             if fee.fee_type.ftype in (FEE_TYPE_DAILY, FEE_TYPE_WEEKLY, FEE_TYPE_MONTHLY, FEE_TYPE_YEARLY):
-                print self.card.owner
                 fee.check_fee(self.card,date)
     
     def check_past_activation(self,activated):

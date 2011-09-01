@@ -459,7 +459,8 @@ class AbonApiClass(object):
         sum = float(rdata['sum'])
         tmpdate = rdata['bankdate']
         descr = rdata['descr'] or ''        
-        autopay = rdata['autopay'] or False  
+        autopay = rdata['autopay'] or False
+        autoactivate = rdata['autoactivate'] or False    
         
         try:
             ftype = FeeType.objects.get(pk=ftype_id)
@@ -501,7 +502,15 @@ class AbonApiClass(object):
             p.bank_date = bank_date
             p.save()
             p.make()
-                    
+        
+        if autoactivate:
+            if abonent.disabled:
+                rdata['date'] = rdata['bankdate']
+                return [
+                    self.enable(rdata, request),
+                    dict(success=True, title='Снятие проведено', msg='...', errors='', data={} )
+                ]
+                                
         return dict(success=True, title='Снятие проведено', msg='...', errors='', data={} )        
     
     make_fee._args_len = 1
@@ -717,4 +726,20 @@ class AbonApiClass(object):
             return dict(success=False, title='Сбой загрузки ', msg='abonent not found', errors='' )
         
     comment_set._args_len = 1
+    
+    def launch_hamster(self, rdata, request):
+        from abon.models import Abonent
+        if 'uid' in rdata and rdata['uid']>0:
+            try:
+                a=Abonent.objects.get(pk=rdata['uid'])
+            except Abonent.DoesNotExist:
+                return dict(success=False, title='Сбой пересчёта баланса', msg='abonent not found', errors='')
+            else:
+                a.launch_hamster(debug=False)
+                return  dict(success=True, title='Пересчитано', msg='recalculated', errors='' )
+        else:
+            return dict(success=False, errors='')
+            #return dict(success=False, title='Сбой загрузки формы', msg='abonent not found', errors='')
+        
+    launch_hamster._args_len = 1
         

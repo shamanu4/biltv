@@ -152,3 +152,15 @@ def add_months(sourcedate,months):
     day = min(sourcedate.day,calendar.monthrange(year,month)[1])
     return datetime.date(year,month,day)
 
+def seconds2hhmmss(seconds):
+    hours = seconds / 3600
+    seconds -= 3600*hours
+    minutes = seconds / 60
+    seconds -= 60*minutes
+    return "%02d:%02d:%02d" % (hours, minutes, seconds)
+
+def hamsters_swarm(fa, fb, ts=0, tc=0, tr=0):
+    from abon.models import Abonent
+    Abonent.hamsters_swarm(fa, fb, ts, tc, tr)
+
+

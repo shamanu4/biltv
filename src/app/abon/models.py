@@ -477,6 +477,201 @@ class Abonent(models.Model):
                 history.save()
                 print "    DEACTIVATED: %s" % history.__unicode__()
             
+    def launch_hamster(self,countdown=True,debug=True):
+        from lib.functions import date_formatter, add_months
+        from tv.models import FeeType, Fee, Payment, TariffPlan
+        from django.db.models import Max
+        from time import sleep
+        import gc
+        
+        gc.enable()
+        
+        if debug:
+            print "Abonent %s" % self
+            if countdown:
+                print "    hamster ready to be launched."
+                print "    all finance log will be recalculated."
+                print "    use only when neccecary."
+                print "    -------------------------------------"        
+                print "    you have 5 sec to cancel... (Ctrl+C)"
+                try:
+                    sleep(1)
+                    print "    4..."
+                    sleep(1)
+                    print "    3..."
+                    sleep(1)
+                    print "    2..."
+                    sleep(1)
+                    print "    1..."
+                    sleep(1)
+                    print "    hamster launched..."
+                except KeyboardInterrupt:
+                    print "    hamster launching cancelled..."
+                    print "    Bye..."
+                    return False
+        
+            print "        resetting all finance log..."
+            
+        self.bill.balance=0
+        self.bill.save()
+        Fee.objects.filter(bill=self.bill).delete()
+        
+        pp = Payment.objects.filter(bill=self.bill)
+        for p in pp:
+            p.maked=False
+            if not p.bank_date:
+                p.bank_date=p.timestamp.date()
+            p.save()
+        if debug:
+            print "            Done..."
+        
+        catv = FeeType.objects.get(pk=5)
+        catv_part = FeeType.objects.get(pk=1)
+        tp = TariffPlan.objects.all()
+        tp = tp[0]
+        
+        thismonth = date_formatter(date.today())['month'].date()
+        nextmonth = date_formatter(add_months(thismonth,1))['month'].date()
+                
+        new = True
+        prev_closing_fee = 0
+        prev_closing_month = date(1970,1,1)
+                
+        for i in self.intervals.all():
+            if debug:
+                print "        processing interval %s-%s" % (i.start,i.finish)
+            if not i.finish:
+                i.finish = thismonth
+            d = i.start            
+            dd = date_formatter(add_months(d,1))['month'].date()
+            
+            if debug:
+                print "            starting date %s" % d
+            pp = Payment.objects.filter(bill=self.bill,maked=False,timestamp__lte=d)
+            for p in pp:
+                p.save()
+                p.make()
+            if d > date(2006,2,1) or not new:
+                full = catv.get_sum(date=i.start)['fee']
+                sum = catv_part.get_sum(date=i.start)['fee']
+                if debug:
+                    print "                full fee: %s" % full
+                    print "                current fee: %s" % sum
+                    print "                closing fee: %s" % prev_closing_fee
+                    print "                closing month: %s" % prev_closing_month
+                    print "                currnet month: %s" % date_formatter(d)['month'].date()
+                    print sum+prev_closing_fee>full
+                    print date_formatter(d)['month'].date() == prev_closing_month
+                if sum+prev_closing_fee>full and date_formatter(d)['month'].date() == prev_closing_month:
+                    print "                overpowered fee catched! fixed..."
+                    f = Fee(bill=self.bill,card=self.catv_card,sum=full-prev_closing_fee,tp=tp,fee_type=catv_part,timestamp=d, inner_descr=u'Кабельное ТВ | подключение (!)')
+                else: 
+                    f = Fee(bill=self.bill,card=self.catv_card,sum=sum,tp=tp,fee_type=catv_part,timestamp=d, inner_descr=u'Кабельное ТВ | подключение')
+                f.save()
+                maxid = Fee.objects.aggregate(Max('id'))['id__max']
+                f = Fee.objects.get(pk=maxid) 
+                f.make()
+            else:
+                if debug:
+                    print "                ignored because before 2006-02-01"
+                f = Fee(bill=self.bill,card=self.catv_card,sum=0,tp=tp,fee_type=catv_part,timestamp=d, inner_descr=u'Кабельное ТВ | подключение (оплачено на месте)')
+                f.save()
+                maxid = Fee.objects.aggregate(Max('id'))['id__max']
+                f = Fee.objects.get(pk=maxid)                 
+                f.make()
+            new = False                
+            d = dd
+            dd = date_formatter(add_months(d,1))['month'].date()
+            pp = Payment.objects.filter(bill=self.bill,maked=False,timestamp__lte=d)
+            for p in pp:
+                p.save()
+                p.make()
+            
+            
+            while dd < i.finish or dd == nextmonth or dd == thismonth:
+                if debug:
+                    print "            processing date %s" % d
+                sum = catv.get_sum(date=d)['fee']              
+                f = Fee(bill=self.bill,card=self.catv_card,sum=sum,tp=tp,fee_type=catv,timestamp=d, inner_descr=u'Кабельное ТВ | абонплата')
+                f.save()
+                maxid = Fee.objects.aggregate(Max('id'))['id__max']
+                f = Fee.objects.get(pk=maxid)                 
+                f.make()                
+                d = dd
+                dd = date_formatter(add_months(d,1))['month'].date()
+                pp = Payment.objects.filter(bill=self.bill,maked=False,timestamp__lte=d)
+                for p in pp:
+                    p.save()
+                    p.make()
+            
+            
+            if d < thismonth:
+                if debug:
+                    print "            closing date %s" % d
+                full = catv.get_sum(date=i.finish)['fee']
+                sum = full - catv_part.get_sum(date=i.finish)['ret']                
+                prev_closing_fee = sum
+                prev_closing_month = date_formatter(i.finish)['month'].date()
+                f = Fee(bill=self.bill,card=self.catv_card,sum=sum,tp=tp,fee_type=catv,timestamp=i.finish, inner_descr=u'Кабельное ТВ | отключение')
+                f.save()
+                maxid = Fee.objects.aggregate(Max('id'))['id__max']
+                f = Fee.objects.get(pk=maxid)                 
+                f.make()
+            
+            
+            pp = Payment.objects.filter(bill=self.bill,maked=False,timestamp__lte=d)
+            for p in pp:
+                p.save()
+                p.make()
+        
+        pp = Payment.objects.filter(bill=self.bill,maked=False)
+        for p in pp:
+            p.save()
+            p.make()
+                                       
+        if debug:
+            print "    hamster finished his work and stopped"
+            print "    dont forget donate to WWF ;)"
+            print "    Bye..."
+        
+        gc.collect()
+        return True
+    
+    @classmethod
+    def hamsters_swarm(cls,fa=0,fb=0,ts=0,tc=0,tr=0):
+        import time
+        import gc        
+        from lib.functions import seconds2hhmmss
+        #import thread
+        
+        gc.enable()
+        
+        #print "thread started..."        
+        start = ts or int(time.time())            
+        total = tc or cls.objects.all().count()        
+        ready = tr or 0
+        
+        #print {'fa':fa,'fb':fb,'ts':start,'tc':total,'tr':ready}
+        
+        if (fa or fb) and (fa < fb):
+            qs = cls.objects.all()[fa:fb]
+        else:
+            qs = cls.objects.all()
+        for abonent in qs:
+            abonent.launch_hamster(debug=False)
+            ready+=1
+            if ready%10 == 0:
+                gc.collect()
+                elapsed=int(time.time())-start
+                progress=float("%.3f" % (ready/total*100))
+                remain=int(elapsed*total/ready) 
+                print "processed abonents %s/%s (%s%%) elapsed: %s remain: %s" % (ready,total,progress,seconds2hhmmss(elapsed),seconds2hhmmss(remain))
+        
+        #print "restarting thread..."
+        return {'fa':fb,'fb':fb*2-fa,'ts':start,'tc':total,'tr':ready}
+            
+                
+            
     def store_record(self):
         obj = {}
         obj['id'] = self.pk        
@@ -490,6 +685,7 @@ class Abonent(models.Model):
         obj['deactivated'] = self.deactivated
         obj['disabled'] = self.disabled
         obj['fee'] = 25
+        obj['bill__balance'] = self.bill.balance
         return obj
 
 
