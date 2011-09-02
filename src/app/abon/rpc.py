@@ -486,7 +486,7 @@ class AbonApiClass(object):
         f.descr = descr
         f.inner_descr = inner_descr
         f.admin= request.user
-        f.bank_date = bank_date
+        f.timestamp = bank_date
         f.save()
         f.make()
         

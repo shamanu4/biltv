@@ -169,16 +169,21 @@ Ext.ux.menu = {
                 },{
                     'id': 'menu-cashier-register-button',
                     'handler': Engine.menu.cashier.register.openGrid,
-                    'text': 'Реестры'
+                    'text': 'Реестры',
+                    'oid': 0,
+                    'my_owner_ct_id':0
                 },{
                     'id': 'menu-cashier-payment-button',
                     'handler': Engine.menu.cashier.payment.openForm,
                     'text': 'Оплаты',
-					'oid': 0
+					'oid': 0,
+					'my_owner_ct_id':0
                 },{
                     'id': 'menu-cashier-registers-form-button',
                     'handler': Engine.menu.cashier.register.openForm,
                     'text': 'Отчёт по оплатам',
+                    'oid': 0,
+                    'my_owner_ct_id':0
                 }
             ]
         }
@@ -1367,19 +1372,19 @@ Ext.ux.BalanceForm = Ext.extend(Ext.FormPanel, {
             },{
                 text: 'оплата',
                 handler: function(){
-					Engine.menu.cashier.payment.openForm(this.oid)
+					Engine.menu.cashier.payment.openForm(this.oid,this.parent_form.id)
                 },
                 scope: this
             },{
                 text: 'снятие',
                 handler: function(){
-                    Engine.menu.cashier.fee.openForm(this.oid)
+                    Engine.menu.cashier.fee.openForm(this.oid,this.parent_form.id)
                 },
                 scope: this                
             },{
                 text: 'трансфер',
                 handler: function(){
-                    Engine.menu.cashier.transfer.openForm(this.oid)
+                    Engine.menu.cashier.transfer.openForm(this.oid,this.parent_form.id)
                 },
                 scope: this
             }],
@@ -2616,9 +2621,16 @@ Ext.ux.PaymentForm = Ext.extend(Ext.Panel ,{
 							},this.payment_callback.createDelegate(this));
 			},
 			payment_callback: function(response) {
-				this.searchfield.setRawValue('')
-				this.personfield.setRawValue('')
-				this.abonent = 0				
+				this.searchfield.setRawValue('');
+				this.personfield.setRawValue('');
+				this.abonent = 0;
+				if(this.my_owner_ct_id) {
+					Ext.getCmp(this.my_owner_ct_id).refresh()
+					(function(){
+						this.hide()
+						this.ownerCt.remove(this.id);	
+					}).defer(300,this);
+				}			
 			},
 			register: 0,
 			abonent: 0
@@ -2923,9 +2935,16 @@ Ext.ux.FeeForm = Ext.extend(Ext.Panel ,{
 				this.oid=0
 			},
 			fee_callback: function(response) {
-				this.searchfield.setRawValue('')
-				this.personfield.setRawValue('')
-				this.abonent = 0			
+				this.searchfield.setRawValue('');
+				this.personfield.setRawValue('');
+				this.abonent = 0;
+				if(this.my_owner_ct_id) {
+					Ext.getCmp(this.my_owner_ct_id).refresh()
+					(function(){
+						this.hide()
+						this.ownerCt.remove(this.id);	
+					}).defer(300,this);
+				}
 			},
 			register: 0,
 			abonent: 0
@@ -3621,7 +3640,7 @@ Ext.ux.TransferForm = Ext.extend(Ext.Panel ,{
 								date: this.date.getValue(),
 								sum: parseFloat(this.sum.getValue()),	
 								descr: this.descr.getValue()
-							},this.fee_callback.createDelegate(this));
+							},this.transfer_callback.createDelegate(this));
             },
 			preload: function(response) {
 				if(response.success) {
@@ -3642,10 +3661,17 @@ Ext.ux.TransferForm = Ext.extend(Ext.Panel ,{
 				this.abonent_to = parseInt(this.oid) || this.personfield.store.getAt(0).id
 				this.oid=0
 			},
-			fee_callback: function(response) {
-				this.searchfield.setRawValue('')
-				this.personfield.setRawValue('')
-				this.abonent = 0			
+			transfer_callback: function(response) {
+				this.searchfield.setRawValue('');
+				this.personfield.setRawValue('');
+				this.abonent = 0;
+				if(this.my_owner_ct_id) {
+					Ext.getCmp(this.my_owner_ct_id).refresh()
+					(function(){
+						this.hide()
+						this.ownerCt.remove(this.id);	
+					}).defer(300,this);
+				}
 			},
 			abonent_from: 0,
 			abonent_to: 0

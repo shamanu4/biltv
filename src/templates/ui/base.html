@@ -27,25 +27,27 @@
             for(line in batch) {
                 if(isInt(line)) {
                     data = batch[line]
-                    if(data.result.msg && data.result.title) {
-                        if(typeof(data.result.msg) == 'object') {
-                            for(line in data.result.msg) {
-                                if(data.result.success) {
-                                    Ext.ux.msg(data.result.title, line+": "+data.result.msg[line], Ext.Msg.INFO);
-                                } else {
-                                    Ext.ux.msg(data.result.title, line+": "+data.result.msg[line], Ext.Msg.ERROR);
-                                }
-                            }
-                        } else {
-                            if(data.result.success) {
-                                Ext.ux.msg(data.result.title, data.result.msg, Ext.Msg.INFO);
-                            } else {
-                                Ext.ux.msg(data.result.title, data.result.msg, Ext.Msg.ERROR);
-                            }
+                    if(Ext.isArray(data.result)) {
+                        for(line in data.result) {                          
+                          	result = data.result[line]
+                          	if(result.msg && result.title) {
+                        		if(result.success) {
+                    		 		Ext.ux.msg(result.title, result.msg, Ext.Msg.INFO);
+                        		} else {
+                             		Ext.ux.msg(result.title, result.msg, Ext.Msg.ERROR);
+                        		}
+                    		}
                         }
-                    }                    
-                }
-            }
+                    }
+                    if(data.result.msg && data.result.title) {
+                        if(data.result.success) {
+                    		 Ext.ux.msg(data.result.title, data.result.msg, Ext.Msg.INFO);
+                        } else {
+                             Ext.ux.msg(data.result.title, data.result.msg, Ext.Msg.ERROR);
+                        }
+                    }
+                }                    
+            }            
         }, this);
 
         Ext.Ajax.on('requestexception', function(){
