@@ -41,7 +41,7 @@ class MainApiClass(object):
         user = request.user
         if user.has_perm('tv.manage_trunk'):
             menuitems.append('scrambler')
-        if user.has_perm('tv.manage_bills'):
+        if user.has_perm('abon.manage_bills'):
             menuitems.append('cashier')
         menuitems.append('address')
 

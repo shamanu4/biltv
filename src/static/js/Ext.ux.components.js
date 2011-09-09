@@ -2403,7 +2403,7 @@ Ext.ux.PaymentForm = Ext.extend(Ext.Panel ,{
 							xtype: 'button',
                 			handler: function() {
                     			AbonApi.abonent_get({
-                            		code: (this.searchfield.getValue() || 0)
+                            		code: (this.searchfield.getValue() || 0),                            		
                         		},this.preload.createDelegate(this));
                 			},
                 			scope: this
@@ -2422,7 +2422,6 @@ Ext.ux.PaymentForm = Ext.extend(Ext.Panel ,{
     							reader: new Ext.data.JsonReader({
         							root: 'data',
         							totalProperty: 'total',
-        							//pizdec
         							fields: [
             							'id',
             							'person',
@@ -2431,7 +2430,8 @@ Ext.ux.PaymentForm = Ext.extend(Ext.Panel ,{
     							}),
     							baseParams : {
         							start:0,
-        							limit:8,        							
+        							limit:8,
+        							filter_disabled: 1     							
     							},
     						}),
 							valueField: 'id',
@@ -2444,9 +2444,10 @@ Ext.ux.PaymentForm = Ext.extend(Ext.Panel ,{
 								change: {
 									fn: function(combo,newval,oldval) {
 										var record_new = combo.store.getAt(combo.store.findExact('id',newval))
-										var record_old = combo.store.getAt(combo.store.findExact('id',oldval))
+										//var record_old = combo.store.getAt(combo.store.findExact('id',oldval))
+										this.addressfield.setText(record_new.json.address)
 										if(record_new.data.disabled) {
-											alert("Внимание! Абонент отключен")
+											Ext.ux.msg('Внимание!',"абонент отключен", Ext.Msg.INFO);
 											combo.addClass('combo-bg-red')
 										} else {
 											combo.removeClass('combo-bg-red')
@@ -2457,7 +2458,19 @@ Ext.ux.PaymentForm = Ext.extend(Ext.Panel ,{
 									scope: this
 								}
 							}
-						}),
+						})
+					]
+					
+				},{
+					xtype: 'panel',
+					width:  500,
+					layout: 'form',
+					columnWidth: 1,
+					items: [
+						this.addressfield = new Ext.form.Label({
+							fieldLabel: 'адресc:',
+							text: '...'
+						})
 					]
 				},{
 					xtype: 'panel',
@@ -2591,9 +2604,14 @@ Ext.ux.PaymentForm = Ext.extend(Ext.Panel ,{
 				this.searchfield.focus()
 			},
 			afterload: function(response) {
-				this.personfield.setValue(parseInt(this.oid) || this.personfield.store.getAt(0).id)				
-				this.abonent = parseInt(this.oid) || this.personfield.store.getAt(0).id
-				this.oid=0				
+				if(this.personfield.store.data.length) {
+					this.personfield.setValue(parseInt(this.oid) || this.personfield.store.getAt(0).id)				
+					this.abonent = parseInt(this.oid) || this.personfield.store.getAt(0).id
+					this.oid=0
+					this.personfield.fireEvent('change',this.personfield,this.abonent)
+				} else {
+					Ext.ux.msg('Сбой загрузки формы',"абонент не найден или отключен", Ext.Msg.ERROR);
+				}
 			},
 			submitaction: function() {
 							if(this.register<1) {

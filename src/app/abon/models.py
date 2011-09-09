@@ -332,6 +332,11 @@ class Bill(models.Model):
 
     balance = models.FloatField(default=0)
     deleted = models.BooleanField(default=False)
+    
+    class Meta:
+        permissions= (
+            ("manage_bills", "Can manage bills"),
+        )
 
     def __unicode__(self):
         return "%s" % self.balance
@@ -377,7 +382,10 @@ class Abonent(models.Model):
     class Meta:
         ordering = ['sorting']
         unique_together = (("person", "address",),)
-
+        permissions = (
+            ("can_manage_disabled_abonents", "Can manage disabled abonents"),
+        )
+        
     def __unicode__(self):
         return "%s" % (self.sorting,)
 
@@ -471,11 +479,11 @@ class Abonent(models.Model):
         for interval in self.intervals.all():
             history = CardHistory(date=interval.start, card=self.catv_card, action=CARD_SERVICE_ACTIVATED, descr="%s/%s" % (interval.s1,interval.s2), oid=1)
             history.save()
-            print "    ACTIVATED: %s" % history.__unicode__()
+            #print "    ACTIVATED: %s" % history.__unicode__()
             if interval.finish:
                 history = CardHistory(date=interval.finish, card=self.catv_card, action=CARD_SERVICE_DEACTIVATED, descr="", oid=1)
                 history.save()
-                print "    DEACTIVATED: %s" % history.__unicode__()
+                #print "    DEACTIVATED: %s" % history.__unicode__()
             
     def launch_hamster(self,countdown=True,debug=True):
         from lib.functions import date_formatter, add_months
