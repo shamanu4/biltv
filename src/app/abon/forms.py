@@ -166,6 +166,7 @@ class AddressForm(forms.Form):
         obj = obj.get_or_create(b,self.cleaned_data['flat'],self.cleaned_data['ext'])
         #obj.code = self.cleaned_data['ext'] or ''
         obj.code = ''
+        obj.override = self.cleaned_data['ext']
         obj.deleted = self.cleaned_data['deleted'] or False
         obj.comment = self.cleaned_data['comment']
         try:
