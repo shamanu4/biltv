@@ -164,11 +164,14 @@ class FeeType(models.Model):
         verbose_name_plural=u'абонплаты'
         
     def __unicode__(self):
-        return u'%s (%s) %s' % (self.name, self.sum or self.comment or u'---', self.marker())
+        if self.sum or self.comment:
+            return u'%s (%s) %s' % (self.name, self.sum or self.comment, self.marker())
+        else:
+            return u'%s %s' % (self.name, self.marker())
 
     def marker(self):
         if self.ftype == FEE_TYPE_CUSTOM: 
-            return '[*]'
+            return u'[табл.]'
         else:
             return ''
 
@@ -349,6 +352,14 @@ class PaymentRegister(models.Model):
             self.save()
         return self.closed
     
+    @property
+    def payments_total(self):
+        return self.payments.all().count()
+    
+    @property
+    def payments_maked(self):
+        return self.payments.filter(maked__exact=True).count()
+    
     def store_record(self):
         obj = {}
         obj['id'] = self.pk
@@ -360,6 +371,8 @@ class PaymentRegister(models.Model):
         obj['end'] = self.end
         obj['bank'] = self.bank
         obj['unicode'] = self.__unicode__()
+        obj['payments_total'] = self.payments_total
+        obj['payments_maked'] = self.payments_maked
         return obj
         
         
@@ -674,7 +687,10 @@ class CardHistory(models.Model):
 
     class Meta:
         ordering = ('-date',)
-        
+    
+    #def save(self):
+    #    raise 500
+    
     @property
     def obj_instance(self):
         from abon.models import Abonent
@@ -803,7 +819,7 @@ class Card(models.Model):
 
     @property
     def bin_flags(self):
-        from functions import byte_or
+        from lib.functions import byte_or
         res = []
         trunks = Trunk.objects.all()
         for t in trunks:

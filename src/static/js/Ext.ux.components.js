@@ -598,6 +598,7 @@ Ext.ux.AbonentGrid = Ext.extend(Ext.ux.CustomGridNE ,{
                         return '<div class="abonent_disabled_status_'+value+'"></div>'
                     }
                 },
+                {header: "Отключен", dataIndex: 'deactivated', width:80, sortable:false},
                 {header: " ", dataIndex: 'id', width: 28,
                     renderer: function(value, metaData, record, rowIndex, colIndex, store) {
                         return '<div class="inline_edit_button abonent_edit_button" id="'+value+'" code="'+record.data.code+'" confirmed="'+record.data.confirmed+'" dis="'+record.data.disabled+'"></div>'
@@ -703,15 +704,33 @@ Ext.ux.RegisterGrid = Ext.extend(Ext.ux.CustomGrid ,{
 						return value;
 					}
 				},
-				{header: "Closed", dataIndex: 'closed', width:80, editable:false},
-				{header: " ", dataIndex: 'id', width: 28,
+				{header: "закрыт", dataIndex: 'closed', width:40, editable:false,
                     renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-                        return '<div class="inline_edit_button register_edit_button" id="'+value+'" code="'+record.data.code+'" confirmed="'+record.data.confirmed+'" dis="'+record.data.disabled+'"></div>'
+                        return '<div class="abonent_disabled_status_'+value+'"></div>'
                     }
                 },
 				{header: " ", dataIndex: 'id', width: 28,
                     renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-                        return '<div class="inline_cash_button register_cash_button" id="'+value+'" source="'+record.data.source+'"></div>'
+                    	if(record.data.closed) {
+                    	  return ' '		
+                    	} else {
+                    	  return '<div class="inline_cash_button register_cash_button" id="'+value+'" source="'+record.data.source+'"></div>'	
+                    	}                        
+                    }
+                },
+                {header: "платежи", dataIndex: 'payments_total', width:80, editable:false},
+                {header: "засчитано", dataIndex: 'payments_maked', width:80, editable:false,
+                   renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                      if(!(record.data.payments_maked==record.data.payments_total)) {
+                        return '<div class="maked_false_class">'+value+'</div>'  	
+                      } else {
+                      	return '<div class="maked_true_class">'+value+'</div>'
+                      }
+                   }
+                },
+                {header: " ", dataIndex: 'id', width: 28,
+                    renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                        return '<div class="inline_edit_button register_edit_button" id="'+value+'" code="'+record.data.code+'" confirmed="'+record.data.confirmed+'" dis="'+record.data.disabled+'"></div>'
                     }
                 },
             ],
@@ -778,7 +797,7 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
     									}),
     									baseParams : {
         									start:0,
-        									limit:100,        							
+        									limit:1000,        							
     									},
     								}),
 									width: 380,
@@ -1012,7 +1031,17 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
                         })
                     },
                     scope: this
-                }
+				},
+               	beforeclose: {
+                    fn: function(obj) {
+                    	obj.hide()
+                    }
+               	},
+               	beforedestroy: {            	
+                    fn: function(e) {
+                    	return false;
+                    }
+            	}
             },
 			preload: function() {				
 				//if(!this.register) {
@@ -1035,7 +1064,7 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
 					},
 					scope: this
 				})
-			}			
+			},
 		}		
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.RegisterForm.superclass.initComponent.apply(this, arguments);
@@ -1703,8 +1732,13 @@ Ext.ux.AbonPaymentsGrid = Ext.extend(Ext.ux.CustomGridNE ,{
 				if(record.data.maked) {
 					return ''
 				} else {
-					return '<div class="inline_delete_button abonent_delete_payment" id="'+value+'"></div>'	
+					return '<div class="inline_delete_button abonent_delete_payment" id="del_pay_'+value+'"></div>'	
 				}                        		
+        	}
+       },
+       {header: "", dataIndex: 'id', width:26,
+			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+				return '<div class="inline_transfer_button abonent_delete_payment" id="trans_pay_'+value+'"></div>'	
         	}
         }
     ],
@@ -1868,7 +1902,7 @@ Ext.ux.AbonHistoryGrid = Ext.extend(Ext.ux.CustomGridNE ,{
         {header: "Timestamp", dataIndex: 'timestamp', width:180, sortable: true},
         {header: "Дата", dataIndex: 'date', width:150, sortable: true},
         {header: "Text", dataIndex: 'text', width:180},
-        {header: "Descr", dataIndex: 'descr', width:180},        
+        {header: "Descr", dataIndex: 'descr', width:300},        
     ],
     pageSize: 12,
     height: 380
@@ -2145,11 +2179,25 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
             		},{
                         xtype: 'tbseparator'
                     },
+                    /*
                     this.recalculate_button = {
                     	xtype: 'tbbutton',
                 		icon: '/static/img/icons/green/16x16/Tool.png',
                 		handler: function(){
 							this.recalculate()
+                		},
+                		scope: this
+            		},{
+                        xtype: 'tbseparator'
+                    }
+                    */
+                   this.delete_button = {
+                    	xtype: 'tbbutton',
+                		icon: '/static/img/icons/red/16x16/Cancel.png',
+                		handler: function(){
+                			if(confirm('Удалить абонента?')) {
+								this.abon_delete()
+							}
                 		},
                 		scope: this
             		},{
@@ -2223,6 +2271,17 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                 	this.refresh()             
                 }
             },
+            abon_delete: function() {
+            	AbonApi.abonent_delete({
+					uid: (this.oid || 0)
+				},this.deletecallback.createDelegate(this));
+            },
+            deletecallback: function(result,e) {
+			    if(result.success) {       
+                	this.hide()
+					this.ownerCt.remove(this.id)	             
+                }
+            },            
             disable_enable:function() {
 				if((this.dis=="false")||(this.dis==false)) {
 					this.abon_disable()					

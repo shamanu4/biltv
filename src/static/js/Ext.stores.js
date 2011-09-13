@@ -334,6 +334,7 @@ Ext.ux.abonent_store = new Ext.data.DirectStore({
             'comment',
             'confirmed',
 			'disabled',
+			'deactivated',
         ]
     }),
     writer: new Ext.data.JsonWriter({
@@ -466,7 +467,9 @@ Ext.ux.register_store = new Ext.data.DirectStore({
             'closed',
             'start',
 			'end',
-			'bank'
+			'bank',
+			'payments_total',
+			'payments_maked'
         ]
     }),
     writer: new Ext.data.JsonWriter({

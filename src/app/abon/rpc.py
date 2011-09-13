@@ -89,8 +89,8 @@ class AbonApiClass(object):
             data = a.address.store_record()
         if a.activated: 
             data.update({'activated':a.activated.date()}) #страшний бидлокод.
-	    if a.deactivated: 
-	        data.update({'deactivated':a.deactivated.date()}) #страшний бидлокод.2
+        if a.deactivated: 
+            data.update({'deactivated':a.deactivated}) #страшний бидлокод.2
         return dict(success=True, data=data)
 
     address_get._args_len = 1
@@ -471,7 +471,7 @@ class AbonApiClass(object):
         except FeeType.DoesNotExist:
             return dict(success=False, title='Сбой снятия денег', msg='register not found', errors='', data={} )
 
-        inner_descr = "%s (%s)" % (ftype.__unicode__(),rdata['descr'] or '')
+        inner_descr = "%s [%s] (%s)" % (ftype.__unicode__(),rdata['sum'],rdata['descr'] or '')
         
         try:
             abonent = Abonent.objects.get(pk=uid)
@@ -510,6 +510,7 @@ class AbonApiClass(object):
         if autoactivate:
             if abonent.disabled:
                 rdata['date'] = rdata['bankdate']
+                rdata['descr'] = inner_descr
                 return [
                     self.enable(rdata, request),
                     dict(success=True, title='Снятие проведено', msg='...', errors='', data={} )
@@ -746,4 +747,20 @@ class AbonApiClass(object):
             #return dict(success=False, title='Сбой загрузки формы', msg='abonent not found', errors='')
         
     launch_hamster._args_len = 1
-        
+    
+    def abonent_delete(self, rdata, request):
+        from abon.models import Abonent
+        if 'uid' in rdata and rdata['uid']>0:
+            try:
+                a=Abonent.objects.get(pk=rdata['uid'])
+            except Abonent.DoesNotExist:
+                return dict(success=False, title='Сбой удаления', msg='abonent not found', errors='')
+            else:
+                if not request.user.has_perm('abon.can_delete_abonents'):
+                    return dict(success=False, title='Сбой удаления', msg='действие запрещено', errors='')
+                a.delete()
+                return  dict(success=True, title='Удалено', msg='deleted', errors='' )
+        else:
+            return dict(success=False, errors='')
+    
+    abonent_delete._args_len = 1

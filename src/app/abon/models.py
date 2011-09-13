@@ -369,7 +369,7 @@ class Abonent(models.Model):
     address = models.ForeignKey(Address, related_name='abonents')
     group = models.ForeignKey(Group, default=1, related_name='members')
     activated = models.DateTimeField(default=datetime.now)
-    deactivated = models.DateTimeField(blank=True, null=True)
+    #deactivated = models.DateTimeField(blank=True, null=True)
     deleted = models.BooleanField(default=False)
     comment = models.TextField(blank=True, null=True)
     sorting = models.CharField(blank=True, max_length=150)
@@ -384,6 +384,7 @@ class Abonent(models.Model):
         unique_together = (("person", "address",),)
         permissions = (
             ("can_manage_disabled_abonents", "Can manage disabled abonents"),
+            ("can_delete_abonents", "Can delete abonents (RPC)"),            
         )
         
     def __unicode__(self):
@@ -402,6 +403,19 @@ class Abonent(models.Model):
     @property
     def catv_card(self):
         return (self.cards.filter(num=-self.pk) or [None])[0]
+    
+    @property
+    def deactivated(self):
+        from tv.models import CARD_SERVICE_DEACTIVATED
+        if not self.disabled:
+            return ''
+        try:
+            last_disabled = self.catv_card.service_log.filter(action=CARD_SERVICE_DEACTIVATED).latest('date')
+        except:
+            return ''
+        else:
+            return last_disabled.date
+        
     
     def disable(self,date=None,descr=''):
         print "abonent disabling..."

@@ -70,6 +70,15 @@
     cursor: pointer;
 }
 
+.inline_transfer_button {
+    display: block;
+    width: 16px;
+    height: 16px;
+    background: transparent;
+    background-image: url('/static/img/icons/green/16x16/Arrow1 Right.png');
+    cursor: pointer;
+}
+
 .inline_cash_button {
     display: block;
     width: 16px;

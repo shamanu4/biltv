@@ -222,8 +222,8 @@ class AbonentForm(forms.Form):
                 
         obj.person = person
         obj.address = address
-        obj.activated = self.cleaned_data['activated']
-        obj.deactivated = self.cleaned_data['deactivated']
+        #obj.activated = self.cleaned_data['activated']
+        #obj.deactivated = self.cleaned_data['deactivated']
         obj.deleted = self.cleaned_data['deleted'] or False
         obj.confirmed = self.cleaned_data['confirmed'] or False
         obj.comment = self.cleaned_data['comment']
