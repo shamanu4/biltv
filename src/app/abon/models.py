@@ -298,8 +298,15 @@ class Address(models.Model):
         try:
             address = Address.objects.get(building=building,flat=flat)
         except Address.DoesNotExist:
-            address = Address(building=building,flat=flat,override=override)
-            address.save()
+            try:
+                address = Address.objects.get(building=building,override=override)
+                if address==self:
+                    pass
+                else:
+                    address = Address(building=building,flat=flat,override=override)
+            except Address.DoesNotExist:
+                address = Address(building=building,flat=flat,override=override)
+        address.save()
         return address
 
     def get_code(self):
