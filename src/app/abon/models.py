@@ -299,7 +299,7 @@ class Address(models.Model):
             address = Address.objects.get(building=building,flat=flat)
         except Address.DoesNotExist:
             try:
-                address = Address.objects.get(building=building,override=override)
+                address = Address.objects.get(override=override)
                 if address==self:
                     pass
                 else:

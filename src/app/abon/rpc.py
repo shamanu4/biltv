@@ -108,7 +108,6 @@ class AbonApiClass(object):
                 address = abonent.address
         else:
             address=Address()
-        print rdata
         form = AddressForm(rdata)
         result = []
 
@@ -176,7 +175,6 @@ class AbonApiClass(object):
                 return dict(success=False, title='Сбой загрузки формы', msg='abonent not found', errors='')
         else:
             abonent = Abonent(disabled=True)
-        print rdata
         form = AbonentForm(rdata)
         result = []
 
