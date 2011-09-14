@@ -301,7 +301,8 @@ class Address(models.Model):
             try:
                 address = Address.objects.get(override=override)
                 if address==self:
-                    pass
+                    address.flat=flat
+                    address.building=building
                 else:
                     address = Address(building=building,flat=flat,override=override)
             except Address.DoesNotExist:
