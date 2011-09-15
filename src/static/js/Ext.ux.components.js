@@ -988,13 +988,13 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
 					}),
 					columns: [
         				{header: "Id", dataIndex: 'id', width:45},
-        				{header: "Timestamp", dataIndex: 'timestamp', width:125, sortable: true},
-        				{header: "Абонент", dataIndex: 'onwer_code', width:125},
-						{header: "ФИО", dataIndex: 'onwer_name', width:180},        				
-						{header: "Сума", dataIndex: 'sum', width:50, sortable: true},
-						{header: "Оператор", dataIndex: 'admin', width:100, sortable: true},
-        				{header: "Банк", dataIndex: 'source__name', width:120, sortable: true},
-						{header: "Дата квитанции", dataIndex: 'bank_date', width:120, sortable: true},
+        				{header: "Timestamp", dataIndex: 'timestamp', width:120, sortable: true},
+        				{header: "Абонент", dataIndex: 'onwer_code', width:80},
+						{header: "ФИО", dataIndex: 'onwer_name', width:160},        				
+						{header: "Сума", dataIndex: 'sum', width:40, sortable: true},
+						{header: "Оператор", dataIndex: 'admin', width:80, sortable: true},
+        				{header: "Банк", dataIndex: 'source__name', width:80, sortable: true},
+						{header: "Квитанция", dataIndex: 'bank_date', width:80, sortable: true},
         				{header: "Описание", dataIndex: 'inner_descr', width:180},
 						{header: " ", dataIndex: 'id', width: 28,
                     		renderer: function(value, metaData, record, rowIndex, colIndex, store) {
@@ -1708,7 +1708,10 @@ Ext.ux.AbonPaymentsGrid = Ext.extend(Ext.ux.CustomGridNE ,{
                 afterrender : {
                     fn: function(obj) {
                        	$(".abonent_delete_payment").live('click', function(e) {
-                            Engine.menu.cashier.register.deletePayment(this.id,this);
+                       	    Engine.menu.cashier.register.deletePayment(this.getAttribute('val'),this);
+                        })
+                        $(".abonent_transfer_payment").live('click', function(e) {
+                       	    Engine.menu.cashier.register.transferPayment(this.getAttribute('val'),this);
                         })
                     },
                     scope: this
@@ -1732,13 +1735,13 @@ Ext.ux.AbonPaymentsGrid = Ext.extend(Ext.ux.CustomGridNE ,{
 				if(record.data.maked) {
 					return ''
 				} else {
-					return '<div class="inline_delete_button abonent_delete_payment" id="del_pay_'+value+'"></div>'	
+					return '<div class="inline_delete_button abonent_delete_payment" id="del_pay_'+value+'" val="'+value+'"></div>'	
 				}                        		
         	}
        },
        {header: "", dataIndex: 'id', width:26,
 			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-				return '<div class="inline_transfer_button abonent_delete_payment" id="trans_pay_'+value+'"></div>'	
+				return '<div class="inline_transfer_button abonent_transfer_payment" id="trans_pay_'+value+'" val="'+value+'"></div>'	
         	}
         }
     ],
@@ -1825,7 +1828,7 @@ Ext.ux.AbonFeesGrid = Ext.extend(Ext.ux.CustomGridNE ,{
         {header: "Descr", dataIndex: 'inner_descr', width:200},
         {header: "", dataIndex: 'id', width:26,
             renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-                return '<img src="/static/extjs/custom/delete_16.png">';
+                return '<div class="inline_delete_button abonent_delete_fee" id="del_fee_"'+value+'" val="'+value+'"></div>'	
             }
         }
     ],

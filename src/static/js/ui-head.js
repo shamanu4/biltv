@@ -186,6 +186,19 @@ Engine = {
 						$(this.obj).parent().parent().parent().hide('slow')						
 					}
 				},
+				transferPayment: function(id,obj) {
+					this.obj=obj
+					alert('not implemented yet...')
+					return false					
+					if(confirm('Перенести платёж?')) {
+						
+					}
+				},
+				transferPaymentCallback: function(response) {
+					if (response.success) {
+						$(this.obj).parent().parent().parent().hide('slow')						
+					}
+				},
 				partiallyConfirm: function(id,source) {
 					if(confirm('Засчитать платежи реестра '+source+'?')) {
 						AbonApi.reg_payments_partially_confirm({
