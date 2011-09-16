@@ -2914,6 +2914,9 @@ Ext.ux.FeeForm = Ext.extend(Ext.Panel ,{
 						this.descr = new Ext.form.TextField({
 							fieldLabel: 'Описание',							
 						}),
+						this.allowzero = new Ext.form.Checkbox({
+							fieldLabel: 'Разрешить 0',							
+						}),		
 						this.autopay = new Ext.form.Checkbox({
 							fieldLabel: 'Автопополнение',							
 						}),							
@@ -2983,7 +2986,7 @@ Ext.ux.FeeForm = Ext.extend(Ext.Panel ,{
 								Ext.ux.msg('Ошибка ввода',"введите правильную дату",Ext.Msg.ERROR)
 								return false
 							}
-							if (parseFloat(this.sum.getValue() || 0) <= 0) {
+							if ((parseFloat(this.sum.getValue() || 0) <= 0)&&(!this.allowzero.getValue())) {
 								Ext.ux.msg('Ошибка ввода',"введите правильную сумму",Ext.Msg.ERROR)
 								return false
 							}
@@ -3001,6 +3004,7 @@ Ext.ux.FeeForm = Ext.extend(Ext.Panel ,{
 				if(response.success) {						
 					this.searchfield.setValue(response.data[0]['code'])					
 					//this.personfield.setText(response.data[0]['person'])
+					this.allowzero.setValue(false);
 					this.personfield.setRawValue('')
 					this.personfield.store.setBaseParam('code',response.data[0]['code'])
 					this.personfield.store.load({
@@ -3018,6 +3022,7 @@ Ext.ux.FeeForm = Ext.extend(Ext.Panel ,{
 				this.searchfield.setRawValue('');
 				this.personfield.setRawValue('');
 				this.abonent = 0;
+				this.allowzero.setValue(false);				
 				if(this.my_owner_ct_id) {
 					Ext.getCmp(this.my_owner_ct_id).refresh()
 					(function(){
