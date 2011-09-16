@@ -426,8 +426,14 @@ class Payment(models.Model):
         else:
             obj['source__name'] = u'Корректировка'
         obj['bank_date'] = self.bank_date
-        obj['onwer_code'] = self.owner.get_code() or None
-        obj['onwer_name'] = self.owner.person.__unicode__() or None
+        if self.owner:
+            obj['onwer_code'] = self.owner.get_code() or None
+        else:
+            obj['onwer_code'] = '*** удален! ***'            
+        if self.owner:
+            obj['onwer_name'] = self.owner.person.__unicode__() or None
+        else:
+            obj['onwer_name'] = '*** удален! ***'
         obj['admin'] = self.admin.first_name or self.admin.username 
         return obj
 
