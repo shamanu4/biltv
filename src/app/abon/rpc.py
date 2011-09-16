@@ -286,7 +286,7 @@ class AbonApiClass(object):
             except Abonent.DoesNotExist:
                 return dict(success=False, title='Сбой загрузки карт', msg='abonent not found', errors='' )
             else:                
-                return abonent.catv_card.service_log.all()
+                return abonent.catv_card.service_log.all().order_by('-date','-id')
         else:
             return dict(success=True, data={} )
 

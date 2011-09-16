@@ -916,8 +916,8 @@ class Card(models.Model):
             catv_service = catv_service_q[0]
         else:
             return False
-        catv_service.activated = self.service_log.filter(action=CARD_SERVICE_ACTIVATED).latest(field_name="date").timestamp
-        if self.service_log.latest(field_name="date").action == CARD_SERVICE_DEACTIVATED:
+        catv_service.activated = self.service_log.filter(action=CARD_SERVICE_ACTIVATED).order_by('-pk')[0].timestamp
+        if self.service_log.all().order_by('-pk')[0].action == CARD_SERVICE_DEACTIVATED:
             self.active=False
             self.owner.disabled=True
             catv_service.active=False
