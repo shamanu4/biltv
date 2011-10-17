@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from lib.extjs import store_read
+from lib.extjs import store_read, check_perm
 
 class AbonApiClass(object):
 
@@ -286,7 +286,42 @@ class AbonApiClass(object):
             except Abonent.DoesNotExist:
                 return dict(success=False, title='Сбой загрузки карт', msg='abonent not found', errors='' )
             else:                
-                return abonent.catv_card.service_log.all().order_by('-date','-id')
+                #return abonent.catv_card.service_log.all().order_by('-date','-id')
+                raw = abonent.catv_card.service_log.raw("""
+                    SELECT 
+                      ch1.*, ch2.cnt 
+                    FROM 
+                      tv_cardhistory ch1, 
+                      (SELECT 
+                        card_id, 
+                        date, 
+                        COUNT(*) AS cnt 
+                      FROM 
+                        tv_cardhistory 
+                      WHERE 
+                        card_id=%s 
+                      GROUP BY 
+                        date 
+                      ) ch2 
+                    WHERE 
+                      ch1.card_id=%s AND 
+                      ch1.date=ch2.date
+                    ORDER BY
+                      date DESC,
+                      id DESC
+                    """ % (abonent.catv_card.pk, abonent.catv_card.pk))
+                res = []
+                for line in raw:
+                    obj = {}
+                    obj['id'] = line.pk
+                    obj['timestamp'] = line.timestamp
+                    obj['date'] = line.date
+                    obj['text'] = line.__unicode__()
+                    obj['descr'] = line.descr
+                    obj['cnt'] = line.cnt
+                    res.append(obj)
+                return res
+            
         else:
             return dict(success=True, data={} )
 
@@ -579,6 +614,50 @@ class AbonApiClass(object):
     
     make_transfer._args_len = 1
     
+    def payment_rollback(self,rdata,request):
+        from tv.models import Payment
+        if 'payment_id' in rdata and rdata['payment_id']>0:
+            payment_id = rdata['payment_id']
+            try:
+                payment = Payment.objects.get(pk=payment_id)
+            except Payment.DoesNotExist:
+                return dict(success=False, title='Сбой отката оплат', msg='payment not found', errors='', data={} )
+            else:                
+                if payment.maked:
+                    res = payment.rollback()
+                    if res[0]:
+                        return dict(success=True, title='Оплата удалена', msg='rolled back', errors='', data={} )
+                    else:
+                        return dict(success=False, title='Сбой отката оплаты', msg=res[1], errors='', data={} )
+                else:                    
+                    return dict(success=False, title='Сбой отката оплаты', msg='платёж еще не засчитан', errors='', data={} )
+        else:
+            return dict(success=False, title='Сбой отката оплат', msg='payment not found', errors='', data={} )
+        
+    payment_rollback._args_len = 1
+    
+    def fee_rollback(self,rdata,request):
+        from tv.models import Fee
+        if 'fee_id' in rdata and rdata['fee_id']>0:
+            fee_id = rdata['fee_id']
+            try:
+                fee = Fee.objects.get(pk=fee_id)
+            except Fee.DoesNotExist:
+                return dict(success=False, title='Сбой отката оплат', msg='fee not found', errors='', data={} )
+            else:                
+                if fee.maked:
+                    res = fee.rollback()
+                    if res[0]:
+                        return dict(success=True, title='Снятие удалена', msg='rolled back', errors='', data={} )
+                    else:
+                        return dict(success=False, title='Сбой отката снятия', msg=res[1], errors='', data={} )
+                else:                    
+                    return dict(success=False, title='Сбой отката снятия', msg='снятие еще не засчитано', errors='', data={} )
+        else:
+            return dict(success=False, title='Сбой отката снятия', msg='fee not found', errors='', data={} )
+        
+    fee_rollback._args_len = 1
+    
     @store_read    
     def reg_payments_get(self,rdata,request):
         from accounts.models import User
@@ -687,6 +766,24 @@ class AbonApiClass(object):
             return dict(success=False, title='Сбой подтверждение платежей', msg='register not found', errors='', data={} )
         
     reg_payments_partially_confirm._args_len = 1
+
+    def history_delete(self,rdata,request):
+        from tv.models import CardHistory
+        if 'history_id' in rdata and rdata['history_id']>0:
+            history_id = rdata['history_id']
+        try:
+            ch=CardHistory.objects.get(pk=history_id)
+        except CardHistory.DoesNotExist:            
+            return dict(success=False, title='Сбой удаления истории', msg='card history not found', errors='', data={} )
+        else:
+            ch_this_day = CardHistory.objects.filter(card=ch.card,date=ch.date)
+            if( ( ch_this_day.count() % 2 ) == 0 ):
+                ch_this_day.delete()
+                return dict(success=True, title='Удаление истории', msg='deleted', errors='', data={} )
+            else:
+                return dict(success=False, title='Сбой удаления истории', msg='card history delete requirements not met', errors='', data={} )
+        
+    history_delete._args_len = 1
                     
     @store_read
     def admins_get(self,rdata,request):
@@ -696,6 +793,7 @@ class AbonApiClass(object):
     
     admins_get._args_len = 1
     
+    @check_perm('can_doo_foo')
     def comment_get(self,rdata,request):
         from abon.models import Abonent
         uid = int(rdata['uid'])
@@ -732,6 +830,7 @@ class AbonApiClass(object):
     
     def launch_hamster(self, rdata, request):
         from abon.models import Abonent
+        return dict(success=False, title='Сбой пересчёта баланса', msg='функция отключена', errors='')
         if 'uid' in rdata and rdata['uid']>0:
             try:
                 a=Abonent.objects.get(pk=rdata['uid'])

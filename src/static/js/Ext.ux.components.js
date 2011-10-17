@@ -611,9 +611,14 @@ Ext.ux.AbonentGrid = Ext.extend(Ext.ux.CustomGridNE ,{
             listeners: {
                 afterrender : {
                     fn: function(obj) {
+                    	/* moved to ui-index autoload
+                        
                         $(".abonent_edit_button").live('click', function(e) {
-                            Engine.menu.cashier.abonent.openForm(this.id,$(this).attr('code'),$(this).attr('confirmed'),$(this).attr('dis'));
+                        	o = e.currentTarget 
+                            Engine.menu.cashier.abonent.openForm(o.id,$(o).attr('code'),$(o).attr('confirmed'),$(o).attr('dis'));
                         })
+                        
+                        */
                     }
                 }
             }
@@ -740,12 +745,16 @@ Ext.ux.RegisterGrid = Ext.extend(Ext.ux.CustomGrid ,{
             listeners: {
                 afterrender : {
                     fn: function(obj) {
+                    	/* moved to ui-index autoload 
+                    	
                         $(".register_edit_button").live('click', function(e) {
                             Engine.menu.cashier.register.openForm(this.id);
                         })
 						$(".register_cash_button").live('click', function(e) {
                             Engine.menu.cashier.register.partiallyConfirm(this.id, $(this).attr('source'));
                         })
+                        
+                        */
                     }
                 }
             }
@@ -1026,10 +1035,14 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
 							},
 							scope: this
 						})
+						/*	moved to ui-index autoload
+						 
 						$(".register_delete_payment").live('click', function(e) {
                             Engine.menu.cashier.register.deletePayment(this.id,this);
                         })
-                    },
+                        
+                        */
+                    },                    
                     scope: this
 				},
                	beforeclose: {
@@ -1707,12 +1720,16 @@ Ext.ux.AbonPaymentsGrid = Ext.extend(Ext.ux.CustomGridNE ,{
             listeners: {
                 afterrender : {
                     fn: function(obj) {
+                    	/* moved to ui-index autoload
+                    	                      	                     
                        	$(".abonent_delete_payment").live('click', function(e) {
-                       	    Engine.menu.cashier.register.deletePayment(this.getAttribute('val'),this);
+                       		Engine.menu.cashier.register.deletePayment(e.currentTarget.getAttribute('val'),e.currentTarget);
                         })
                         $(".abonent_transfer_payment").live('click', function(e) {
-                       	    Engine.menu.cashier.register.transferPayment(this.getAttribute('val'),this);
+                       	    Engine.menu.cashier.register.transferPayment(e.currentTarget.getAttribute('val'),e.currentTarget);
                         })
+                        
+                        */
                     },
                     scope: this
                 }
@@ -1733,8 +1750,8 @@ Ext.ux.AbonPaymentsGrid = Ext.extend(Ext.ux.CustomGridNE ,{
         {header: "", dataIndex: 'id', width:26,
 			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
 				if(record.data.maked) {
-					return ''
-				} else {
+			    	return '<div class="inline_rollback_button abonent_rollback_payment" id="roll_pay_"'+value+'" val="'+value+'"></div>'	
+            	} else {
 					return '<div class="inline_delete_button abonent_delete_payment" id="del_pay_'+value+'" val="'+value+'"></div>'	
 				}                        		
         	}
@@ -1828,7 +1845,7 @@ Ext.ux.AbonFeesGrid = Ext.extend(Ext.ux.CustomGridNE ,{
         {header: "Descr", dataIndex: 'inner_descr', width:200},
         {header: "", dataIndex: 'id', width:26,
             renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-                return '<div class="inline_delete_button abonent_delete_fee" id="del_fee_"'+value+'" val="'+value+'"></div>'	
+                return '<div class="inline_rollback_button abonent_rollback_fee" id="roll_fee_"'+value+'" val="'+value+'"></div>'	
             }
         }
     ],
@@ -1865,7 +1882,8 @@ Ext.ux.AbonHistoryGrid = Ext.extend(Ext.ux.CustomGridNE ,{
                         'timestamp',
                         'date',
                         'text',
-                        'descr'
+                        'descr',
+                        'cnt'
                     ]
                 }),
                 writer: new Ext.data.JsonWriter({
@@ -1905,7 +1923,14 @@ Ext.ux.AbonHistoryGrid = Ext.extend(Ext.ux.CustomGridNE ,{
         {header: "Timestamp", dataIndex: 'timestamp', width:180, sortable: true},
         {header: "Дата", dataIndex: 'date', width:150, sortable: true},
         {header: "Text", dataIndex: 'text', width:180},
-        {header: "Descr", dataIndex: 'descr', width:300},        
+        {header: "Descr", dataIndex: 'descr', width:300},
+        {header: " ", dataIndex: 'cnt', width:26,
+            renderer: function(value, metaData, record, rowIndex, colIndex, store) {            	
+            	if((value>1)&&(!(value % 2))) {
+                	return '<div class="inline_delete_button card_history_deldete" id="del_ch_'+record.data.id+'" val="'+record.data.id+'"></div>'
+            	} 
+            }
+        },        
     ],
     pageSize: 12,
     height: 380

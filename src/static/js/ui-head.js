@@ -225,7 +225,20 @@ Engine = {
                     Ext.getCmp('tab-panel').toolbars[0].add(form);
                     Ext.getCmp('tab-panel').toolbars[0].add(form);
                     Ext.getCmp('tab-panel').toolbars[0].doLayout();
-				}
+				},
+				rollback: function(id,obj) {
+					this.obj=obj	
+					if(confirm('Откатить платёж?')) {
+						AbonApi.payment_rollback({
+                            payment_id: (id || 0)
+                        },this.rollbackPaymentCallback.createDelegate(this));	
+					}
+				},
+				rollbackPaymentCallback: function(response) {
+					if (response.success) {
+						$(this.obj).parent().parent().parent().hide('slow')						
+					}
+				},
 			},
 			fee: {
 				openForm: function(oid,my_owner_ct_id) {
@@ -239,7 +252,20 @@ Engine = {
                     Ext.getCmp('tab-panel').toolbars[0].add(form);
                     Ext.getCmp('tab-panel').toolbars[0].add(form);
                     Ext.getCmp('tab-panel').toolbars[0].doLayout();
-				}
+				},
+				rollback: function(id,obj) {					
+					this.obj=obj
+					if(confirm('Откатить снятие?')) {
+						AbonApi.fee_rollback({
+                            fee_id: (id || 0)
+                        },this.rollbackFeeCallback.createDelegate(this));	
+					}
+				},
+				rollbackFeeCallback: function(response) {
+					if (response.success) {
+						$(this.obj).parent().parent().parent().hide('slow')						
+					}
+				},			
 			},
 			transfer: {
 				openForm: function(oid,my_owner_ct_id) {
@@ -255,6 +281,19 @@ Engine = {
                     Ext.getCmp('tab-panel').toolbars[0].doLayout();
 				}
 			},
+			history_delete: function(id,obj) {
+				this.obj=obj
+				if(confirm('Удалить историю?')) {
+					AbonApi.history_delete({
+                 	   history_id: (id || 0)
+                    },this.history_delete_callback.createDelegate(this));	
+				}
+			},
+			history_delete_callback: function(response) {
+				if (response.success) {
+					$(this.obj).parent().parent().parent().hide('slow')						
+				}
+			},			
 			abon_disable: { 
 				openForm: function(oid,my_owner_ct_id) {
 					if (typeof my_owner_ct_id == 'object') {

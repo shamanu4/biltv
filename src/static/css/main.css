@@ -88,6 +88,15 @@
 	cursor: pointer;
 }
 
+.inline_rollback_button {
+    display: block;
+    width: 16px;
+    height: 16px;
+    background: transparent;
+    background-image: url('/static/img/icons/red/16x16/Back.png');
+	cursor: pointer;
+}
+
 .combo-bg-red {
 	background-color: #b00000 !important;
 	font-weight: bold !important;

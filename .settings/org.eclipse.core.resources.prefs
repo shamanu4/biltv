@@ -1,5 +1,6 @@
-#Tue Sep 13 16:02:43 EEST 2011
+#Mon Oct 17 19:03:53 EEST 2011
 eclipse.preferences.version=1
+encoding//lib/extjs.py=utf-8
 encoding//lib/functions.py=utf-8
 encoding//src/app/abon/admin.py=utf-8
 encoding//src/app/abon/forms.py=utf-8

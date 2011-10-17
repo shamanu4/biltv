@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from inspect import getargspec
@@ -8,6 +10,22 @@ from django.db.models.query import QuerySet
 from lib.functions import QuerySetChain
 from django.db.models import Q
 from django.utils.functional import update_wrapper
+from functools import wraps
+
+def check_perm(perm):
+    def decorator(func):
+        def inner_decorator(*args, **kwargs):
+            if 'request' in kwargs:
+                request = kwargs['request']
+                try:
+                    if request.user.has_perm(perm):
+                        return func(*args, **kwargs)
+                    else:
+                        return dict(success=False, title='Доступ запрещен', msg=u'user %s has not perm. %s' % (request.user,perm), errors='' )
+                except:
+                    return dict(success=False, title='Доступ запрещен', msg=u'invalid arguments while permission check', errors='' )
+        return wraps(func)(inner_decorator) 
+    return decorator
 
 def store_read(func):
     def wrapper(*args, **kwargs):
