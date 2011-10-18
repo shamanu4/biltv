@@ -4,11 +4,13 @@ from lib.extjs import store_read, check_perm
 
 class AbonApiClass(object):
 
+    @check_perm('accounts.rpc_abon_foo')
     def foo(self,rdata,request):
         return dict(success=True, data=None)
 
     foo._args_len = 1
 
+    @check_perm('accounts.rpc_abon_person_get')
     def person_get(self, rdata, request):
         from abon.models import Abonent, Person
         from lib.functions import latinaze
@@ -35,6 +37,7 @@ class AbonApiClass(object):
 
     person_get._args_len = 1
 
+    @check_perm('accounts.rpc_abon_person_set')
     def person_set(self, rdata, request):
         from abon.models import Abonent, Person
         from abon.forms import PersonForm
@@ -79,6 +82,7 @@ class AbonApiClass(object):
 
     person_set._form_handler = True
 
+    @check_perm('accounts.rpc_abon_address_get')
     def address_get(self, rdata, request):
         from abon.models import Abonent
         try:
@@ -95,6 +99,7 @@ class AbonApiClass(object):
 
     address_get._args_len = 1
 
+    @check_perm('accounts.rpc_abon_address_set')
     def address_set(self, rdata, request):
         from abon.models import Abonent, Address
         from abon.forms import AddressForm
@@ -126,6 +131,7 @@ class AbonApiClass(object):
 
     address_set._form_handler = True
 
+    @check_perm('accounts.rpc_abon_abonent_get')
     def abonent_get(self, rdata, request):
         from abon.models import Abonent
         if 'uid' in rdata and rdata['uid']>0:
@@ -149,6 +155,7 @@ class AbonApiClass(object):
         
     abonent_get._args_len = 1
 
+    @check_perm('accounts.rpc_abon_abonent_get_by_code')
     @store_read
     def abonent_get_by_code(self, rdata, request):
         from abon.models import Abonent
@@ -164,6 +171,7 @@ class AbonApiClass(object):
         
     abonent_get_by_code._args_len = 1
 
+    @check_perm('accounts.rpc_abon_abonent_set')
     def abonent_set(self, rdata, request):
         from abon.models import Abonent
         from abon.forms import AbonentForm
@@ -193,6 +201,7 @@ class AbonApiClass(object):
 
     abonent_set._args_len = 1
 
+    @check_perm('accounts.rpc_abon_enable')
     def enable(self, rdata, request):
         from abon.models import Abonent
         from datetime import datetime
@@ -218,6 +227,7 @@ class AbonApiClass(object):
 
     enable._args_len = 1
     
+    @check_perm('accounts.rpc_abon_disable')
     def disable(self, rdata, request):
         from abon.models import Abonent
         from datetime import datetime
@@ -239,6 +249,7 @@ class AbonApiClass(object):
 
     disable._args_len = 1
     
+    @check_perm('accounts.rpc_abon_balance_get')
     def balance_get(self, rdata, request):
         from abon.models import Abonent
         uid = int(rdata['uid'])
@@ -253,7 +264,8 @@ class AbonApiClass(object):
             return dict(success=True, data={'balance':None} )
 
     balance_get._args_len = 1
-
+    
+    @check_perm('accounts.rpc_abon_cards_get')
     @store_read
     def cards_get(self,rdata,request):
         from abon.models import Abonent
@@ -272,7 +284,8 @@ class AbonApiClass(object):
             return dict(success=True, data={} )
 
     cards_get._args_len = 1
-    
+        
+    @check_perm('accounts.rpc_abon_abon_history_get')
     @store_read
     def abon_history_get(self,rdata,request):
         from abon.models import Abonent
@@ -328,6 +341,7 @@ class AbonApiClass(object):
     abon_history_get._args_len = 1
 
 
+    @check_perm('accounts.rpc_abon_cards_set')
     def cards_set(self,rdata,request):
         from abon.models import Abonent
         from tv.models import Card
@@ -350,7 +364,8 @@ class AbonApiClass(object):
         else:
             return dict(success=True, data={} )
     cards_set._args_len = 1
-
+    
+    @check_perm('accounts.rpc_abon_free_cards_get')
     @store_read
     def free_cards_get(self,rdata,request):
         from tv.models import Card
@@ -358,7 +373,8 @@ class AbonApiClass(object):
         return card
 
     free_cards_get._args_len = 1
-
+    
+    @check_perm('accounts.rpc_abon_cards_tp_get')
     @store_read
     def cards_tp_get(self,rdata,request):
         from tv.models import Card
@@ -375,11 +391,13 @@ class AbonApiClass(object):
 
     cards_tp_get._args_len = 1
 
+    @check_perm('accounts.rpc_abon_cards_tp_set')
     def cards_tp_set(self,rdata,request):
         return dict(success=False, title='Сбой загрузки тарифов', msg='not implemented yet', errors='', data={})
 
     cards_tp_set._args_len = 1
-
+    
+    @check_perm('accounts.rpc_abon_payments_get')
     @store_read
     def payments_get(self,rdata,request):
         from tv.models import Payment
@@ -396,6 +414,7 @@ class AbonApiClass(object):
         return {}
     payments_get._args_len = 1
 
+    @check_perm('accounts.rpc_abon_fees_get')
     @store_read
     def fees_get(self,rdata,request):
         from tv.models import Fee
@@ -411,14 +430,16 @@ class AbonApiClass(object):
             return fees.order_by('-timestamp','-pk')
         return {}
     fees_get._args_len = 1
-    
+        
+    @check_perm('accounts.rpc_abon_registers_get')
     @store_read
     def registers_get(self,rdata,request):
         from tv.models import PaymentRegister
         return PaymentRegister.objects.filter(closed__exact=False).order_by('pk')
     
     registers_get._args_len = 1
-    
+        
+    @check_perm('accounts.rpc_abon_registers_get_last')
     @store_read
     def registers_get_last(self,rdata,request):
         from tv.models import PaymentRegister
@@ -429,6 +450,7 @@ class AbonApiClass(object):
          
     registers_get_last._args_len = 1
     
+    @check_perm('accounts.rpc_abon_make_payment')
     def make_payment(self,rdata,request):
         from tv.models import PaymentRegister, Payment
         from abon.models import Abonent
@@ -477,13 +499,15 @@ class AbonApiClass(object):
     
     make_payment._args_len = 1
     
-    @store_read    
+    @check_perm('accounts.rpc_abon_feetypes_get')
+    @store_read
     def feetypes_get(self,rdata,request):
         from tv.models import FeeType, FEE_TYPE_ONCE
         return FeeType.objects.filter(ftype=FEE_TYPE_ONCE)
     
     feetypes_get._args_len = 1
     
+    @check_perm('accounts.rpc_abon_make_fee')
     def make_fee(self,rdata,request):
         from tv.models import FeeType, Fee, Payment
         from abon.models import Abonent
@@ -553,6 +577,7 @@ class AbonApiClass(object):
     
     make_fee._args_len = 1
         
+    @check_perm('accounts.rpc_abon_make_transfer')
     def make_transfer(self,rdata,request):
         from tv.models import Fee, Payment
         from abon.models import Abonent
@@ -614,6 +639,7 @@ class AbonApiClass(object):
     
     make_transfer._args_len = 1
     
+    @check_perm('accounts.rpc_abon_payment_rollback')
     def payment_rollback(self,rdata,request):
         from tv.models import Payment
         if 'payment_id' in rdata and rdata['payment_id']>0:
@@ -636,6 +662,7 @@ class AbonApiClass(object):
         
     payment_rollback._args_len = 1
     
+    @check_perm('accounts.rpc_abon_fee_rollback')
     def fee_rollback(self,rdata,request):
         from tv.models import Fee
         if 'fee_id' in rdata and rdata['fee_id']>0:
@@ -658,7 +685,8 @@ class AbonApiClass(object):
         
     fee_rollback._args_len = 1
     
-    @store_read    
+    @check_perm('accounts.rpc_abon_reg_payments_get')
+    @store_read
     def reg_payments_get(self,rdata,request):
         from accounts.models import User
         from tv.models import Payment, PaymentRegister
@@ -726,6 +754,7 @@ class AbonApiClass(object):
     
     reg_payments_get._args_len = 1
         
+    @check_perm('accounts.rpc_abon_reg_payments_delete')
     def reg_payments_delete(self,rdata,request):
         from tv.models import Payment
         if 'payment_id' in rdata and rdata['payment_id']>0:
@@ -745,6 +774,7 @@ class AbonApiClass(object):
         
     reg_payments_delete._args_len = 1
     
+    @check_perm('accounts.rpc_abon_reg_payments_partially_confirm')
     def reg_payments_partially_confirm(self,rdata,request):
         from tv.models import PaymentRegister
         if 'register_id' in rdata and rdata['register_id']>0:
@@ -767,6 +797,7 @@ class AbonApiClass(object):
         
     reg_payments_partially_confirm._args_len = 1
 
+    @check_perm('accounts.rpc_abon_history_delete')
     def history_delete(self,rdata,request):
         from tv.models import CardHistory
         if 'history_id' in rdata and rdata['history_id']>0:
@@ -784,7 +815,8 @@ class AbonApiClass(object):
                 return dict(success=False, title='Сбой удаления истории', msg='card history delete requirements not met', errors='', data={} )
         
     history_delete._args_len = 1
-                    
+                        
+    @check_perm('accounts.rpc_abon_admins_get')
     @store_read
     def admins_get(self,rdata,request):
         from accounts.models import User
@@ -793,7 +825,7 @@ class AbonApiClass(object):
     
     admins_get._args_len = 1
     
-    @check_perm('can_doo_foo')
+    @check_perm('accounts.rpc_abon_comment_get')
     def comment_get(self,rdata,request):
         from abon.models import Abonent
         uid = int(rdata['uid'])
@@ -809,6 +841,7 @@ class AbonApiClass(object):
         
     comment_get._args_len = 1
     
+    @check_perm('accounts.rpc_abon_comment_set')
     def comment_set(self,rdata,request):
         from abon.models import Abonent
         if not 'uid' in rdata or not 'comment' in rdata:
@@ -828,6 +861,7 @@ class AbonApiClass(object):
         
     comment_set._args_len = 1
     
+    @check_perm('accounts.rpc_abon_launch_hamster')
     def launch_hamster(self, rdata, request):
         from abon.models import Abonent
         return dict(success=False, title='Сбой пересчёта баланса', msg='функция отключена', errors='')
@@ -845,6 +879,7 @@ class AbonApiClass(object):
         
     launch_hamster._args_len = 1
     
+    @check_perm('accounts.rpc_abon_abonent_delete')
     def abonent_delete(self, rdata, request):
         from abon.models import Abonent
         if 'uid' in rdata and rdata['uid']>0:

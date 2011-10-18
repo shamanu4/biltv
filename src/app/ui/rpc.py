@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from extjs import RpcRouter, store_read
+from lib.extjs import RpcRouter, store_read, check_perm
 from tv.rpc import TvApiClass
 from abon.rpc import AbonApiClass
 
@@ -62,6 +62,7 @@ class GridApiClass(object):
     def read_one(self,oid):
         return self.model.objects.get(pk=oid)
     
+    @check_perm('accounts.rpc_read_generic_grid')
     @store_read
     def read(self,rdata,request):
         if self.filter:
@@ -71,6 +72,7 @@ class GridApiClass(object):
 
     read._args_len = 1
 
+    @check_perm('accounts.rpc_update_generic_grid')
     def update(self,rdata,request):
         if not self.form:
             return dict(success=False, title="Ошибка записи", msg="Только для чтения", data={})
@@ -96,6 +98,7 @@ class GridApiClass(object):
             return dict(success=False, title="Ошибка записи", msg=msg, data={})
     update._args_len = 1
 
+    @check_perm('accounts.rpc_add_in_generic_grid')
     def create(self,rdata,request):
         if not self.form:
             return dict(success=False, title="Ошибка записи", msg="Только для чтения", data={})
@@ -116,6 +119,7 @@ class GridApiClass(object):
             return dict(success=False, title="Ошибка записи", msg=msg, data={})
     create._args_len = 1
 
+    @check_perm('accounts.rpc_delete_in_generic_grid')
     def destroy(self,rdata,request):
         print request.POST
 
