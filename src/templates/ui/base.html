@@ -30,6 +30,9 @@
                     if(Ext.isArray(data.result)) {
                         for(line in data.result) {                          
                           	result = data.result[line]
+                          	if(!result){
+                          		continue
+                          	}
                           	if(result.msg && result.title) {
                         		if(result.success) {
                     		 		Ext.ux.msg(result.title, result.msg, Ext.Msg.INFO);
