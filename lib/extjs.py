@@ -21,9 +21,11 @@ def check_perm(perm):
                     if request.user.has_perm(perm):
                         return func(*args, **kwargs)
                     else:
-                        return dict(success=False, title='Доступ запрещен', msg=u'user %s has not permission %s' % (request.user,perm), errors='' )
+                        return dict(success=False, title=u'Доступ запрещен', msg=u'user %s has not permission %s' % (request.user,perm), errors='' )
                 except:
-                    return dict(success=False, title='Доступ запрещен', msg=u'invalid arguments while permission check', errors='' )
+                    return dict(success=False, title=u'Доступ запрещен', msg=u'invalid arguments while permission check. (no request.user)', errors='' )
+            else:
+                return dict(success=False, title=u'Доступ запрещен', msg=u'invalid arguments while permission check. (no request)', errors='' )
         return wraps(func)(inner_decorator) 
     return decorator
 

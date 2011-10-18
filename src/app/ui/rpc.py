@@ -61,8 +61,8 @@ class GridApiClass(object):
     @store_read
     def read_one(self,oid):
         return self.model.objects.get(pk=oid)
-    
-    @check_perm('accounts.rpc_read_generic_grid')
+        
+    #@check_perm('accounts.rpc_read_generic_grid')
     @store_read
     def read(self,rdata,request):
         if self.filter:

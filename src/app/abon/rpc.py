@@ -204,7 +204,7 @@ class AbonApiClass(object):
     @check_perm('accounts.rpc_abon_enable')
     def enable(self, rdata, request):
         from abon.models import Abonent
-        from datetime import datetime
+        from datetime import datetime        
         
         uid = int(rdata['abonent'])
         if uid>0:
@@ -569,7 +569,7 @@ class AbonApiClass(object):
                 rdata['date'] = rdata['bankdate']
                 rdata['descr'] = inner_descr
                 return [
-                    self.enable(rdata, request),
+                    self.enable(rdata, request=request),
                     dict(success=True, title='Снятие проведено', msg='...', errors='', data={} )
                 ]
                                 
