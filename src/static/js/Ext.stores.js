@@ -6,7 +6,7 @@ Ext.ux.cities_store = new Ext.data.DirectStore({
         destroy: CityGrid.destroy
     },
     restful: true,
-    autoLoad: false,
+    autoLoad: true,
     autoSave: false,
     storeId: 'cities-store',    
     reader: new Ext.data.JsonReader({
@@ -48,7 +48,7 @@ Ext.ux.cities_combo_store = new Ext.data.DirectStore({
         destroy: CityGrid.destroy
     },
     restful: true,
-    autoLoad: false,
+    autoLoad: true,
     storeId: 'cities-combo-store',
     reader: new Ext.data.JsonReader({
         root: 'data',
@@ -109,7 +109,7 @@ Ext.ux.streets_store = new Ext.data.DirectStore({
         destroy: StreetGrid.destroy
     },
     restful: true,
-    autoLoad: false,
+    autoLoad: true,
     autoSave: false,
     storeId: 'streets-store',
     reader: new Ext.data.JsonReader({
@@ -152,7 +152,7 @@ Ext.ux.streets_combo_store = new Ext.data.DirectStore({
         destroy: StreetGrid.destroy
     },
     restful: true,
-    autoLoad: false,
+    autoLoad: true,
     autoSave: false,
     storeId: 'streets-combo-store',
     reader: new Ext.data.JsonReader({
@@ -189,7 +189,7 @@ Ext.ux.house_num_store = new Ext.data.DirectStore({
         destroy: HouseNumGrid.destroy
     },
     restful: true,
-    autoLoad: false,
+    autoLoad: true,
     autoSave: false,
     storeId: 'house-num-store',
     reader: new Ext.data.JsonReader({
@@ -231,7 +231,7 @@ Ext.ux.houses_combo_store = new Ext.data.DirectStore({
         destroy: HouseNumGrid.destroy
     },
     restful: true,
-    autoLoad: false,
+    autoLoad: true,
     autoSave: false,
     storeId: 'houses-combo-store',
     reader: new Ext.data.JsonReader({
