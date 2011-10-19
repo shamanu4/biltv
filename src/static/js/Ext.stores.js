@@ -76,7 +76,7 @@ Ext.ux.sources_combo_store = new Ext.data.DirectStore({
         destroy: SourceGrid.foo
     },
     restful: true,
-    autoLoad: false,
+    autoLoad: true,
     storeId: 'sources-combo-store',
     reader: new Ext.data.JsonReader({
         root: 'data',
@@ -267,7 +267,7 @@ Ext.ux.building_store = new Ext.data.DirectStore({
         destroy: BuildingGrid.destroy
     },
     restful: true,
-    autoLoad: false,
+    autoLoad: true,
     autoSave: false,
     storeId: 'building-store',
     reader: new Ext.data.JsonReader({
@@ -317,7 +317,7 @@ Ext.ux.abonent_store = new Ext.data.DirectStore({
     },
     remoteSort: true,
     restful: true,
-    autoLoad: false,
+    autoLoad: true,
     autoSave: false,
     storeId: 'abonent-store',
     reader: new Ext.data.JsonReader({
@@ -365,7 +365,7 @@ Ext.ux.card_store = new Ext.data.DirectStore({
         destroy: CardGrid.destroy
     },
     restful: true,
-    autoLoad: false,
+    autoLoad: true,
     autoSave: false,
     storeId: 'card-store',
     reader: new Ext.data.JsonReader({
@@ -410,7 +410,7 @@ var card_ds_model = Ext.data.Record.create([
 
 Ext.ux.free_card_combo_store = new Ext.data.DirectStore({
                 restful: true,
-                autoLoad: false,
+                autoLoad: true,
                 autoSave: false,
                 storeId: 'free_card_combo_store',
                 reader: new Ext.data.JsonReader({
