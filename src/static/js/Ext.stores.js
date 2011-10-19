@@ -452,7 +452,7 @@ Ext.ux.register_store = new Ext.data.DirectStore({
         destroy: RegisterGrid.destroy
     },
     restful: true,
-    autoLoad: false,
+    autoLoad: true,
     autoSave: false,
     storeId: 'register-store',
     reader: new Ext.data.JsonReader({
