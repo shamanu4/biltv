@@ -180,6 +180,7 @@ class FeeType(models.Model):
         
         sum = 0
         ret = 0        
+        full = 0
         if not date:
             date=date_formatter()['day']
         day = date.day    
@@ -189,14 +190,16 @@ class FeeType(models.Model):
             for range in ranges:
                 sum += range.sum
             
-            return {'fee':sum,'ret':0}
+            return {'fee':sum,'ret':0,'full':sum}
         
         ranges = self.customranges.filter(interval__start__lte=date).filter(interval__end__gte=date).filter(startday__lte=day).filter(endday__gte=day)
         for range in ranges:
             sum += range.sum
             ret += range.ret
-            
-        return {'fee':sum,'ret':ret}
+        ranges = self.ranges.filter(interval__start__lte=date).filter(interval__end__gte=date)
+        for range in ranges:
+            full += range.sum                        
+        return {'fee':sum,'ret':ret,'full':full}
 
     def store_record(self):
         obj = {}
@@ -582,13 +585,19 @@ class TariffPlanFeeRelationship(models.Model):
         from lib.functions import date_formatter         
         date = date_formatter(fee_date)
         my_maked_fees = Fee.objects.filter(card__exact=card, tp__exact=self.tp, fee_type__exact=self.fee_type, maked__exact=True, deleted__exact=False, rolled_by__exact=None)
+        
         if not card.bill:
             return (False,"This card have not account with bill")
+        
         if self.fee_type.ftype == FEE_TYPE_ONCE:
             return self.make_fee(card,date['day'],**kwargs)
-
+        
         if self.fee_type.ftype == FEE_TYPE_CUSTOM:
-            return self.make_fee(card,date['day'],**kwargs)
+            c = my_maked_fees.filter(timestamp__gte=date['month'],sum__lt=0)
+            if c.count()>0:
+                return self.make_fee(card,date['day'],maked_fees=c,**kwargs)
+            else:
+                return self.make_fee(card,date['day'],**kwargs)            
 
         if self.fee_type.ftype == FEE_TYPE_DAILY:
             c = my_maked_fees.filter(timestamp__gte=date['day'])
@@ -625,8 +634,22 @@ class TariffPlanFeeRelationship(models.Model):
         fee.card = card
         fee.tp = self.tp
         fee.fee_type = self.fee_type
-        fee.sum = self.fee_type.get_sum(date)['fee']
-        fee.inner_descr = "%s | %s" % (card.name, fee.fee_type.__unicode__())
+        if 'maked_fees' in kwargs:
+            maked_fees = kwargs['maked_fees']
+            maked_fee=0
+            for mfee in maked_fees:
+                maked_fee += mfee.sum # [!] negative value
+            tmp_sum = self.fee_type.get_sum(date)['fee']
+            full_sum = self.fee_type.get_sum(date)['full']
+            if tmp_sum + maked_fee > 0:
+                fee.sum = -maked_fee
+                fee.inner_descr = "%s | [*fix] %s" % (card.name, fee.fee_type.__unicode__())
+            else:
+                fee.sum = tmp_sum
+                fee.inner_descr = "%s | %s" % (card.name, fee.fee_type.__unicode__())
+        else:
+            fee.sum = self.fee_type.get_sum(date)['fee']
+            fee.inner_descr = "%s | %s" % (card.name, fee.fee_type.__unicode__())
         if date:
             fee.timestamp = date
         fee.save()
