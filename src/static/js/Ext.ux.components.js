@@ -1554,6 +1554,7 @@ Ext.ux.AbonCardsGrid = Ext.extend(Ext.ux.CustomGrid ,{
         {header: "Id", dataIndex: 'id', width:40},
         {header: "Num", dataIndex: 'num', width:80,
             renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                this.editable=true
                 if (value===undefined) {
                     this.editable=true
                 }
