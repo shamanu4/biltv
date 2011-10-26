@@ -1552,7 +1552,7 @@ Ext.ux.AbonCardsGrid = Ext.extend(Ext.ux.CustomGrid ,{
     ds_model: card_ds_model,
     columns: [
         {header: "Id", dataIndex: 'id', width:40},
-        {header: "Num", dataIndex: 'num', width:80,
+        {header: "Num", dataIndex: 'num', width:80, editable: true,
             renderer: function(value, metaData, record, rowIndex, colIndex, store) {
                 this.editable=true
                 if (value===undefined) {
