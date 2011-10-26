@@ -1543,18 +1543,11 @@ Ext.ux.AbonCardsGrid = Ext.extend(Ext.ux.CustomGrid ,{
                         scope: this
                     }
                 }
-            })
-        }        
-        Ext.apply(this, Ext.apply(this.initialConfig, config));
-        Ext.ux.AbonCardsGrid.superclass.initComponent.apply(this, [config]);
-    },
-    title: 'Карточки',
-    ds_model: card_ds_model,
-    columns: [
+            }),
+            columns: [
         {header: "Id", dataIndex: 'id', width:40},
         {header: "Num", dataIndex: 'num', width:80, editable: true,
             renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-                this.editable=true
                 if (value===undefined) {
                     this.editable=true
                 }
@@ -1587,7 +1580,14 @@ Ext.ux.AbonCardsGrid = Ext.extend(Ext.ux.CustomGrid ,{
                 return '<img src="/static/img/icons/green/16x16/Contact.png">';
             }
         }
-    ]    
+    ]
+        }        
+        Ext.apply(this, Ext.apply(this.initialConfig, config));
+        Ext.ux.AbonCardsGrid.superclass.initComponent.apply(this, [config]);
+    },
+    title: 'Карточки',
+    ds_model: card_ds_model,
+        
 });
 
 Ext.reg('ext:ux:abon-cards-grid', Ext.ux.AbonCardsGrid);
