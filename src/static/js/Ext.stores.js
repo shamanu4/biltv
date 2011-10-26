@@ -345,7 +345,7 @@ Ext.ux.abonent_store = new Ext.data.DirectStore({
     baseParams : {
         start:0,
         limit:16,
-        filter_fields:['person__firstname','person__lastname','person__passport','code','address__building__street__name'],
+        filter_fields:['person__firstname','person__lastname','person__passport','person__sorting','code','address__building__street__name','address__building__sorting','address__sorting'],
         filter_value:''
     },
     listeners:{
