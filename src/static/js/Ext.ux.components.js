@@ -1545,42 +1545,42 @@ Ext.ux.AbonCardsGrid = Ext.extend(Ext.ux.CustomGrid ,{
                 }
             }),
             columns: [
-        {header: "Id", dataIndex: 'id', width:40},
-        {header: "Num", dataIndex: 'num', width:80, editable: true,
-            renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-                if (value===undefined) {
-                    this.editable=true
-                }
-                if (value<0) {
-                    return '<b>CaTV</b>';
-                } else {
-                    return value;
-                }
-            },
-            editor: new Ext.ux.FreeCardCombo(),
-            editable: false
-        },
-        {header: "Active", dataIndex: 'active', width:40,
-            renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-                if (value==true) {
-                    return '<img src="/static/extjs/custom/tick_16.png">';
-                } else {
-                    return '<img src="/static/extjs/custom/block_16.png">';
-                }
-            }
-        },
-        {header: "Activated", dataIndex: 'activated', width:120},
-        {header: "", dataIndex: 'id', width:26,
-            renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-                return '<img src="/static/extjs/custom/delete_16.png">';
-            }
-        },
-		{header: "", dataIndex: 'id', width:26,
-            renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-                return '<img src="/static/img/icons/green/16x16/Contact.png">';
-            }
-        }
-    ]
+        		{header: "Id", dataIndex: 'id', width:40},
+        		{header: "Num", dataIndex: 'num', width:80, editable: true,
+            		renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                		if (value===undefined) {
+                    		this.editable=true
+                		}
+                		if (value<0) {
+                    		return '<b>CaTV</b>';
+                		} else {
+                    		return value;
+                		}
+            		},
+            		editor: new Ext.ux.FreeCardCombo(),
+            		editable: false
+        		},
+        		{header: "Active", dataIndex: 'active', width:40,
+            		renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                		if (value==true) {
+                    		return '<img src="/static/extjs/custom/tick_16.png">';
+                		} else {
+                    		return '<img src="/static/extjs/custom/block_16.png">';
+                		}
+            		}
+        		},
+        		{header: "Activated", dataIndex: 'activated', width:120},
+        		{header: "", dataIndex: 'id', width:26,
+            		renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                		return '<img src="/static/extjs/custom/delete_16.png">';
+            		}
+        		},
+				{header: "", dataIndex: 'id', width:26,
+            		renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                		return '<img src="/static/img/icons/green/16x16/Contact.png">';
+            		}
+        		}
+    		]
         }        
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.AbonCardsGrid.superclass.initComponent.apply(this, [config]);
