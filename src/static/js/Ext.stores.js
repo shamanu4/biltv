@@ -435,8 +435,6 @@ Ext.ux.free_card_combo_store = new Ext.data.DirectStore({
                     destroy: CardGrid.destroy
                 },
                 baseParams : {
-                    start:0,
-                    limit:16,
                     uid:this.oid,
                     filter_fields:['num'],
                     filter_value:''
