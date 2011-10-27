@@ -50,10 +50,11 @@ def store_read(func):
                         wild = val.split('*')                 
                         query2 = None
                         for v in wild:
-                            if query2:                            
-                                query2 = query2 & Q(**{"%s__istartswith" % str(node):v})
-                            else:
-                                query2 = Q(**{"%s__icontains" % str(node):v})
+                            if not v == '':
+                                if query2:                            
+                                    query2 = query2 & Q(**{"%s__istartswith" % str(node):v})
+                                else:
+                                    query2 = Q(**{"%s__icontains" % str(node):v})
                         if query:
                             query = query | query2
                         else:
@@ -67,10 +68,11 @@ def store_read(func):
                         wild = val.split('*')
                         query2 = None
                         for v in wild:
-                            if query2:
-                                query2 = query2 & Q(**{"%s__icontains" % str(node):v})
-                            else:
-                                query2 = Q(**{"%s__icontains" % str(node):v})
+                            if not v == '':
+                                if query2:
+                                    query2 = query2 & Q(**{"%s__icontains" % str(node):v})
+                                else:
+                                    query2 = Q(**{"%s__icontains" % str(node):v})
                         if query:
                             query = query | query2
                         else:
