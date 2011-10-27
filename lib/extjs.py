@@ -46,21 +46,35 @@ def store_read(func):
                 query=None
                 if 'query' in rdata:
                     for node in rdata['filter_fields']:
-                        val=rdata['query']                    
+                        val=rdata['query']   
+                        wild = val.split('*')                 
+                        query2 = None
+                        for v in wild:
+                            if query2:                            
+                                query2 = query2 & Q(**{"%s__istartswith" % str(node):v})
+                            else:
+                                query2 = Q(**{"%s__icontains" % str(node):v})
                         if query:
-                            query = query | Q(**{"%s__istartswith" % str(node):val})
+                            query = query | query2
                         else:
-                            query = Q(**{"%s__istartswith" % str(node):val})
+                            query = query2
                 if not rdata['filter_value']=='':                    
                     for node in rdata['filter_fields']:
                         if 'passport' in node:
                             val=latinaze(rdata['filter_value'])
                         else:
                             val=rdata['filter_value']
+                        wild = val.split('*')
+                        query2 = None
+                        for v in wild:
+                            if query2:
+                                query2 = query2 & Q(**{"%s__icontains" % str(node):v})
+                            else:
+                                query2 = Q(**{"%s__icontains" % str(node):v})
                         if query:
-                            query = query | Q(**{"%s__icontains" % str(node):val})
+                            query = query | query2
                         else:
-                            query = Q(**{"%s__icontains" % str(node):val})
+                            query = query2
                 if query:
                     result = result.filter(query)
             if 'filter' in rdata:
