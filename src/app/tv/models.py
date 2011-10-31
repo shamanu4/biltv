@@ -42,8 +42,8 @@ class Trunk(models.Model):
     def rehash(self):
         hash = 0
         for i,slot in enumerate(self.slots):
-            #if not slot or slot.encoded:
-            if slot.encoded:
+            #if not slot or slot.encoded:            
+            if slot and slot.encoded:
                 hash += (1<<i)
         self.cached=hash
         self.save(rehashed=True)
