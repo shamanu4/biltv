@@ -88,7 +88,7 @@ class UserPacket(BasicPacket):
 
 class BasicQuery:
 
-    host = '192.168.0.208'
+    host = '192.168.33.158'
     port = 49153
     packet= None
     request = None
