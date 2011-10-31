@@ -854,6 +854,8 @@ class Card(models.Model):
         trunks = Trunk.objects.all()
         for t in trunks:
             res.extend([0,0])
+        if not self.active:
+            return res
         for service in self.services.all():
             if service.active:
                 if res:
