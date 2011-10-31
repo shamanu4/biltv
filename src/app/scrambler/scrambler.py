@@ -72,7 +72,7 @@ class UserPacket(BasicPacket):
             if card.active:
                 self.data.append(0x01)
             else:
-                self.data.append(0x02)
+                self.data.append(0x01)
             c = Card.objects.count()
             self.data.extend(int_to_4byte_wrapped(c))
             self.data.extend(int_to_4byte_wrapped(card.pk))
