@@ -30,7 +30,6 @@ class BasicPacket:
             s += "%0.2x " % w
         return s
 
-    
 
 class VersionPacket(BasicPacket):
 
