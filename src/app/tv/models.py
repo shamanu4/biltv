@@ -774,7 +774,6 @@ class Card(models.Model):
             return "CaTV"
 
     def send(self):
-        return False
         if self.num<0:
             return False
         from scrambler import scrambler
