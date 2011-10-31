@@ -878,11 +878,11 @@ class Card(models.Model):
 
     @property
     def balance_int(self):
-        return int(self.balance*100)
+        return int((self.balance or 0)*100)
 
     @property
     def balance_rounded(self):
-        return int(self.balance*100)/100.0
+        return int((self.balance or 0)*100)/100.0
 
     @property
     def bin_balance(self):

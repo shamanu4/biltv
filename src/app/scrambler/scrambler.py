@@ -78,7 +78,7 @@ class UserPacket(BasicPacket):
             self.data.extend(int_to_4byte_wrapped(card.pk))
             self.data.extend(int_to_4byte_wrapped((card.num-1)*2))
             self.data.extend(card.bin_flags)
-            self.data.extend(int_to_4byte_wrapped(card.balance or 0))
+            self.data.extend(int_to_4byte_wrapped(card.balance_int or 0))
             self.mk_prefix()
             self.append_crc()
             
@@ -115,6 +115,10 @@ class BasicQuery:
             try:
                 (data,addr) = s.recvfrom(1024)                
             except socket.error, msg:                
+                return {
+                    "error":"socket error: %s" % msg
+                }            
+            except:
                 return {
                     "error":"socket error: %s" % msg
                 }
