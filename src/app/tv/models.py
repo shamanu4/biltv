@@ -776,6 +776,7 @@ class Card(models.Model):
     def send(self):
         if self.num<0:
             return False
+        CardDigital.touch(self)
         from scrambler import scrambler
         u = scrambler.UserQuery(self.num)
         u.run()
@@ -839,8 +840,9 @@ class Card(models.Model):
                 self.deactivate()
         
         super(self.__class__, self).save(*args, **kwargs)
-
+                
         if self.num>0:
+            CardDigital.touch(self)
             self.send()
 
     def save_formset(self, *args, **kwargs):
@@ -888,7 +890,7 @@ class Card(models.Model):
 
     @property
     def bin_balance(self):
-        from functions import int_to_4byte_wrapped
+        from lib.functions import int_to_4byte_wrapped
         return int_to_4byte_wrapped(self.balance_int)
 
 
@@ -907,7 +909,8 @@ class Card(models.Model):
             service.deactivate(deactivated,descr)
         self.active=False
         self.save(deactivation_processed=True,descr=descr,sdate=deactivated)
-        self.check_past_deactivation(deactivated)
+        if deactivated:
+            self.check_past_deactivation(deactivated)
         return True
 
     def detach(self):
@@ -970,6 +973,28 @@ class Card(models.Model):
         return obj
 
 
+class CardDigital(models.Model):
+    card = models.OneToOneField(Card,related_name='digital')
+    
+    class Meta:
+        verbose_name=u'цифрокая карточка'
+        verbose_name_plural=u'цифровые карточки'  
+
+    def __unicode__(self):
+        return "%s" % self.card.num
+    
+    @classmethod
+    def touch(cls,card):
+        if card.num<0:
+            return False
+        try:
+            cls.objects.get(card=card)
+        except cls.DoesNotExist:
+            digicard = cls(card=card)
+            digicard.save()
+        return True
+
+            
 class CardService(models.Model):
 
     card = models.ForeignKey(Card,related_name='services')

@@ -63,7 +63,7 @@ class UserPacket(BasicPacket):
         from lib.functions import int_to_4byte_wrapped
         BasicPacket.__init__(self)
         self.data.append(0xad)
-        from tv.models import Card
+        from tv.models import Card, CardDigital
         try:
             card=Card.objects.get(num=card_id)
         except Card.DoesNotExist:
@@ -73,9 +73,9 @@ class UserPacket(BasicPacket):
                 self.data.append(0x01)
             else:
                 self.data.append(0x01)
-            c = Card.objects.count()
+            c = CardDigital.objects.count()
             self.data.extend(int_to_4byte_wrapped(c))
-            self.data.extend(int_to_4byte_wrapped(card.pk))
+            self.data.extend(int_to_4byte_wrapped(card.digital.pk))
             self.data.extend(int_to_4byte_wrapped((card.num-1)*2))
             self.data.extend(card.bin_flags)
             self.data.extend(int_to_4byte_wrapped(card.balance_int or 0))
