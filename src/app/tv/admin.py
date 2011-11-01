@@ -125,6 +125,7 @@ class CardServiceInline(admin.TabularInline):
 class CardAdmin(admin.ModelAdmin):
     raw_id_fields=('owner',)
     search_fields=('num',)
+    list_display=('num','active','owner')
     inlines = (CardServiceInline,)
     
     def queryset(self, request):
