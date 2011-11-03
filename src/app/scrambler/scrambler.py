@@ -67,12 +67,12 @@ class UserPacket(BasicPacket):
         try:
             card=Card.objects.get(num=card_id)
         except Card.DoesNotExist:
-            self.data.append(0x02)
+            self.data.append(0x01)
         else:
             if card.active:
                 self.data.append(0x01)
             else:
-                self.data.append(0x02)
+                self.data.append(0x01)
             c = CardDigital.objects.count()
             self.data.extend(int_to_4byte_wrapped(c))
             self.data.extend(int_to_4byte_wrapped(card.digital.pk))
