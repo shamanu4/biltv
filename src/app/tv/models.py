@@ -773,13 +773,18 @@ class Card(models.Model):
         else:
             return "CaTV"
 
-    def send(self):
+    def send_one(self):
         if self.num<0:
             return False
         CardDigital.touch(self)
         from scrambler import scrambler
         u = scrambler.UserQuery(self.num)
         u.run()
+
+    def send(self):
+        cc = CardDigital.objects.all().order_by('id')
+        for c in cc:
+            c.send()
 
     def save(self, *args, **kwargs):
 
@@ -993,6 +998,9 @@ class CardDigital(models.Model):
             digicard = cls(card=card)
             digicard.save()
         return True
+    
+    def send(self):
+        self.card.send_one()
 
             
 class CardService(models.Model):
