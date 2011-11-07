@@ -22,8 +22,8 @@ def check_perm(perm):
                         return func(*args, **kwargs)
                     else:
                         return dict(success=False, title=u'Доступ запрещен', msg=u'user %s has not permission %s' % (request.user,perm), errors='' )
-                except:
-                    return dict(success=False, title=u'Доступ запрещен', msg=u'invalid arguments while permission (%s) check. (no request.user)' % perm, errors='' )
+                except Exception as inst:
+                    return dict(success=False, title=u'Ошибка доступа', msg=u'perm: %s;\n exception: %s;' % (perm,inst), errors='' )
             else:
                 return dict(success=False, title=u'Доступ запрещен', msg=u'invalid arguments while permission (%s) check. (no request)' % perm, errors='' )
         return wraps(func)(inner_decorator) 

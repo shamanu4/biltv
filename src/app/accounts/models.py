@@ -50,20 +50,18 @@ class User(BaseUser):
             ("rpc_abon_abonent_delete", "RPC abon.abonent_delete"),       
         )
     
-def store_record(self):
-        print self
-        print self.__dict__
+    def store_record(self):
         obj = {}
         obj['id'] = self.pk
         obj['username'] = self.first_name or self.username 
         return obj
 
 def create_custom_user(sender, instance, created, **kwargs):
-    if created:
-        values = {}
-        for field in sender._meta.local_fields:
-            values[field.attname] = getattr(instance, field.attname)
-        user = User(**values)
-        user.save()
+        if created:
+            values = {}
+            for field in sender._meta.local_fields:
+                values[field.attname] = getattr(instance, field.attname)
+                user = User(**values)
+                user.save()
         
 post_save.connect(create_custom_user, BaseUser)
