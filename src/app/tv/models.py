@@ -711,6 +711,7 @@ class CardHistory(models.Model):
     timestamp = models.DateTimeField(default=datetime.now)
     date = models.DateField(default=date.today)
     card = models.ForeignKey("tv.Card",related_name='service_log')
+    owner = models.ForeignKey("abon.Abonent",related_name='services_log',blank=True,null=True)
     action = models.PositiveSmallIntegerField(choices=CARD_ACTIONS)
     oid = models.PositiveIntegerField()
     descr = models.TextField()
@@ -718,8 +719,12 @@ class CardHistory(models.Model):
     class Meta:
         ordering = ('-date',)
     
-    #def save(self):
-    #    raise 500
+    def save(self, *args, **kwargs):
+        try:
+            self.owner = self.card.owner
+        except:
+            self.owner = None
+        super(self.__class__, self).save(*args, **kwargs)
     
     @property
     def obj_instance(self):

@@ -80,3 +80,17 @@ class Intervals(models.Model):
     cost = models.FloatField()
     months = models.IntegerField()
                 
+class Import(models.Model):
+    order = models.CharField(max_length=80)
+    street = models.CharField(max_length=80)
+    house = models.CharField(max_length=80)
+    flat = models.CharField(max_length=80)
+    passport = models.CharField(max_length=80)
+    fio = models.CharField(max_length=80)
+    iac = models.IntegerField()
+    ic = models.IntegerField()
+    
+class Proplata(models.Model):
+    iac = models.ForeignKey("abon.Abonent", to_field="extid", db_column="iac", related_name="proplatu")
+    d1 = models.DateField()
+    sum = models.IntegerField()

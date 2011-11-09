@@ -31,9 +31,9 @@ class Group(models.Model):
 
 class Person(models.Model):
 
-    firstname = models.CharField(max_length=40)
-    lastname = models.CharField(max_length=40)
-    middlename = models.CharField(max_length=40)
+    firstname = models.CharField(max_length=40, default='?')
+    lastname = models.CharField(max_length=40, default='?')
+    middlename = models.CharField(max_length=40, default='?')
     passport = models.CharField(max_length=20, unique=True)
     registration = models.DateField(default=date.today())
     deleted = models.BooleanField(default=False)
