@@ -94,3 +94,36 @@ class Proplata(models.Model):
     iac = models.ForeignKey("abon.Abonent", to_field="extid", db_column="iac", related_name="proplatu")
     d1 = models.DateField()
     sum = models.IntegerField()
+
+
+"""
+
+from data.models import Import
+ii = Import.objects.all()
+from abon.models import Street,House,Building,Address,Person
+from abon.models import Abonent
+from tv.models import Payment
+addr = Address()
+b = Building()
+
+from lib.functions import latinaze
+
+for i in ii:
+    build = b.get_or_create(i.street,i.house)
+    ad = addr.get_or_create(build,i.flat,i.order)
+    p = Person.objects.get_or_create(passport=latinaze(i.passport))
+    print "!"
+    p = p[0]
+    p.lastname=i.fio
+    p.save()
+    a = Abonent.objects.get_or_create(person=p,address=ad)[0]
+    a.extid = i.iac
+    a.save()
+    print a.proplatu.all()
+    print a.intervals.all()
+    for pr in a.proplatu.all():
+        npr = Payment(bill=a.bill,sum=pr.sum,bank_date=pr.d1,inner_descr="MIGRATION")
+        npr.save()
+    a.launch_hamster(countdown=False)
+
+"""
