@@ -572,7 +572,12 @@ class Abonent(models.Model):
                 print "        processing interval %s-%s" % (i.start,i.finish)
             if not i.finish:
                 i.finish = thismonth
-            d = i.start            
+            d = i.start    
+            
+            for service in self.catv_card.services.all():
+                service.active=True
+                service.save(sdate=d)
+                
             dd = date_formatter(add_months(d,1))['month'].date()
             
             if debug:
@@ -647,6 +652,10 @@ class Abonent(models.Model):
                 maxid = Fee.objects.aggregate(Max('id'))['id__max']
                 f = Fee.objects.get(pk=maxid)                 
                 f.make()
+                
+                for service in self.catv_card.services.all():
+                    service.active=False
+                    service.save(sdate=d)
             
             
             pp = Payment.objects.filter(bill=self.bill,maked=False,timestamp__lte=d)
