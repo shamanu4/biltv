@@ -577,7 +577,7 @@ class Abonent(models.Model):
             
             for service in self.catv_card.services.all():
                 service.active=True
-                service.save(sdate=d)
+                service.save(sdate=d,descr="%s/%s" % (i.s1,i.s2))
                 
             dd = date_formatter(add_months(d,1))['month'].date()
             
@@ -656,7 +656,7 @@ class Abonent(models.Model):
                 
                 for service in self.catv_card.services.all():
                     service.active=False
-                    service.save(sdate=d)
+                    service.save(sdate=d,descr="")
             
             
             pp = Payment.objects.filter(bill=self.bill,maked=False,timestamp__lte=d)
