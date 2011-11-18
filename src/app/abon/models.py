@@ -545,6 +545,7 @@ class Abonent(models.Model):
         self.bill.balance=0
         self.bill.save()
         Fee.objects.filter(bill=self.bill).delete()
+        self.catv_card.service_log.all().delete()
         
         pp = Payment.objects.filter(bill=self.bill)
         for p in pp:
