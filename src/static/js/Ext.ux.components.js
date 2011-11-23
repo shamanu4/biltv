@@ -1546,7 +1546,7 @@ Ext.ux.AbonCardsGrid = Ext.extend(Ext.ux.CustomGrid ,{
             }),
             columns: [
         		{header: "Id", dataIndex: 'id', width:40},
-        		{header: "Num", dataIndex: 'num', width:80, editable: true,
+        		{header: "Num", dataIndex: 'num', width:80, editable: false,
             		renderer: function(value, metaData, record, rowIndex, colIndex, store) {
                 		if (value===undefined) {
                     		this.editable=true
@@ -1558,7 +1558,6 @@ Ext.ux.AbonCardsGrid = Ext.extend(Ext.ux.CustomGrid ,{
                 		}
             		},
             		editor: new Ext.ux.FreeCardCombo(),
-            		editable: false
         		},
         		{header: "Active", dataIndex: 'active', width:40,
             		renderer: function(value, metaData, record, rowIndex, colIndex, store) {
@@ -1591,6 +1590,26 @@ Ext.ux.AbonCardsGrid = Ext.extend(Ext.ux.CustomGrid ,{
 });
 
 Ext.reg('ext:ux:abon-cards-grid', Ext.ux.AbonCardsGrid);
+
+Ext.ux.CardTpCombo = Ext.extend(Ext.form.ComboBox, {
+    initComponent: function() {
+        var config = {
+            store: Ext.ux.card_tp_combo_store,
+            editable: true,
+            forceSelection: true,
+            lazyRender: false,
+            triggerAction: 'all',
+            valueField: 'id',
+            displayField: 'name',
+            mode: 'local'
+        }
+        Ext.apply(this, Ext.apply(this.initialConfig, config));
+        Ext.ux.CardTpCombo.superclass.initComponent.apply(this, arguments);
+    }
+}),
+
+Ext.reg('ext:ux:free-cards-combo', Ext.ux.FreeCardCombo);
+
 
 Ext.ux.AbonCardsTpGrid = Ext.extend(Ext.ux.CustomGrid ,{
     initComponent: function(){
@@ -2262,7 +2281,7 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
             },
             submitcallback: function(result,e) {                
                 if(result.success) {                    
-                    Ext.ux.abonent_store.load()
+                    //Ext.ux.abonent_store.load()
 					this.setTitle("абон: "+(result.data[0]['code'] || '<новый>'))
 					if (!this.oid) {
 						this.hide()

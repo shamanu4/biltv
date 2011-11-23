@@ -377,6 +377,15 @@ class AbonApiClass(object):
     @check_perm('accounts.rpc_abon_cards_tp_get')
     @store_read
     def cards_tp_get(self,rdata,request):
+        from tv.models import TariffPlan
+        tp=TariffPlan.objects.filter(enabled__exact=True,deleted__exact=False)
+        return tp
+
+    cards_tp_get._args_len = 1
+    
+    @check_perm('accounts.rpc_abon_cards_tp_get')
+    @store_read
+    def cards_tp_get(self,rdata,request):
         from tv.models import Card
         card_id = int(rdata['card_id'])
         if card_id>0:

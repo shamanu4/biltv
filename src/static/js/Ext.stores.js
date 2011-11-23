@@ -441,6 +441,37 @@ Ext.ux.free_card_combo_store = new Ext.data.DirectStore({
                     filter_value:''
                 }
             })
+
+Ext.ux.card_tp_combo_store = new Ext.data.DirectStore({
+                restful: true,
+                autoLoad: true,
+                autoSave: false,
+                storeId: 'card_tp_combo_store',
+                reader: new Ext.data.JsonReader({
+                    root: 'data',
+                    totalProperty: 'total',
+                    fields: [
+                        'id',
+                        'name',
+                    ]
+                }),
+                writer: new Ext.data.JsonWriter({
+                    encode: false,
+                    writeAllFields: true,
+                    listful: true
+                }),
+                api: {
+                    read: AbonApi.cards_tp_get,
+                    create: CardGrid.create,
+                    update: CardGrid.update,
+                    destroy: CardGrid.destroy
+                },
+                baseParams : {
+                    uid:this.oid,
+                    filter_fields:['name'],
+                    filter_value:''
+                }
+            })
 			
 
 Ext.ux.register_store = new Ext.data.DirectStore({

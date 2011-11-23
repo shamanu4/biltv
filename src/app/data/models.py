@@ -121,9 +121,9 @@ for i in ii:
     a.save()
     print a.proplatu.all()
     print a.intervals.all()
-    for pr in a.proplatu.all():
-        npr = Payment(bill=a.bill,sum=pr.sum,bank_date=pr.d1,inner_descr="MIGRATION")
-        npr.save()
+    #for pr in a.proplatu.all():
+    #    npr = Payment(bill=a.bill,sum=pr.sum,bank_date=pr.d1,inner_descr="MIGRATION")
+    #    npr.save()
     a.launch_hamster(countdown=False)
 
 """
