@@ -322,6 +322,39 @@ Engine = {
                     Ext.getCmp('tab-panel').toolbars[0].doLayout();
 				}
 			},
+			abon_card_func: {
+				store: null,
+				card_activate: function(card_id) {
+					if(confirm("активировать карточку?")) {
+						debugger;
+					}
+				},
+				card_deactivate: function(card_id) {
+					if(confirm("отключить карточку?")) {
+						debugger;
+					}
+				},
+				card_unbind: function(card_id) {
+					if(confirm("удалить карточку?")) {
+						debugger;
+					}
+				},
+				tp_activate: function(card_service_id) {
+					if(confirm("активировать тариф?")) {
+						debugger;
+					}
+				},
+				tp_deactivate: function(card_service_id) {
+					if(confirm("отключить тариф?")) {
+						debugger;
+					}
+				},
+				tp_unbind: function(card_service_id) {
+					if(confirm("удалить тариф?")) {
+						debugger;
+					}
+				},
+			}
         },
         scrambler: {
             card: {

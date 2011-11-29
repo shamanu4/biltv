@@ -1518,7 +1518,7 @@ Ext.ux.AbonCardsGrid = Ext.extend(Ext.ux.CustomGrid ,{
                 }
             }),
             listeners: {
-                afterrender : {
+                afterrender: {
                     fn: function(obj) {
                         obj.parent_form.children_forms.cards.obj=obj
                     },
@@ -1529,7 +1529,7 @@ Ext.ux.AbonCardsGrid = Ext.extend(Ext.ux.CustomGrid ,{
                 singleSelect: true,
                 listeners: {
                     rowselect: {
-                        fn: function(sm,index,record) {                            
+                        fn: function(sm,index,record) {          
                             var store = Ext.ux.free_card_combo_store
 							var tpstore = sm.grid.parent_form.children_forms.tariffs.obj.store
                             if (typeof(record.id)=='number') {								
@@ -1548,7 +1548,7 @@ Ext.ux.AbonCardsGrid = Ext.extend(Ext.ux.CustomGrid ,{
         		{header: "Id", dataIndex: 'id', width:40},
         		{header: "Num", dataIndex: 'num', width:80, editable: false,
             		renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-                		if (value===undefined) {
+            			if (value===undefined) {
                     		this.editable=true
                 		}
                 		if (value<0) {
@@ -1561,25 +1561,36 @@ Ext.ux.AbonCardsGrid = Ext.extend(Ext.ux.CustomGrid ,{
         		},
         		{header: "Active", dataIndex: 'active', width:40,
             		renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-                		if (value==true) {
-                    		return '<img src="/static/extjs/custom/tick_16.png">';
+            			if(record.data.num>0){
+            				if (value==true) {
+                    			return '<img src="/static/extjs/custom/tick_16.png" class="abon_card_deactivate" val="'+record.data.id+'">';
+                			} else {
+                    			return '<img src="/static/extjs/custom/block_16.png" class="abon_card_activate" val="'+record.data.id+'">';
+                			}
                 		} else {
-                    		return '<img src="/static/extjs/custom/block_16.png">';
+                			if (value==true) {
+                    			return '<img src="/static/extjs/custom/tick_16.png">';
+                			} else {
+                    			return '<img src="/static/extjs/custom/block_16.png">';
+                			}
                 		}
-            		}
+            		},
+            		scope: this
         		},
         		{header: "Activated", dataIndex: 'activated', width:120},
-        		{header: "", dataIndex: 'id', width:26,
+        		{header: "", dataIndex: 'id', width:26,        		    
             		renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-                		return '<img src="/static/extjs/custom/delete_16.png">';
-            		}
+            			if(record.data.num>0) {
+                			return '<img src="/static/extjs/custom/delete_16.png"  class="abon_card_unbind" val="'+record.data.id+'">';
+                	    } else {
+                	    	return ""
+                	    }
+            		},
+            		scope: this
         		},
-				{header: "", dataIndex: 'id', width:26,
-            		renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-                		return '<img src="/static/img/icons/green/16x16/Contact.png">';
-            		}
-        		}
-    		]
+    		],
+    		abon_card_func: function(func,param) {
+        	}
         }        
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.AbonCardsGrid.superclass.initComponent.apply(this, [config]);
@@ -1635,9 +1646,9 @@ Ext.ux.AbonCardsTpGrid = Ext.extend(Ext.ux.CustomGrid ,{
                 }),
                 api: {
                     read: AbonApi.cards_tp_get,
-                    create: AbonApi.cards_tp_set,
-                    update: AbonApi.foo,
-                    destroy: AbonApi.foo
+                    create: AbonApi.cards_tp_add,
+                    update: AbonApi.cards_tp_update,
+                    destroy: AbonApi.cards_tp_delete
                 },
                 baseParams : {
                     start:0,
@@ -1661,32 +1672,41 @@ Ext.ux.AbonCardsTpGrid = Ext.extend(Ext.ux.CustomGrid ,{
                 listeners: {
                     rowselect: {
                         fn: function(sm,index,record) {
+                        	var tpstore = Ext.ux.card_tp_combo_store
+                        	tpstore.load()
                             //sm.grid.parent_form.children_forms.tariffs.obj.setTitle('13')
                         },
                     scope: this
                     }
                 }
-            })
+            }),
+            columns: [
+        		{header: "Id", dataIndex: 'id', width:40},
+        		{header: "Tariff", dataIndex: 'tariff', width:120,
+        			editor: new Ext.ux.CardTpCombo(),
+        		},
+        		{header: "Active", dataIndex: 'active', width:40,
+            		renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+            			if (value==true) {
+                    		return '<img src="/static/extjs/custom/tick_16.png" class="abon_tp_deactivate" val="'+record.data.id+'">';
+                		} else {
+                    		return '<img src="/static/extjs/custom/block_16.png class="abon_tp_activate" val="'+record.data.id+'">';
+                		}
+            		}
+        		},        		
+        		{header: "Activated", dataIndex: 'activated', width:120},
+        		{header: "", dataIndex: 'id', width:26,
+            		renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                		return '<img src="/static/extjs/custom/delete_16.png" class="abon_tp_unbind" val="'+record.data.id+'">';
+            		}
+        		},
+    		]
         }
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.AbonCardsGrid.superclass.initComponent.apply(this, [config]);
     },
     title: 'Карточки',
-    ds_model: card_ds_model,
-    columns: [
-        {header: "Id", dataIndex: 'id', width:40},
-        {header: "Tariff", dataIndex: 'tariff', width:120},
-        {header: "Active", dataIndex: 'active', width:40,
-            renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-                if (value==true) {
-                    return '<img src="/static/extjs/custom/tick_16.png">';
-                } else {
-                    return '<img src="/static/extjs/custom/block_16.png">';
-                }
-            }
-        },
-        {header: "Activated", dataIndex: 'activated', width:120},
-    ]
+    ds_model: card_ds_model,    
 });
 
 Ext.reg('ext:ux:abon-cards-tp-grid', Ext.ux.AbonCardsTpGrid);

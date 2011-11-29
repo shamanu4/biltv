@@ -461,7 +461,7 @@ Ext.ux.card_tp_combo_store = new Ext.data.DirectStore({
                     listful: true
                 }),
                 api: {
-                    read: AbonApi.cards_tp_get,
+                    read: AbonApi.cards_tp_list_get,
                     create: CardGrid.create,
                     update: CardGrid.update,
                     destroy: CardGrid.destroy

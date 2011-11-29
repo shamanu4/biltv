@@ -376,12 +376,12 @@ class AbonApiClass(object):
     
     @check_perm('accounts.rpc_abon_cards_tp_get')
     @store_read
-    def cards_tp_get(self,rdata,request):
+    def cards_tp_list_get(self,rdata,request):
         from tv.models import TariffPlan
         tp=TariffPlan.objects.filter(enabled__exact=True,deleted__exact=False)
         return tp
 
-    cards_tp_get._args_len = 1
+    cards_tp_list_get._args_len = 1
     
     @check_perm('accounts.rpc_abon_cards_tp_get')
     @store_read
@@ -401,10 +401,34 @@ class AbonApiClass(object):
     cards_tp_get._args_len = 1
 
     @check_perm('accounts.rpc_abon_cards_tp_set')
-    def cards_tp_set(self,rdata,request):
+    def cards_tp_add(self,rdata,request):
         return dict(success=False, title='Сбой загрузки тарифов', msg='not implemented yet', errors='', data={})
 
-    cards_tp_set._args_len = 1
+    cards_tp_add._args_len = 1
+    
+    @check_perm('accounts.rpc_abon_cards_tp_set')
+    def cards_tp_update(self,rdata,request):
+        #for line in rdata:
+        #    print "%s: %s" % (line,rdata[line])
+        from tv.models import Card, TariffPlan, CardService
+        card_id=rdata['card_id']
+        tp_id=rdata['data']['tariff']
+        cs_id=rdata['data']['id'] 
+        c = Card.objects.get(pk=card_id)
+        cs = CardService.objects.get(pk=cs_id)
+        tp = TariffPlan.objects.get(pk=tp_id)
+        cs.tp = tp
+        cs.save()        
+        return dict(success=True, data=cs.store_record() )
+        #return dict(success=False, title='Сбой загрузки тарифов', msg='not implemented yet', errors='', data={})
+
+    cards_tp_update._args_len = 1
+    
+    @check_perm('accounts.rpc_abon_cards_tp_set')
+    def cards_tp_delete(self,rdata,request):
+        return dict(success=False, title='Сбой загрузки тарифов', msg='not implemented yet', errors='', data={})
+
+    cards_tp_delete._args_len = 1
     
     @check_perm('accounts.rpc_abon_payments_get')
     @store_read

@@ -278,6 +278,13 @@ class TariffPlan(models.Model):
                 byte = ch.slot-1
             res[shift]=res[shift]|1<<byte
         return res
+    
+    def store_record(self):
+        obj = {}
+        obj['id'] = self.pk
+        obj['name'] = self.__unicode__()
+        return obj
+
 
 
 
@@ -779,6 +786,7 @@ class Card(models.Model):
             return "CaTV"
 
     def send_one(self):
+        return False
         if self.num<0:
             return False
         CardDigital.touch(self)

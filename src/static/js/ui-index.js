@@ -92,6 +92,43 @@ Ext.onReady(function(){
 		Engine.menu.cashier.history_delete(o.getAttribute('val'),o);
 	});
 	
+	/*
+	 * Abonent cards grid special buttons
+	 */
+	
+	$(".abon_card_activate").live('click', function(e) {
+		o = e.currentTarget;
+		Engine.menu.cashier.abon_card_func.card_activate(o.getAttribute('val'),o);
+	});
+	
+	$(".abon_card_deactivate").live('click', function(e) {
+		o = e.currentTarget;
+		Engine.menu.cashier.abon_card_func.card_deactivate(o.getAttribute('val'),o);
+	});
+	
+	$(".abon_card_unbind").live('click', function(e) {
+		o = e.currentTarget;
+		Engine.menu.cashier.abon_card_func.card_unbind(o.getAttribute('val'),o);
+	});
+	
+	/*
+	 * Abonent card tps grid special buttons
+	 */
+	
+	$(".abon_tp_activate").live('click', function(e) {
+		o = e.currentTarget;
+		Engine.menu.cashier.abon_card_func.tp_activate(o.getAttribute('val'),o);
+	});
+	
+	$(".abon_tp_deactivate").live('click', function(e) {
+		o = e.currentTarget;
+		Engine.menu.cashier.abon_card_func.tp_deactivate(o.getAttribute('val'),o);
+	});
+	
+	$(".abon_tp_unbind").live('click', function(e) {
+		o = e.currentTarget;
+		Engine.menu.cashier.abon_card_func.tp_unbind(o.getAttribute('val'),o);
+	});
 });
 
 
