@@ -4,6 +4,12 @@ function isInt(x) {
    return x==y && x.toString()==y.toString();
 }
 
+
+alert = jAlert; 
+//confirm = jConfirm;
+//prompt= jPrompt;
+alertsMask = new Ext.LoadMask(Ext.getBody(),{msg:null});		
+
 Engine = {
     vp: null,
     components: {
@@ -326,32 +332,44 @@ Engine = {
 				store: null,
 				card_activate: function(card_id) {
 					if(confirm("активировать карточку?")) {
-						debugger;
+						AbonApi.card_activate({
+							card_id:card_id
+						})									
 					}
 				},
 				card_deactivate: function(card_id) {
 					if(confirm("отключить карточку?")) {
-						debugger;
+						AbonApi.card_deactivate({
+							card_id:card_id
+						})															
 					}
 				},
 				card_unbind: function(card_id) {
 					if(confirm("удалить карточку?")) {
-						debugger;
+						AbonApi.card_unbind({
+							card_id:card_id
+						})				
 					}
 				},
 				tp_activate: function(card_service_id) {
 					if(confirm("активировать тариф?")) {
-						debugger;
+						AbonApi.cards_tp_activate({
+							cs_id:card_service_id
+						})					
 					}
 				},
 				tp_deactivate: function(card_service_id) {
 					if(confirm("отключить тариф?")) {
-						debugger;
+						AbonApi.cards_tp_deactivate({
+							cs_id:card_service_id
+						})					
 					}
 				},
 				tp_unbind: function(card_service_id) {
 					if(confirm("удалить тариф?")) {
-						debugger;
+						AbonApi.cards_tp_delete({
+							cs_id:card_service_id
+						})
 					}
 				},
 			}

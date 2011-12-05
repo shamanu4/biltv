@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
+import sys
+import traceback
 from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from inspect import getargspec
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils import simplejson
-
 from django.db.models.query import QuerySet
 from lib.functions import QuerySetChain
 from django.db.models import Q
@@ -23,7 +24,7 @@ def check_perm(perm):
                     else:
                         return dict(success=False, title=u'Доступ запрещен', msg=u'user %s has not permission %s' % (request.user,perm), errors='' )
                 except Exception as inst:
-                    return dict(success=False, title=u'Ошибка доступа', msg=u'perm: %s;\n exception: %s;' % (perm,inst), errors='' )
+                    return dict(success=False, title=u'Ошибка доступа', msg=u'perm: %s;\n exception: %s;' % (perm,inst), errors=traceback.format_exc())
             else:
                 return dict(success=False, title=u'Доступ запрещен', msg=u'invalid arguments while permission (%s) check. (no request)' % perm, errors='' )
         return wraps(func)(inner_decorator) 

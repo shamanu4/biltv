@@ -1577,7 +1577,9 @@ Ext.ux.AbonCardsGrid = Ext.extend(Ext.ux.CustomGrid ,{
             		},
             		scope: this
         		},
-        		{header: "Activated", dataIndex: 'activated', width:120},
+        		{header: "Activated", dataIndex: 'activated', width:140, editable: true,
+        			editor: new Ext.form.DateField({format:"Y-m-d"}),
+        		},
         		{header: "", dataIndex: 'id', width:26,        		    
             		renderer: function(value, metaData, record, rowIndex, colIndex, store) {
             			if(record.data.num>0) {
@@ -1648,7 +1650,7 @@ Ext.ux.AbonCardsTpGrid = Ext.extend(Ext.ux.CustomGrid ,{
                     read: AbonApi.cards_tp_get,
                     create: AbonApi.cards_tp_add,
                     update: AbonApi.cards_tp_update,
-                    destroy: AbonApi.cards_tp_delete
+                    destroy: AbonApi.foo
                 },
                 baseParams : {
                     start:0,
@@ -1690,11 +1692,13 @@ Ext.ux.AbonCardsTpGrid = Ext.extend(Ext.ux.CustomGrid ,{
             			if (value==true) {
                     		return '<img src="/static/extjs/custom/tick_16.png" class="abon_tp_deactivate" val="'+record.data.id+'">';
                 		} else {
-                    		return '<img src="/static/extjs/custom/block_16.png class="abon_tp_activate" val="'+record.data.id+'">';
+                    		return '<img src="/static/extjs/custom/block_16.png" class="abon_tp_activate" val="'+record.data.id+'">';
                 		}
             		}
         		},        		
-        		{header: "Activated", dataIndex: 'activated', width:120},
+        		{header: "Activated", dataIndex: 'activated', width:140, editable: true, 
+        			editor: new Ext.form.DateField({format:"Y-m-d"}),
+        		},
         		{header: "", dataIndex: 'id', width:26,
             		renderer: function(value, metaData, record, rowIndex, colIndex, store) {
                 		return '<img src="/static/extjs/custom/delete_16.png" class="abon_tp_unbind" val="'+record.data.id+'">';
@@ -1706,7 +1710,7 @@ Ext.ux.AbonCardsTpGrid = Ext.extend(Ext.ux.CustomGrid ,{
         Ext.ux.AbonCardsGrid.superclass.initComponent.apply(this, [config]);
     },
     title: 'Карточки',
-    ds_model: card_ds_model,    
+    ds_model: tariff_ds_model,    
 });
 
 Ext.reg('ext:ux:abon-cards-tp-grid', Ext.ux.AbonCardsTpGrid);

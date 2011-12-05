@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from lib.extjs import store_read, check_perm
+from datetime import datetime
 
 class AbonApiClass(object):
 
@@ -402,22 +403,56 @@ class AbonApiClass(object):
 
     @check_perm('accounts.rpc_abon_cards_tp_set')
     def cards_tp_add(self,rdata,request):
-        return dict(success=False, title='Сбой загрузки тарифов', msg='not implemented yet', errors='', data={})
+        for line in rdata:
+            print "%s: %s" % (line,rdata[line])
+        from tv.models import Card, TariffPlan, CardService
+        from datetime import datetime
+        card_id=rdata['card_id']
+        try:
+            tp_id=int(rdata['data']['tariff'])
+        except:
+            return dict(success=False, title='Сбой добавления тарифов', msg='параметр неверно задан', errors='', data={}) 
+        try:
+            activated = datetime.strptime(rdata['data']['activated'],'%Y-%m-%dT%H:%M:%S').date()
+        except:
+            try:
+                activated = datetime.strptime(rdata['data']['activated'],'%Y-%m-%d %H:%M:%S').date()
+            except:
+                activated = datetime.now()
+        c = Card.objects.get(pk=card_id)
+        cs = CardService(card=c)
+        tp = TariffPlan.objects.get(pk=tp_id)
+        cs.tp = tp
+        cs.activated = activated
+        cs.save()        
+        return dict(success=True, data=cs.store_record() )
+        #
 
     cards_tp_add._args_len = 1
     
     @check_perm('accounts.rpc_abon_cards_tp_set')
     def cards_tp_update(self,rdata,request):
-        #for line in rdata:
-        #    print "%s: %s" % (line,rdata[line])
         from tv.models import Card, TariffPlan, CardService
+        from datetime import datetime
         card_id=rdata['card_id']
-        tp_id=rdata['data']['tariff']
-        cs_id=rdata['data']['id'] 
+        try:
+            tp_id=int(rdata['data']['tariff'])
+        except:
+            tp_id =0  
+        cs_id=rdata['data']['id']
+        try:
+            activated = datetime.strptime(rdata['data']['activated'],'%Y-%m-%dT%H:%M:%S').date()
+        except:
+            try:
+                activated = datetime.strptime(rdata['data']['activated'],'%Y-%m-%d %H:%M:%S').date()
+            except:
+                activated = datetime.now()
         c = Card.objects.get(pk=card_id)
         cs = CardService.objects.get(pk=cs_id)
-        tp = TariffPlan.objects.get(pk=tp_id)
-        cs.tp = tp
+        if tp_id>0:
+            tp = TariffPlan.objects.get(pk=tp_id)
+            cs.tp = tp
+        cs.activated = activated
         cs.save()        
         return dict(success=True, data=cs.store_record() )
         #return dict(success=False, title='Сбой загрузки тарифов', msg='not implemented yet', errors='', data={})
@@ -426,9 +461,72 @@ class AbonApiClass(object):
     
     @check_perm('accounts.rpc_abon_cards_tp_set')
     def cards_tp_delete(self,rdata,request):
-        return dict(success=False, title='Сбой загрузки тарифов', msg='not implemented yet', errors='', data={})
+        from tv.models import CardService        
+        cs_id=rdata['cs_id']
+        cs = CardService.objects.get(pk=cs_id)
+        cs.delete()
+        return dict(success=True, title='Удалено', msg='deleted...', data={} )
+        #return dict(success=False, title='Сбой загрузки тарифов', msg='not implemented yet', errors='', data={})
 
     cards_tp_delete._args_len = 1
+
+    @check_perm('accounts.rpc_abon_cards_tp_set')
+    def cards_tp_activate(self,rdata,request):
+        from tv.models import CardService        
+        cs_id=rdata['cs_id']
+        cs = CardService.objects.get(pk=cs_id)
+        if not cs.card.active:
+            return dict(success=False, title='Сбой Активации тарифа', msg='карточка не активирована', errors='', data={})
+        cs.activate(activated=datetime.date(cs.activated))
+        return dict(success=True, title='Активировано', msg='activated...', data={} )
+        #return dict(success=False, title='Сбой загрузки тарифов', msg='not implemented yet', errors='', data={})
+
+    cards_tp_activate._args_len = 1
+
+    @check_perm('accounts.rpc_abon_cards_tp_set')
+    def cards_tp_deactivate(self,rdata,request):
+        from tv.models import CardService        
+        cs_id=rdata['cs_id']
+        cs = CardService.objects.get(pk=cs_id)
+        cs.deactivate(deactivated=datetime.date(cs.activated))
+        return dict(success=True, title='Деактивировано', msg='deactivated...', data={} )
+        #return dict(success=False, title='Сбой загрузки тарифов', msg='not implemented yet', errors='', data={})
+    
+    cards_tp_deactivate._args_len = 1
+    
+    @check_perm('accounts.rpc_abon_cards_tp_set')
+    def card_unbind(self,rdata,request):
+        from tv.models import Card        
+        card_id=rdata['card_id']
+        c = Card.objects.get(pk=card_id)
+        c.delete()
+        return dict(success=True, title='Удалено', msg='deleted...', data={} )
+        #return dict(success=False, title='Сбой загрузки тарифов', msg='not implemented yet', errors='', data={})
+
+    card_unbind._args_len = 1
+
+    @check_perm('accounts.rpc_abon_cards_tp_set')
+    def card_activate(self,rdata,request):
+        from tv.models import Card        
+        card_id=rdata['card_id']
+        c = Card.objects.get(pk=card_id)
+        c.activate(activated=datetime.date(c.activated))
+        return dict(success=True, title='Активировано', msg='activated...', data={} )
+        #return dict(success=False, title='Сбой загрузки тарифов', msg='not implemented yet', errors='', data={})
+
+    card_activate._args_len = 1
+
+    @check_perm('accounts.rpc_abon_cards_tp_set')
+    def card_deactivate(self,rdata,request):
+        from tv.models import Card        
+        card_id=rdata['card_id']
+        c = Card.objects.get(pk=card_id)
+        c.deactivate(deactivated=datetime.date(c.activated))
+        return dict(success=True, title='Деактивировано', msg='deactivated...', data={} )
+        #return dict(success=False, title='Сбой загрузки тарифов', msg='not implemented yet', errors='', data={})
+    
+    card_deactivate._args_len = 1
+
     
     @check_perm('accounts.rpc_abon_payments_get')
     @store_read

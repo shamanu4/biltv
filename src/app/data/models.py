@@ -119,11 +119,13 @@ for i in ii:
     a = Abonent.objects.get_or_create(person=p,address=ad)[0]
     a.extid = i.iac
     a.save()
-    print a.proplatu.all()
+    #print a.proplatu.all()
     print a.intervals.all()
     #for pr in a.proplatu.all():
     #    npr = Payment(bill=a.bill,sum=pr.sum,bank_date=pr.d1,inner_descr="MIGRATION")
-    #    npr.save()
+    #    npr.save()        
+    for service in a.catv_card.services.all():
+        service.active=False
+        service.save(no_log=True)
     a.launch_hamster(countdown=False)
-
 """

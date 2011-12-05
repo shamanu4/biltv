@@ -172,7 +172,7 @@ class FeeType(models.Model):
 
     def marker(self):
         if self.ftype == FEE_TYPE_CUSTOM: 
-            return u'[табл.]'
+            return u'[tabl.]'
         else:
             return ''
 
@@ -636,7 +636,7 @@ class TariffPlanFeeRelationship(models.Model):
                 return self.make_fee(card,date['year'],**kwargs)
 
 
-    def make_fee(self,card,date=None,**kwargs):
+    def make_fee(self,card,date=None,**kwargs):        
         fee = Fee()
         fee.bill = card.bill
         fee.card = card
@@ -781,7 +781,7 @@ class Card(models.Model):
     @property
     def name(self):
         if self.num > 0:
-            return "Карточка %s " % self.num
+            return u'Карточка %s'  % self.num
         else:
             return "CaTV"
 
