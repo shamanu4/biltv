@@ -268,8 +268,9 @@ class AbonApiClass(object):
     
     @check_perm('accounts.rpc_abon_cards_get')
     @store_read
-    def cards_get(self,rdata,request):
+    def cards_get(self,rdata,request):        
         from abon.models import Abonent
+        assert False;
         try:
             uid = int(rdata['uid'])
         except KeyError:

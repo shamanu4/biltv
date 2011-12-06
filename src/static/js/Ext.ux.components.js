@@ -41,7 +41,7 @@ Ext.ux.traceback = function() {
     		'<input type="hidden" name="csrfmiddlewaretoken" value="'+token+'" />',
     		'<label for="traceback-content">трейсбек:</label>',
     		'<br />',
-        	'<textarea id="traceback-content" cols="75" rows="8" name=traceback>',
+        	'<textarea id="traceback-content" cols="75" rows="8" name=traceback disabled>',
         		text,         
         	'</textarea>',
         	'<br />',
@@ -66,6 +66,7 @@ Ext.ux.traceback = function() {
 	        buttons: [{
 	            text: 'отослать отчёт',
 	            handler: function() {
+	            	$("#traceback-content").removeAttr("disabled");
 	            	Ext.get("traceback-form").dom.submit();	          	    	           
 	            }
 	        }],	        
