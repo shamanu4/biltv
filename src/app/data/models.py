@@ -120,7 +120,7 @@ for i in ii:
     a.extid = i.iac
     a.save()
     #a.proplatu.all()
-    pc = Payments.objects.filter(bill=a.bill).count()
+    pc = Payment.objects.filter(bill=a.bill).count()
     print a.intervals.all()
     if not pc:
         for pr in a.proplatu.all():

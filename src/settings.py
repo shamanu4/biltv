@@ -17,6 +17,9 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+EMAIL_HOST = '192.168.33.125'
+EMAIL_PORT = 25
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.

@@ -3,8 +3,7 @@ Ext.onReady(function(){
 	Ext.ux.msg('Грузимся ....', 'пожалуйста подождите', "ext-mb-invisible");
     Engine.vp = vp;
     Engine.auth.checkAuth();
-    Ext.get('traceback').hide();
-	
+    
 	$.alerts._overlay = function(status) {
 			switch( status ) {
 				case 'show':

@@ -24,34 +24,38 @@
             showDelay: 1000
         });
 
-        Ext.Ajax.on('requestcomplete', function(req,response){
+        Ext.Ajax.on('requestcomplete', function(req,response){        	
             batch = eval(response.responseText)
             for(line in batch) {
                 if(isInt(line)) {
                     data = batch[line]
                     if(Ext.isArray(data.result)) {
                         for(line in data.result) {                          
+                        	$("#traceback-content").val()
                           	result = data.result[line]
                           	if(!result){
                           		continue
                           	}
-                          	if(result.msg && result.title) {
-                        		if(result.success) {
+                          	if(data.result.errors){
+                        		Ext.ux.traceback('Критическая ошибка',data.result.errors,getCookie('csrftoken'))
+                            }
+                        	else if(result.msg && result.title) {
+                          		if(result.success) {
                     		 		Ext.ux.msg(result.title, result.msg, Ext.Msg.INFO);
                         		} else {
                              		Ext.ux.msg(result.title, result.msg, Ext.Msg.ERROR);
                         		}
-                    		}
+                    		}                    		
                         }
                     }
-                    if(data.result.msg && data.result.title) {
-                        if(data.result.success) {
+                    if(data.result.errors){
+                        Ext.ux.traceback('Критическая ошибка',data.result.errors,getCookie('csrftoken'))                             	
+                    }
+                    else if(data.result.msg && data.result.title) {
+                    	if(data.result.success) {
                     		 Ext.ux.msg(data.result.title, data.result.msg, Ext.Msg.INFO);
                         } else {
-                             Ext.ux.msg(data.result.title, data.result.msg, Ext.Msg.ERROR);
-                             $("#traceback-content").val(data.result.errors)
-                             Ext.get('loading-mask-half').show();
-                             Ext.get('traceback').show();
+                             Ext.ux.msg(data.result.title, data.result.msg, Ext.Msg.ERROR);                             
                         }
                     }
                 }                    
@@ -78,10 +82,7 @@
 			-->
         </div>
     </div>
-    <div id="traceback">
-        <textarea id="traceback-content" cols="100" rows="30">         
-        </textarea>
-    </div>
+
         
     {% block content %}{% endblock %}
     
@@ -95,7 +96,7 @@
 		 *  http://djbook.ru/examples/22/
 		 */
 		
-		function getCookie(name) {
+		window.getCookie = function(name) {
           var cookieValue = null;
           if (document.cookie && document.cookie != '') {
               var cookies = document.cookie.split(';');

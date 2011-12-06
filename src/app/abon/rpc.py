@@ -533,7 +533,7 @@ class AbonApiClass(object):
     def payments_get(self,rdata,request):
         from tv.models import Payment
         from abon.models import Abonent 
-        print rdata
+        print rdata        
         uid = int(rdata['uid'])
         if uid>0:
             try:

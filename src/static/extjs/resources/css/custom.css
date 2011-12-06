@@ -64,12 +64,19 @@
 }
 #traceback{
     position:absolute;
-    left:25%;
-    top:20%;
+    left:5%;
+    top:10%;
+    width:90%;
     padding:2px;
     z-index:20001;
     height:auto;
 }
+.traceback-container{
+	background-color: red;
+    width: 50%;
+    min-width: 600px;    
+}
+
 #loading img {
     margin-bottom:5px;
 }
