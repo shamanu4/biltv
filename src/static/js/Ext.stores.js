@@ -418,7 +418,7 @@ var tariff_ds_model = Ext.data.Record.create([
 
 Ext.ux.free_card_combo_store = new Ext.data.DirectStore({
                 restful: true,
-                autoLoad: true,
+                autoLoad: false,
                 autoSave: false,
                 storeId: 'free_card_combo_store',
                 reader: new Ext.data.JsonReader({
@@ -451,7 +451,7 @@ Ext.ux.free_card_combo_store = new Ext.data.DirectStore({
 
 Ext.ux.card_tp_combo_store = new Ext.data.DirectStore({
                 restful: true,
-                autoLoad: true,
+                autoLoad: false,
                 autoSave: false,
                 storeId: 'card_tp_combo_store',
                 reader: new Ext.data.JsonReader({
