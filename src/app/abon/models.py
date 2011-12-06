@@ -588,7 +588,7 @@ class Abonent(models.Model):
             
             if debug:
                 print "            starting date %s" % d
-            pp = Payment.objects.filter(bill=self.bill,maked=False,timestamp__lte=d)
+            pp = Payment.objects.filter(bill=self.bill,maked=False,bank_date__lte=d)
             for p in pp:
                 p.save()
                 p.make()
@@ -623,7 +623,7 @@ class Abonent(models.Model):
             new = False                
             d = dd
             dd = date_formatter(add_months(d,1))['month'].date()
-            pp = Payment.objects.filter(bill=self.bill,maked=False,timestamp__lte=d)
+            pp = Payment.objects.filter(bill=self.bill,maked=False,bank_date__lte=d)
             for p in pp:
                 p.save()
                 p.make()
@@ -640,7 +640,7 @@ class Abonent(models.Model):
                 f.make()                
                 d = dd
                 dd = date_formatter(add_months(d,1))['month'].date()
-                pp = Payment.objects.filter(bill=self.bill,maked=False,timestamp__lte=d)
+                pp = Payment.objects.filter(bill=self.bill,maked=False,bank_date__lte=d)
                 for p in pp:
                     p.save()
                     p.make()
@@ -667,7 +667,7 @@ class Abonent(models.Model):
                     self.disabled= True
                     self.save()
             
-            pp = Payment.objects.filter(bill=self.bill,maked=False,timestamp__lte=d)
+            pp = Payment.objects.filter(bill=self.bill,maked=False,bank_date__lte=d)
             for p in pp:
                 p.save()
                 p.make()
