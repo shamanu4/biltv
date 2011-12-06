@@ -109,6 +109,8 @@ b = Building()
 from lib.functions import latinaze
 
 for i in ii:
+    print i.street
+    print i.house
     build = b.get_or_create(i.street,i.house)
     ad = addr.get_or_create(build,i.flat,i.order)
     p = Person.objects.get_or_create(passport=latinaze(i.passport))

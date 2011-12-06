@@ -249,6 +249,7 @@ class Building(models.Model):
         return "%s" % (self.sorting,)
 
     def get_or_create(self,street,house):
+        print "::::%s::::%s::::" % (street,house)
         try:
             building = Building.objects.get(street__sorting=street,house__num=house)
         except Building.DoesNotExist:
@@ -410,7 +411,8 @@ class Abonent(models.Model):
     
     @property
     def catv_card(self):
-        return (self.cards.filter(num=-self.pk) or [None])[0]
+        card = (self.cards.filter(num=-self.pk) or [None])[0]
+        return card
     
     @property
     def deactivated(self):
