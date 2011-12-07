@@ -308,6 +308,7 @@ var building_ds_model = Ext.data.Record.create([
     'comment',
 ]);
 
+/*
 Ext.ux.abonent_store = new Ext.data.DirectStore({
     api: {
         read: AbonentGrid.read,
@@ -357,7 +358,7 @@ Ext.ux.abonent_store = new Ext.data.DirectStore({
         }
     }
 });
-
+*/
 Ext.ux.card_store = new Ext.data.DirectStore({
     api: {
         read: CardGrid.read,

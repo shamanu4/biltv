@@ -298,6 +298,10 @@ Ext.ux.CustomGridNE = Ext.extend(Ext.grid.EditorGridPanel,{
     addAction: function() {
         // overrides in instance
     },
+    searchAction: function() {
+        this.store.baseParams.filter_value = this.searchfield.getValue()
+		this.store.load()
+	},
     initComponent: function(){
         var config = {
             frame:true,
@@ -348,12 +352,6 @@ Ext.ux.CustomGridNE = Ext.extend(Ext.grid.EditorGridPanel,{
                 store: this.store
             }),
             listeners: {
-                    afterrender: {
-                        fn: function(obj) {
-                            //this.searchfield.addListener('click',function() { alert(2);debugger; });
-                            //debugger;
-                        }
-                    },
                     beforeclose: {
                         fn: function(obj) {
                             obj.hide()
@@ -365,10 +363,6 @@ Ext.ux.CustomGridNE = Ext.extend(Ext.grid.EditorGridPanel,{
                         }
                     }
             },
-            searchAction: function() {
-                this.store.baseParams.filter_value = this.searchfield.getValue()
-                this.store.load()
-            }
         }
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.CustomGrid.superclass.initComponent.apply(this, arguments);
@@ -619,7 +613,45 @@ Ext.ux.BuildingGrid = Ext.extend(Ext.ux.CustomGrid ,{
 });
 
 Ext.ux.AbonentGrid = Ext.extend(Ext.ux.CustomGridNE ,{
-            store: 'abonent-store',
+	initComponent: function() {
+        var config = {
+        	store:  new Ext.data.DirectStore({
+    			api: {
+        			read: AbonentGrid.read,
+        			create: AbonentGrid.foo,
+        			update: AbonentGrid.foo,
+        			destroy: AbonentGrid.foo
+    			},
+    			remoteSort: true,
+    			restful: true,
+    			autoLoad: false,
+    			autoSave: false,
+    			reader: new Ext.data.JsonReader({
+        			root: 'data',
+        			totalProperty: 'total',
+        			//idProperty: 'id',
+        			fields: [
+            			'id',
+            			'code',
+            			'person',
+            			'person__passport',
+            			'address',
+            			'bill__balance',
+            			'comment',
+            			'confirmed',
+						'disabled',
+						'deactivated',
+        			]
+    			}),    		
+        		listful: true,
+    			baseParams : {
+        			start:0,
+        			limit:16,
+        			filter_fields:['person__firstname','person__lastname','person__passport','person__sorting',
+        			'code','address__building__street__name','address__building__sorting','address__sorting'],
+        			filter_value:''
+       			}
+    		}),
             title: 'Список абонентов',
             closable: true,
             columns: [
@@ -649,21 +681,53 @@ Ext.ux.AbonentGrid = Ext.extend(Ext.ux.CustomGridNE ,{
             ],
             addAction: function(){
                 Engine.menu.cashier.abonent.openForm()
-            },
-            listeners: {
+            },           
+        }
+        Ext.apply(this, Ext.apply(this.initialConfig, config));
+        Ext.ux.AbonentGrid.superclass.initComponent.apply(this, arguments);
+   },
+   listeners: {
                 afterrender : {
                     fn: function(obj) {
-                    	/* moved to ui-index autoload
-                        
-                        $(".abonent_edit_button").live('click', function(e) {
-                        	o = e.currentTarget 
-                            Engine.menu.cashier.abonent.openForm(o.id,$(o).attr('code'),$(o).attr('confirmed'),$(o).attr('dis'));
-                        })
-                        
-                        */
+						this.topToolbar.addSpacer()
+						this.topToolbar.addText("№ декодера")
+						this.optsearchfield = new Ext.form.TextField({id:"search-by-decoder",width:50})
+						this.topToolbar.add(this.optsearchfield)
+						this.topToolbar.addButton({
+                			icon: '/static/extjs/custom/search_16.png',
+                			cls: 'x-btn-text-icon',
+                			handler: function() {
+                    			this.optSearchAction()
+                			},
+                			scope: this
+            			}),
+            			this.topToolbar.addButton({
+                			icon: '/static/extjs/custom/delete_16.png',
+                			cls: 'x-btn-text-icon',
+                			handler: function() {
+                    			this.optsearchfield.setValue('')
+                    			this.store.baseParams.filter_value = ''
+                    			this.store.load()
+                			},
+                			scope: this
+            			})            
                     }
                 }
-            }
+            },
+	searchAction: function() {
+            	this.store.baseParams.filter_value = this.searchfield.getValue()
+                this.store.baseParams.filter_fields = ['person__firstname','person__lastname','person__passport','person__sorting',
+        		'code','address__building__street__name','address__building__sorting','address__sorting'],
+                this.store.load()
+            },
+	optSearchAction: function() {
+            	this.store.baseParams.filter_value = parseInt(this.optsearchfield.getValue())+''
+            	this.optsearchfield.setValue(this.store.baseParams.filter_value)
+            	this.store.baseParams.filter_fields = ['cards__num__exact']
+            	if(this.store.baseParams.filter_value!='NaN') {
+                	this.store.load()
+                }
+            }, 
 });
 
 Ext.ux.CardGrid = Ext.extend(Ext.ux.CustomGrid ,{

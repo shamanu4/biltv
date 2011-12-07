@@ -33,6 +33,8 @@ def check_perm(perm):
 def store_read(func):
     def wrapper(*args, **kwargs):
         from lib.functions import latinaze
+        import re
+        spec_lookup = re.compile("^.*\_{2}(i?exact|i?contains|(l|g)te|i?(start|end)swith)$")
         result = func(*args, **kwargs)
         rdata = args[1]
         if isinstance(result, tuple):
@@ -52,10 +54,16 @@ def store_read(func):
                         query2 = None
                         for v in wild:
                             if not v == '':
-                                if query2:                            
-                                    query2 = query2 & Q(**{"%s__istartswith" % str(node):v})
+                                if spec_lookup.match(node):
+                                    if query2:                            
+                                        query2 = query2 & Q(**{"%s" % str(node):v})
+                                    else:
+                                        query2 = Q(**{"%s" % str(node):v})
                                 else:
-                                    query2 = Q(**{"%s__icontains" % str(node):v})
+                                    if query2:                            
+                                        query2 = query2 & Q(**{"%s__istartswith" % str(node):v})
+                                    else:
+                                        query2 = Q(**{"%s__icontains" % str(node):v})
                         if query:
                             query = query | query2
                         else:
@@ -70,10 +78,16 @@ def store_read(func):
                         query2 = None
                         for v in wild:
                             if not v == '':
-                                if query2:
-                                    query2 = query2 & Q(**{"%s__icontains" % str(node):v})
+                                if spec_lookup.match(node):
+                                    if query2:
+                                        query2 = query2 & Q(**{"%s" % str(node):v})
+                                    else:
+                                        query2 = Q(**{"%s" % str(node):v})
                                 else:
-                                    query2 = Q(**{"%s__icontains" % str(node):v})
+                                    if query2:
+                                        query2 = query2 & Q(**{"%s__icontains" % str(node):v})
+                                    else:
+                                        query2 = Q(**{"%s__icontains" % str(node):v})
                         if query:
                             query = query | query2
                         else:
