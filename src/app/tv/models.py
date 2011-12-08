@@ -1086,30 +1086,6 @@ class CardService(models.Model):
         else:
             chtp = False
         
-        if not self.pk:
-            action = CARD_SERVICE_ADDED
-            oid = self.tp.pk
-        else:
-            old = CardService.objects.get(pk=self.pk)
-            if not old.tp.pk == self.tp.pk and not chtp:
-                dt = self.activated
-                if old.active:
-                    old.deactivate(deactivated = dt)
-                    old.tp = self.tp
-                    old.save(chtp=True)
-                    old.activate(activated = dt)
-                    return False
-                else:
-                    action = CARD_SERVICE_CHANGED
-                    oid = self.tp.pk                   
-            if not old.active == self.active:                
-                if self.active:
-                    action = CARD_SERVICE_ACTIVATED
-                    oid = self.tp.pk
-                else:
-                    action = CARD_SERVICE_DEACTIVATED
-                    oid = old.tp.pk
-        
         if 'sdate' in kwargs:
             sdate = kwargs['sdate']
             del kwargs['sdate']
@@ -1122,6 +1098,42 @@ class CardService(models.Model):
         else:
             descr = date.today()
         
+        if not self.pk:
+            action = CARD_SERVICE_ADDED
+            oid = self.tp.pk
+        else:
+            old = CardService.objects.get(pk=self.pk)
+            if not old.tp.pk == self.tp.pk and not chtp:
+                dt = self.activated
+                act = old.active
+                if act:
+                    old.deactivate(deactivated = dt)
+                    old.tp = self.tp
+                    old.save(chtp=True)                
+                action = CARD_SERVICE_CHANGED
+                oid = self.tp.pk
+                if not action == None:
+                    c = CardHistory()
+                    c.card = self.card
+                    c.date = dt
+                    c.action = action
+                    c.oid = oid
+                    c.descr = descr
+                    c.save()                
+                if act:       
+                    old.activate(activated = dt)
+                super(self.__class__, self).save(*args, **kwargs)
+                if self.card.num>0:
+                    self.card.send()
+                return False            
+            if not old.active == self.active:                
+                if self.active:
+                    action = CARD_SERVICE_ACTIVATED
+                    oid = self.tp.pk
+                else:
+                    action = CARD_SERVICE_DEACTIVATED
+                    oid = old.tp.pk
+                
         if 'no_log' in kwargs:
             action = None
             del kwargs['no_log']
