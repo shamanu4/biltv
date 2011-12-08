@@ -156,9 +156,11 @@ class FeeType(models.Model):
     name = models.CharField(max_length=32,default='fee type')
     ftype = models.PositiveSmallIntegerField(choices=FEE_TYPES, default=FEE_TYPE_MONTHLY)
     allow_negative = models.BooleanField(default=True)
+    proportional = models.BooleanField(default=False)
     deleted = models.BooleanField(default=False)
     comment = models.TextField(blank=True, null=True)
     sum = models.FloatField()
+    bonus = models.FloatField(default=0)
 
     class Meta:
         verbose_name=u'абонплата'
@@ -175,23 +177,40 @@ class FeeType(models.Model):
             return u'[tabl.]'
         else:
             return ''
-
+    
+    def get_proportion(self,date=None):
+        from lib.functions import date_formatter
+        from calendar import monthrange
+        if not date:
+            date=date_formatter()['day']
+        month_size=monthrange(date.year,date.month)[1]
+        return round((month_size-date.day+1)/float(month_size),6)
+        
     def get_sum(self,date=None):
         from lib.functions import date_formatter
         
         sum = 0
         ret = 0        
         full = 0
+        bonus = self.bonus*self.get_proportion(date)
+        retbonus = self.bonus*(1-self.get_proportion(date))
+        
         if not date:
             date=date_formatter()['day']
         day = date.day    
             
         if not self.ftype == FEE_TYPE_CUSTOM:
             ranges = self.ranges.filter(interval__start__lte=date).filter(interval__end__gte=date)
+            if not ranges.count():
+                sum = self.sum
             for range in ranges:
                 sum += range.sum
             
-            return {'fee':sum,'ret':0,'full':sum}
+            if self.proportional:
+                sum=round(sum*self.get_proportion(date),2)
+                ret=round(sum*(1-self.get_proportion(date)),2)
+            print {'fee':sum,'ret':ret,'full':sum,'bonus':bonus,'retbonus':retbonus}
+            return {'fee':sum,'ret':ret,'full':sum,'bonus':bonus,'retbonus':retbonus}
         
         ranges = self.customranges.filter(interval__start__lte=date).filter(interval__end__gte=date).filter(startday__lte=day).filter(endday__gte=day)
         for range in ranges:
@@ -199,8 +218,11 @@ class FeeType(models.Model):
             ret += range.ret
         ranges = self.ranges.filter(interval__start__lte=date).filter(interval__end__gte=date)
         for range in ranges:
-            full += range.sum                        
-        return {'fee':sum,'ret':ret,'full':full}
+            full += range.sum
+        if not ranges.count():
+            full = self.sum                  
+        print {'fee':sum,'ret':ret,'full':sum,'bonus':bonus,'retbonus':retbonus}
+        return {'fee':sum,'ret':ret,'full':full,'bonus':bonus,'retbonus':retbonus}
 
     def store_record(self):
         obj = {}
@@ -247,7 +269,7 @@ class TariffPlan(models.Model):
     fee_list = models.ManyToManyField(FeeType,blank=True,through='TariffPlanFeeRelationship', verbose_name=u'абонплаты')
     deleted = models.BooleanField(default=False, verbose_name=u'удален')
     comment = models.TextField(blank=True, null=True, verbose_name=u'комментарий')
-
+    
     class Meta:
         verbose_name=u'тарифный план'
         verbose_name_plural=u'тарифные планы'
@@ -402,7 +424,7 @@ class PaymentRegisterStamp(models.Model):
 class Payment(models.Model):
 
     timestamp = models.DateTimeField(default=datetime.now)
-    bill = models.ForeignKey("abon.Bill")
+    bill = models.ForeignKey("abon.Bill",related_name="payments")
     sum = models.FloatField(default=0)
     prev = models.FloatField(default=0)
     deleted = models.BooleanField(default=False)
@@ -419,8 +441,18 @@ class Payment(models.Model):
         return "%s" % self.sum
 
     def save(self, *args, **kwargs):
-        #self.prev = self.bill.balance
         super(self.__class__, self).save(*args, **kwargs)
+        for fee in self.bill.fees.filter(maked__exact=False,deleted__exact=False,rolled_by__exact=None):
+            if not fee.card or not fee.tp:
+                fee.make()
+            else:
+                try:
+                    cs = CardService.objects.get(card=fee.card,tp=fee.tp)
+                except CardService.DoesNotExist:
+                    pass
+                else:
+                    #cs.activate(activated=fee.timestamp.date())
+                    cs.activate()
 
     def store_record(self):
         obj = {}
@@ -497,10 +529,11 @@ class Payment(models.Model):
 class Fee(models.Model):
 
     timestamp = models.DateTimeField(default=datetime.now)
-    bill = models.ForeignKey("abon.Bill")
+    bill = models.ForeignKey("abon.Bill",related_name="fees")
     card = models.ForeignKey("tv.Card",blank=True,null=True)
-    sum = models.FloatField(default=0)
+    sum = models.FloatField(default=0)    
     prev = models.FloatField(default=0)
+    bonus = models.FloatField(default=0)
     deleted = models.BooleanField(default=False)
     maked = models.BooleanField(default=False)
     rolled_by = models.OneToOneField("tv.Fee", blank=True, null=True)
@@ -523,6 +556,7 @@ class Fee(models.Model):
         obj['bill'] = self.bill.pk
         obj['sum'] = self.sum
         obj['prev'] = self.prev
+        obj['bonus'] = self.bonus
         obj['maked'] = self.maked
         obj['descr'] = self.descr
         obj['inner_descr'] = self.inner_descr
@@ -533,7 +567,7 @@ class Fee(models.Model):
             return (True,self)
         self.prev = self.bill.balance
         if self.fee_type and not self.fee_type.allow_negative:
-            if self.sum > 0 and self.bill.balance - self.sum < 0:
+            if self.sum > 0 and ((self.bill.balance_get() - self.sum) < 0):
                 self.descr = "Not enough money"
                 self.save()
                 return (False,"Not enougn money")
@@ -541,6 +575,8 @@ class Fee(models.Model):
         self.bill.save()
         self.maked=True
         self.save()
+        if self.bonus and self.card:
+            self.card.promotion(self)
         return (True,self)
 
     @property
@@ -592,7 +628,9 @@ class TariffPlanFeeRelationship(models.Model):
     def check_fee(self,card,fee_date=None,**kwargs):
         from lib.functions import date_formatter         
         date = date_formatter(fee_date)
-        my_maked_fees = Fee.objects.filter(card__exact=card, tp__exact=self.tp, fee_type__exact=self.fee_type, maked__exact=True, deleted__exact=False, rolled_by__exact=None)
+        my_not_maked_fees = Fee.objects.filter(card__exact=card, tp__exact=self.tp, fee_type__exact=self.fee_type,maked__exact=False, deleted__exact=False, rolled_by__exact=None)
+        my_not_maked_fees.delete()
+        my_maked_fees = Fee.objects.filter(card__exact=card, tp__exact=self.tp, fee_type__exact=self.fee_type, deleted__exact=False, rolled_by__exact=None)
         
         if not card.bill:
             return (False,"This card have not account with bill")
@@ -650,16 +688,17 @@ class TariffPlanFeeRelationship(models.Model):
             tmp_sum = self.fee_type.get_sum(date)['fee']
             full_sum = self.fee_type.get_sum(date)['full']
             if tmp_sum + maked_fee > 0:
-                fee.sum = -maked_fee
+                fee.sum = -maked_fee                
                 fee.inner_descr = "%s | [*fix] %s" % (card.name, fee.fee_type.__unicode__())
             else:
                 fee.sum = tmp_sum
-                fee.inner_descr = "%s | %s" % (card.name, fee.fee_type.__unicode__())
+                fee.inner_descr = "%s | %s" % (card.name, fee.fee_type.__unicode__())            
         else:
             fee.sum = self.fee_type.get_sum(date)['fee']
             fee.inner_descr = "%s | %s" % (card.name, fee.fee_type.__unicode__())
         if date:
             fee.timestamp = date
+        fee.bonus = self.fee_type.get_sum(date)['bonus']
         fee.save()
         if 'hold' in kwargs and kwargs['hold']:
             return (True,fee)
@@ -672,6 +711,7 @@ class TariffPlanFeeRelationship(models.Model):
         fee.tp = self.tp
         fee.fee_type = self.fee_type
         fee.sum = - self.fee_type.get_sum(date)['ret']
+        fee.bonus = self.fee_type.get_sum(date)['retbonus']
         fee.inner_descr = "Возврат абонплаты за часть месяца"
         if date:
             fee.timestamp = date
@@ -894,7 +934,7 @@ class Card(models.Model):
     @property
     def balance(self):
         if self.bill:
-            return self.bill.balance
+            return self.bill.balance_get()
         else:
             return None
 
@@ -945,6 +985,9 @@ class Card(models.Model):
         for fee in fees:
             if not fee.fee_type.ftype == FEE_TYPE_ONCE and not fee.fee_type.ftype == FEE_TYPE_CUSTOM:  
                 fee.rollback()
+    
+    def promotion(self,fee):
+        pass
     
     # WARNING! This method was used once during MIGRATION. Future uses RESTRICTED! This will cause  history DATA CORRUPT!  
     def timestamp_and_activation_fix(self):
@@ -1023,11 +1066,13 @@ class CardService(models.Model):
     active = models.BooleanField(default=False)
     comment = models.TextField(blank=True, null=True)
     activated = models.DateTimeField(default=datetime.now)
+    extra = models.CharField(max_length=40,blank=True, null=True)
 
     def __unicode__(self):
         return "%s - %s" % (self.card.num,self.tp.name)
 
     def save(self, *args, **kwargs):
+        print 'saving service'
         action = None
         oid = None
         old = None
@@ -1088,8 +1133,10 @@ class CardService(models.Model):
         self.card.send()
 
     def activate(self,activated = None, descr =''):
+        print 'activating service'
         if not self.active:
             fees = self.tp.fees.all()
+            print fees
             ok = True
             total = 0
             allow_negative = True

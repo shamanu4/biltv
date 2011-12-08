@@ -347,15 +347,18 @@ class Bill(models.Model):
         )
 
     def __unicode__(self):
-        return "%s" % self.balance
+        return "%s" % self.balance_get()        
 
+    def balance_get(self):
+        from django.db.models import Sum               
+        return self.balance + (self.payments.filter(maked__exact=False,deleted__exact=False,rolled_by__exact=None).aggregate(total=Sum('sum'))['total'] or 0)
     @property
     def balance_int(self):
-        return int(self.balance*100)
+        return int(self.balance_get()*100)
 
     @property
     def balance_rounded(self):
-        return int(self.balance*100)/100.0
+        return int(self.balance_get()*100)/100.0
 
     @property
     def bin_balance(self):
@@ -733,7 +736,7 @@ class Abonent(models.Model):
         obj['deactivated'] = self.deactivated
         obj['disabled'] = self.disabled
         obj['fee'] = 25
-        obj['bill__balance'] = self.bill.balance
+        obj['bill__balance'] = self.bill.balance_get()
         return obj
 
 

@@ -260,7 +260,7 @@ class AbonApiClass(object):
             except Abonent.DoesNotExist:
                 return dict(success=False, title='Сбой загрузки баланса', msg='abonent not found', errors='' )
             else:
-                return dict(success=True, data={'balance':abonent.bill.balance} )
+                return dict(success=True, data={'balance':abonent.bill.balance_get()} )
         else:
             return dict(success=True, data={'balance':None} )
 
@@ -612,8 +612,8 @@ class AbonApiClass(object):
         
         pr = Payment.objects.latest('id')
         pt = Payment.objects.filter(id__gte=pr.id-5,bill=abonent.bill)
-        if pt.count()>0:
-            return dict(success=False, title='Сбой проведения оплаты', msg='Возможно повторный ввод квитанции', errors='', data={} )
+        #if pt.count()>0:
+        #    return dict(success=False, title='Сбой проведения оплаты', msg='Возможно повторный ввод квитанции', errors='', data={} )
         
         p = Payment()
         p.register = register
