@@ -1093,11 +1093,15 @@ class CardService(models.Model):
             old = CardService.objects.get(pk=self.pk)
             if not old.tp.pk == self.tp.pk and not chtp:
                 dt = self.activated
-                old.deactivate(deactivated = dt)
-                old.tp = self.tp
-                old.save(chtp=True)
-                old.activate(activated = dt)
-                return False
+                if old.active:
+                    old.deactivate(deactivated = dt)
+                    old.tp = self.tp
+                    old.save(chtp=True)
+                    old.activate(activated = dt)
+                    return False
+                else:
+                    action = CARD_SERVICE_CHANGED
+                    oid = self.tp.pk                   
             if not old.active == self.active:                
                 if self.active:
                     action = CARD_SERVICE_ACTIVATED
