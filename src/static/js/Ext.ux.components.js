@@ -721,7 +721,8 @@ Ext.ux.AbonentGrid = Ext.extend(Ext.ux.CustomGridNE ,{
                 this.store.load()
             },
 	optSearchAction: function() {
-            	this.store.baseParams.filter_value = parseInt(this.optsearchfield.getValue())+''
+				var v = this.optsearchfield.getValue()
+            	this.store.baseParams.filter_value = parseInt(v-0)+''       	
             	this.optsearchfield.setValue(this.store.baseParams.filter_value)
             	this.store.baseParams.filter_fields = ['cards__num__exact']
             	if(this.store.baseParams.filter_value!='NaN') {
