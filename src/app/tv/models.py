@@ -724,6 +724,7 @@ CARD_SERVICE_ACTIVATED = 0
 CARD_SERVICE_DEACTIVATED = 1
 CARD_SERVICE_ADDED = 2
 CARD_SERVICE_REMOVED = 3
+CARD_SERVICE_CHANGED = 7
 CARD_OWNER_ADDED = 4
 CARD_OWNER_REMOVED = 5
 CARD_OWNER_CHANGED = 6
@@ -733,6 +734,7 @@ CARD_SERVICE_ACTIONS = (
     CARD_SERVICE_DEACTIVATED,
     CARD_SERVICE_ADDED,
     CARD_SERVICE_REMOVED,
+    CARD_SERVICE_CHANGED,
 )
 
 CARD_USER_ACTIONS = (
@@ -750,6 +752,7 @@ class CardHistory(models.Model):
         (CARD_SERVICE_DEACTIVATED, u'отключен'),
         (CARD_SERVICE_ADDED, u'добавлен'),
         (CARD_SERVICE_REMOVED, u'удалён'),
+        (CARD_SERVICE_CHANGED, u'тариф'),
         (CARD_OWNER_ADDED, u'owner added'),
         (CARD_OWNER_REMOVED, u'owner removed'),
         (CARD_OWNER_CHANGED, u'owner changed'),
@@ -1076,11 +1079,25 @@ class CardService(models.Model):
         action = None
         oid = None
         old = None
+        
+        if 'chtp' in kwargs:
+            chtp = kwargs['chtp']
+            del kwargs['chtp']
+        else:
+            chtp = False
+        
         if not self.pk:
             action = CARD_SERVICE_ADDED
             oid = self.tp.pk
         else:
             old = CardService.objects.get(pk=self.pk)
+            if not old.tp.pk == self.tp.pk and not chtp:
+                dt = self.activated
+                old.deactivate(deactivated = dt)
+                old.tp = self.tp
+                old.save(chtp=True)
+                old.activate(activated = dt)
+                return False
             if not old.active == self.active:                
                 if self.active:
                     action = CARD_SERVICE_ACTIVATED
@@ -1134,6 +1151,8 @@ class CardService(models.Model):
 
     def activate(self,activated = None, descr =''):
         print 'activating service'
+        print activated
+        print self.active
         if not self.active:
             fees = self.tp.fees.all()
             print fees
@@ -1164,10 +1183,14 @@ class CardService(models.Model):
                 self.deactivate()
                 return False
             self.save(sdate=activated,descr=descr)
+        if isinstance(activated,datetime):
+            activated = activated.date()
         self.check_past_activation(activated)
         return True
 
     def deactivate(self,deactivated = None, descr =''):
+        print 'deactivating service'
+        print deactivated
         if self.active:
             fees = self.tp.fees.filter(fee_type__ftype__exact=FEE_TYPE_CUSTOM)
             for fee in fees:
