@@ -446,13 +446,15 @@ class AbonApiClass(object):
             try:
                 activated = datetime.strptime(rdata['data']['activated'],'%Y-%m-%d %H:%M:%S').date()
             except:
-                activated = datetime.now()
+                #activated = datetime.now()
+                pass
         c = Card.objects.get(pk=card_id)
         cs = CardService.objects.get(pk=cs_id)
         if tp_id>0:
             tp = TariffPlan.objects.get(pk=tp_id)
             cs.tp = tp
-        cs.activated = activated
+        if activated:
+            cs.activated = activated
         cs.save()        
         return dict(success=True, data=cs.store_record() )
         #return dict(success=False, title='Сбой загрузки тарифов', msg='not implemented yet', errors='', data={})

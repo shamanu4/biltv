@@ -63,6 +63,7 @@ Ext.ux.traceback = function() {
 	        plain: true,
 	        html:createBox(text,token), 
 	        modal: true,
+	        width: 600,
 	        buttons: [{
 	            text: 'отослать отчёт',
 	            handler: function() {
@@ -691,7 +692,18 @@ Ext.ux.AbonentGrid = Ext.extend(Ext.ux.CustomGridNE ,{
                     fn: function(obj) {
 						this.topToolbar.addSpacer()
 						this.topToolbar.addText("№ декодера")
-						this.optsearchfield = new Ext.form.TextField({id:"search-by-decoder",width:50})
+						this.optsearchfield = new Ext.form.TextField({id:"search-by-decoder",width:50,
+							listeners: {
+                    			specialkey: {
+                        			fn: function(field, e){                            
+                            			if (e.getKey() == e.ENTER) {                                
+                                			this.optSearchAction()
+                            			}
+                        			},
+                        			scope: this
+                    			}
+                    		}
+						})
 						this.topToolbar.add(this.optsearchfield)
 						this.topToolbar.addButton({
                 			icon: '/static/extjs/custom/search_16.png',
