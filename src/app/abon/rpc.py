@@ -260,9 +260,9 @@ class AbonApiClass(object):
             except Abonent.DoesNotExist:
                 return dict(success=False, title='Сбой загрузки баланса', msg='abonent not found', errors='' )
             else:
-                return dict(success=True, data={'balance':abonent.bill.balance_get()} )
+                return dict(success=True, data={'balance':abonent.bill.balance_get_wo_credit(),'credit':abonent.bill.get_credit()} )
         else:
-            return dict(success=True, data={'balance':None} )
+            return dict(success=True, data={'balance':None,'credit':None} )
 
     balance_get._args_len = 1
     

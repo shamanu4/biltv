@@ -301,6 +301,13 @@ class TariffPlan(models.Model):
             res[shift]=res[shift]|1<<byte
         return res
     
+    def copy_channels(self,tp):
+        for ch in tp.channels.all():
+            try:
+                self.channels.through(chrel=ch,tp=self).save()
+            except:
+                print "%s failed!" % ch
+    
     def store_record(self):
         obj = {}
         obj['id'] = self.pk

@@ -21,6 +21,7 @@ Ext.onReady(function(){
 	
 	Ext.get(document).on('keypress', function(e,o) {
 		if(e.ctrlKey) {
+			/*
 			e.preventDefault()
 			if(e.button==119) {
 				// Ctrl+X
@@ -33,7 +34,8 @@ Ext.onReady(function(){
 							}).defer(100, active_tab);						
 					}				
 				
-			}								
+			}
+			*/								
 		}            				               				
     });
     

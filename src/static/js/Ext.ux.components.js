@@ -1565,10 +1565,13 @@ Ext.ux.BalanceForm = Ext.extend(Ext.FormPanel, {
                 	if (result.data.balance==null) {
                     	this.body.dom.innerHTML='<div class="balance_digits_negative">...</div>'
                     }
-					else if (result.data.balance<0) {
+					else if (result.data.balance+result.data.credit<0) {
                     	this.body.dom.innerHTML='<div class="balance_digits_negative">'+result.data.balance+' грн.</div>'
                     } else {
                     	this.body.dom.innerHTML='<div class="balance_digits_positive">'+result.data.balance+' грн.</div>'
+                    }
+                    if (result.data.credit) {
+                    	this.body.dom.innerHTML+='<div class="balance_digits_negative"><small><small><small>Кредит: '+result.data.credit+' грн.</small></small></small></div>'
                     }
             	}.createDelegate(this));
             },

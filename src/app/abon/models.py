@@ -338,7 +338,7 @@ class Address(models.Model):
 
 class Bill(models.Model):
 
-    balance = models.FloatField(default=0)
+    balance = models.FloatField(default=0)     
     deleted = models.BooleanField(default=False)
     
     class Meta:
@@ -349,9 +349,19 @@ class Bill(models.Model):
     def __unicode__(self):
         return "%s" % self.balance_get()        
 
-    def balance_get(self):
+    def get_credit(self,dt=None):
+        from django.db.models import Sum
+        if not dt:
+            dt = date.today()               
+        return self.credits.filter(valid__exact=True,valid_from__lte=dt,valid_until__gte=dt).aggregate(total=Sum('sum'))['total'] or 0
+
+    def balance_get_wo_credit(self):
         from django.db.models import Sum               
         return self.balance + (self.payments.filter(maked__exact=False,deleted__exact=False,rolled_by__exact=None).aggregate(total=Sum('sum'))['total'] or 0)
+
+    def balance_get(self):
+        return self.balance_get_wo_credit()+self.get_credit()       
+
     @property
     def balance_int(self):
         return int(self.balance_get()*100)
@@ -373,6 +383,20 @@ class Bill(models.Model):
         for t in trunks:
             res.extend(t.user_mask)
         return res
+
+
+
+class Credit(models.Model):
+    bill = models.ForeignKey(Bill,related_name="credits")
+    sum = models.FloatField(default=0)
+    valid_from = models.DateField(default=date.today)
+    valid_until = models.DateField(blank=True,null=True)
+    valid = models.BooleanField(default=True)
+    manager = models.ForeignKey("accounts.User",blank=True,null=True)
+
+    def __unicode__(self):
+        return "%s" % self.sum		
+
 
 
 class Abonent(models.Model):
