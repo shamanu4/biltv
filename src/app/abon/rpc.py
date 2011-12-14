@@ -512,7 +512,8 @@ class AbonApiClass(object):
         from tv.models import Card        
         card_id=rdata['card_id']
         c = Card.objects.get(pk=card_id)
-        c.delete()
+        c.owner = None
+        c.save()
         return dict(success=True, title='Удалено', msg='deleted...', data={} )
         #return dict(success=False, title='Сбой загрузки тарифов', msg='not implemented yet', errors='', data={})
 
