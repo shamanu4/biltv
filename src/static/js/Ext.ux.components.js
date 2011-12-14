@@ -1761,6 +1761,7 @@ Ext.ux.AbonCardsTpGrid = Ext.extend(Ext.ux.CustomGrid ,{
                         'tariff',
                         'active',
                         'activated',
+                        'extra',
                     ]
                 }),
                 writer: new Ext.data.JsonWriter({
@@ -1825,6 +1826,9 @@ Ext.ux.AbonCardsTpGrid = Ext.extend(Ext.ux.CustomGrid ,{
             		renderer: function(value, metaData, record, rowIndex, colIndex, store) {
                 		return '<img src="/static/extjs/custom/delete_16.png" class="abon_tp_unbind" val="'+record.data.id+'">';
             		}
+        		},
+        		{header: "login", dataIndex: 'extra', width:80,
+        			editor: new Ext.form.TextField(),
         		},
     		]
         }

@@ -996,8 +996,22 @@ class Card(models.Model):
             if not fee.fee_type.ftype == FEE_TYPE_ONCE and not fee.fee_type.ftype == FEE_TYPE_CUSTOM:  
                 fee.rollback()
     
+    def get_service(self,tp):
+        try:
+            return self.services.get(tp=tp)
+        except:
+            return None
+    
     def promotion(self,fee):
-        pass
+        from abills.models import User
+        service = self.get_service(fee.tp)
+        if not service:
+            return False
+        try:
+            u = User.objects.get(login__exact=service.extra)
+        except:
+            return False
+        u.promotion(fee)
     
     # WARNING! This method was used once during MIGRATION. Future uses RESTRICTED! This will cause  history DATA CORRUPT!  
     def timestamp_and_activation_fix(self):
@@ -1244,6 +1258,7 @@ class CardService(models.Model):
         obj['active'] = self.active
         obj['activated'] = self.activated
         obj['comment'] = self.comment
+        obj['extra'] = self.extra
         return obj
 
     

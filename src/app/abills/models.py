@@ -4,6 +4,11 @@ from django.db import models
 from datetime import datetime
 
 
+def ip_to_num(ip_addr):
+        sets = map(int, ip_addr.split("."))
+        return int(sets[0]*256**3 + sets[1]*256**2 + sets[2]*256 + sets[3])
+
+
 class Admin(models.Model):
     """
     Abills admin cutted model. we need only name and aid.
@@ -16,6 +21,7 @@ class Admin(models.Model):
 
     class Meta:
         db_table = 'admins'
+
 
 class Bill(models.Model):
 
@@ -60,6 +66,19 @@ class User(models.Model):
         db_table = 'users'
         ordering = ['login']
 
+    def promotion(self,fee):
+        self.payment(fee.bonus, u'акція. %s' % fee.tp.__unicode__() )        
+        
+    def payment(self,sum,dsc):
+        a = Admin.objects.get(pk=37)
+        p = Payment()
+        p.sum = sum
+        p.dsc = dsc
+        p.aid = a
+        p.uid = self.id
+        p.bill = self.company.bill
+        p.save()
+        p.make()
 
 class Street(models.Model):
 
@@ -116,7 +135,7 @@ class Payment(models.Model):
     aid = models.ForeignKey(Admin,db_column='aid')
     uid = models.PositiveIntegerField(db_column='uid')
     bill = models.ForeignKey(Bill,related_name='payments')
-    ip = models.IntegerField(default='127.0.0.1')
+    ip = models.IntegerField(default=ip_to_num('127.0.0.1'))
     last_deposit = models.FloatField(default=0)
     dsc = models.CharField(max_length=80,db_column='inner_describe')
 
@@ -144,4 +163,8 @@ class Payment(models.Model):
     def set_ip(self,ipaddr):
         self.ip = self.ip_to_num(ipaddr)
 
-
+    def make(self):
+        self.last_deposit = self.bill.deposit
+        self.save() 
+        self.bill.deposit = self.bill.deposit + self.sum
+        self.bill.save() 

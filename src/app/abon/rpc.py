@@ -433,12 +433,18 @@ class AbonApiClass(object):
     @check_perm('accounts.rpc_abon_cards_tp_set')
     def cards_tp_update(self,rdata,request):
         from tv.models import Card, TariffPlan, CardService
-        from datetime import datetime
+        from datetime import datetime        
         card_id=rdata['card_id']
         try:
             tp_id=int(rdata['data']['tariff'])
         except:
-            tp_id =0  
+            tp_id =0
+        try:
+            extra=rdata['data']['extra']
+        except:
+            extra = ''    
+        print "~"
+        print extra
         cs_id=rdata['data']['id']
         try:
             activated = datetime.strptime(rdata['data']['activated'],'%Y-%m-%dT%H:%M:%S').date()
@@ -446,8 +452,7 @@ class AbonApiClass(object):
             try:
                 activated = datetime.strptime(rdata['data']['activated'],'%Y-%m-%d %H:%M:%S').date()
             except:
-                #activated = datetime.now()
-                pass
+                activated = None                
         c = Card.objects.get(pk=card_id)
         cs = CardService.objects.get(pk=cs_id)
         if tp_id>0:
@@ -455,6 +460,7 @@ class AbonApiClass(object):
             cs.tp = tp
         if activated:
             cs.activated = activated
+        cs.extra = extra
         cs.save()        
         return dict(success=True, data=cs.store_record() )
         #return dict(success=False, title='Сбой загрузки тарифов', msg='not implemented yet', errors='', data={})

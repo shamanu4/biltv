@@ -1,9 +1,9 @@
-#Tue Dec 13 16:31:55 EET 2011
+#Tue Dec 13 17:43:49 EET 2011
 eclipse.preferences.version=1
 encoding//lib/extended.py=utf-8
 encoding//lib/extjs.py=utf-8
 encoding//lib/functions.py=utf-8
-encoding//src/abills/models.py=utf-8
+encoding//src/app/abills/models.py=utf-8
 encoding//src/app/abon/admin.py=utf-8
 encoding//src/app/abon/forms.py=utf-8
 encoding//src/app/abon/models.py=utf-8

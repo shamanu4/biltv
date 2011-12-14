@@ -415,6 +415,7 @@ var tariff_ds_model = Ext.data.Record.create([
     'tariff',
     'active',
     'activated',
+    'extra',
 ]);
 
 Ext.ux.free_card_combo_store = new Ext.data.DirectStore({
