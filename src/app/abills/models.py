@@ -67,7 +67,8 @@ class User(models.Model):
         ordering = ['login']
 
     def promotion(self,fee):
-        self.payment(fee.bonus, u'акція. %s' % fee.tp.__unicode__() )        
+        print "user promotion"
+        self.payment(fee.bonus, u'акція. %s. %s' % (fee.tp.__unicode__(), fee.timestamp ) )        
         
     def payment(self,sum,dsc):
         a = Admin.objects.get(pk=37)

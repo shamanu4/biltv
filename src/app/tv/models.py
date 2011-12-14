@@ -279,11 +279,11 @@ class TariffPlan(models.Model):
 
     def send(self):
         for service in self.services.filter(card__num__gte=0):
-            service.card.send()
+            service.card.send_one()
 
     def save(self, *args, **kwargs):
         super(self.__class__, self).save(*args, **kwargs)
-        self.send()
+        #self.send()
 
     @property
     def bin_flags(self):
@@ -583,6 +583,7 @@ class Fee(models.Model):
         self.maked=True
         self.save()
         if self.bonus and self.card:
+            print "fee promotion"
             self.card.promotion(self)
         return (True,self)
 
@@ -718,7 +719,7 @@ class TariffPlanFeeRelationship(models.Model):
         fee.tp = self.tp
         fee.fee_type = self.fee_type
         fee.sum = - self.fee_type.get_sum(date)['ret']
-        fee.bonus = self.fee_type.get_sum(date)['retbonus']
+        fee.bonus = - self.fee_type.get_sum(date)['retbonus']
         fee.inner_descr = "Возврат абонплаты за часть месяца"
         if date:
             fee.timestamp = date
@@ -1002,13 +1003,16 @@ class Card(models.Model):
             return None
     
     def promotion(self,fee):
+        print "card promotion"
         from abills.models import User
         service = self.get_service(fee.tp)
         if not service:
+            print "no service for promotion"
             return False
         try:
             u = User.objects.get(login__exact=service.extra)
         except:
+            print "no user for promotion"
             return False
         u.promotion(fee)
     
@@ -1144,7 +1148,7 @@ class CardService(models.Model):
                     old.activate(activated = dt)
                 super(self.__class__, self).save(*args, **kwargs)
                 if self.card.num>0:
-                    self.card.send()
+                    self.card.send_one()
                 return False            
             if not old.active == self.active:                
                 if self.active:
@@ -1169,7 +1173,7 @@ class CardService(models.Model):
 
         super(self.__class__, self).save(*args, **kwargs)
         if self.card.num>0:
-            self.card.send()
+            self.card.send_one()
 
     def delete(self, *args, **kwargs):
 
@@ -1183,7 +1187,7 @@ class CardService(models.Model):
         c.save()
 
         super(self.__class__, self).delete(*args, **kwargs)
-        self.card.send()
+        self.card.send_one()
 
     def activate(self,activated = None, descr =''):
         print 'activating service'
@@ -1225,10 +1229,11 @@ class CardService(models.Model):
         return True
 
     def deactivate(self,deactivated = None, descr =''):
+        from django.db.models import Q
         print 'deactivating service'
         print deactivated
         if self.active:
-            fees = self.tp.fees.filter(fee_type__ftype__exact=FEE_TYPE_CUSTOM)
+            fees = self.tp.fees.filter(Q(fee_type__ftype__exact=FEE_TYPE_CUSTOM)|Q(fee_type__proportional__exact=True))
             for fee in fees:
                 fee.make_ret(self.card,deactivated)
             self.active=False

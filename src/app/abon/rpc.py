@@ -419,11 +419,16 @@ class AbonApiClass(object):
                 activated = datetime.strptime(rdata['data']['activated'],'%Y-%m-%d %H:%M:%S').date()
             except:
                 activated = datetime.now()
+        try:
+            extra=rdata['data']['extra']
+        except:
+            extra = ''
         c = Card.objects.get(pk=card_id)
         cs = CardService(card=c)
         tp = TariffPlan.objects.get(pk=tp_id)
         cs.tp = tp
         cs.activated = activated
+        cs.extra = extra
         cs.save()        
         return dict(success=True, data=cs.store_record() )
         #

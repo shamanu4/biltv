@@ -1676,7 +1676,7 @@ Ext.ux.AbonCardsGrid = Ext.extend(Ext.ux.CustomGrid ,{
                 		if (value<0) {
                     		return '<b>CaTV</b>';
                 		} else {
-                    		return value;
+                    		return '<b>'+value+'</b>';
                 		}
             		},
             		editor: new Ext.ux.FreeCardCombo(),
