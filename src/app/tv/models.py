@@ -836,7 +836,6 @@ class Card(models.Model):
             return "CaTV"
 
     def send_one(self):
-        return False
         if self.num<0:
             return False
         CardDigital.touch(self)
