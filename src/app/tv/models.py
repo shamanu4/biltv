@@ -910,6 +910,7 @@ class Card(models.Model):
                 
         if self.num>0:
             CardDigital.touch(self)
+            return False
             self.send()
 
     def save_formset(self, *args, **kwargs):
