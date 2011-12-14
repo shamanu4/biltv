@@ -909,9 +909,8 @@ class Card(models.Model):
         super(self.__class__, self).save(*args, **kwargs)
                 
         if self.num>0:
-            CardDigital.touch(self)
-            return False
-            self.send()
+            CardDigital.touch(self)            
+            self.send_one()
 
     def save_formset(self, *args, **kwargs):
         super(self.__class__, self).save_formset(*args, **kwargs)
