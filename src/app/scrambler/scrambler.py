@@ -81,6 +81,8 @@ class UserPacket(BasicPacket):
             self.data.extend(int_to_4byte_wrapped(card.balance_int or 0))
             self.mk_prefix()
             self.append_crc()
+        print
+        print "Generating packet for card #%s" % card.num
             
 
 
