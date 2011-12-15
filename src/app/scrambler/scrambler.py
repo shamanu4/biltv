@@ -99,18 +99,18 @@ class UserPacket(BasicPacket):
         print "Generating packet for card #%s" % card.num
     
     @classmethod
-    def export_card(cls,card_id):
+    def export_card(cls,card_num):
         from tv.models import Card
         from lib.functions import int_to_4byte_wrapped, list2hex
         data = []
         try:
-            card=Card.objects.get(num=card_id)
+            card=Card.objects.get(num=card_num)
         except Card.DoesNotExist:
             return data        
         data.extend(int_to_4byte_wrapped((card.num-1)*2))
         data.extend(card.bin_flags)
         data.extend(int_to_4byte_wrapped(card.balance_int or 0))
-        #print list2hex(data)
+        print list2hex(data)
         return data
         
         
@@ -128,7 +128,7 @@ class UserPacket(BasicPacket):
         f.write(list2bin(data))
         
         for cd in CardDigital.objects.all():
-            f.write(list2bin(cls.export_card(cd.card.pk)))
+            f.write(list2bin(cls.export_card(cd.card.num)))
                 
         f.close()        
 
