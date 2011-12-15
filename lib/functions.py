@@ -163,4 +163,14 @@ def hamsters_swarm(fa, fb, ts=0, tc=0, tr=0):
     from abon.models import Abonent
     Abonent.hamsters_swarm(fa, fb, ts, tc, tr)
 
+def list2bin(list):
+    bin = ""
+    for w in list:
+        bin += chr(w)
+    return bin
 
+def list2hex(list):
+    hex = ""
+    for w in list:
+        hex += "%0.2x " % w
+    return hex

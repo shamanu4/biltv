@@ -121,8 +121,12 @@ INSTALLED_APPS = (
     'data',                         # migration data
 )
 
+EXPORT_PATH = rel('..','export')
+
 DEFAULT_CATV_TP_ID = 1
-PROGRAM_VERSION = 'v0.12.008'
+PROGRAM_VERSION = 'v0.12.009'
+
+
 
 try:
     from settings_local import *

@@ -55,6 +55,20 @@ class ChannelPacket(BasicPacket):
         self.mk_prefix()
         self.append_crc()        
 
+    @classmethod
+    def export(self):
+        from tv.models import Trunk
+        from settings import EXPORT_PATH
+        from lib.functions import list2bin
+        f = open('%s/%s' % (EXPORT_PATH,'prog.bin'), 'w')
+        data = []
+        
+        trunks = Trunk.objects.all()
+        data.append(trunks.count())
+        for t in trunks:
+            data.extend(t.channel_mask)
+        f.write(list2bin(data))
+        f.close()        
 
 
 class UserPacket(BasicPacket):
@@ -83,7 +97,40 @@ class UserPacket(BasicPacket):
             self.append_crc()
         print
         print "Generating packet for card #%s" % card.num
-            
+    
+    @classmethod
+    def export_card(cls,card_id):
+        from tv.models import Card
+        from lib.functions import int_to_4byte_wrapped, list2hex
+        data = []
+        try:
+            card=Card.objects.get(num=card_id)
+        except Card.DoesNotExist:
+            return data        
+        data.extend(int_to_4byte_wrapped((card.num-1)*2))
+        data.extend(card.bin_flags)
+        data.extend(int_to_4byte_wrapped(card.balance_int or 0))
+        #print list2hex(data)
+        return data
+        
+        
+    @classmethod
+    def export(cls):
+        from settings import EXPORT_PATH
+        from lib.functions import int_to_4byte_wrapped, list2bin
+        from tv.models import CardDigital
+        
+        f = open('%s/%s' % (EXPORT_PATH,'user.bin'), 'w')
+        data = []
+        
+        c = CardDigital.objects.count()
+        data.extend(int_to_4byte_wrapped(c))        
+        f.write(list2bin(data))
+        
+        for cd in CardDigital.objects.all():
+            f.write(list2bin(cls.export_card(cd.card.pk)))
+                
+        f.close()        
 
 
 
