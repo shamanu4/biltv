@@ -871,6 +871,7 @@ class Card(models.Model):
                     else:
                         action = CARD_OWNER_CHANGED
                         oid = self.owner.pk
+                else:
                     action = CARD_OWNER_ADDED
                     oid = self.owner.pk
         
