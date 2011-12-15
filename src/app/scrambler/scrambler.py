@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import settings
 
 class BasicPacket:    
     data=[]
@@ -110,7 +111,7 @@ class UserPacket(BasicPacket):
         data.extend(int_to_4byte_wrapped((card.num-1)*2))
         data.extend(card.bin_flags)
         data.extend(int_to_4byte_wrapped(card.balance_int or 0))
-        print list2hex(data)
+        #print list2hex(data)
         return data
         
         
@@ -135,9 +136,12 @@ class UserPacket(BasicPacket):
 
 
 class BasicQuery:
+    import settings
 
-    host = '192.168.33.158'
-    port = 49153
+    #host = '192.168.33.158'
+    host =  settings.SCR1_IP
+    #port = 49153
+    port = settings.SCR1_PORT
     packet= None
     request = None
     response = None
@@ -151,7 +155,10 @@ class BasicQuery:
         import struct
 
         print "running query %s\n request: %s" % (self.__class__,self.packet.hex())
-
+        if not settings.SCR1_ENABLED:
+            print "disabled in config. query terminated"
+            return False
+        
         self.response = None
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.setsockopt(socket.SOL_SOCKET,socket.SO_RCVTIMEO,struct.pack('ll',3,0))
