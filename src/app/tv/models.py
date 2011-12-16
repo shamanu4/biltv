@@ -917,7 +917,13 @@ class Card(models.Model):
     def save_formset(self, *args, **kwargs):
         super(self.__class__, self).save_formset(*args, **kwargs)
 
-
+    def delete(self, *args, **kwargs):
+        if self.num>0:
+            print "deleting this object (%s) will cause data corrupt. ignoring..." % self
+            return False
+        else:
+            super(self.__class__, self).delete(*args, **kwargs)
+    
     @property
     def bin_flags(self):
         from lib.functions import byte_or
@@ -1102,6 +1108,9 @@ class CardDigital(models.Model):
     def send(self):
         self.card.send_one()
         
+    def delete(self, *args, **kwargs):
+        print "deleting this object (%s) will cause data corrupt. ignoring..." % self
+        return False
 
             
 class CardService(models.Model):
