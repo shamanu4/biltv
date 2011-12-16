@@ -1087,7 +1087,7 @@ class CardDigital(models.Model):
     def rehash(cls):
         from django.db import connections
         cursor = connections['default'].cursor()
-        cursor.execute('TRUNCTE TABLE %s;' % (cls._meta.db_table,))
+        cursor.execute('TRUNCATE TABLE %s;' % (cls._meta.db_table,))
         cc = Card.objects.filter(num__gt=0)
         for c in cc:
             cls.touch(c)
