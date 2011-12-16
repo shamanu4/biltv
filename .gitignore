@@ -1,4 +1,6 @@
 *.pyc
 *.*~
+*.bin
+*.sql*
 settings_local.py
 nbproject

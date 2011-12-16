@@ -119,6 +119,7 @@ INSTALLED_APPS = (
     'tv',
     'abon',
     'data',                         # migration data
+    'abills',
 )
 
 EXPORT_PATH = rel('..','export')

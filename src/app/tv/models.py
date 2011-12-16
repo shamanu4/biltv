@@ -1004,8 +1004,8 @@ class Card(models.Model):
             return None
     
     def promotion(self,fee):
-        print "card promotion"
         from abills.models import User
+        print "card promotion"        
         service = self.get_service(fee.tp)
         if not service:
             print "no service for promotion"
@@ -1083,8 +1083,18 @@ class CardDigital(models.Model):
             digicard.save()
         return True
     
+    @classmethod
+    def rehash(cls):
+        from django.db import connections
+        cursor = connections['default'].cursor()
+        cursor.execute('TRUNCTE TABLE %s;' % (cls._meta.db_table,))
+        cc = Card.objects.filter(num__gt=0)
+        for c in cc:
+            cls.touch(c)
+    
     def send(self):
         self.card.send_one()
+        
 
             
 class CardService(models.Model):
