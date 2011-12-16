@@ -950,12 +950,19 @@ class Card(models.Model):
             return None
 
     @property
+    def balance_wo_credit(self):
+        if self.bill:
+            return self.bill.balance_get_wo_credit()
+        else:
+            return None
+
+    @property
     def balance_int(self):
-        return int((self.balance or 0)*100)
+        return int((self.balance_wo_credit or 0)*100)
 
     @property
     def balance_rounded(self):
-        return int((self.balance or 0)*100)/100.0
+        return int((self.balance_wo_credit or 0)*100)/100.0
 
     @property
     def bin_balance(self):
