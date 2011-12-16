@@ -626,8 +626,8 @@ class AbonApiClass(object):
         
         pr = Payment.objects.latest('id')
         pt = Payment.objects.filter(id__gte=pr.id-5,bill=abonent.bill)
-        #if pt.count()>0:
-        #    return dict(success=False, title='Сбой проведения оплаты', msg='Возможно повторный ввод квитанции', errors='', data={} )
+        if pt.count()>0:
+            return dict(success=False, title='Сбой проведения оплаты', msg='Возможно повторный ввод квитанции', errors='', data={} )
         
         p = Payment()
         p.register = register
