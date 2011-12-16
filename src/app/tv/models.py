@@ -918,9 +918,14 @@ class Card(models.Model):
         super(self.__class__, self).save_formset(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
+        from settings import DIGITAL_CARD_ALLOW_DELETE        
         if self.num>0:
-            print "deleting this object (%s) will cause data corrupt. ignoring..." % self
-            return False
+            if DIGITAL_CARD_ALLOW_DELETE:
+                super(self.__class__, self).delete(*args, **kwargs)
+                CardDigital.rehash()
+            else:
+                print "deleting this object (%s) will cause data corrupt. ignoring..." % self
+                return False
         else:
             super(self.__class__, self).delete(*args, **kwargs)
     
@@ -1109,8 +1114,13 @@ class CardDigital(models.Model):
         self.card.send_one()
         
     def delete(self, *args, **kwargs):
-        print "deleting this object (%s) will cause data corrupt. ignoring..." % self
-        return False
+        from settings import DIGITAL_CARD_ALLOW_DELETE       
+        if DIGITAL_CARD_ALLOW_DELETE:
+            super(self.__class__, self).delete(*args, **kwargs)
+            CardDigital.rehash()
+        else:
+            print "deleting this object (%s) will cause data corrupt. ignoring..." % self
+            return False
 
             
 class CardService(models.Model):
