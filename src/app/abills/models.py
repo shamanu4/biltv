@@ -65,14 +65,25 @@ class User(models.Model):
     class Meta:
         db_table = 'users'
         ordering = ['login']
-
+    
+    @property
+    def pi(self):
+        try:
+            return UserPi.objects.get(id=self.id)
+        except UserPi.DoesNotExist:
+            return None
+        
     def promotion(self,fee):
         self.payment(fee.bonus, u'акція. %s. %s' % (fee.tp.__unicode__(), fee.timestamp ) )        
     
     def promotion_on(self,card,cs,pl,timestamp):
+        if self.pi:
+            self.pi.card_num = card.num
         self.tp_set(pl.abills_tp, timestamp)
     
     def promotion_off(self,card,cs,pl,timestamp):
+        if self.pi:
+            self.pi.card_num = card.num
         self.tp_set(pl.abills_tp, timestamp)
     
     def tp_set(self,tp,timestamp=datetime.now()):
@@ -131,6 +142,7 @@ class UserPi(models.Model):
     house = models.ForeignKey(House,db_column='_house')
     street = models.ForeignKey(Street,db_column='_street')
     kv = models.CharField(max_length=10,db_column='address_flat')
+    card_num = models.IntegerField(db_column='_digital_tv')
 
     def __unicode__(self):
         return "%s %s %s" % (self.street.name, self.house.name, self.kv)
