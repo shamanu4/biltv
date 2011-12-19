@@ -1231,6 +1231,11 @@ class CardService(models.Model):
             c.save()
 
         super(self.__class__, self).save(*args, **kwargs)
+        
+        if self.active:
+            self.promotion_on(self.activated)
+        else:
+            self.promotion_off(self.activated)
         if self.card.num>0:
             self.card.send_one()
 
