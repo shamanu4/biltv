@@ -79,11 +79,13 @@ class User(models.Model):
     def promotion_on(self,card,cs,pl,timestamp):
         if self.pi:
             self.pi.card_num = card.num
+        self.pi.save()
         self.tp_set(pl.abills_tp, timestamp)
     
     def promotion_off(self,card,cs,pl,timestamp):
         if self.pi:
             self.pi.card_num = card.num
+        self.pi.save()
         self.tp_set(pl.abills_tp, timestamp)
     
     def tp_set(self,tp,timestamp=datetime.now()):
