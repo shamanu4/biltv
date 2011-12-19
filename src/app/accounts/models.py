@@ -34,6 +34,7 @@ class User(BaseUser):
             ("rpc_abon_registers_get", "RPC abon.registers_get"),
             ("rpc_abon_registers_get_last", "RPC abon.registers_get_last"),
             ("rpc_abon_make_payment", "RPC abon.make_payment"),
+            ("rpc_abon_make_double_payment", "RPC abon.make_double_payment"),
             ("rpc_abon_feetypes_get", "RPC abon.feetypes_get"),
             ("rpc_abon_make_fee", "RPC abon.make_fee"),
             ("rpc_abon_make_transfer", "RPC abon.make_transfer"),
