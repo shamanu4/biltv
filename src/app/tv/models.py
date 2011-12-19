@@ -209,7 +209,8 @@ class FeeType(models.Model):
             
             if self.proportional:
                 sum=round(sum*self.get_proportion(date),2)
-                ret=round(sum*(1-self.get_proportion(date)),2)
+                if self.ftype==FEE_TYPE_ONCE:
+                    ret=round(sum*(1-self.get_proportion(date)),2)
             print {'fee':sum,'ret':ret,'full':sum,'bonus':bonus,'retbonus':retbonus}
             return {'fee':sum,'ret':ret,'full':sum,'bonus':bonus,'retbonus':retbonus}
         
