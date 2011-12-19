@@ -350,6 +350,7 @@ class Bill(models.Model):
         return "%s" % self.balance_get()        
 
     def get_credit(self,dt=None):
+        return 1000
         from django.db.models import Sum
         if not dt:
             dt = date.today()               
