@@ -3,6 +3,7 @@
 from django.db import models
 from logger.models import logging_postsave, logging_postdelete
 from datetime import datetime, date
+from abills.models import Tp
 
 class Trunk(models.Model):
 
@@ -1021,19 +1022,39 @@ class Card(models.Model):
         except:
             return None
     
-    def promotion(self,fee):
+    def abills_get_user(self,login):
         from abills.models import User
-        print "card promotion"        
+        try:
+            return User.objects.get(login__exact=login)
+        except:            
+            return None        
+        
+    def promotion(self,fee):
+        print "card fee promotion"        
         service = self.get_service(fee.tp)
         if not service:
-            print "no service for promotion"
+            print "no service for fee promotion"
             return False
-        try:
-            u = User.objects.get(login__exact=service.extra)
-        except:
-            print "no user for promotion"
+        
+        u = self.abills_get_user(service.extra)
+        if not u:
+            print "no user for fee promotion"
             return False
         u.promotion(fee)
+    
+    def promotion_on(self,cs,pl,timestamp):
+        u = self.abills_get_user(cs.extra)
+        if not u:
+            print "no user for tp promotion on"
+            return False
+        u.promotion_on(self,cs,pl,timestamp)
+    
+    def promotion_off(self,cs,pl,timestamp):
+        u = self.abills_get_user(cs.extra)
+        if not u:
+            print "no user for tp promotion off"
+            return False
+        u.promotion_off(self,cs,pl,timestamp)
     
     # WARNING! This method was used once during MIGRATION. Future uses RESTRICTED! This will cause  history DATA CORRUPT!  
     def timestamp_and_activation_fix(self):
@@ -1259,6 +1280,7 @@ class CardService(models.Model):
             else:
                 self.deactivate()
                 return False
+            self.promotion_on(activated)
             self.save(sdate=activated,descr=descr)
         if isinstance(activated,datetime):
             activated = activated.date()
@@ -1274,8 +1296,35 @@ class CardService(models.Model):
             for fee in fees:
                 fee.make_ret(self.card,deactivated)
             self.active=False
+            self.promotion_off(deactivated)
             self.save(sdate=deactivated,descr=descr)
         return True
+    
+    def promotion_link_get(self):
+        try:
+            pl = PromotionLink.objects.get(tp=self.tp)
+        except PromotionLink.DoesNotExist:
+            return None
+        else:
+            return pl
+    
+    def promotion_link_disabled_get(self):
+        try:
+            pl = PromotionLink.objects.get(tp__exact=None)
+        except PromotionLink.DoesNotExist:
+            return None
+        else:
+            return pl
+    
+    def promotion_on(self,activated):
+        pl = self.promotion_link_get()
+        if pl:
+            self.card.promotion_on(self,pl,activated)
+                
+    def promotion_off(self,deactivated):
+        pl = self.promotion_link_disabled_get()
+        if pl:
+            self.card.promotion_off(self,pl,deactivated)
 
     def make_fees(self,date):
         for fee in self.tp.fees.all():
@@ -1340,9 +1389,20 @@ class FeesCalendar(models.Model):
             month = date_formatter(date)['month']
             cls.make_fees(month)            
             instance = cls(timestamp=month)
-            instance.save()
+            instance.save()    
     
     
-            
+    
+class PromotionLink(models.Model):
 
+    tp = models.ForeignKey(TariffPlan,related_name='promotions',unique=True,blank=True,null=True)
+    abills_tp_id = models.IntegerField(choices=Tp.choices(),db_column="abills_tp_id") 
 
+    @property
+    def abills_tp(self):
+        from abills.models import Tp
+        try:
+            return Tp.objects.get(pk=self.abills_tp_id)
+        except:
+            return None 
+        

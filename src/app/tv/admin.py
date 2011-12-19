@@ -201,3 +201,10 @@ PaymentRegister
 class PaymentRegisterAdmin(admin.ModelAdmin):
     pass
 admin.site.register(PaymentRegister, PaymentRegisterAdmin)
+
+"""
+PromotionLink
+"""
+class PromotionLinkAdmin(admin.ModelAdmin):
+    list_display=('tp','abills_tp')
+admin.site.register(PromotionLink, PromotionLinkAdmin)

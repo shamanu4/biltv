@@ -153,7 +153,6 @@ class AddressForm(forms.Form):
     comment = forms.CharField(required=False)
     
     def save(self,obj):
-        print self.cleaned_data
         from abon.models import Address,Building
         if not obj:
             obj = Address()
@@ -201,23 +200,15 @@ class AbonentForm(forms.Form):
             return (False,obj,'person not found')
         
         msg=''
-        print "---1"
-        print obj
         if obj and obj.pk:
             pass
-            print 'obj!'
         else:
-            print 'not obj'
             try: 
                 obj = Abonent.objects.get(person=person,address=address)
             except Abonent.DoesNotExist:
                 pass
-                print 'not exist'
-                print person
-                print address
                 obj = Abonent(disabled=True)
             else:
-                print 'exists'
                 msg='Абонент существует... режим редактирования включён...'            
                             
                 
@@ -228,12 +219,9 @@ class AbonentForm(forms.Form):
         obj.deleted = self.cleaned_data['deleted'] or False
         obj.confirmed = self.cleaned_data['confirmed'] or False
         obj.comment = self.cleaned_data['comment']
-        print obj
-        print self.cleaned_data
         try:
             obj.save()
         except IntegrityError as error:
-            print 'integrity error'
             return (False,obj,error[1].decode('utf8'))
         else:
             return (True,obj,msg)

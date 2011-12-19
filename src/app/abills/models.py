@@ -67,9 +67,28 @@ class User(models.Model):
         ordering = ['login']
 
     def promotion(self,fee):
-        print "user promotion"
         self.payment(fee.bonus, u'акція. %s. %s' % (fee.tp.__unicode__(), fee.timestamp ) )        
-        
+    
+    def promotion_on(self,card,cs,pl,timestamp):
+        self.tp_set(pl.abills_tp, timestamp)
+    
+    def promotion_off(self,card,cs,pl,timestamp):
+        self.tp_set(pl.abills_tp, timestamp)
+    
+    def tp_set(self,tp,timestamp=datetime.now()):
+        self.admin_log('%s->%s' % (self.dv.tp,tp), timestamp)
+        self.dv.tp = tp
+        self.dv.save()
+    
+    def admin_log(self,text,timestamp=datetime.now()):
+        a = Admin.objects.get(pk=37)
+        al = AdminLog()
+        al.actions = text
+        al.datetime = timestamp
+        al.user = self
+        al.admin = a
+        al.save()
+    
     def payment(self,sum,dsc):
         a = Admin.objects.get(pk=37)
         p = Payment()
@@ -145,7 +164,7 @@ class Payment(models.Model):
         ordering = ['date']
 
     def __unicode__(self):
-        return self.uid.login
+        return self.sum
 
     def ip_to_num(self, ip_addr):
         sets = map(int, ip_addr.split("."))
@@ -169,3 +188,49 @@ class Payment(models.Model):
         self.save() 
         self.bill.deposit = self.bill.deposit + self.sum
         self.bill.save() 
+
+class Tp(models.Model):
+
+    name = models.CharField(max_length=120,unique=True)
+
+    class Meta:
+        db_table = 'tarif_plans'
+        ordering = ['name']
+
+    def __unicode__(self):
+        return self.name
+    
+    @classmethod    
+    def choices(cls):
+        res = []
+        for obj in cls.objects.all().order_by('pk'):
+            res.append((obj.pk,"%s: %s" % (obj.pk,obj.name)))
+        return res
+
+
+
+class Dv(models.Model):
+
+    user = models.OneToOneField(User,db_column='uid',related_name="dv",primary_key=True)
+    tp = models.ForeignKey(Tp)
+
+    class Meta:
+        db_table = 'dv_main'
+        ordering = ['user__login']
+
+    def __unicode__(self):
+        return "%s - %s" % (self.user.login, self.tp.name)
+    
+
+class AdminLog(models.Model):
+    actions = models.CharField(max_length=120)
+    datetime = models.DateTimeField(default=datetime.now)
+    ip = models.IntegerField(default=ip_to_num('127.0.0.1'))
+    user = models.ForeignKey(User,db_column='uid')
+    admin = models.ForeignKey(Admin,db_column='aid')
+    module = models.CharField(max_length=20, default="Dv")
+    action_type = models.PositiveSmallIntegerField(default=3)
+    
+    class Meta:
+        db_table = 'admin_actions'
+        ordering = ['-datetime']
