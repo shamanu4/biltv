@@ -1253,7 +1253,7 @@ class CardService(models.Model):
         super(self.__class__, self).delete(*args, **kwargs)
         self.card.send_one()
 
-    def activate(self,activated = None, descr =''):
+    def activate(self,activated = None, descr ='', no_log=False):
         print 'activating service'
         print activated
         print self.active
@@ -1287,7 +1287,7 @@ class CardService(models.Model):
                 self.deactivate()
                 return False
             self.promotion_on(activated)
-            self.save(sdate=activated,descr=descr)
+            self.save(sdate=activated,descr=descr,no_log=no_log)
         if isinstance(activated,datetime):
             activated = activated.date()
         self.check_past_activation(activated)
