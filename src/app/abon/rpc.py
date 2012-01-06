@@ -1043,3 +1043,10 @@ class AbonApiClass(object):
             return dict(success=False, errors='')
     
     abonent_delete._args_len = 1
+    
+    def report(self, rdata, request):
+        print rdata
+        print request
+        return False
+    
+    report._args_len = 1

@@ -372,6 +372,11 @@ Engine = {
 						})
 					}
 				},
+			},
+			report: {
+				launch: function() {
+					window.open('/report','_newtab');
+				}
 			}
         },
         scrambler: {

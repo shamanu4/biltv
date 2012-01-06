@@ -49,7 +49,7 @@ def store_read(func):
                 query=None
                 if 'query' in rdata:
                     for node in rdata['filter_fields']:
-                        val=rdata['query']   
+                        val=unicode(rdata['query'])                        
                         wild = val.split('*')                 
                         query2 = None
                         for v in wild:
@@ -61,9 +61,9 @@ def store_read(func):
                                         query2 = Q(**{"%s" % str(node):v})
                                 else:
                                     if query2:                            
-                                        query2 = query2 & Q(**{"%s__istartswith" % str(node):v})
+                                        query2 = query2 & Q(**{"%s__icontains" % str(node):v})
                                     else:
-                                        query2 = Q(**{"%s__icontains" % str(node):v})
+                                        query2 = Q(**{"%s__istartswith" % str(node):v})
                         if query:
                             query = query | query2
                         else:
@@ -73,7 +73,7 @@ def store_read(func):
                         if 'passport' in node:
                             val=latinaze(rdata['filter_value'])
                         else:
-                            val=rdata['filter_value']
+                            val=unicode(rdata['filter_value'])
                         wild = val.split('*')
                         query2 = None
                         for v in wild:
@@ -95,8 +95,8 @@ def store_read(func):
                 if query:
                     result = result.filter(query)
             if 'filter' in rdata:
-                if not rdata['filter']=='':
-                    result = result.filter(rdata['filter'])
+                for item in rdata['filter']:
+                    result = result.filter(**{item:rdata['filter'][item]})
             if 'sort' in rdata:
                 if 'dir' in rdata and rdata['dir']=='DESC':
                     result = result.order_by('-%s' % rdata['sort'])

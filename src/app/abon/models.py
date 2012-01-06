@@ -272,6 +272,8 @@ class Building(models.Model):
         obj['id'] = self.pk
         obj['street'] = self.street.id
         obj['house'] = self.house.id
+        obj['street_name'] = self.street.name
+        obj['house_num'] = self.house.num
         obj['comment'] = self.comment
         return obj
 
@@ -370,7 +372,11 @@ class Bill(models.Model):
     @property
     def balance_rounded(self):
         return int(self.balance_get()*100)/100.0
-
+    
+    @property
+    def balance_wo_credit(self):
+        return self.balance_get_wo_credit()
+    
     @property
     def bin_balance(self):
         from lib.functions import int_to_4byte_wrapped
@@ -404,7 +410,7 @@ class Abonent(models.Model):
     person = models.ForeignKey(Person, related_name='abonents')
     address = models.ForeignKey(Address, related_name='abonents')
     group = models.ForeignKey(Group, default=1, related_name='members')
-    activated = models.DateTimeField(default=datetime.now)
+    #activated = models.DateTimeField(default=datetime.now)
     #deactivated = models.DateTimeField(blank=True, null=True)
     deleted = models.BooleanField(default=False)
     comment = models.TextField(blank=True, null=True)
@@ -452,7 +458,17 @@ class Abonent(models.Model):
             return ''
         else:
             return last_disabled.date
-        
+    
+    @property
+    def activated(self):
+        from tv.models import CARD_SERVICE_ACTIVATED
+        try:
+            last_disabled = self.catv_card.service_log.filter(action=CARD_SERVICE_ACTIVATED).latest('date')
+        except:
+            return ''
+        else:
+            return last_disabled.date
+    
     
     def disable(self,date=None,descr=''):
         print "abonent disabling..."
@@ -762,6 +778,7 @@ class Abonent(models.Model):
         obj['disabled'] = self.disabled
         obj['fee'] = 25
         obj['bill__balance'] = self.bill.balance_get()
+        obj['bill__balance_wo_credit'] = self.bill.balance_get_wo_credit()
         return obj
 
 

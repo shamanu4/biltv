@@ -36,3 +36,7 @@ def traceback(request):
     msg.send()
 
     return HttpResponse(rendered)
+
+@render_to('ui/report.html')
+def report(request):
+    return {}

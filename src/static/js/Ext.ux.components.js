@@ -227,6 +227,12 @@ Ext.ux.menu = {
                     'text': 'Отчёт по оплатам',
                     'oid': 0,
                     'my_owner_ct_id':0
+                },{
+                    'id': 'menu-cashier-report-button',
+                    'handler': Engine.menu.cashier.report.launch,
+                    'text': 'Отчет по задолженностям',
+                    'oid': 0,
+                    'my_owner_ct_id':0
                 }
             ]
         }
