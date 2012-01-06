@@ -5,7 +5,12 @@
 	<style>
 		
 	body {
-		overflow-y: scroll !important
+		overflow-y: scroll !important		
+	}
+	.x-grid3-cell-shadowed{
+		border-top: 1px dotted #c0c0c0;
+		color: #505050;
+		white-space: normal; 		
 	}
 	</style>
 {% endblock %}
@@ -194,7 +199,13 @@
                 },
                 {header: "Подключен", dataIndex: 'activated', width:75, sortable:false},
                 {header: "Отключен", dataIndex: 'deactivated', width:75, sortable:false},
-                
+                {header: "", dataIndex: 'comment', width:5, sortable:false, 
+                	renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                		if(value){
+                			return '</td></tr><tr><td colspan="7"><div class="x-grid3-cell-inner x-grid3-cell-shadowed" unselectable="on">'+value+'</div></td></tr>'
+                		}                	
+                	}
+                },
             ],       
         }
         Ext.apply(this, Ext.apply(this.initialConfig, config));

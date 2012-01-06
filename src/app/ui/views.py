@@ -16,6 +16,7 @@ def traceback(request):
         traceback_text = request.POST.get('traceback',None)
         traceback_descr = request.POST.get('traceback-descr',None)
         context = {
+            'USER_REPORTED':request.user,
             'PROGRAM_VERSION':PROGRAM_VERSION,
             'TRACEBACK_TEXT':traceback_text,
             'TRACEBACK_DESCR':traceback_descr,
@@ -28,7 +29,7 @@ def traceback(request):
     
     from django.core.mail import EmailMultiAlternatives
 
-    subject, from_email, to = 'BilTV crit error', 'biltv@it-tim.net', 'mm@it-tim.net'
+    subject, from_email, to = 'BilTV crit error (%s)' % request.user, 'biltv@it-tim.net', 'mm@it-tim.net'
     text_content = 'BilTV crashreport:'
     html_content = rendered
     msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
