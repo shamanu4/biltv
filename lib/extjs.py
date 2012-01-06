@@ -97,6 +97,8 @@ def store_read(func):
             if 'filter' in rdata:
                 for item in rdata['filter']:
                     val = unicode(rdata['filter'][item])
+                    print item
+                    print val
                     result = result.filter(**{item:val})
             if 'sort' in rdata:
                 if 'dir' in rdata and rdata['dir']=='DESC':
