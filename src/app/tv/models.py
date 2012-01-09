@@ -210,7 +210,7 @@ class FeeType(models.Model):
             if self.proportional:
                 sum=round(sum*self.get_proportion(date),2)
                 if self.ftype==FEE_TYPE_ONCE:
-                    ret=round(sum*(1-self.get_proportion(date)),2)
+                    ret=sum
             print {'fee':sum,'ret':ret,'full':sum,'bonus':bonus,'retbonus':retbonus}
             return {'fee':sum,'ret':ret,'full':sum,'bonus':bonus,'retbonus':retbonus}
         
@@ -1298,7 +1298,7 @@ class CardService(models.Model):
         print 'deactivating service'
         print deactivated
         if self.active:
-            fees = self.tp.fees.filter(Q(fee_type__ftype__exact=FEE_TYPE_CUSTOM)|Q(fee_type__proportional__exact=True))
+            fees = self.tp.fees.filter(Q(fee_type__ftype__exact=FEE_TYPE_CUSTOM)|Q(fee_type__proportional__exact=True,fee_type__ftype__exact=FEE_TYPE_ONCE))
             for fee in fees:
                 fee.make_ret(self.card,deactivated)
             self.active=False

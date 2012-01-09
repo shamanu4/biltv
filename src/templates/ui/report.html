@@ -205,11 +205,13 @@
                 },
                 {header: "Подключен", dataIndex: 'activated', width:75, sortable:false},
                 {header: "Отключен", dataIndex: 'deactivated', width:75, sortable:false},
-                {header: "", dataIndex: 'comment', width:0, sortable:false, 
+                {header: "", dataIndex: 'comment', width:22, sortable:false, 
                 	renderer: function(value, metaData, record, rowIndex, colIndex, store) {
                 		if(value){
                 			return '</td></tr><tr><td><div class="x-grid3-cell-inner x-grid3-cell-shadowed">Коментар:</div></td><td colspan="6"><div class="x-grid3-cell-inner x-grid3-cell-shadowed" unselectable="on">'+value+'</div></td></tr>'
-                		}                	
+                		} else {
+                			return '</td></tr>'
+                		}
                 	}
                 },
             ],       
