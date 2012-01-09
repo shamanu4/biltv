@@ -1657,13 +1657,11 @@ Ext.ux.AbonCardsGrid = Ext.extend(Ext.ux.CustomGrid ,{
                 singleSelect: true,
                 listeners: {
                     rowselect: {
-                        fn: function(sm,index,record) {          
-                            var store = Ext.ux.free_card_combo_store
-							var tpstore = sm.grid.parent_form.children_forms.tariffs.obj.store
+                        fn: function(sm,index,record) {                                      
+							var tpstore = sm.grid.parent_form.children_forms.tariffs.obj.store							
                             if (typeof(record.id)=='number') {								
                                 tpstore.setBaseParam('card_id',record.id)
-								tpstore.load()
-                                store.load()
+								tpstore.load()                                
                             } else {
                                 //this.store.load()
                             }
@@ -1678,6 +1676,8 @@ Ext.ux.AbonCardsGrid = Ext.extend(Ext.ux.CustomGrid ,{
             		renderer: function(value, metaData, record, rowIndex, colIndex, store) {
             			if (value===undefined) {
                     		this.editable=true
+                    		var store = Ext.ux.free_card_combo_store
+                    		store.load()
                 		}
                 		if (value<0) {
                     		return '<b>CaTV</b>';
