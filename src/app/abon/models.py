@@ -536,6 +536,31 @@ class Abonent(models.Model):
             card.make_fees(date)
         return True
     
+    def was_active(self,date):
+        from tv.models import CARD_SERVICE_ACTIVATED, CARD_SERVICE_DEACTIVATED
+        last_activated_qs = self.catv_card.service_log.filter(action=CARD_SERVICE_ACTIVATED,date__lte=date).order_by('-date')
+        last_deactivated_qs = self.catv_card.service_log.filter(action=CARD_SERVICE_DEACTIVATED,date__lte=date).order_by('-date')
+        if not last_activated_qs.count():
+            return False
+        if not last_deactivated_qs.count():
+            return True
+        
+        last_activated = last_activated_qs[0]
+        last_deactivated = last_deactivated_qs[0]
+        
+        if last_activated.date < last_deactivated.date:
+            return False
+        if last_activated.date > last_deactivated.date:
+            return True
+        if last_activated.timestamp < last_deactivated.timestamp:
+            return False
+        if last_activated.timestamp > last_deactivated.timestamp:
+            return True
+        if last_activated.pk < last_deactivated.pk:
+            return False
+        else:
+            return True
+        
     # WARNING! This method was used once during MIGRATION. Future uses RESTRICTED! This will cause  history DATA CORRUPT!  
     def import_catv_history(self):        
         from tv.models import CardHistory, CARD_SERVICE_ACTIVATED, CARD_SERVICE_DEACTIVATED
