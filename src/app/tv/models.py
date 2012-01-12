@@ -497,6 +497,7 @@ class Payment(models.Model):
         self.bill.save()
         self.maked=True
         self.save()
+        self.register.try_close()
         return (True,self)
 
     @property
