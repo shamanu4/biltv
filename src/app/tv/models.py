@@ -497,7 +497,11 @@ class Payment(models.Model):
         self.bill.save()
         self.maked=True
         self.save()
-        self.register.try_close()
+        try:
+            self.register.try_close()
+        except:
+            #payment has no register
+            pass                        
         return (True,self)
 
     @property
