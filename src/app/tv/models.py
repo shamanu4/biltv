@@ -376,7 +376,7 @@ class PaymentRegister(models.Model):
         return False
     
     def get_stamps(self):
-        return PaymentRegisterStamp.filter(register=self)
+        return PaymentRegisterStamp.objects.filter(register=self)
 
     @property
     def is_confirmed(self):
