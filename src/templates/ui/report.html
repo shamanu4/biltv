@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base2.html' %}
 {% block head %}
 	<script type="text/javascript" src="{% url ui:api %}?v={{ PROGRAM_VERSION }}і"></script>
 	<script type="text/javascript" src="{{ MEDIA_URL }}js/Ext.stores.js?v={{ PROGRAM_VERSION }}"></script>
@@ -22,9 +22,13 @@
 {% endblock %}
 {% block body %}
     <script type="text/javascript">
+    
+    window.lines  =0;
+    
     Ext.onReady(function(){
 		
 		load_mask = new Ext.LoadMask(Ext.getBody(),{msg:null});
+		//document.styleSheets[0].cssRules[942].style.removeProperty('overflow')
 		
 		street_store = new Ext.data.DirectStore({
     		api: {
@@ -167,6 +171,10 @@
         			filter_value:''
        			},
        			listeners:{
+       				beforeload: function(obj) {
+       					window.lines = 0;
+       					return true
+       				},
         			load: function (obj) {
         				obj.filterBy(
         					function(record, id){
@@ -178,8 +186,9 @@
         						}
 							}        					
         				)
-        				load_mask.hide();
-        				Ext.getCmp('report-grid-result').setHeight(150+21*obj.data.items.length);
+        				load_mask.hide();        				        				
+        				Ext.getCmp('report-grid-result').setHeight(200+23*obj.data.items.length+(window.lines));
+        				$('body').height($(document).height());
         			}
         		}
     		}),
@@ -208,13 +217,14 @@
                 {header: "", dataIndex: 'comment', width:22, sortable:false, 
                 	renderer: function(value, metaData, record, rowIndex, colIndex, store) {
                 		if(value){
+                			window.lines++;
                 			return '</td></tr><tr><td><div class="x-grid3-cell-inner x-grid3-cell-shadowed">Коментар:</div></td><td colspan="6"><div class="x-grid3-cell-inner x-grid3-cell-shadowed" unselectable="on">'+value+'</div></td></tr>'
                 		} else {
                 			return '</td></tr>'
                 		}
                 	}
                 },
-            ],       
+            ],
         }
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         abonent_grid.superclass.initComponent.apply(this, arguments);
