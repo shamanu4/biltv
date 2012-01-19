@@ -187,8 +187,8 @@
 							}        					
         				)
         				load_mask.hide();        				        				
-        				Ext.getCmp('report-grid-result').setHeight(200+23*obj.data.items.length+(window.lines));
-        				$('body').height($(document).height());
+        				Ext.getCmp('report-grid-result').setHeight(200+23*obj.data.items.length+(window.lines));        				
+        				//$('body').height($(document).height());
         			}
         		}
     		}),
@@ -198,7 +198,7 @@
         	var config = {
         	store:  abonent_store,
             title: 'Результат пошуку',
-            closable: true,
+            //closable: true,
             columns: [
                 {header: "Code", dataIndex: 'code', width:80, sortable:true},
                 {header: "ФИО", dataIndex: 'person', width:140, sortable:true},
@@ -251,7 +251,8 @@
                 text: 'Друкувати',
                 handler: function(){
                     this.collapse();
-                    setTimeout("window.print();",500);                    
+                    setTimeout("window.print();",500);
+                    this.expand.defer(2000, this);;                    
                 },
                 scope: this
             }],
@@ -342,7 +343,10 @@
     
 		});
 		
-		vp = new main_viewport();
+		//vp = new main_viewport();
+		
+		new report_form({id:'report-form-cmp'});
+		new abonent_grid({renderTo:'content', id:'report-grid-result'});
 		
 		Ext.Ajax.timeout = 30000;  
 		
@@ -381,8 +385,8 @@
     </script>
     
     {% csrf_token %}
-    <center>
+
     <div id="content"></div>
-    </center>
+
     
 {% endblock %}
