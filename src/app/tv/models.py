@@ -1223,7 +1223,8 @@ class CardService(models.Model):
                     oid = old.tp.pk
                 
         if 'no_log' in kwargs:
-            action = None
+            if kwargs['no_log']:
+                action = None
             del kwargs['no_log']
         
         if not action == None:
