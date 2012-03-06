@@ -1836,6 +1836,11 @@ Ext.ux.AbonCardsTpGrid = Ext.extend(Ext.ux.CustomGrid ,{
         		{header: "login", dataIndex: 'extra', width:80,
         			editor: new Ext.form.TextField(),
         		},
+        		{header: "", dataIndex: 'id', width:26,
+            		renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                		return '<img src="/static/extjs/custom/right_16.png" class="abon_tp_move" val="'+record.data.id+'">';
+            		}
+        		},
     		]
         }
         Ext.apply(this, Ext.apply(this.initialConfig, config));
@@ -3966,3 +3971,102 @@ Ext.ux.TransferForm = Ext.extend(Ext.Panel ,{
         Ext.ux.FeeForm.superclass.initComponent.apply(this, arguments);
     }    
 })
+
+Ext.ux.AbonTpMoveCombo = Ext.extend(Ext.form.ComboBox, {
+    initComponent: function() {
+        var config = {
+        	//cs_id:0,
+        	fieldLabel:'Перенести на',
+            store: new Ext.data.DirectStore({
+    		    api: {
+    		        read: AbonApi.card_get_for_move,
+    		        create: AbonApi.foo,
+    		        update: AbonApi.foo,
+    		        destroy: AbonApi.foo
+    		    },
+    		    restful: true,
+    		    autoLoad: true,
+    		    reader: new Ext.data.JsonReader({
+    		        root: 'data',
+    		        totalProperty: 'total',
+    		        //idProperty: 'id',
+    		        fields: [
+    		            'id',
+    		            'num',
+    		        ]
+    		    }),
+    		    baseParams : {        
+    		        service_id:0
+    		    },
+    		    listeners: {
+                    load: {
+                        fn: function(store,records,options){                            
+                            for(i in records) {                            	
+                            	if(records[i].data.num < 0) {
+                            		records[i].data.num = 'CaTV'
+                            	}
+                            }
+                        },
+                        scope: this
+                    }
+                }
+    		}),
+            editable: false,            
+            forceSelection: true,
+            lazyRender: false,
+            triggerAction: 'all',
+            valueField: 'id',
+            displayField: 'num',
+            mode: 'local'
+        }
+        Ext.apply(this, Ext.apply(this.initialConfig, config));
+        Ext.ux.SourceCombo.superclass.initComponent.apply(this, arguments);
+        this.store.setBaseParam('service_id',this.cs_id)
+    }
+});
+
+Ext.ux.AbonTpMoveForm = Ext.ux.AbonInfoPanel = Ext.extend(Ext.Window ,{
+    initComponent: function() {
+        var config = {
+        	//cs_id: 0,
+            closable: true,
+            title: 'Перенос тарифа',
+            layout: 'form',
+            border: true,
+            modal: true,
+            width: 350,
+            height: 80,
+            items: [
+            	this.card_combo = new Ext.ux.AbonTpMoveCombo({cs_id:this.cs_id})
+            ],
+            bbar: [
+            	this.submit_button = new Ext.Button({
+            		text: 'перенести',
+            		handler: function() {
+            			card_id = parseInt(this.card_combo.getValue())
+            			if(!card_id) {
+            				alert('выберите карту')
+            			} else {
+            				Engine.menu.cashier.abon_card_func.tp_move(this.cs_id,card_id)
+            				this.close()
+            			}
+            		},
+            		scope: this
+            	}),
+            	new Ext.Toolbar.Separator(),
+            	this.cancel_button = new Ext.Button({
+            		text: 'отменить',
+            		handler: function() {
+            			this.close()
+            		},
+            		scope: this
+            	})
+            
+            ]
+        }
+        Ext.apply(this, Ext.apply(this.initialConfig, config));
+        Ext.ux.AbonTpMoveForm.superclass.initComponent.apply(this, arguments);        
+    }
+});
+alert
+

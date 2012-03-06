@@ -444,8 +444,6 @@ class AbonApiClass(object):
             extra=rdata['data']['extra']
         except:
             extra = ''    
-        print "~"
-        print extra
         cs_id=rdata['data']['id']
         try:
             activated = datetime.strptime(rdata['data']['activated'],'%Y-%m-%dT%H:%M:%S').date()
@@ -502,6 +500,38 @@ class AbonApiClass(object):
         #return dict(success=False, title='Сбой загрузки тарифов', msg='not implemented yet', errors='', data={})
     
     cards_tp_deactivate._args_len = 1
+
+    @check_perm('accounts.rpc_abon_cards_tp_set')
+    def cards_tp_move(self,rdata,request):
+        from tv.models import Card, CardService    
+        card_id=rdata['card_id']
+        service_id=rdata['service_id']
+        c = Card.objects.get(pk=card_id)
+        cs = CardService.objects.get(pk=service_id)
+        if not c.owner == cs.card.owner or not cs.card.active:
+            return dict(success=False, title='Сбой переноса тарифа', msg='card owner mismatch or not active', errors='', data={})
+        cs.card = c
+        cs.save()
+        return dict(success=True, title='Тприф перенесен', msg='moved...', data={} )
+        #return dict(success=False, title='Сбой загрузки тарифов', msg='not implemented yet', errors='', data={})
+    
+    cards_tp_move._args_len = 1
+            
+    @check_perm('accounts.rpc_abon_cards_tp_set')
+    @store_read
+    def card_get_for_move(self,rdata,request):
+        from tv.models import Card, CardService
+        from django.db.models import Q
+        service_id=rdata['service_id']
+        try:
+            cs = CardService.objects.get(pk=service_id)
+        except:
+            return dict(success=False, title='сбой переноса тарифа', msg='service not found', errors='', data={})
+        cards = cs.card.owner.cards.filter(Q(active=True)&~Q(pk=cs.card.pk))
+        return cards
+        #return dict(success=False, title='Сбой загрузки тарифов', msg='not implemented yet', errors='', data={})
+    
+    card_get_for_move._args_len = 1
     
     @check_perm('accounts.rpc_abon_cards_tp_set')
     def card_unbind(self,rdata,request):

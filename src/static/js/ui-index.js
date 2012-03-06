@@ -142,6 +142,11 @@ Ext.onReady(function(){
 		o = e.currentTarget;
 		Engine.menu.cashier.abon_card_func.tp_unbind(o.getAttribute('val'),o);
 	});
+	
+	$(".abon_tp_move").live('click', function(e) {
+		o = e.currentTarget;
+		Engine.menu.cashier.abon_card_func.tp_move_form(o.getAttribute('val'),o);
+	});
 });
 
 

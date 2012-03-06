@@ -365,6 +365,21 @@ Engine = {
 						})					
 					}
 				},
+				tp_move_form: function(card_service_id) {
+					//alert(card_service_id)
+					w = new Ext.ux.AbonTpMoveForm({
+						cs_id:card_service_id,
+					})
+					w.show();
+				},
+				
+				tp_move: function(card_service_id,card_id) {
+					AbonApi.cards_tp_move({
+						//18779
+						service_id:card_service_id,
+						card_id:card_id,
+					})
+				},
 				tp_unbind: function(card_service_id) {
 					if(confirm("удалить тариф?")) {
 						AbonApi.cards_tp_delete({
