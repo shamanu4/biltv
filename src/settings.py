@@ -129,10 +129,7 @@ SCR1_IP = "192.168.33.158"
 #SCR1_IP = "127.0.0.1"
 SCR1_PORT = 49153
 
-DEFAULT_CATV_TP_ID = 1
 PROGRAM_VERSION = 'v0.13.1'
-
-
 
 try:
     from settings_local import *
