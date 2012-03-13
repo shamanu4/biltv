@@ -92,7 +92,9 @@ class User(models.Model):
         pi.save()
         self.tp_set(pl.abills_tp, timestamp)
     
-    def tp_set(self,tp,timestamp=datetime.now()):
+    def tp_set(self,tp,timestamp):
+        if not timestamp:
+            timestamp=datetime.now()
         self.admin_log('%s->%s' % (self.dv.tp,tp), timestamp)
         self.dv.tp = tp
         self.dv.save()
