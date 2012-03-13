@@ -352,12 +352,16 @@ class Bill(models.Model):
         return "%s" % self.balance_get()        
 
     def get_credit(self,dt=None):
-        return 1000
         from django.db.models import Sum
+        import settings
         if not dt:
             dt = date.today()               
-        return self.credits.filter(valid__exact=True,valid_from__lte=dt,valid_until__gte=dt).aggregate(total=Sum('sum'))['total'] or 0
-
+        credit = self.credits.filter(valid__exact=True,valid_from__lte=dt,valid_until__gte=dt).aggregate(total=Sum('sum'))['total'] or 0
+        if credit < settings.ALL_USERS_CREDIT:
+            return settings.ALL_USERS_CREDIT
+        return credit
+        
+        
     def balance_get_wo_credit(self):
         from django.db.models import Sum               
         return self.balance + (self.payments.filter(maked__exact=False,deleted__exact=False,rolled_by__exact=None).aggregate(total=Sum('sum'))['total'] or 0)
