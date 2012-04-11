@@ -3,7 +3,7 @@
 from django.db import models
 from logger.models import logging_postsave, logging_postdelete
 from datetime import datetime, date
-from abills.models import Tp
+from app.abills.models import Tp
 
 class Trunk(models.Model):
 
@@ -451,7 +451,9 @@ class Payment(models.Model):
 
     def save(self, *args, **kwargs):
         super(self.__class__, self).save(*args, **kwargs)
+        print "!"
         for fee in self.bill.fees.filter(maked__exact=False,deleted__exact=False,rolled_by__exact=None):
+            print fee
             if not fee.card or not fee.tp:
                 fee.make()
             else:
@@ -459,9 +461,10 @@ class Payment(models.Model):
                     cs = CardService.objects.get(card=fee.card,tp=fee.tp)
                 except CardService.DoesNotExist:
                     pass
-                else:
-                    #cs.activate(activated=fee.timestamp.date())
-                    cs.activate()
+                else:                    
+                    cs.activate(activated=fee.timestamp.date())
+                    fee.delete()
+                    #cs.activate()
 
     def store_record(self):
         obj = {}
@@ -1261,23 +1264,24 @@ class CardService(models.Model):
 
         super(self.__class__, self).delete(*args, **kwargs)
         self.card.send_one()
-
-    def activate(self,activated = None, descr ='', no_log=False):
-        print 'activating service'
-        print activated
-        print self.active
-        if not self.active:
-            fees = self.tp.fees.all()
+    
+    def check_negative(self,fees,date,fee_types_allowed):
             print fees
             ok = True
             total = 0
             allow_negative = True
             prepared = []
             for fee in fees:
-                if not fee.fee_type.ftype in (FEE_TYPE_ONCE, FEE_TYPE_CUSTOM ):
-                    continue
-                f = fee.check_fee(self.card,activated,hold=True)
+                print "cycle" 
+                print fee
+                print fee.fee_type.ftype
+                if not fee.fee_type.ftype in fee_types_allowed:
+                    continue                
+                f = fee.check_fee(self.card,date,hold=True)
+                print f
                 if f[0]: prepared.append(f[1])
+            print "prepared fees:"
+            print prepared
             for fee in prepared:
                 allow_negative = allow_negative and fee.fee_type.allow_negative
                 total += fee.sum
@@ -1289,6 +1293,15 @@ class CardService(models.Model):
                 for fee in prepared:
                     fee.inner_descr = "Not enough money"
                     fee.save()
+            return (ok,prepared,total)
+                    
+    def activate(self,activated = None, descr ='', no_log=False):
+        print 'activating service'
+        print activated
+        print self.active
+        if not self.active:
+            fees = self.tp.fees.all()
+            (ok,prepared,total) = self.check_negative(fees,activated,(FEE_TYPE_ONCE, FEE_TYPE_CUSTOM))
             if ok:
                 self.active=True
                 self.activated=activated or date.today()
@@ -1342,10 +1355,13 @@ class CardService(models.Model):
             self.card.promotion_off(self,pl,deactivated)
 
     def make_fees(self,date):
-        for fee in self.tp.fees.all():
-            if fee.fee_type.ftype in (FEE_TYPE_DAILY, FEE_TYPE_WEEKLY, FEE_TYPE_MONTHLY, FEE_TYPE_YEARLY):
-                fee.check_fee(self.card,date)
-    
+        fees = self.tp.fees.all()
+        (ok,prepared,total) = self.check_negative(fees,date,(FEE_TYPE_DAILY, FEE_TYPE_WEEKLY, FEE_TYPE_MONTHLY, FEE_TYPE_YEARLY))
+        if not ok:
+            self.active = False
+            self.save()
+            
+                
     def check_past_activation(self,activated):
         from lib.functions import date_formatter, add_months
         last_fee_date = FeesCalendar.get_last_fee_date().timestamp
