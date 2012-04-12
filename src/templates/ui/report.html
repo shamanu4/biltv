@@ -18,6 +18,10 @@
 		height: 100%;
 		white-space: normal !important; 		
 	}
+	.attention {
+		color: #f00000;
+		font-weight: bold;
+	}
 	</style>
 {% endblock %}
 {% block body %}
@@ -67,18 +71,23 @@
     		queryParam: 'query',  
     		hideTrigger: true,    
     		selectOnFocus: true,
-    		forceSelection: true,
+    		//forceSelection: true,
     		//allowBlank: false,
             allowBlank: true,
     		width: 250,
     		fieldLabel: 'Вулиця',
     		listeners: {
-    			change: {
+    			change: {    				
                 	fn: function(obj) {
-                		building_store.setBaseParam('filter',{'street__id':this.value})
-                		building_store.load()
-                		building_combo.setRawValue("")
-                		building_combo.setValue("")
+                		if(parseInt(this.value)>0) {
+                			Ext.get(this.el.dom).removeClass('attention')
+                		    building_store.setBaseParam('filter',{'street__id':parseInt(this.value)})
+                		    building_store.load()
+                		    building_combo.setRawValue("")
+                		    building_combo.setValue("")
+                		} else {
+                			Ext.get(this.el.dom).addClass('attention')
+                		}
                     }
                 },
     		}
@@ -267,8 +276,11 @@
                 if(form.items.items[1].value>0) {
                 	abonent_store.setBaseParam('filter_fields',['address__building__id__exact'])
                 	abonent_store.setBaseParam('filter_value',form.items.items[1].getValue())
-                } else {
+                } else if(form.items.items[0].value>0) {
                 	abonent_store.setBaseParam('filter_fields',['address__building__street__id__exact'])
+                	abonent_store.setBaseParam('filter_value',form.items.items[0].getValue())
+                } else {
+                	abonent_store.setBaseParam('filter_fields',['address__building__street__name__istartswith'])
                 	abonent_store.setBaseParam('filter_value',form.items.items[0].getValue())
                 }
                 abonent_store.setBaseParam('filter',{'bill__balance__lte':parseInt(form.items.items[2].getValue())})
