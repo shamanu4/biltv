@@ -401,6 +401,11 @@ class PaymentRegister(models.Model):
     @property
     def payments_maked(self):
         return self.payments.filter(maked__exact=True).count()
+
+    @property
+    def payments_maked_sum(self):
+        from django.db.models import Sum
+        return self.payments.filter(maked__exact=True).aggregate(payments_maked_sum=Sum('sum'))['payments_maked_sum']
     
     def store_record(self):
         obj = {}
@@ -415,6 +420,7 @@ class PaymentRegister(models.Model):
         obj['unicode'] = self.__unicode__()
         obj['payments_total'] = self.payments_total
         obj['payments_maked'] = self.payments_maked
+        obj['payments_maked_sum'] = self.payments_maked_sum
         return obj
         
         
