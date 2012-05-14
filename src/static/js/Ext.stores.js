@@ -508,7 +508,8 @@ Ext.ux.register_store = new Ext.data.DirectStore({
 			'end',
 			'bank',
 			'payments_total',
-			'payments_maked'
+			'payments_maked',
+            'payments_maked_sum'
         ]
     }),
     writer: new Ext.data.JsonWriter({

@@ -784,8 +784,8 @@ Ext.ux.RegisterGrid = Ext.extend(Ext.ux.CustomGrid ,{
             title: 'Реестры',
             ds_model: register_ds_model,
             columns: [
-                {header: "Id", dataIndex: 'id', width:100, editable:false},
-                {header: "Source", dataIndex: 'source', width:180, editable:false, editor: new Ext.ux.SourceCombo(),
+                {header: "Id", dataIndex: 'id', width:70, editable:false},
+                {header: "Source", dataIndex: 'source', width:165, editable:false, editor: new Ext.ux.SourceCombo(),
 					renderer: function(value, metaData, record, rowIndex, colIndex, store){
 						if (value === undefined) {
 							this.editable = true
@@ -857,6 +857,15 @@ Ext.ux.RegisterGrid = Ext.extend(Ext.ux.CustomGrid ,{
                       	return '<div class="maked_true_class">'+value+'</div>'
                       }
                    }
+                },
+                {header: "сума", dataIndex: 'payments_maked_sum', width:80, editable:false,
+                    renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                        if(!(record.data.payments_maked_sum==record.data.total)) {
+                            return '<div class="maked_false_class">'+value+'</div>'
+                        } else {
+                            return '<div class="maked_true_class">'+value+'</div>'
+                        }
+                    }
                 },
                 {header: " ", dataIndex: 'id', width: 28,
                     renderer: function(value, metaData, record, rowIndex, colIndex, store) {
