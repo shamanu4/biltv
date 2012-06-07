@@ -10,7 +10,7 @@ def payments_automake():
     from app.tv.models import PaymentAutoMake
     autoregs = PaymentAutoMake.objects.all()
     for autoreg in autoregs:
-        payments = autoreg.payments.filter(maked=False)
+        payments = autoreg.register.payments.filter(maked=False)
         for payment in payments:
             payment.make()
 
