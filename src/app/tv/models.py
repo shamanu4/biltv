@@ -1444,4 +1444,12 @@ class PromotionLink(models.Model):
             return Tp.objects.get(pk=self.abills_tp_id)
         except:
             return None 
-        
+
+
+
+class  PaymentAutoMake(models.Model):
+
+    register = models.OneToOneField(PaymentRegister)
+
+    def __unicode__(self):
+        return self.register.__unicode__()

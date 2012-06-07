@@ -70,7 +70,7 @@ Ext.ux.traceback = function() {
 	            	$("#traceback-content").removeAttr("disabled");
 	            	Ext.get("traceback-form").dom.submit();	          	    	           
 	            }
-	        }],	        
+	        }],
 	    }).show();
 	}
 	
