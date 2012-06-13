@@ -287,6 +287,15 @@ class TariffPlan(models.Model):
         super(self.__class__, self).save(*args, **kwargs)
         #self.send()
 
+    def get_fee(self):
+        from lib.functions import date_formatter
+        s = 0
+        fees = self.fee_list.filter(ftype=FEE_TYPE_MONTHLY):
+        for fee in fees:
+            s += fee.get_sum(date_formatter()['month'])['fee']
+        return s
+
+
     @property
     def bin_flags(self):
         res = []
@@ -313,7 +322,7 @@ class TariffPlan(models.Model):
     def store_record(self):
         obj = {}
         obj['id'] = self.pk
-        obj['name'] = self.__unicode__()
+        obj['name'] = "%s (%s)" % (self.__unicode__(),self.get_fee())
         return obj
 
 
@@ -467,7 +476,7 @@ class Payment(models.Model):
                     cs = CardService.objects.get(card=fee.card,tp=fee.tp)
                 except CardService.DoesNotExist:
                     pass
-                else:                    
+                else:
                     cs.activate(activated=fee.timestamp.date())
                     fee.delete()
                     #cs.activate()
