@@ -277,7 +277,7 @@ class TariffPlan(models.Model):
         verbose_name_plural=u'тарифные планы'
         
     def __unicode__(self):
-        return "%s" % self.name
+        return "%s (%s)" % (self.name,self.get_fee())
 
     def send(self):
         for service in self.services.filter(card__num__gte=0):
@@ -290,7 +290,7 @@ class TariffPlan(models.Model):
     def get_fee(self):
         from lib.functions import date_formatter
         s = 0
-        fees = self.fee_list.filter(ftype=FEE_TYPE_MONTHLY):
+        fees = self.fee_list.filter(ftype=FEE_TYPE_MONTHLY)
         for fee in fees:
             s += fee.get_sum(date_formatter()['month'])['fee']
         return s
