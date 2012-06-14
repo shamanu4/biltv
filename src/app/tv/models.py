@@ -2,7 +2,7 @@
 
 from django.db import models
 from logger.models import logging_postsave, logging_postdelete
-from datetime import datetime, date
+from datetime import datetime, date, time
 from app.abills.models import Tp
 
 class Trunk(models.Model):
@@ -466,7 +466,6 @@ class Payment(models.Model):
 
     def save(self, *args, **kwargs):
         super(self.__class__, self).save(*args, **kwargs)
-        print "!"
         for fee in self.bill.fees.filter(maked__exact=False,deleted__exact=False,rolled_by__exact=None):
             print fee
             if not fee.card or not fee.tp:
@@ -556,6 +555,9 @@ class Payment(models.Model):
         else:
             return self.bill.abonents.all()[0]
 
+    @property
+    def sort(self):
+        return datetime.combine(self.bank_date,time(second=1))
 
 
 class Fee(models.Model):
@@ -642,6 +644,9 @@ class Fee(models.Model):
             return (True,r)
         return (False,"Already rolled back")
 
+    @property
+    def sort(self):
+        return self.timestamp
 
 
 class TariffPlanFeeRelationship(models.Model):
