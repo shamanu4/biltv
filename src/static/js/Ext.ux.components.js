@@ -1822,7 +1822,7 @@ Ext.ux.AbonCardsTpGrid = Ext.extend(Ext.ux.CustomGrid ,{
             }),
             columns: [
         		{header: "Id", dataIndex: 'id', width:40},
-        		{header: "Tariff", dataIndex: 'tariff', width:120,
+        		{header: "Tariff", dataIndex: 'tariff', width:145,
         			editor: new Ext.ux.CardTpCombo(),
         		},
         		{header: "Active", dataIndex: 'active', width:40,
@@ -1834,7 +1834,7 @@ Ext.ux.AbonCardsTpGrid = Ext.extend(Ext.ux.CustomGrid ,{
                 		}
             		}
         		},        		
-        		{header: "Activated", dataIndex: 'activated', width:140, editable: true, 
+        		{header: "Activated", dataIndex: 'activated', width:120, editable: true,
         			editor: new Ext.form.DateField({format:"Y-m-d"}),
         		},
         		{header: "", dataIndex: 'id', width:26,

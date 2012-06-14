@@ -395,6 +395,25 @@ class Bill(models.Model):
             res.extend(t.user_mask)
         return res
 
+    def operations_log(self):
+        from itertools import chain
+        from operator import attrgetter
+        return sorted(list(chain(self.fees.filter(deleted=False,rolled_by=None),self.payments.filter(deleted=False,rolled_by=None),)),key=attrgetter('sort'))
+
+    def fix_operations_log(self):
+        from tv.models import Fee,Payment
+        b = 0
+        for e in self.operations_log():
+            e.prev=b
+            e.save()
+            if type(e)==Fee:
+                b-=e.sum
+            if type(e)==Payment:
+                b+=e.sum
+
+    def save(self,*args,**kwargs):
+        super(self.__class__, self).save(*args, **kwargs)
+        self.fix_operations_log()
 
 
 class Credit(models.Model):
