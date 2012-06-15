@@ -513,7 +513,7 @@ class Payment(models.Model):
         self.bill.balance = self.bill.balance + self.sum
         self.maked=True
         self.save()
-        self.bill.save()
+        self.bill.save(last_operation_date=self.bank_date)
         try:
             self.register.try_close()
         except:
@@ -608,7 +608,7 @@ class Fee(models.Model):
         self.bill.balance = self.bill.balance - self.sum
         self.maked=True
         self.save()
-        self.bill.save()
+        self.bill.save(last_operation_date=self.timestamp)
         if self.bonus and self.card:
             print "fee promotion"
             self.card.promotion(self)
