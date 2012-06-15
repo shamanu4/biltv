@@ -398,7 +398,7 @@ class Bill(models.Model):
     def operations_log(self):
         from itertools import chain
         from operator import attrgetter
-        return sorted(list(chain(self.fees.filter(deleted=False,rolled_by=None,maked=True),self.payments.filter(deleted=False,rolled_by=None),)),key=attrgetter('sort'))
+        return sorted(list(chain(self.fees.filter(deleted=False,rolled_by=None),self.payments.filter(deleted=False,rolled_by=None),)),key=attrgetter('sort'))
 
     def fix_operations_log(self):
         from tv.models import Fee,Payment

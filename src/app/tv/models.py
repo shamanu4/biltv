@@ -511,9 +511,9 @@ class Payment(models.Model):
             return (True,self)
         self.prev = self.bill.balance
         self.bill.balance = self.bill.balance + self.sum
-        self.bill.save()
         self.maked=True
         self.save()
+        self.bill.save()
         try:
             self.register.try_close()
         except:
@@ -606,9 +606,9 @@ class Fee(models.Model):
                 self.save()
                 return (False,"Not enougn money")
         self.bill.balance = self.bill.balance - self.sum
-        self.bill.save()
         self.maked=True
         self.save()
+        self.bill.save()
         if self.bonus and self.card:
             print "fee promotion"
             self.card.promotion(self)
