@@ -395,15 +395,24 @@ class Bill(models.Model):
             res.extend(t.user_mask)
         return res
 
-    def operations_log(self):
+    def operations_log(self,last_operation_date=None):
         from itertools import chain
         from operator import attrgetter
-        return sorted(list(chain(self.fees.filter(deleted=False,rolled_by=None),self.payments.filter(deleted=False,rolled_by=None),)),key=attrgetter('sort'))
+        if last_operation_date:
+            return sorted(
+                list(chain(self.fees.filter(deleted=False,rolled_by=None,timestamp__gte=last_operation_date),
+                self.payments.filter(deleted=False,rolled_by=None,bank_date__gte=last_operation_date),)),
+                key=attrgetter('sort'))
+        else:
+            return sorted(
+                list(chain(self.fees.filter(deleted=False,rolled_by=None),
+                self.payments.filter(deleted=False,rolled_by=None),)),
+                key=attrgetter('sort'))
 
-    def fix_operations_log(self):
+    def fix_operations_log(self,last_operation_date=None):
         from tv.models import Fee,Payment
         b = 0
-        for e in self.operations_log():
+        for e in self.operations_log(last_operation_date):
             e.prev=b
             e.save()
             if type(e)==Fee:
@@ -412,8 +421,13 @@ class Bill(models.Model):
                 b+=e.sum
 
     def save(self,*args,**kwargs):
+        if 'last_operation_date' in kwargs:
+            last_operation_date = kwargs['last_operation_date']
+            del kwargs['last_operation_date']
+        else:
+            last_operation_date = None
         super(self.__class__, self).save(*args, **kwargs)
-        self.fix_operations_log()
+        self.fix_operations_log(last_operation_date)
 
 
 class Credit(models.Model):
