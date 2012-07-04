@@ -597,8 +597,8 @@ class AbonApiClass(object):
                 abonent=Abonent.objects.get(pk=uid)
             except Abonent.DoesNotExist:
                 return dict(success=False, title='Сбой загрузки платежей', msg='abonent not found', errors='', data={} )                    
-            #fees=Fee.objects.filter(bill=abonent.bill,rolled_by__exact=None)
-            fees=Fee.objects.filter(bill=abonent.bill)
+            fees=Fee.objects.filter(bill=abonent.bill,rolled_by__exact=None)
+            #fees=Fee.objects.filter(bill=abonent.bill)
             return fees.order_by('-timestamp','-pk')
         return {}
     fees_get._args_len = 1
