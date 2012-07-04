@@ -442,6 +442,7 @@ class Credit(models.Model):
         return "%s" % self.sum
 
     def save(self, *args, **kwargs):
+        from tv.models import CardService
         super(self.__class__, self).save(*args, **kwargs)
         for fee in self.bill.fees.filter(maked__exact=False,deleted__exact=False,rolled_by__exact=None):
             print fee
