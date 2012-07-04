@@ -594,6 +594,7 @@ class Fee(models.Model):
         obj['maked'] = self.maked
         obj['descr'] = self.descr
         obj['inner_descr'] = self.inner_descr
+        obj['rolled_by'] = self.rolled_by.pk
         return obj
 
     def make(self):

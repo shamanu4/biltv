@@ -1989,7 +1989,8 @@ Ext.ux.AbonFeesGrid = Ext.extend(Ext.ux.CustomGridNE ,{
                         'prev',
                         'maked',
                         'descr',
-                        'inner_descr'
+                        'inner_descr',
+                        'rolled_by'
                     ]
                 }),
                 writer: new Ext.data.JsonWriter({
@@ -2042,6 +2043,10 @@ Ext.ux.AbonFeesGrid = Ext.extend(Ext.ux.CustomGridNE ,{
 	viewConfig: {
         forceFit: true,
 		getRowClass: function(record, index, rowParams, store) {
+            var c = record.get('rolled_by');
+            if (c>0) {
+                return ''
+            }
             var c = record.get('maked');
             if (c) {
 				return 'maked_true_class';
