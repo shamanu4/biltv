@@ -509,7 +509,7 @@ class Payment(models.Model):
     def make(self):
         if self.maked:
             return (True,self)
-        self.prev = self.bill.balance
+        self.prev = self.bill.balance_get()
         self.bill.balance = self.bill.balance + self.sum
         self.maked=True
         self.save()
@@ -599,9 +599,9 @@ class Fee(models.Model):
     def make(self):
         if self.maked:
             return (True,self)
-        self.prev = self.bill.balance
+        self.prev = self.bill.balance_get()
         if self.fee_type and not self.fee_type.allow_negative:
-            if self.sum > 0 and ((self.bill.balance_get() - self.sum) < 0):
+            if self.sum > 0 and ((self.bill.balance_get() - self.sum) < -0.01):
                 self.descr = "Not enough money"
                 self.save()
                 return (False,"Not enougn money")

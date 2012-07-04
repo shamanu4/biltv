@@ -439,7 +439,23 @@ class Credit(models.Model):
     manager = models.ForeignKey("accounts.User",blank=True,null=True)
 
     def __unicode__(self):
-        return "%s" % self.sum		
+        return "%s" % self.sum
+
+    def save(self, *args, **kwargs):
+        super(self.__class__, self).save(*args, **kwargs)
+        for fee in self.bill.fees.filter(maked__exact=False,deleted__exact=False,rolled_by__exact=None):
+            print fee
+            if not fee.card or not fee.tp:
+                fee.make()
+            else:
+                try:
+                    cs = CardService.objects.get(card=fee.card,tp=fee.tp)
+                except CardService.DoesNotExist:
+                    pass
+                else:
+                    cs.activate(activated=fee.timestamp.date())
+                    fee.delete()
+                    #cs.activate()
 
 
 
