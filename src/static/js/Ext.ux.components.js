@@ -2045,7 +2045,7 @@ Ext.ux.AbonFeesGrid = Ext.extend(Ext.ux.CustomGridNE ,{
 		getRowClass: function(record, index, rowParams, store) {
             var c = record.get('rolled_by');
             if (c>0) {
-                return ''
+                return 'invisible'
             }
             var c = record.get('maked');
             if (c) {
