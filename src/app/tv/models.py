@@ -605,15 +605,15 @@ class Fee(models.Model):
             return (True,self)
         self.prev = self.bill.balance_get()
         if self.fee_type and not self.fee_type.allow_negative:
-            if self.sum > 0 and ((self.bill.balance_get() - self.sum) < -0.01):
-                self.descr = "Not enough money"
+            if self.sum > 0 and ((self.bill.balance_get() - self.sum) < -1):
+                self.descr = "Not enough money (%s<%s)" % (self.bill.balance_get(),self.sum)
                 self.save()
                 return (False,"Not enougn money")
         self.bill.balance = self.bill.balance - self.sum
         self.maked=True
         self.save()
         self.bill.save(last_operation_date=self.timestamp)
-        if self.bonus and self.card:
+        if self.bonus and self.card
             print "fee promotion"
             self.card.promotion(self)
         return (True,self)
