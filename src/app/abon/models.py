@@ -356,7 +356,7 @@ class Bill(models.Model):
         import settings
         if not dt:
             dt = date.today()               
-        credit = self.credits.filter(valid__exact=True,valid_from__lte=dt,valid_until__gte=dt).aggregate(total=Sum('sum'))['total'] or 0
+        credit = self.credits.filter(valid_from__lte=dt,valid_until__gte=dt).aggregate(total=Sum('sum'))['total'] or 0
         if credit < settings.ALL_USERS_CREDIT:
             return settings.ALL_USERS_CREDIT
         return credit
@@ -435,7 +435,7 @@ class Credit(models.Model):
     sum = models.FloatField(default=0)
     valid_from = models.DateField(default=date.today)
     valid_until = models.DateField(blank=True,null=True)
-    valid = models.BooleanField(default=True)
+    #valid = models.BooleanField(default=True)
     manager = models.ForeignKey("accounts.User",blank=True,null=True)
 
     def __unicode__(self):
@@ -457,6 +457,25 @@ class Credit(models.Model):
                     cs.activate(activated=fee.timestamp.date())
                     fee.delete()
                     #cs.activate()
+    @property
+    def valid(self):
+        from datetime import date
+        today=date.today()
+        return self.valid_from<=today and self.valid_until>=today
+
+    def store_record(self):
+        obj = {}
+        obj['id'] = self.pk
+        obj['bill'] = self.bill.pk
+        obj['sum'] = self.sum
+        obj['valid_from'] = self.valid_from
+        obj['valid_until'] = self.valid_until
+        obj['valid'] = self.valid
+        try:
+            obj['manager'] = self.manager.username
+        except:
+            obj['manager'] = 'System'
+        return obj
 
 
 

@@ -415,7 +415,16 @@ var tariff_ds_model = Ext.data.Record.create([
     'tariff',
     'active',
     'activated',
-    'extra',
+    'extra'
+]);
+
+var credit_ds_model = Ext.data.Record.create([
+    'id',
+    'bill',
+    'sum',
+    'valid_from',
+    'valid_until',
+    'manager'
 ]);
 
 Ext.ux.free_card_combo_store = new Ext.data.DirectStore({

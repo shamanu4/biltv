@@ -48,7 +48,9 @@ class User(BaseUser):
             ("rpc_abon_comment_get", "RPC abon.comment_get"),
             ("rpc_abon_comment_set", "RPC abon.comment_set"),
             ("rpc_abon_launch_hamster", "RPC abon.launch_hamster"),
-            ("rpc_abon_abonent_delete", "RPC abon.abonent_delete"),       
+            ("rpc_abon_abonent_delete", "RPC abon.abonent_delete"),
+            ("rpc_abon_credits_get", "RPC abon.credit_get"),
+            ("rpc_abon_credits_set", "RPC abon.credit_set"),
         )
     
     def store_record(self):

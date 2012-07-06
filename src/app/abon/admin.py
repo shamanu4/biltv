@@ -80,7 +80,7 @@ class BillAdmin(admin.ModelAdmin):
 admin.site.register(Bill, BillAdmin)
 
 """
-Bill
+Credit
 """
 class CreditAdmin(admin.ModelAdmin):
     raw_id_fields=('bill',)

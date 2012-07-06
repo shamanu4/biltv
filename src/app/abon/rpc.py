@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from lib.extjs import store_read, check_perm
-from datetime import datetime
+from datetime import datetime, date
 
 class AbonApiClass(object):
 
@@ -602,7 +602,91 @@ class AbonApiClass(object):
             return fees.order_by('-timestamp','-pk')
         return {}
     fees_get._args_len = 1
-        
+
+    @check_perm('accounts.rpc_abon_credits_get')
+    @store_read
+    def abon_credit_get(self,rdata,request):
+        from abon.models import Abonent, Credit
+        uid = int(rdata['uid'])
+        if uid>0:
+            try:
+                abonent=Abonent.objects.get(pk=uid)
+            except Abonent.DoesNotExist:
+                return dict(success=False, title='Сбой загрузки кредитов', msg='abonent not found', errors='', data={} )
+            return abonent.bill.credits.all().order_by('-valid_until')
+        return {}
+    abon_credit_get._args_len = 1
+
+    @check_perm('accounts.rpc_abon_credits_set')
+    @store_read
+    def abon_credit_add(self,rdata,request):
+        from abon.models import Abonent, Credit
+        uid = int(rdata['uid'])
+        data = rdata['data']
+        if uid>0:
+            try:
+                abonent=Abonent.objects.get(pk=uid)
+            except Abonent.DoesNotExist:
+                return dict(success=False, title='Сбой добавления кредита', msg='abonent not found', errors='', data={})
+            #valid_from_t=data['valid_from']
+            #try:
+            #    valid_from = datetime.strptime(valid_from_t,'%Y-%m-%dT%H:%M:%S').date()
+            #except ValueError:
+            #    return dict(success=False, title='Сбой добавления кредита', msg='invalid date', errors='', data={} )
+            valid_until_t=data['valid_until']
+            try:
+                valid_until = datetime.strptime(valid_until_t,'%Y-%m-%dT%H:%M:%S').date()
+            except ValueError:
+                return dict(success=False, title='Сбой добавления кредита', msg='invalid date', errors='', data={} )
+            c = Credit(manager=request.user,sum=data['sum'],valid_from=date.today(),
+                valid_until=valid_until,bill=abonent.bill)
+            c.save()
+            return c.store_record()
+        return {}
+    abon_credit_add._args_len = 1
+
+    @check_perm('accounts.rpc_abon_credits_set')
+    @store_read
+    def abon_credit_update(self,rdata,request):
+        from abon.models import Abonent, Credit
+        uid = int(rdata['uid'])
+        print rdata
+        data = rdata['data']
+        if uid>0:
+            try:
+                abonent=Abonent.objects.get(pk=uid)
+            except Abonent.DoesNotExist:
+                return dict(success=False, title='Сбой изменения кредита', msg='abonent not found', errors='', data={})
+            #valid_from_t=data['valid_from']
+            #try:
+            #    valid_from = datetime.strptime(valid_from_t,'%Y-%m-%dT%H:%M:%S').date()
+            #except ValueError:
+            #    try:
+            #        valid_from = datetime.strptime(valid_from_t,'%Y-%m-%d').date()
+            #    except ValueError:
+            #        return dict(success=False, title='Сбой изменения кредита', msg='invalid date', errors='', data={} )
+            valid_until_t=data['valid_until']
+            try:
+                valid_until = datetime.strptime(valid_until_t,'%Y-%m-%dT%H:%M:%S').date()
+            except ValueError:
+                try:
+                    valid_until = datetime.strptime(valid_until_t,'%Y-%m-%d').date()
+                except ValueError:
+                    return dict(success=False, title='Сбой изменения кредита', msg='invalid date', errors='', data={} )
+            try:
+                c = Credit.objects.get(pk=data['id'])
+            except Credit.DoesNotExist:
+                return dict(success=False, title='Сбой изменения кредита', msg='credit not found', errors='', data={} )
+            else:
+                c.sum = data['sum']
+                #c.valid_from=valid_from
+                c.valid_until=valid_until
+                c.manager=request.user
+                c.save()
+            return c.store_record()
+        return {}
+    abon_credit_update._args_len = 1
+
     @check_perm('accounts.rpc_abon_registers_get')
     @store_read
     def registers_get(self,rdata,request):
