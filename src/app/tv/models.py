@@ -648,6 +648,21 @@ class Fee(models.Model):
             return (True,r)
         return (False,"Already rolled back")
 
+    def unroll(self):
+        if self.rolled:
+            r = self.rolled_by
+            b = r.bill
+            b.balance += r.sum
+            b.save()
+            self.rolled_by=None
+            self.save()
+            r.save()
+            return (True,r)
+        return (False,"Not rolled back")
+
+
+
+
     @property
     def sort(self):
         return self.timestamp
