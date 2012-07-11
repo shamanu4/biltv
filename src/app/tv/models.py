@@ -650,16 +650,21 @@ class Fee(models.Model):
 
     def unroll(self):
         if self.rolled:
-            r = self.rolled_by
+            r = self.fee
             if r:
-                b = r.bill
-                b.balance += r.sum
-                b.save()
+                if self.rolled_by:
+                    b = r.bill
+                    b.balance += r.sum
+                    b.save()
+                else:
+                    print 'skip'
                 self.rolled_by=None
                 self.save()
-                r.save()
-                return (True,r)
+                r.delete()
+                return (True,self)
             else:
+                self.rolled_by=None
+                self.save()
                 return (False,"Not rolled back")
         return (False,"Not rolled back")
 
