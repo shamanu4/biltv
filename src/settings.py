@@ -122,16 +122,17 @@ INSTALLED_APPS = (
     'abills',
 )
 
-EXPORT_PATH = rel('..','export')
 DIGITAL_CARD_ALLOW_DELETE = False
-SCR1_ENABLED = True
-SCR1_IP = "192.168.33.158"
-#SCR1_IP = "127.0.0.1"
+PROGRAM_VERSION = 'v0.13.4'
+
+#TODO: move this option in settings_local
+EXPORT_PATH = rel('..','export')
+SCR1_ENABLED = False
+SCR1_IP = "192.168.17.40"
 SCR1_PORT = 49153
 NEGATIVE_SUM_LOCK = -25
 ALL_USERS_CREDIT = 1
 DEFAULT_CATV_TP_ID = 1
-PROGRAM_VERSION = 'v0.13.4'
 
 try:
     from settings_local import *
