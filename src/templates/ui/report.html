@@ -152,7 +152,11 @@
         			update: AbonentGrid.foo,
         			destroy: AbonentGrid.foo
     			},
-    			remoteSort: true,
+    			remoteSort: false,
+                sortInfo: {
+                    field: 'code',
+                    direction: 'ASC' // or 'DESC' (case sensitive for local sorting)
+                },
     			restful: true,
     			autoLoad: false,
     			autoSave: false,
