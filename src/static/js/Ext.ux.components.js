@@ -1880,6 +1880,7 @@ Ext.ux.AbonPaymentsGrid = Ext.extend(Ext.ux.CustomGridNE ,{
                         'prev',
                         'maked',
 						'source__name',
+                        'register',
 						'bank_date',
                         'descr',
                         'inner_descr'
@@ -1934,8 +1935,9 @@ Ext.ux.AbonPaymentsGrid = Ext.extend(Ext.ux.CustomGridNE ,{
         {header: "Timestamp", dataIndex: 'timestamp', width:120, sortable: true},
         {header: "Sum", dataIndex: 'sum', width:50, sortable: true},
         {header: "Prev", dataIndex: 'prev', width:50},
-		{header: "Source", dataIndex: 'source__name', width:120, sortable: true},
-		{header: "Bank date", dataIndex: 'bank_date', width:120, sortable: true},
+		{header: "Source", dataIndex: 'source__name', width:110, sortable: true},
+        {header: "Register", dataIndex: 'register', width:65, sortable: true},
+		{header: "Bank date", dataIndex: 'bank_date', width:80, sortable: true},
         {header: "Descr", dataIndex: 'inner_descr', width:200},
         {header: "", dataIndex: 'id', width:26,
 			renderer: function(value, metaData, record, rowIndex, colIndex, store) {
