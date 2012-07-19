@@ -490,6 +490,10 @@ class Payment(models.Model):
         obj['maked'] = self.maked
         obj['descr'] = self.descr
         obj['inner_descr'] = self.inner_descr
+        if self.register:
+            obj['register'] = self.register.pk
+        else:
+            obj['register'] = 0
         if self.source:
             obj['source__name'] = self.source.__unicode__()
         else:
@@ -1332,13 +1336,13 @@ class CardService(models.Model):
             for fee in prepared:
                 allow_negative = allow_negative and fee.fee_type.allow_negative
                 total += fee.sum
-            if allow_negative or (total>0 and self.card.balance - total >0):
+            if allow_negative or (total>0 and self.card.balance - total >-1):
                 for fee in prepared:
                     ok = ok and fee.make()[0]
             else:
                 ok = False
                 for fee in prepared:
-                    fee.inner_descr = "Not enough money"
+                    fee.inner_descr = "Not enough money (%s < %s)" % (self.card.balance,total)
                     fee.save()
             return (ok,prepared,total)
                     
@@ -1431,6 +1435,10 @@ class CardService(models.Model):
         obj['extra'] = self.extra
         return obj
 
+
+class RestoreService(models.Model):
+    pass
+
     
 class FeesCalendar(models.Model):
     
@@ -1488,9 +1496,10 @@ class PromotionLink(models.Model):
 
 
 
-class  PaymentAutoMake(models.Model):
+class PaymentAutoMake(models.Model):
 
     register = models.OneToOneField(PaymentRegister)
 
     def __unicode__(self):
         return self.register.__unicode__()
+
