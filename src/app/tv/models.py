@@ -269,6 +269,8 @@ class TariffPlan(models.Model):
     channels = models.ManyToManyField(TrunkChannelRelationship,blank=True,related_name='tps',through='TariffPlanChannelRelationship', verbose_name=u'каналы')
     enabled = models.BooleanField(default=False, verbose_name=u'включен')
     fee_list = models.ManyToManyField(FeeType,blank=True,through='TariffPlanFeeRelationship', verbose_name=u'абонплаты')
+    allow_restore = models.BooleanField(default=False)
+    fallback_tp = models.ForeignKey("tv.TariffPlan",blank=True,null=True)
     deleted = models.BooleanField(default=False, verbose_name=u'удален')
     comment = models.TextField(blank=True, null=True, verbose_name=u'комментарий')
     
@@ -511,13 +513,23 @@ class Payment(models.Model):
         return obj
 
     def make(self):
+
+        from django.core.mail import EmailMultiAlternatives
+
         if self.maked:
             return (True,self)
-        self.prev = self.bill.balance_get()
-        self.bill.balance = self.bill.balance + self.sum
+        self.prev = self.bill.balance_get_wo_credit()
+        bill = self.bill
+        bill.balance = bill.balance + self.sum
         self.maked=True
         self.save()
-        self.bill.save(last_operation_date=self.bank_date)
+        print "before bill save"
+        p = self.prev
+        print p
+        bill.save(last_operation_date=self.bank_date)
+        print "after bill save"
+        f = self.__class__.objects.get(pk=self.pk)
+        print f.prev
         try:
             self.register.try_close()
         except:
@@ -546,7 +558,7 @@ class Payment(models.Model):
             r.rolled_by = self
             r.timestamp = self.timestamp
             r.save()
-            r.make()            
+            r.make()
             self.rolled_by=r
             self.save()
             return (True,r)
@@ -605,18 +617,29 @@ class Fee(models.Model):
         return obj
 
     def make(self):
+
+        from django.core.mail import EmailMultiAlternatives
+
+        print "fee.make"
         if self.maked:
             return (True,self)
-        self.prev = self.bill.balance_get()
+        self.prev = self.bill.balance_get_wo_credit()
         if self.fee_type and not self.fee_type.allow_negative:
             if self.sum > 0 and ((self.bill.balance_get() - self.sum) < -1):
                 self.descr = "Not enough money (%s < %s)" % (self.bill.balance_get(),self.sum)
                 self.save()
                 return (False,"Not enougn money")
-        self.bill.balance = self.bill.balance - self.sum
+        bill = self.bill
+        bill.balance = bill.balance - self.sum
         self.maked=True
         self.save()
-        self.bill.save(last_operation_date=self.timestamp)
+        print "before bill save"
+        p = self.prev
+        print p
+        bill.save(last_operation_date=self.timestamp)
+        print "after bill save"
+        f = self.__class__.objects.get(pk=self.pk)
+        print f.prev
         if self.bonus and self.card:
             print "fee promotion"
             self.card.promotion(self)
@@ -672,12 +695,10 @@ class Fee(models.Model):
                 return (False,"Not rolled back")
         return (False,"Not rolled back")
 
-
-
-
     @property
     def sort(self):
         return self.timestamp
+
 
 
 class TariffPlanFeeRelationship(models.Model):
@@ -1230,6 +1251,12 @@ class CardService(models.Model):
             del kwargs['chtp']
         else:
             chtp = False
+
+        if 'save_only' in kwargs:
+            save_only = kwargs['save_only']
+            del kwargs['save_only']
+        else:
+            save_only = False
         
         if 'sdate' in kwargs:
             sdate = kwargs['sdate']
@@ -1242,42 +1269,43 @@ class CardService(models.Model):
             del kwargs['descr']
         else:
             descr = date.today()
-        
-        if not self.pk:
-            action = CARD_SERVICE_ADDED
-            oid = self.tp.pk
-        else:
-            old = CardService.objects.get(pk=self.pk)
-            if not old.tp.pk == self.tp.pk and not chtp:
-                dt = self.activated
-                act = old.active
-                if act:
-                    old.deactivate(deactivated = dt)
-                    old.tp = self.tp
-                    old.save(chtp=True)                
-                action = CARD_SERVICE_CHANGED
+
+        if not save_only:
+            if not self.pk:
+                action = CARD_SERVICE_ADDED
                 oid = self.tp.pk
-                if not action == None:
-                    c = CardHistory()
-                    c.card = self.card
-                    c.date = dt
-                    c.action = action
-                    c.oid = oid
-                    c.descr = descr
-                    c.save()                
-                if act:       
-                    old.activate(activated = dt)
-                super(self.__class__, self).save(*args, **kwargs)
-                if self.card.num>0:
-                    self.card.send_one()
-                return False            
-            if not old.active == self.active:                
-                if self.active:
-                    action = CARD_SERVICE_ACTIVATED
+            else:
+                old = CardService.objects.get(pk=self.pk)
+                if not old.tp.pk == self.tp.pk and not chtp:
+                    dt = self.activated
+                    act = old.active
+                    if act:
+                        old.deactivate(deactivated = dt)
+                        old.tp = self.tp
+                        old.save(chtp=True)
+                    action = CARD_SERVICE_CHANGED
                     oid = self.tp.pk
-                else:
-                    action = CARD_SERVICE_DEACTIVATED
-                    oid = old.tp.pk
+                    if not action == None:
+                        c = CardHistory()
+                        c.card = self.card
+                        c.date = dt
+                        c.action = action
+                        c.oid = oid
+                        c.descr = descr
+                        c.save()
+                    if act:
+                        old.activate(activated = dt)
+                    super(self.__class__, self).save(*args, **kwargs)
+                    if self.card.num>0:
+                        self.card.send_one()
+                    return False
+                if not old.active == self.active:
+                    if self.active:
+                        action = CARD_SERVICE_ACTIVATED
+                        oid = self.tp.pk
+                    else:
+                        action = CARD_SERVICE_DEACTIVATED
+                        oid = old.tp.pk
                 
         if 'no_log' in kwargs:
             if kwargs['no_log']:
@@ -1315,27 +1343,58 @@ class CardService(models.Model):
 
         super(self.__class__, self).delete(*args, **kwargs)
         self.card.send_one()
-    
+
+    def backup_tp(self,date,failed_sum):
+        print "backup_tp %s" % failed_sum
+        if not self.tp.allow_restore or not self.tp.fallback_tp:
+            return False
+        else:
+            sr = RestoreService()
+            sr.service = self
+            sr.tp = self.tp
+            self.tp = self.tp.fallback_tp
+            self.active = False
+            self.save(save_only=True)
+            (ok,prepared,total) = self.activate(descr='Negative deposit. Activating minimal tariff',activated=date)
+            sr.feedback_sum = failed_sum - total
+            if sr.feedback_sum < 0:
+                sr.feedback_sum = 0
+            sr.save()
+            return ok
+
     def check_negative(self,fees,date,fee_types_allowed):
+            print "check negative"
             print fees
             ok = True
             total = 0
             allow_negative = True
+            allow_restore = False
             prepared = []
             for fee in fees:
-                print "cycle" 
-                print fee
-                print fee.fee_type.ftype
                 if not fee.fee_type.ftype in fee_types_allowed:
                     continue                
                 f = fee.check_fee(self.card,date,hold=True)
-                print f
                 if f[0]: prepared.append(f[1])
             print "prepared fees:"
             print prepared
             for fee in prepared:
                 allow_negative = allow_negative and fee.fee_type.allow_negative
+                allow_restore = allow_restore or self.tp.allow_restore
                 total += fee.sum
+            for fee in prepared:
+                allow_restore = allow_restore and not (fee.fee_type.ftype == FEE_TYPE_CUSTOM or fee.fee_type.ftype == FEE_TYPE_ONCE)
+            if allow_restore and (total>0 and self.card.balance <= total):
+                print "restore condition"
+                if self.backup_tp(date,total):
+                    print "backup ok"
+                    # fallback tp activated
+                    for fee in prepared:
+                        fee.delete()
+                    return (ok,prepared,total)
+                else:
+                    print "backup fail"
+                    # continue making current fees
+                    pass
             if allow_negative or (total>0 and self.card.balance - total >-1):
                 for fee in prepared:
                     ok = ok and fee.make()[0]
@@ -1358,13 +1417,15 @@ class CardService(models.Model):
                 self.activated=activated or date.today()
             else:
                 self.deactivate()
-                return False
+                return (False,prepared,total)
             self.promotion_on(activated)
             self.save(sdate=activated,descr=descr,no_log=no_log)
+        else:
+            return (False,"already activated")
         if isinstance(activated,datetime):
             activated = activated.date()
         self.check_past_activation(activated)
-        return True
+        return (True,prepared,total)
 
     def deactivate(self,deactivated = None, descr =''):
         from django.db.models import Q
@@ -1436,10 +1497,21 @@ class CardService(models.Model):
         return obj
 
 
-class RestoreService(models.Model):
-    pass
 
-    
+class RestoreService(models.Model):
+
+    service = models.ForeignKey(CardService,related_name='backup')
+    tp = models.ForeignKey(TariffPlan)
+    create_date = models.DateField(default=date.today)
+    restore_date = models.DateField(blank=True,null=True)
+    restored = models.BooleanField(default=False)
+    feedback_sum = models.FloatField(default=0)
+
+    def __unicode__(self):
+        return "%s (%s) %s" % (self.service,self.create_date,self.tp.name)
+
+
+
 class FeesCalendar(models.Model):
     
     timestamp = models.DateField(default=date.today)
@@ -1462,7 +1534,14 @@ class FeesCalendar(models.Model):
             return True
         else:
             return False
-          
+
+    @classmethod
+    def make_test_fees(cls,date,abonent_id):
+        from abon.models import Abonent
+        active = Abonent.objects.filter(pk=abonent_id, disabled__exact=False, deleted__exact=False)
+        for abonent in active:
+            abonent.make_fees(date)
+
     @classmethod
     def make_fees(cls,date):
         from abon.models import Abonent
@@ -1477,10 +1556,15 @@ class FeesCalendar(models.Model):
             month = date_formatter(date)['month']
             cls.make_fees(month)            
             instance = cls(timestamp=month)
-            instance.save()    
-    
-    
-    
+            instance.save()
+
+    @classmethod
+    def push_next_test_fee(cls,date,abonent_id):
+        from lib.functions import date_formatter
+        month = date_formatter(date)['month']
+        cls.make_test_fees(month,abonent_id)
+
+
 class PromotionLink(models.Model):
 
     tp = models.ForeignKey(TariffPlan,related_name='promotions',unique=True,blank=True,null=True)
