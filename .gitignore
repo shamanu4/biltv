@@ -1,4 +1,8 @@
 *.pyc
+*.iml
 *.*~
+*.bin
+*.sql*
+.idea
 settings_local.py
 nbproject
