@@ -1,14 +1,6 @@
 {% extends 'base.html' %}
 
 {% block head %}
-    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}extjs/resources/css/ext-all.css" />
-    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}extjs/resources/css/xtheme-gray.css" />
-    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}extjs/resources/css/custom.css" />
-    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/main.css" />
-    <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.js" type="text/javascript"></script>
-    <script type="text/javascript" src="{{ MEDIA_URL }}extjs/adapter/jquery/ext-jquery-adapter.js"></script>
-    <script type="text/javascript" src="{{ MEDIA_URL }}extjs/ext-all.js"></script>
-    <script type="text/javascript" src="{{ MEDIA_URL }}extjs/src/locale/ext-lang-ru.js"></script>
     <script type="text/javascript" src="{% url ui:api %}?v={{ PROGRAM_VERSION }}і"></script>
     <script type="text/javascript" src="{{ MEDIA_URL }}js/ui-head.js?v={{ PROGRAM_VERSION }}"></script>
     <script type="text/javascript" src="{{ MEDIA_URL }}js/Ext.stores.js?v={{ PROGRAM_VERSION }}"></script>
@@ -22,31 +14,38 @@
             showDelay: 1000
         });
 
-        Ext.Ajax.on('requestcomplete', function(req,response){
+        Ext.Ajax.on('requestcomplete', function(req,response){        	
             batch = eval(response.responseText)
             for(line in batch) {
                 if(isInt(line)) {
                     data = batch[line]
                     if(Ext.isArray(data.result)) {
                         for(line in data.result) {                          
+                        	$("#traceback-content").val()
                           	result = data.result[line]
                           	if(!result){
                           		continue
                           	}
-                          	if(result.msg && result.title) {
-                        		if(result.success) {
+                          	if(data.result.errors){
+                        		Ext.ux.traceback('Критическая ошибка',data.result.errors,getCookie('csrftoken'))
+                            }
+                        	else if(result.msg && result.title) {
+                          		if(result.success) {
                     		 		Ext.ux.msg(result.title, result.msg, Ext.Msg.INFO);
                         		} else {
                              		Ext.ux.msg(result.title, result.msg, Ext.Msg.ERROR);
                         		}
-                    		}
+                    		}                    		
                         }
                     }
-                    if(data.result.msg && data.result.title) {
-                        if(data.result.success) {
+                    if(data.result.errors){
+                        Ext.ux.traceback('Критическая ошибка',data.result.errors,getCookie('csrftoken'))                             	
+                    }
+                    else if(data.result.msg && data.result.title) {
+                    	if(data.result.success) {
                     		 Ext.ux.msg(data.result.title, data.result.msg, Ext.Msg.INFO);
                         } else {
-                             Ext.ux.msg(data.result.title, data.result.msg, Ext.Msg.ERROR);
+                             Ext.ux.msg(data.result.title, data.result.msg, Ext.Msg.ERROR);                             
                         }
                     }
                 }                    
@@ -73,6 +72,7 @@
 			-->
         </div>
     </div>
+
         
     {% block content %}{% endblock %}
     
@@ -86,7 +86,7 @@
 		 *  http://djbook.ru/examples/22/
 		 */
 		
-		function getCookie(name) {
+		window.getCookie = function(name) {
           var cookieValue = null;
           if (document.cookie && document.cookie != '') {
               var cookies = document.cookie.split(';');

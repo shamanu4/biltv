@@ -2,7 +2,8 @@
 
 from django.db import models
 from logger.models import logging_postsave, logging_postdelete
-from datetime import datetime, date
+from datetime import datetime, date, time
+from app.abills.models import Tp
 
 class Trunk(models.Model):
 
@@ -156,9 +157,11 @@ class FeeType(models.Model):
     name = models.CharField(max_length=32,default='fee type')
     ftype = models.PositiveSmallIntegerField(choices=FEE_TYPES, default=FEE_TYPE_MONTHLY)
     allow_negative = models.BooleanField(default=True)
+    proportional = models.BooleanField(default=False)
     deleted = models.BooleanField(default=False)
     comment = models.TextField(blank=True, null=True)
     sum = models.FloatField()
+    bonus = models.FloatField(default=0)
 
     class Meta:
         verbose_name=u'абонплата'
@@ -172,26 +175,44 @@ class FeeType(models.Model):
 
     def marker(self):
         if self.ftype == FEE_TYPE_CUSTOM: 
-            return u'[табл.]'
+            return u'[tabl.]'
         else:
             return ''
-
+    
+    def get_proportion(self,date=None):
+        from lib.functions import date_formatter
+        from calendar import monthrange
+        if not date:
+            date=date_formatter()['day']
+        month_size=monthrange(date.year,date.month)[1]
+        return round((month_size-date.day+1)/float(month_size),6)
+        
     def get_sum(self,date=None):
         from lib.functions import date_formatter
         
         sum = 0
         ret = 0        
         full = 0
+        bonus = self.bonus*self.get_proportion(date)
+        retbonus = self.bonus*(1-self.get_proportion(date))
+        
         if not date:
             date=date_formatter()['day']
         day = date.day    
             
         if not self.ftype == FEE_TYPE_CUSTOM:
             ranges = self.ranges.filter(interval__start__lte=date).filter(interval__end__gte=date)
+            if not ranges.count():
+                sum = self.sum
             for range in ranges:
                 sum += range.sum
             
-            return {'fee':sum,'ret':0,'full':sum}
+            if self.proportional:
+                sum=round(sum*self.get_proportion(date),2)
+                if self.ftype==FEE_TYPE_ONCE:
+                    ret=sum
+            print {'fee':sum,'ret':ret,'full':sum,'bonus':bonus,'retbonus':retbonus}
+            return {'fee':sum,'ret':ret,'full':sum,'bonus':bonus,'retbonus':retbonus}
         
         ranges = self.customranges.filter(interval__start__lte=date).filter(interval__end__gte=date).filter(startday__lte=day).filter(endday__gte=day)
         for range in ranges:
@@ -199,8 +220,11 @@ class FeeType(models.Model):
             ret += range.ret
         ranges = self.ranges.filter(interval__start__lte=date).filter(interval__end__gte=date)
         for range in ranges:
-            full += range.sum                        
-        return {'fee':sum,'ret':ret,'full':full}
+            full += range.sum
+        if not ranges.count():
+            full = self.sum                  
+        print {'fee':sum,'ret':ret,'full':sum,'bonus':bonus,'retbonus':retbonus}
+        return {'fee':sum,'ret':ret,'full':full,'bonus':bonus,'retbonus':retbonus}
 
     def store_record(self):
         obj = {}
@@ -247,21 +271,30 @@ class TariffPlan(models.Model):
     fee_list = models.ManyToManyField(FeeType,blank=True,through='TariffPlanFeeRelationship', verbose_name=u'абонплаты')
     deleted = models.BooleanField(default=False, verbose_name=u'удален')
     comment = models.TextField(blank=True, null=True, verbose_name=u'комментарий')
-
+    
     class Meta:
         verbose_name=u'тарифный план'
         verbose_name_plural=u'тарифные планы'
         
     def __unicode__(self):
-        return "%s" % self.name
+        return "%s (%s)" % (self.name,self.get_fee())
 
     def send(self):
         for service in self.services.filter(card__num__gte=0):
-            service.card.send()
+            service.card.send_one()
 
     def save(self, *args, **kwargs):
         super(self.__class__, self).save(*args, **kwargs)
-        self.send()
+        #self.send()
+
+    def get_fee(self):
+        from lib.functions import date_formatter
+        s = 0
+        fees = self.fee_list.filter(ftype=FEE_TYPE_MONTHLY)
+        for fee in fees:
+            s += fee.get_sum(date_formatter()['month'])['fee']
+        return s
+
 
     @property
     def bin_flags(self):
@@ -278,6 +311,20 @@ class TariffPlan(models.Model):
                 byte = ch.slot-1
             res[shift]=res[shift]|1<<byte
         return res
+    
+    def copy_channels(self,tp):
+        for ch in tp.channels.all():
+            try:
+                self.channels.through(chrel=ch,tp=self).save()
+            except:
+                print "%s failed!" % ch
+    
+    def store_record(self):
+        obj = {}
+        obj['id'] = self.pk
+        obj['name'] = "%s (%s)" % (self.__unicode__(),self.get_fee())
+        return obj
+
 
 
 
@@ -338,7 +385,7 @@ class PaymentRegister(models.Model):
         return False
     
     def get_stamps(self):
-        return PaymentRegisterStamp.filter(register=self)
+        return PaymentRegisterStamp.objects.filter(register=self)
 
     @property
     def is_confirmed(self):
@@ -363,6 +410,11 @@ class PaymentRegister(models.Model):
     @property
     def payments_maked(self):
         return self.payments.filter(maked__exact=True).count()
+
+    @property
+    def payments_maked_sum(self):
+        from django.db.models import Sum
+        return self.payments.filter(maked__exact=True).aggregate(payments_maked_sum=Sum('sum'))['payments_maked_sum']
     
     def store_record(self):
         obj = {}
@@ -377,6 +429,7 @@ class PaymentRegister(models.Model):
         obj['unicode'] = self.__unicode__()
         obj['payments_total'] = self.payments_total
         obj['payments_maked'] = self.payments_maked
+        obj['payments_maked_sum'] = self.payments_maked_sum
         return obj
         
         
@@ -395,7 +448,7 @@ class PaymentRegisterStamp(models.Model):
 class Payment(models.Model):
 
     timestamp = models.DateTimeField(default=datetime.now)
-    bill = models.ForeignKey("abon.Bill")
+    bill = models.ForeignKey("abon.Bill",related_name="payments")
     sum = models.FloatField(default=0)
     prev = models.FloatField(default=0)
     deleted = models.BooleanField(default=False)
@@ -412,8 +465,20 @@ class Payment(models.Model):
         return "%s" % self.sum
 
     def save(self, *args, **kwargs):
-        #self.prev = self.bill.balance
         super(self.__class__, self).save(*args, **kwargs)
+        for fee in self.bill.fees.filter(maked__exact=False,deleted__exact=False,rolled_by__exact=None):
+            print fee
+            if not fee.card or not fee.tp:
+                fee.make()
+            else:
+                try:
+                    cs = CardService.objects.get(card=fee.card,tp=fee.tp)
+                except CardService.DoesNotExist:
+                    pass
+                else:
+                    cs.activate(activated=fee.timestamp.date())
+                    fee.delete()
+                    #cs.activate()
 
     def store_record(self):
         obj = {}
@@ -425,6 +490,10 @@ class Payment(models.Model):
         obj['maked'] = self.maked
         obj['descr'] = self.descr
         obj['inner_descr'] = self.inner_descr
+        if self.register:
+            obj['register'] = self.register.pk
+        else:
+            obj['register'] = 0
         if self.source:
             obj['source__name'] = self.source.__unicode__()
         else:
@@ -444,11 +513,16 @@ class Payment(models.Model):
     def make(self):
         if self.maked:
             return (True,self)
-        self.prev = self.bill.balance
+        self.prev = self.bill.balance_get()
         self.bill.balance = self.bill.balance + self.sum
-        self.bill.save()
         self.maked=True
         self.save()
+        self.bill.save(last_operation_date=self.bank_date)
+        try:
+            self.register.try_close()
+        except:
+            #payment has no register
+            pass                        
         return (True,self)
 
     @property
@@ -485,15 +559,19 @@ class Payment(models.Model):
         else:
             return self.bill.abonents.all()[0]
 
+    @property
+    def sort(self):
+        return datetime.combine(self.bank_date,time(second=1))
 
 
 class Fee(models.Model):
 
     timestamp = models.DateTimeField(default=datetime.now)
-    bill = models.ForeignKey("abon.Bill")
+    bill = models.ForeignKey("abon.Bill",related_name="fees")
     card = models.ForeignKey("tv.Card",blank=True,null=True)
-    sum = models.FloatField(default=0)
+    sum = models.FloatField(default=0)    
     prev = models.FloatField(default=0)
+    bonus = models.FloatField(default=0)
     deleted = models.BooleanField(default=False)
     maked = models.BooleanField(default=False)
     rolled_by = models.OneToOneField("tv.Fee", blank=True, null=True)
@@ -516,24 +594,32 @@ class Fee(models.Model):
         obj['bill'] = self.bill.pk
         obj['sum'] = self.sum
         obj['prev'] = self.prev
+        obj['bonus'] = self.bonus
         obj['maked'] = self.maked
         obj['descr'] = self.descr
         obj['inner_descr'] = self.inner_descr
+        try:
+            obj['rolled_by'] = self.rolled_by.pk
+        except:
+            obj['rolled_by'] = 0
         return obj
 
     def make(self):
         if self.maked:
             return (True,self)
-        self.prev = self.bill.balance
+        self.prev = self.bill.balance_get()
         if self.fee_type and not self.fee_type.allow_negative:
-            if self.sum > 0 and self.bill.balance - self.sum < 0:
-                self.descr = "Not enough money"
+            if self.sum > 0 and ((self.bill.balance_get() - self.sum) < -1):
+                self.descr = "Not enough money (%s < %s)" % (self.bill.balance_get(),self.sum)
                 self.save()
                 return (False,"Not enougn money")
         self.bill.balance = self.bill.balance - self.sum
-        self.bill.save()
         self.maked=True
         self.save()
+        self.bill.save(last_operation_date=self.timestamp)
+        if self.bonus and self.card:
+            print "fee promotion"
+            self.card.promotion(self)
         return (True,self)
 
     @property
@@ -566,6 +652,32 @@ class Fee(models.Model):
             return (True,r)
         return (False,"Already rolled back")
 
+    def unroll(self):
+        if self.rolled:
+            r = self.fee
+            if r:
+                if self.rolled_by:
+                    b = r.bill
+                    b.balance += r.sum
+                    b.save()
+                else:
+                    print 'skip'
+                self.rolled_by=None
+                self.save()
+                r.delete()
+                return (True,self)
+            else:
+                self.rolled_by=None
+                self.save()
+                return (False,"Not rolled back")
+        return (False,"Not rolled back")
+
+
+
+
+    @property
+    def sort(self):
+        return self.timestamp
 
 
 class TariffPlanFeeRelationship(models.Model):
@@ -585,7 +697,9 @@ class TariffPlanFeeRelationship(models.Model):
     def check_fee(self,card,fee_date=None,**kwargs):
         from lib.functions import date_formatter         
         date = date_formatter(fee_date)
-        my_maked_fees = Fee.objects.filter(card__exact=card, tp__exact=self.tp, fee_type__exact=self.fee_type, maked__exact=True, deleted__exact=False, rolled_by__exact=None)
+        my_not_maked_fees = Fee.objects.filter(card__exact=card, tp__exact=self.tp, fee_type__exact=self.fee_type,maked__exact=False, deleted__exact=False, rolled_by__exact=None)
+        my_not_maked_fees.delete()
+        my_maked_fees = Fee.objects.filter(card__exact=card, tp__exact=self.tp, fee_type__exact=self.fee_type, deleted__exact=False, rolled_by__exact=None)
         
         if not card.bill:
             return (False,"This card have not account with bill")
@@ -629,7 +743,7 @@ class TariffPlanFeeRelationship(models.Model):
                 return self.make_fee(card,date['year'],**kwargs)
 
 
-    def make_fee(self,card,date=None,**kwargs):
+    def make_fee(self,card,date=None,**kwargs):        
         fee = Fee()
         fee.bill = card.bill
         fee.card = card
@@ -643,16 +757,17 @@ class TariffPlanFeeRelationship(models.Model):
             tmp_sum = self.fee_type.get_sum(date)['fee']
             full_sum = self.fee_type.get_sum(date)['full']
             if tmp_sum + maked_fee > 0:
-                fee.sum = -maked_fee
+                fee.sum = -maked_fee                
                 fee.inner_descr = "%s | [*fix] %s" % (card.name, fee.fee_type.__unicode__())
             else:
                 fee.sum = tmp_sum
-                fee.inner_descr = "%s | %s" % (card.name, fee.fee_type.__unicode__())
+                fee.inner_descr = "%s | %s" % (card.name, fee.fee_type.__unicode__())            
         else:
             fee.sum = self.fee_type.get_sum(date)['fee']
             fee.inner_descr = "%s | %s" % (card.name, fee.fee_type.__unicode__())
         if date:
             fee.timestamp = date
+        fee.bonus = self.fee_type.get_sum(date)['bonus']
         fee.save()
         if 'hold' in kwargs and kwargs['hold']:
             return (True,fee)
@@ -665,6 +780,7 @@ class TariffPlanFeeRelationship(models.Model):
         fee.tp = self.tp
         fee.fee_type = self.fee_type
         fee.sum = - self.fee_type.get_sum(date)['ret']
+        fee.bonus = - self.fee_type.get_sum(date)['retbonus']
         fee.inner_descr = "Возврат абонплаты за часть месяца"
         if date:
             fee.timestamp = date
@@ -677,6 +793,7 @@ CARD_SERVICE_ACTIVATED = 0
 CARD_SERVICE_DEACTIVATED = 1
 CARD_SERVICE_ADDED = 2
 CARD_SERVICE_REMOVED = 3
+CARD_SERVICE_CHANGED = 7
 CARD_OWNER_ADDED = 4
 CARD_OWNER_REMOVED = 5
 CARD_OWNER_CHANGED = 6
@@ -686,6 +803,7 @@ CARD_SERVICE_ACTIONS = (
     CARD_SERVICE_DEACTIVATED,
     CARD_SERVICE_ADDED,
     CARD_SERVICE_REMOVED,
+    CARD_SERVICE_CHANGED,
 )
 
 CARD_USER_ACTIONS = (
@@ -703,6 +821,7 @@ class CardHistory(models.Model):
         (CARD_SERVICE_DEACTIVATED, u'отключен'),
         (CARD_SERVICE_ADDED, u'добавлен'),
         (CARD_SERVICE_REMOVED, u'удалён'),
+        (CARD_SERVICE_CHANGED, u'тариф'),
         (CARD_OWNER_ADDED, u'owner added'),
         (CARD_OWNER_REMOVED, u'owner removed'),
         (CARD_OWNER_CHANGED, u'owner changed'),
@@ -711,6 +830,7 @@ class CardHistory(models.Model):
     timestamp = models.DateTimeField(default=datetime.now)
     date = models.DateField(default=date.today)
     card = models.ForeignKey("tv.Card",related_name='service_log')
+    owner = models.ForeignKey("abon.Abonent",related_name='services_log',blank=True,null=True)
     action = models.PositiveSmallIntegerField(choices=CARD_ACTIONS)
     oid = models.PositiveIntegerField()
     descr = models.TextField()
@@ -718,8 +838,12 @@ class CardHistory(models.Model):
     class Meta:
         ordering = ('-date',)
     
-    #def save(self):
-    #    raise 500
+    def save(self, *args, **kwargs):
+        try:
+            self.owner = self.card.owner
+        except:
+            self.owner = None
+        super(self.__class__, self).save(*args, **kwargs)
     
     @property
     def obj_instance(self):
@@ -769,17 +893,22 @@ class Card(models.Model):
     @property
     def name(self):
         if self.num > 0:
-            return "Карточка %s " % self.num
+            return u'Карточка %s'  % self.num
         else:
             return "CaTV"
 
-    def send(self):
+    def send_one(self):
         if self.num<0:
             return False
         CardDigital.touch(self)
         from scrambler import scrambler
         u = scrambler.UserQuery(self.num)
         u.run()
+
+    def send(self):
+        cc = CardDigital.objects.all().order_by('id')
+        for c in cc:
+            c.send()
 
     def save(self, *args, **kwargs):
 
@@ -803,6 +932,7 @@ class Card(models.Model):
                     else:
                         action = CARD_OWNER_CHANGED
                         oid = self.owner.pk
+                else:
                     action = CARD_OWNER_ADDED
                     oid = self.owner.pk
         
@@ -842,21 +972,35 @@ class Card(models.Model):
         super(self.__class__, self).save(*args, **kwargs)
                 
         if self.num>0:
-            CardDigital.touch(self)
-            self.send()
+            CardDigital.touch(self)            
+            self.send_one()
 
     def save_formset(self, *args, **kwargs):
         super(self.__class__, self).save_formset(*args, **kwargs)
 
-
+    def delete(self, *args, **kwargs):
+        from settings import DIGITAL_CARD_ALLOW_DELETE        
+        if self.num>0:
+            if DIGITAL_CARD_ALLOW_DELETE:
+                super(self.__class__, self).delete(*args, **kwargs)
+                CardDigital.rehash()
+            else:
+                print "deleting this object (%s) will cause data corrupt. ignoring..." % self
+                return False
+        else:
+            super(self.__class__, self).delete(*args, **kwargs)
+    
     @property
     def bin_flags(self):
         from lib.functions import byte_or
+        import settings
         res = []
         trunks = Trunk.objects.all()
         for t in trunks:
             res.extend([0,0])
         if not self.active:
+            return res
+        if self.balance < settings.NEGATIVE_SUM_LOCK:
             return res
         for service in self.services.all():
             if service.active:
@@ -876,17 +1020,24 @@ class Card(models.Model):
     @property
     def balance(self):
         if self.bill:
-            return self.bill.balance
+            return self.bill.balance_get()
+        else:
+            return None
+
+    @property
+    def balance_wo_credit(self):
+        if self.bill:
+            return self.bill.balance_get_wo_credit()
         else:
             return None
 
     @property
     def balance_int(self):
-        return int((self.balance or 0)*100)
+        return int((self.balance_wo_credit or 0)*100)
 
     @property
     def balance_rounded(self):
-        return int((self.balance or 0)*100)/100.0
+        return int((self.balance_wo_credit or 0)*100)/100.0
 
     @property
     def bin_balance(self):
@@ -927,6 +1078,46 @@ class Card(models.Model):
         for fee in fees:
             if not fee.fee_type.ftype == FEE_TYPE_ONCE and not fee.fee_type.ftype == FEE_TYPE_CUSTOM:  
                 fee.rollback()
+    
+    def get_service(self,tp):
+        try:
+            return self.services.get(tp=tp)
+        except:
+            return None
+    
+    def abills_get_user(self,login):
+        from abills.models import User
+        try:
+            return User.objects.get(login__exact=login)
+        except:            
+            return None        
+        
+    def promotion(self,fee):
+        print "card fee promotion"        
+        service = self.get_service(fee.tp)
+        if not service:
+            print "no service for fee promotion"
+            return False
+        
+        u = self.abills_get_user(service.extra)
+        if not u:
+            print "no user for fee promotion"
+            return False
+        u.promotion(fee)
+    
+    def promotion_on(self,cs,pl,timestamp):
+        u = self.abills_get_user(cs.extra)
+        if not u:
+            print "no user for tp promotion on"
+            return False
+        u.promotion_on(self,cs,pl,timestamp)
+    
+    def promotion_off(self,cs,pl,timestamp):
+        u = self.abills_get_user(cs.extra)
+        if not u:
+            print "no user for tp promotion off"
+            return False
+        u.promotion_off(self,cs,pl,timestamp)
     
     # WARNING! This method was used once during MIGRATION. Future uses RESTRICTED! This will cause  history DATA CORRUPT!  
     def timestamp_and_activation_fix(self):
@@ -993,6 +1184,27 @@ class CardDigital(models.Model):
             digicard = cls(card=card)
             digicard.save()
         return True
+    
+    @classmethod
+    def rehash(cls):
+        from django.db import connections
+        cursor = connections['default'].cursor()
+        cursor.execute('TRUNCATE TABLE %s;' % (cls._meta.db_table,))
+        cc = Card.objects.filter(num__gt=0)
+        for c in cc:
+            cls.touch(c)
+    
+    def send(self):
+        self.card.send_one()
+        
+    def delete(self, *args, **kwargs):
+        from settings import DIGITAL_CARD_ALLOW_DELETE       
+        if DIGITAL_CARD_ALLOW_DELETE:
+            super(self.__class__, self).delete(*args, **kwargs)
+            CardDigital.rehash()
+        else:
+            print "deleting this object (%s) will cause data corrupt. ignoring..." % self
+            return False
 
             
 class CardService(models.Model):
@@ -1002,26 +1214,22 @@ class CardService(models.Model):
     active = models.BooleanField(default=False)
     comment = models.TextField(blank=True, null=True)
     activated = models.DateTimeField(default=datetime.now)
+    extra = models.CharField(max_length=40,blank=True, null=True)
 
     def __unicode__(self):
         return "%s - %s" % (self.card.num,self.tp.name)
 
     def save(self, *args, **kwargs):
+        print 'saving service'
         action = None
         oid = None
         old = None
-        if not self.pk:
-            action = CARD_SERVICE_ADDED
-            oid = self.tp.pk
+        
+        if 'chtp' in kwargs:
+            chtp = kwargs['chtp']
+            del kwargs['chtp']
         else:
-            old = CardService.objects.get(pk=self.pk)
-            if not old.active == self.active:                
-                if self.active:
-                    action = CARD_SERVICE_ACTIVATED
-                    oid = self.tp.pk
-                else:
-                    action = CARD_SERVICE_DEACTIVATED
-                    oid = old.tp.pk
+            chtp = False
         
         if 'sdate' in kwargs:
             sdate = kwargs['sdate']
@@ -1035,8 +1243,45 @@ class CardService(models.Model):
         else:
             descr = date.today()
         
+        if not self.pk:
+            action = CARD_SERVICE_ADDED
+            oid = self.tp.pk
+        else:
+            old = CardService.objects.get(pk=self.pk)
+            if not old.tp.pk == self.tp.pk and not chtp:
+                dt = self.activated
+                act = old.active
+                if act:
+                    old.deactivate(deactivated = dt)
+                    old.tp = self.tp
+                    old.save(chtp=True)                
+                action = CARD_SERVICE_CHANGED
+                oid = self.tp.pk
+                if not action == None:
+                    c = CardHistory()
+                    c.card = self.card
+                    c.date = dt
+                    c.action = action
+                    c.oid = oid
+                    c.descr = descr
+                    c.save()                
+                if act:       
+                    old.activate(activated = dt)
+                super(self.__class__, self).save(*args, **kwargs)
+                if self.card.num>0:
+                    self.card.send_one()
+                return False            
+            if not old.active == self.active:                
+                if self.active:
+                    action = CARD_SERVICE_ACTIVATED
+                    oid = self.tp.pk
+                else:
+                    action = CARD_SERVICE_DEACTIVATED
+                    oid = old.tp.pk
+                
         if 'no_log' in kwargs:
-            action = None
+            if kwargs['no_log']:
+                action = None
             del kwargs['no_log']
         
         if not action == None:
@@ -1049,8 +1294,13 @@ class CardService(models.Model):
             c.save()
 
         super(self.__class__, self).save(*args, **kwargs)
+        
+        if self.active:
+            self.promotion_on(self.activated)
+        else:
+            self.promotion_off(self.activated)
         if self.card.num>0:
-            self.card.send()
+            self.card.send_one()
 
     def delete(self, *args, **kwargs):
 
@@ -1064,58 +1314,110 @@ class CardService(models.Model):
         c.save()
 
         super(self.__class__, self).delete(*args, **kwargs)
-        self.card.send()
-
-    def activate(self,activated = None, descr =''):
-        if not self.active:
-            fees = self.tp.fees.all()
+        self.card.send_one()
+    
+    def check_negative(self,fees,date,fee_types_allowed):
+            print fees
             ok = True
             total = 0
             allow_negative = True
             prepared = []
             for fee in fees:
-                if not fee.fee_type.ftype in (FEE_TYPE_ONCE, FEE_TYPE_CUSTOM ):
-                    continue
-                f = fee.check_fee(self.card,activated,hold=True)
+                print "cycle" 
+                print fee
+                print fee.fee_type.ftype
+                if not fee.fee_type.ftype in fee_types_allowed:
+                    continue                
+                f = fee.check_fee(self.card,date,hold=True)
+                print f
                 if f[0]: prepared.append(f[1])
+            print "prepared fees:"
+            print prepared
             for fee in prepared:
                 allow_negative = allow_negative and fee.fee_type.allow_negative
                 total += fee.sum
-            if allow_negative or (total>0 and self.card.balance - total >0):
+            if allow_negative or (total>0 and self.card.balance - total >-1):
                 for fee in prepared:
                     ok = ok and fee.make()[0]
             else:
                 ok = False
                 for fee in prepared:
-                    fee.inner_descr = "Not enough money"
+                    fee.inner_descr = "Not enough money (%s < %s)" % (self.card.balance,total)
                     fee.save()
+            return (ok,prepared,total)
+                    
+    def activate(self,activated = None, descr ='', no_log=False):
+        print 'activating service'
+        print activated
+        print self.active
+        if not self.active:
+            fees = self.tp.fees.all()
+            (ok,prepared,total) = self.check_negative(fees,activated,(FEE_TYPE_ONCE, FEE_TYPE_CUSTOM))
             if ok:
                 self.active=True
                 self.activated=activated or date.today()
             else:
                 self.deactivate()
                 return False
-            self.save(sdate=activated,descr=descr)
+            self.promotion_on(activated)
+            self.save(sdate=activated,descr=descr,no_log=no_log)
+        if isinstance(activated,datetime):
+            activated = activated.date()
         self.check_past_activation(activated)
         return True
 
     def deactivate(self,deactivated = None, descr =''):
+        from django.db.models import Q
+        print 'deactivating service'
+        print deactivated
         if self.active:
-            fees = self.tp.fees.filter(fee_type__ftype__exact=FEE_TYPE_CUSTOM)
+            fees = self.tp.fees.filter(Q(fee_type__ftype__exact=FEE_TYPE_CUSTOM)|Q(fee_type__proportional__exact=True,fee_type__ftype__exact=FEE_TYPE_ONCE))
             for fee in fees:
                 fee.make_ret(self.card,deactivated)
             self.active=False
+            self.promotion_off(deactivated)
             self.save(sdate=deactivated,descr=descr)
         return True
+    
+    def promotion_link_get(self):
+        try:
+            pl = PromotionLink.objects.get(tp=self.tp)
+        except PromotionLink.DoesNotExist:
+            return None
+        else:
+            return pl
+    
+    def promotion_link_disabled_get(self):
+        try:
+            pl = PromotionLink.objects.get(tp__exact=None)
+        except PromotionLink.DoesNotExist:
+            return None
+        else:
+            return pl
+    
+    def promotion_on(self,activated):
+        pl = self.promotion_link_get()
+        if pl:
+            self.card.promotion_on(self,pl,activated)
+                
+    def promotion_off(self,deactivated):
+        pl = self.promotion_link_disabled_get()
+        if pl:
+            self.card.promotion_off(self,pl,deactivated)
 
     def make_fees(self,date):
-        for fee in self.tp.fees.all():
-            if fee.fee_type.ftype in (FEE_TYPE_DAILY, FEE_TYPE_WEEKLY, FEE_TYPE_MONTHLY, FEE_TYPE_YEARLY):
-                fee.check_fee(self.card,date)
-    
+        fees = self.tp.fees.all()
+        (ok,prepared,total) = self.check_negative(fees,date,(FEE_TYPE_DAILY, FEE_TYPE_WEEKLY, FEE_TYPE_MONTHLY, FEE_TYPE_YEARLY))
+        if not ok:
+            self.active = False
+            self.save()
+            
+                
     def check_past_activation(self,activated):
         from lib.functions import date_formatter, add_months
         last_fee_date = FeesCalendar.get_last_fee_date().timestamp
+        if not activated:
+            activated = date.today()
         if activated < last_fee_date:
             next_fee_date = add_months(date_formatter(activated)['month'].date(),1)
             self.make_fees(next_fee_date)
@@ -1130,7 +1432,12 @@ class CardService(models.Model):
         obj['active'] = self.active
         obj['activated'] = self.activated
         obj['comment'] = self.comment
+        obj['extra'] = self.extra
         return obj
+
+
+class RestoreService(models.Model):
+    pass
 
     
 class FeesCalendar(models.Model):
@@ -1170,9 +1477,29 @@ class FeesCalendar(models.Model):
             month = date_formatter(date)['month']
             cls.make_fees(month)            
             instance = cls(timestamp=month)
-            instance.save()
+            instance.save()    
     
     
-            
+    
+class PromotionLink(models.Model):
 
+    tp = models.ForeignKey(TariffPlan,related_name='promotions',unique=True,blank=True,null=True)
+    abills_tp_id = models.IntegerField(choices=Tp.choices(),db_column="abills_tp_id") 
+
+    @property
+    def abills_tp(self):
+        from abills.models import Tp
+        try:
+            return Tp.objects.get(pk=self.abills_tp_id)
+        except:
+            return None 
+
+
+
+class PaymentAutoMake(models.Model):
+
+    register = models.OneToOneField(PaymentRegister)
+
+    def __unicode__(self):
+        return self.register.__unicode__()
 

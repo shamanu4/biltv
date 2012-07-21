@@ -17,6 +17,9 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+EMAIL_HOST = '192.168.33.125'
+EMAIL_PORT = 25
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
@@ -27,6 +30,8 @@ DATABASES = {
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }
 }
+
+DATABASE_ROUTERS = ['dbrouter.MainDBRouter',]
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -114,10 +119,20 @@ INSTALLED_APPS = (
     'tv',
     'abon',
     'data',                         # migration data
+    'abills',
 )
 
+DIGITAL_CARD_ALLOW_DELETE = True
+PROGRAM_VERSION = 'v0.13.5'
+
+#TODO: move this option in settings_local
+EXPORT_PATH = rel('..','export')
+SCR1_ENABLED = False
+SCR1_IP = "192.168.17.40"
+SCR1_PORT = 49153
+NEGATIVE_SUM_LOCK = -25
+ALL_USERS_CREDIT = 1
 DEFAULT_CATV_TP_ID = 1
-PROGRAM_VERSION = 'v0.12'
 
 try:
     from settings_local import *

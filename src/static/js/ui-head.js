@@ -4,6 +4,12 @@ function isInt(x) {
    return x==y && x.toString()==y.toString();
 }
 
+
+alert = jAlert; 
+//confirm = jConfirm;
+//prompt= jPrompt;
+alertsMask = new Ext.LoadMask(Ext.getBody(),{msg:null});		
+
 Engine = {
     vp: null,
     components: {
@@ -322,6 +328,71 @@ Engine = {
                     Ext.getCmp('tab-panel').toolbars[0].doLayout();
 				}
 			},
+			abon_card_func: {
+				store: null,
+				card_activate: function(card_id) {
+					if(confirm("активировать карточку?")) {
+						AbonApi.card_activate({
+							card_id:card_id
+						})									
+					}
+				},
+				card_deactivate: function(card_id) {
+					if(confirm("отключить карточку?")) {
+						AbonApi.card_deactivate({
+							card_id:card_id
+						})															
+					}
+				},
+				card_unbind: function(card_id) {
+					if(confirm("удалить карточку?")) {
+						AbonApi.card_unbind({
+							card_id:card_id
+						})				
+					}
+				},
+				tp_activate: function(card_service_id) {
+					if(confirm("активировать тариф?")) {
+						AbonApi.cards_tp_activate({
+							cs_id:card_service_id
+						})					
+					}
+				},
+				tp_deactivate: function(card_service_id) {
+					if(confirm("отключить тариф?")) {
+						AbonApi.cards_tp_deactivate({
+							cs_id:card_service_id
+						})					
+					}
+				},
+				tp_move_form: function(card_service_id) {
+					//alert(card_service_id)
+					w = new Ext.ux.AbonTpMoveForm({
+						cs_id:card_service_id,
+					})
+					w.show();
+				},
+				
+				tp_move: function(card_service_id,card_id) {
+					AbonApi.cards_tp_move({
+						//18779
+						service_id:card_service_id,
+						card_id:card_id,
+					})
+				},
+				tp_unbind: function(card_service_id) {
+					if(confirm("удалить тариф?")) {
+						AbonApi.cards_tp_delete({
+							cs_id:card_service_id
+						})
+					}
+				},
+			},
+			report: {
+				launch: function() {
+					window.open('/report','_newtab');
+				}
+			}
         },
         scrambler: {
             card: {

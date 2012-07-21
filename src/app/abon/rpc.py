@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from lib.extjs import store_read, check_perm
+from datetime import datetime, date
 
 class AbonApiClass(object):
 
@@ -91,10 +92,6 @@ class AbonApiClass(object):
             return dict(success=False, title='Сбой загрузки формы', msg='abonent not found', errors='')
         else:
             data = a.address.store_record()
-        if a.activated: 
-            data.update({'activated':a.activated.date()}) #страшний бидлокод.
-        if a.deactivated: 
-            data.update({'deactivated':a.deactivated}) #страшний бидлокод.2
         return dict(success=True, data=data)
 
     address_get._args_len = 1
@@ -259,16 +256,16 @@ class AbonApiClass(object):
             except Abonent.DoesNotExist:
                 return dict(success=False, title='Сбой загрузки баланса', msg='abonent not found', errors='' )
             else:
-                return dict(success=True, data={'balance':abonent.bill.balance} )
+                return dict(success=True, data={'balance':abonent.bill.balance_get_wo_credit(),'credit':abonent.bill.get_credit()} )
         else:
-            return dict(success=True, data={'balance':None} )
+            return dict(success=True, data={'balance':None,'credit':None} )
 
     balance_get._args_len = 1
     
     @check_perm('accounts.rpc_abon_cards_get')
     @store_read
-    def cards_get(self,rdata,request):
-        from abon.models import Abonent
+    def cards_get(self,rdata,request):        
+        from abon.models import Abonent        
         try:
             uid = int(rdata['uid'])
         except KeyError:
@@ -376,6 +373,15 @@ class AbonApiClass(object):
     
     @check_perm('accounts.rpc_abon_cards_tp_get')
     @store_read
+    def cards_tp_list_get(self,rdata,request):
+        from tv.models import TariffPlan
+        tp=TariffPlan.objects.filter(enabled__exact=True,deleted__exact=False)
+        return tp
+
+    cards_tp_list_get._args_len = 1
+    
+    @check_perm('accounts.rpc_abon_cards_tp_get')
+    @store_read
     def cards_tp_get(self,rdata,request):
         from tv.models import Card
         card_id = int(rdata['card_id'])
@@ -392,17 +398,182 @@ class AbonApiClass(object):
     cards_tp_get._args_len = 1
 
     @check_perm('accounts.rpc_abon_cards_tp_set')
-    def cards_tp_set(self,rdata,request):
-        return dict(success=False, title='Сбой загрузки тарифов', msg='not implemented yet', errors='', data={})
+    def cards_tp_add(self,rdata,request):
+        for line in rdata:
+            print "%s: %s" % (line,rdata[line])
+        from tv.models import Card, TariffPlan, CardService
+        from datetime import datetime
+        card_id=rdata['card_id']
+        try:
+            tp_id=int(rdata['data']['tariff'])
+        except:
+            return dict(success=False, title='Сбой добавления тарифов', msg='параметр неверно задан', errors='', data={}) 
+        try:
+            activated = datetime.strptime(rdata['data']['activated'],'%Y-%m-%dT%H:%M:%S').date()
+        except:
+            try:
+                activated = datetime.strptime(rdata['data']['activated'],'%Y-%m-%d %H:%M:%S').date()
+            except:
+                activated = datetime.now()
+        try:
+            extra=rdata['data']['extra']
+        except:
+            extra = ''
+        c = Card.objects.get(pk=card_id)
+        cs = CardService(card=c)
+        tp = TariffPlan.objects.get(pk=tp_id)
+        cs.tp = tp
+        cs.activated = activated
+        cs.extra = extra
+        cs.save()        
+        return dict(success=True, data=cs.store_record() )
+        #
 
-    cards_tp_set._args_len = 1
+    cards_tp_add._args_len = 1
+    
+    @check_perm('accounts.rpc_abon_cards_tp_set')
+    def cards_tp_update(self,rdata,request):
+        from tv.models import Card, TariffPlan, CardService
+        from datetime import datetime        
+        card_id=rdata['card_id']
+        try:
+            tp_id=int(rdata['data']['tariff'])
+        except:
+            tp_id =0
+        try:
+            extra=rdata['data']['extra']
+        except:
+            extra = ''    
+        cs_id=rdata['data']['id']
+        try:
+            activated = datetime.strptime(rdata['data']['activated'],'%Y-%m-%dT%H:%M:%S').date()
+        except:
+            try:
+                activated = datetime.strptime(rdata['data']['activated'],'%Y-%m-%d %H:%M:%S').date()
+            except:
+                activated = None                
+        c = Card.objects.get(pk=card_id)
+        cs = CardService.objects.get(pk=cs_id)
+        if tp_id>0:
+            tp = TariffPlan.objects.get(pk=tp_id)
+            cs.tp = tp
+        if activated:
+            cs.activated = activated
+        cs.extra = extra
+        cs.save()        
+        return dict(success=True, data=cs.store_record() )
+        #return dict(success=False, title='Сбой загрузки тарифов', msg='not implemented yet', errors='', data={})
+
+    cards_tp_update._args_len = 1
+    
+    @check_perm('accounts.rpc_abon_cards_tp_set')
+    def cards_tp_delete(self,rdata,request):
+        from tv.models import CardService        
+        cs_id=rdata['cs_id']
+        cs = CardService.objects.get(pk=cs_id)
+        cs.delete()
+        return dict(success=True, title='Удалено', msg='deleted...', data={} )
+        #return dict(success=False, title='Сбой загрузки тарифов', msg='not implemented yet', errors='', data={})
+
+    cards_tp_delete._args_len = 1
+
+    @check_perm('accounts.rpc_abon_cards_tp_set')
+    def cards_tp_activate(self,rdata,request):
+        from tv.models import CardService        
+        cs_id=rdata['cs_id']
+        cs = CardService.objects.get(pk=cs_id)
+        if not cs.card.active:
+            return dict(success=False, title='Сбой Активации тарифа', msg='карточка не активирована', errors='', data={})
+        cs.activate(activated=datetime.date(cs.activated))
+        return dict(success=True, title='Активировано', msg='activated...', data={} )
+        #return dict(success=False, title='Сбой загрузки тарифов', msg='not implemented yet', errors='', data={})
+
+    cards_tp_activate._args_len = 1
+
+    @check_perm('accounts.rpc_abon_cards_tp_set')
+    def cards_tp_deactivate(self,rdata,request):
+        from tv.models import CardService        
+        cs_id=rdata['cs_id']
+        cs = CardService.objects.get(pk=cs_id)
+        cs.deactivate(deactivated=datetime.date(cs.activated))
+        return dict(success=True, title='Деактивировано', msg='deactivated...', data={} )
+        #return dict(success=False, title='Сбой загрузки тарифов', msg='not implemented yet', errors='', data={})
+    
+    cards_tp_deactivate._args_len = 1
+
+    @check_perm('accounts.rpc_abon_cards_tp_set')
+    def cards_tp_move(self,rdata,request):
+        from tv.models import Card, CardService    
+        card_id=rdata['card_id']
+        service_id=rdata['service_id']
+        c = Card.objects.get(pk=card_id)
+        cs = CardService.objects.get(pk=service_id)
+        if not c.owner == cs.card.owner or not cs.card.active:
+            return dict(success=False, title='Сбой переноса тарифа', msg='card owner mismatch or not active', errors='', data={})
+        cs.card = c
+        cs.save()
+        return dict(success=True, title='Тприф перенесен', msg='moved...', data={} )
+        #return dict(success=False, title='Сбой загрузки тарифов', msg='not implemented yet', errors='', data={})
+    
+    cards_tp_move._args_len = 1
+            
+    @check_perm('accounts.rpc_abon_cards_tp_set')
+    @store_read
+    def card_get_for_move(self,rdata,request):
+        from tv.models import Card, CardService
+        from django.db.models import Q
+        service_id=rdata['service_id']
+        try:
+            cs = CardService.objects.get(pk=service_id)
+        except:
+            return dict(success=False, title='сбой переноса тарифа', msg='service not found', errors='', data={})
+        cards = cs.card.owner.cards.filter(Q(active=True)&~Q(pk=cs.card.pk))
+        return cards
+        #return dict(success=False, title='Сбой загрузки тарифов', msg='not implemented yet', errors='', data={})
+    
+    card_get_for_move._args_len = 1
+    
+    @check_perm('accounts.rpc_abon_cards_tp_set')
+    def card_unbind(self,rdata,request):
+        from tv.models import Card        
+        card_id=rdata['card_id']
+        c = Card.objects.get(pk=card_id)
+        c.owner = None
+        c.save()
+        return dict(success=True, title='Удалено', msg='deleted...', data={} )
+        #return dict(success=False, title='Сбой загрузки тарифов', msg='not implemented yet', errors='', data={})
+
+    card_unbind._args_len = 1
+
+    @check_perm('accounts.rpc_abon_cards_tp_set')
+    def card_activate(self,rdata,request):
+        from tv.models import Card        
+        card_id=rdata['card_id']
+        c = Card.objects.get(pk=card_id)
+        c.activate(activated=datetime.date(c.activated))
+        return dict(success=True, title='Активировано', msg='activated...', data={} )
+        #return dict(success=False, title='Сбой загрузки тарифов', msg='not implemented yet', errors='', data={})
+
+    card_activate._args_len = 1
+
+    @check_perm('accounts.rpc_abon_cards_tp_set')
+    def card_deactivate(self,rdata,request):
+        from tv.models import Card        
+        card_id=rdata['card_id']
+        c = Card.objects.get(pk=card_id)
+        c.deactivate(deactivated=datetime.date(c.activated))
+        return dict(success=True, title='Деактивировано', msg='deactivated...', data={} )
+        #return dict(success=False, title='Сбой загрузки тарифов', msg='not implemented yet', errors='', data={})
+    
+    card_deactivate._args_len = 1
+
     
     @check_perm('accounts.rpc_abon_payments_get')
     @store_read
     def payments_get(self,rdata,request):
         from tv.models import Payment
         from abon.models import Abonent 
-        print rdata
+        print rdata        
         uid = int(rdata['uid'])
         if uid>0:
             try:
@@ -427,10 +598,95 @@ class AbonApiClass(object):
             except Abonent.DoesNotExist:
                 return dict(success=False, title='Сбой загрузки платежей', msg='abonent not found', errors='', data={} )                    
             fees=Fee.objects.filter(bill=abonent.bill,rolled_by__exact=None)
+            #fees=Fee.objects.filter(bill=abonent.bill)
             return fees.order_by('-timestamp','-pk')
         return {}
     fees_get._args_len = 1
-        
+
+    @check_perm('accounts.rpc_abon_credits_get')
+    @store_read
+    def abon_credit_get(self,rdata,request):
+        from abon.models import Abonent, Credit
+        uid = int(rdata['uid'])
+        if uid>0:
+            try:
+                abonent=Abonent.objects.get(pk=uid)
+            except Abonent.DoesNotExist:
+                return dict(success=False, title='Сбой загрузки кредитов', msg='abonent not found', errors='', data={} )
+            return abonent.bill.credits.all().order_by('-valid_until')
+        return {}
+    abon_credit_get._args_len = 1
+
+    @check_perm('accounts.rpc_abon_credits_set')
+    @store_read
+    def abon_credit_add(self,rdata,request):
+        from abon.models import Abonent, Credit
+        uid = int(rdata['uid'])
+        data = rdata['data']
+        if uid>0:
+            try:
+                abonent=Abonent.objects.get(pk=uid)
+            except Abonent.DoesNotExist:
+                return dict(success=False, title='Сбой добавления кредита', msg='abonent not found', errors='', data={})
+            #valid_from_t=data['valid_from']
+            #try:
+            #    valid_from = datetime.strptime(valid_from_t,'%Y-%m-%dT%H:%M:%S').date()
+            #except ValueError:
+            #    return dict(success=False, title='Сбой добавления кредита', msg='invalid date', errors='', data={} )
+            valid_until_t=data['valid_until']
+            try:
+                valid_until = datetime.strptime(valid_until_t,'%Y-%m-%dT%H:%M:%S').date()
+            except ValueError:
+                return dict(success=False, title='Сбой добавления кредита', msg='invalid date', errors='', data={} )
+            c = Credit(manager=request.user,sum=data['sum'],valid_from=date.today(),
+                valid_until=valid_until,bill=abonent.bill)
+            c.save()
+            return c.store_record()
+        return {}
+    abon_credit_add._args_len = 1
+
+    @check_perm('accounts.rpc_abon_credits_set')
+    @store_read
+    def abon_credit_update(self,rdata,request):
+        from abon.models import Abonent, Credit
+        uid = int(rdata['uid'])
+        print rdata
+        data = rdata['data']
+        if uid>0:
+            try:
+                abonent=Abonent.objects.get(pk=uid)
+            except Abonent.DoesNotExist:
+                return dict(success=False, title='Сбой изменения кредита', msg='abonent not found', errors='', data={})
+            #valid_from_t=data['valid_from']
+            #try:
+            #    valid_from = datetime.strptime(valid_from_t,'%Y-%m-%dT%H:%M:%S').date()
+            #except ValueError:
+            #    try:
+            #        valid_from = datetime.strptime(valid_from_t,'%Y-%m-%d').date()
+            #    except ValueError:
+            #        return dict(success=False, title='Сбой изменения кредита', msg='invalid date', errors='', data={} )
+            valid_until_t=data['valid_until']
+            try:
+                valid_until = datetime.strptime(valid_until_t,'%Y-%m-%dT%H:%M:%S').date()
+            except ValueError:
+                try:
+                    valid_until = datetime.strptime(valid_until_t,'%Y-%m-%d').date()
+                except ValueError:
+                    return dict(success=False, title='Сбой изменения кредита', msg='invalid date', errors='', data={} )
+            try:
+                c = Credit.objects.get(pk=data['id'])
+            except Credit.DoesNotExist:
+                return dict(success=False, title='Сбой изменения кредита', msg='credit not found', errors='', data={} )
+            else:
+                c.sum = data['sum']
+                #c.valid_from=valid_from
+                c.valid_until=valid_until
+                c.manager=request.user
+                c.save()
+            return c.store_record()
+        return {}
+    abon_credit_update._args_len = 1
+
     @check_perm('accounts.rpc_abon_registers_get')
     @store_read
     def registers_get(self,rdata,request):
@@ -481,8 +737,10 @@ class AbonApiClass(object):
         
         pr = Payment.objects.latest('id')
         pt = Payment.objects.filter(id__gte=pr.id-5,bill=abonent.bill)
-        if pt.count()>0:
-            return dict(success=False, title='Сбой проведения оплаты', msg='Возможно повторный ввод квитанции', errors='', data={} )
+        
+        if not request.user.has_perm("accounts.rpc_abon_make_double_payment"):
+            if pt.count()>0:
+                return dict(success=False, title='Сбой проведения оплаты', msg='Возможно повторный ввод квитанции', errors='', data={} )
         
         p = Payment()
         p.register = register
@@ -896,3 +1154,10 @@ class AbonApiClass(object):
             return dict(success=False, errors='')
     
     abonent_delete._args_len = 1
+    
+    def report(self, rdata, request):
+        print rdata
+        print request
+        return False
+    
+    report._args_len = 1

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import settings
 
 class BasicPacket:    
     data=[]
@@ -55,6 +56,20 @@ class ChannelPacket(BasicPacket):
         self.mk_prefix()
         self.append_crc()        
 
+    @classmethod
+    def export(self):
+        from tv.models import Trunk
+        from settings import EXPORT_PATH
+        from lib.functions import list2bin
+        f = open('%s/%s' % (EXPORT_PATH,'prog.bin'), 'w')
+        data = []
+        
+        trunks = Trunk.objects.all()
+        data.append(trunks.count())
+        for t in trunks:
+            data.extend(t.channel_mask)
+        f.write(list2bin(data))
+        f.close()        
 
 
 class UserPacket(BasicPacket):
@@ -67,12 +82,12 @@ class UserPacket(BasicPacket):
         try:
             card=Card.objects.get(num=card_id)
         except Card.DoesNotExist:
-            self.data.append(0x02)
+            self.data.append(0x01)
         else:
             if card.active:
                 self.data.append(0x01)
             else:
-                self.data.append(0x02)
+                self.data.append(0x01)
             c = CardDigital.objects.count()
             self.data.extend(int_to_4byte_wrapped(c))
             self.data.extend(int_to_4byte_wrapped(card.digital.pk))
@@ -81,14 +96,52 @@ class UserPacket(BasicPacket):
             self.data.extend(int_to_4byte_wrapped(card.balance_int or 0))
             self.mk_prefix()
             self.append_crc()
-            
+        print
+        print "Generating packet for card #%s" % card.num
+    
+    @classmethod
+    def export_card(cls,card_num):
+        from tv.models import Card
+        from lib.functions import int_to_4byte_wrapped, list2hex
+        data = []
+        try:
+            card=Card.objects.get(num=card_num)
+        except Card.DoesNotExist:
+            return data        
+        data.extend(int_to_4byte_wrapped((card.num-1)*2))
+        data.extend(card.bin_flags)
+        data.extend(int_to_4byte_wrapped(card.balance_int or 0))
+        #print list2hex(data)
+        return data
+        
+        
+    @classmethod
+    def export(cls):
+        from settings import EXPORT_PATH
+        from lib.functions import int_to_4byte_wrapped, list2bin
+        from tv.models import CardDigital
+        
+        f = open('%s/%s' % (EXPORT_PATH,'user.bin'), 'w')
+        data = []
+        
+        c = CardDigital.objects.count()
+        data.extend(int_to_4byte_wrapped(c))        
+        f.write(list2bin(data))
+        
+        for cd in CardDigital.objects.all():
+            f.write(list2bin(cls.export_card(cd.card.num)))
+                
+        f.close()        
 
 
 
 class BasicQuery:
+    import settings
 
-    host = '192.168.33.158'
-    port = 49153
+    #host = '192.168.33.158'
+    host =  settings.SCR1_IP
+    #port = 49153
+    port = settings.SCR1_PORT
     packet= None
     request = None
     response = None
@@ -102,7 +155,10 @@ class BasicQuery:
         import struct
 
         print "running query %s\n request: %s" % (self.__class__,self.packet.hex())
-
+        if not settings.SCR1_ENABLED:
+            print "disabled in config. query terminated"
+            return False
+        
         self.response = None
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.setsockopt(socket.SOL_SOCKET,socket.SO_RCVTIMEO,struct.pack('ll',3,0))

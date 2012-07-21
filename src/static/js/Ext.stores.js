@@ -308,6 +308,7 @@ var building_ds_model = Ext.data.Record.create([
     'comment',
 ]);
 
+/*
 Ext.ux.abonent_store = new Ext.data.DirectStore({
     api: {
         read: AbonentGrid.read,
@@ -357,7 +358,7 @@ Ext.ux.abonent_store = new Ext.data.DirectStore({
         }
     }
 });
-
+*/
 Ext.ux.card_store = new Ext.data.DirectStore({
     api: {
         read: CardGrid.read,
@@ -409,9 +410,26 @@ var card_ds_model = Ext.data.Record.create([
     'activated'
 ]);
 
+var tariff_ds_model = Ext.data.Record.create([
+    'id',
+    'tariff',
+    'active',
+    'activated',
+    'extra'
+]);
+
+var credit_ds_model = Ext.data.Record.create([
+    'id',
+    'bill',
+    'sum',
+    'valid_from',
+    'valid_until',
+    'manager'
+]);
+
 Ext.ux.free_card_combo_store = new Ext.data.DirectStore({
                 restful: true,
-                autoLoad: true,
+                autoLoad: false,
                 autoSave: false,
                 storeId: 'free_card_combo_store',
                 reader: new Ext.data.JsonReader({
@@ -438,6 +456,37 @@ Ext.ux.free_card_combo_store = new Ext.data.DirectStore({
                 baseParams : {
                     uid:this.oid,
                     filter_fields:['num'],
+                    filter_value:''
+                }
+            })
+
+Ext.ux.card_tp_combo_store = new Ext.data.DirectStore({
+                restful: true,
+                autoLoad: false,
+                autoSave: false,
+                storeId: 'card_tp_combo_store',
+                reader: new Ext.data.JsonReader({
+                    root: 'data',
+                    totalProperty: 'total',
+                    fields: [
+                        'id',
+                        'name',
+                    ]
+                }),
+                writer: new Ext.data.JsonWriter({
+                    encode: false,
+                    writeAllFields: true,
+                    listful: true
+                }),
+                api: {
+                    read: AbonApi.cards_tp_list_get,
+                    create: CardGrid.create,
+                    update: CardGrid.update,
+                    destroy: CardGrid.destroy
+                },
+                baseParams : {
+                    uid:this.oid,
+                    filter_fields:['name'],
                     filter_value:''
                 }
             })
@@ -468,7 +517,8 @@ Ext.ux.register_store = new Ext.data.DirectStore({
 			'end',
 			'bank',
 			'payments_total',
-			'payments_maked'
+			'payments_maked',
+            'payments_maked_sum'
         ]
     }),
     writer: new Ext.data.JsonWriter({

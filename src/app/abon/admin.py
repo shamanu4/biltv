@@ -80,6 +80,16 @@ class BillAdmin(admin.ModelAdmin):
 admin.site.register(Bill, BillAdmin)
 
 """
+Credit
+"""
+class CreditAdmin(admin.ModelAdmin):
+    raw_id_fields=('bill',)
+    search_fields=('bill__abonents__address__override','bill__abonents__person__lastname')
+    list_display=('bill','sum','valid_from','valid_until','manager')
+admin.site.register(Credit, CreditAdmin)
+
+
+"""
 Abonent
 """
 class AbonentAdmin(admin.ModelAdmin):

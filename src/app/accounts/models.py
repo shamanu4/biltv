@@ -34,6 +34,7 @@ class User(BaseUser):
             ("rpc_abon_registers_get", "RPC abon.registers_get"),
             ("rpc_abon_registers_get_last", "RPC abon.registers_get_last"),
             ("rpc_abon_make_payment", "RPC abon.make_payment"),
+            ("rpc_abon_make_double_payment", "RPC abon.make_double_payment"),
             ("rpc_abon_feetypes_get", "RPC abon.feetypes_get"),
             ("rpc_abon_make_fee", "RPC abon.make_fee"),
             ("rpc_abon_make_transfer", "RPC abon.make_transfer"),
@@ -47,23 +48,23 @@ class User(BaseUser):
             ("rpc_abon_comment_get", "RPC abon.comment_get"),
             ("rpc_abon_comment_set", "RPC abon.comment_set"),
             ("rpc_abon_launch_hamster", "RPC abon.launch_hamster"),
-            ("rpc_abon_abonent_delete", "RPC abon.abonent_delete"),       
+            ("rpc_abon_abonent_delete", "RPC abon.abonent_delete"),
+            ("rpc_abon_credits_get", "RPC abon.credit_get"),
+            ("rpc_abon_credits_set", "RPC abon.credit_set"),
         )
     
-def store_record(self):
-        print self
-        print self.__dict__
+    def store_record(self):
         obj = {}
         obj['id'] = self.pk
         obj['username'] = self.first_name or self.username 
         return obj
 
 def create_custom_user(sender, instance, created, **kwargs):
-    if created:
-        values = {}
-        for field in sender._meta.local_fields:
-            values[field.attname] = getattr(instance, field.attname)
-        user = User(**values)
-        user.save()
+        if created:
+            values = {}
+            for field in sender._meta.local_fields:
+                values[field.attname] = getattr(instance, field.attname)
+                user = User(**values)
+                user.save()
         
 post_save.connect(create_custom_user, BaseUser)

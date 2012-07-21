@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
+import sys
+import traceback
 from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from inspect import getargspec
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils import simplejson
-
 from django.db.models.query import QuerySet
 from lib.functions import QuerySetChain
 from django.db.models import Q
@@ -22,8 +23,8 @@ def check_perm(perm):
                         return func(*args, **kwargs)
                     else:
                         return dict(success=False, title=u'Доступ запрещен', msg=u'user %s has not permission %s' % (request.user,perm), errors='' )
-                except:
-                    return dict(success=False, title=u'Доступ запрещен', msg=u'invalid arguments while permission (%s) check. (no request.user)' % perm, errors='' )
+                except Exception as inst:
+                    return dict(success=False, title=u'Ошибка доступа', msg=u'perm: %s;\n exception: %s;' % (perm,inst), errors=traceback.format_exc())
             else:
                 return dict(success=False, title=u'Доступ запрещен', msg=u'invalid arguments while permission (%s) check. (no request)' % perm, errors='' )
         return wraps(func)(inner_decorator) 
@@ -32,6 +33,8 @@ def check_perm(perm):
 def store_read(func):
     def wrapper(*args, **kwargs):
         from lib.functions import latinaze
+        import re
+        spec_lookup = re.compile("^.*\_{2}(i?exact|i?contains|(l|g)te|i?(start|end)swith)$")
         result = func(*args, **kwargs)
         rdata = args[1]
         if isinstance(result, tuple):
@@ -46,15 +49,21 @@ def store_read(func):
                 query=None
                 if 'query' in rdata:
                     for node in rdata['filter_fields']:
-                        val=rdata['query']   
+                        val=unicode(rdata['query'])                        
                         wild = val.split('*')                 
                         query2 = None
                         for v in wild:
                             if not v == '':
-                                if query2:                            
-                                    query2 = query2 & Q(**{"%s__istartswith" % str(node):v})
+                                if spec_lookup.match(node):
+                                    if query2:                            
+                                        query2 = query2 & Q(**{"%s" % str(node):v})
+                                    else:
+                                        query2 = Q(**{"%s" % str(node):v})
                                 else:
-                                    query2 = Q(**{"%s__icontains" % str(node):v})
+                                    if query2:                            
+                                        query2 = query2 & Q(**{"%s__icontains" % str(node):v})
+                                    else:
+                                        query2 = Q(**{"%s__istartswith" % str(node):v})
                         if query:
                             query = query | query2
                         else:
@@ -64,15 +73,21 @@ def store_read(func):
                         if 'passport' in node:
                             val=latinaze(rdata['filter_value'])
                         else:
-                            val=rdata['filter_value']
+                            val=unicode(rdata['filter_value'])
                         wild = val.split('*')
                         query2 = None
                         for v in wild:
                             if not v == '':
-                                if query2:
-                                    query2 = query2 & Q(**{"%s__icontains" % str(node):v})
+                                if spec_lookup.match(node):
+                                    if query2:
+                                        query2 = query2 & Q(**{"%s" % str(node):v})
+                                    else:
+                                        query2 = Q(**{"%s" % str(node):v})
                                 else:
-                                    query2 = Q(**{"%s__icontains" % str(node):v})
+                                    if query2:
+                                        query2 = query2 & Q(**{"%s__icontains" % str(node):v})
+                                    else:
+                                        query2 = Q(**{"%s__icontains" % str(node):v})
                         if query:
                             query = query | query2
                         else:
@@ -80,8 +95,9 @@ def store_read(func):
                 if query:
                     result = result.filter(query)
             if 'filter' in rdata:
-                if not rdata['filter']=='':
-                    result = result.filter(rdata['filter'])
+                for item in rdata['filter']:
+                    val = unicode(rdata['filter'][item])
+                    result = result.filter(**{str(item):val})
             if 'sort' in rdata:
                 if 'dir' in rdata and rdata['dir']=='DESC':
                     result = result.order_by('-%s' % rdata['sort'])

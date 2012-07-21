@@ -1,3 +1,6 @@
+.invisible {
+    display: none;
+}
 
 .balance_digits_positive {
     color: #509050;

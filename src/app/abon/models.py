@@ -31,9 +31,9 @@ class Group(models.Model):
 
 class Person(models.Model):
 
-    firstname = models.CharField(max_length=40)
-    lastname = models.CharField(max_length=40)
-    middlename = models.CharField(max_length=40)
+    firstname = models.CharField(max_length=40, default='?')
+    lastname = models.CharField(max_length=40, default='?')
+    middlename = models.CharField(max_length=40, default='?')
     passport = models.CharField(max_length=20, unique=True)
     registration = models.DateField(default=date.today())
     deleted = models.BooleanField(default=False)
@@ -272,6 +272,8 @@ class Building(models.Model):
         obj['id'] = self.pk
         obj['street'] = self.street.id
         obj['house'] = self.house.id
+        obj['street_name'] = self.street.name
+        obj['house_num'] = self.house.num
         obj['comment'] = self.comment
         return obj
 
@@ -338,7 +340,7 @@ class Address(models.Model):
 
 class Bill(models.Model):
 
-    balance = models.FloatField(default=0)
+    balance = models.FloatField(default=0)     
     deleted = models.BooleanField(default=False)
     
     class Meta:
@@ -347,16 +349,38 @@ class Bill(models.Model):
         )
 
     def __unicode__(self):
-        return "%s" % self.balance
+        return "%s" % self.balance_get()        
+
+    def get_credit(self,dt=None):
+        from django.db.models import Sum
+        import settings
+        if not dt:
+            dt = date.today()               
+        credit = self.credits.filter(valid_from__lte=dt,valid_until__gte=dt).aggregate(total=Sum('sum'))['total'] or 0
+        if credit < settings.ALL_USERS_CREDIT:
+            return settings.ALL_USERS_CREDIT
+        return credit
+        
+        
+    def balance_get_wo_credit(self):
+        from django.db.models import Sum               
+        return self.balance + (self.payments.filter(maked__exact=False,deleted__exact=False,rolled_by__exact=None).aggregate(total=Sum('sum'))['total'] or 0)
+
+    def balance_get(self):
+        return self.balance_get_wo_credit()+self.get_credit()       
 
     @property
     def balance_int(self):
-        return int(self.balance*100)
+        return int(self.balance_get()*100)
 
     @property
     def balance_rounded(self):
-        return int(self.balance*100)/100.0
-
+        return int(self.balance_get()*100)/100.0
+    
+    @property
+    def balance_wo_credit(self):
+        return self.balance_get_wo_credit()
+    
     @property
     def bin_balance(self):
         from lib.functions import int_to_4byte_wrapped
@@ -371,12 +395,95 @@ class Bill(models.Model):
             res.extend(t.user_mask)
         return res
 
+    def operations_log(self,last_operation_date=None):
+        from itertools import chain
+        from operator import attrgetter
+        if last_operation_date:
+            return sorted(
+                list(chain(self.fees.filter(deleted=False,rolled_by=None,timestamp__gte=last_operation_date),
+                self.payments.filter(deleted=False,rolled_by=None,bank_date__gte=last_operation_date),)),
+                key=attrgetter('sort'))
+        else:
+            return sorted(
+                list(chain(self.fees.filter(deleted=False,rolled_by=None),
+                self.payments.filter(deleted=False,rolled_by=None),)),
+                key=attrgetter('sort'))
+
+    def fix_operations_log(self,last_operation_date=None):
+        from tv.models import Fee,Payment
+        b = 0
+        for e in self.operations_log(last_operation_date):
+            e.prev=b
+            e.save()
+            if type(e)==Fee:
+                b-=e.sum
+            if type(e)==Payment:
+                b+=e.sum
+
+    def save(self,*args,**kwargs):
+        if 'last_operation_date' in kwargs:
+            last_operation_date = kwargs['last_operation_date']
+            del kwargs['last_operation_date']
+        else:
+            last_operation_date = None
+        super(self.__class__, self).save(*args, **kwargs)
+        self.fix_operations_log(last_operation_date)
+
+
+class Credit(models.Model):
+    bill = models.ForeignKey(Bill,related_name="credits")
+    sum = models.FloatField(default=0)
+    valid_from = models.DateField(default=date.today)
+    valid_until = models.DateField(blank=True,null=True)
+    #valid = models.BooleanField(default=True)
+    manager = models.ForeignKey("accounts.User",blank=True,null=True)
+
+    def __unicode__(self):
+        return "%s" % self.sum
+
+    def save(self, *args, **kwargs):
+        from tv.models import CardService
+        super(self.__class__, self).save(*args, **kwargs)
+        for fee in self.bill.fees.filter(maked__exact=False,deleted__exact=False,rolled_by__exact=None):
+            print fee
+            if not fee.card or not fee.tp:
+                fee.make()
+            else:
+                try:
+                    cs = CardService.objects.get(card=fee.card,tp=fee.tp)
+                except CardService.DoesNotExist:
+                    pass
+                else:
+                    cs.activate(activated=fee.timestamp.date())
+                    fee.delete()
+                    #cs.activate()
+    @property
+    def valid(self):
+        from datetime import date
+        today=date.today()
+        return self.valid_from<=today and self.valid_until>=today
+
+    def store_record(self):
+        obj = {}
+        obj['id'] = self.pk
+        obj['bill'] = self.bill.pk
+        obj['sum'] = self.sum
+        obj['valid_from'] = self.valid_from
+        obj['valid_until'] = self.valid_until
+        obj['valid'] = self.valid
+        try:
+            obj['manager'] = self.manager.username
+        except:
+            obj['manager'] = 'System'
+        return obj
+
+
 
 class Abonent(models.Model):
     person = models.ForeignKey(Person, related_name='abonents')
     address = models.ForeignKey(Address, related_name='abonents')
     group = models.ForeignKey(Group, default=1, related_name='members')
-    activated = models.DateTimeField(default=datetime.now)
+    #activated = models.DateTimeField(default=datetime.now)
     #deactivated = models.DateTimeField(blank=True, null=True)
     deleted = models.BooleanField(default=False)
     comment = models.TextField(blank=True, null=True)
@@ -410,7 +517,8 @@ class Abonent(models.Model):
     
     @property
     def catv_card(self):
-        return (self.cards.filter(num=-self.pk) or [None])[0]
+        card = (self.cards.filter(num=-self.pk) or [None])[0]
+        return card
     
     @property
     def deactivated(self):
@@ -423,7 +531,17 @@ class Abonent(models.Model):
             return ''
         else:
             return last_disabled.date
-        
+    
+    @property
+    def activated(self):
+        from tv.models import CARD_SERVICE_ACTIVATED
+        try:
+            last_disabled = self.catv_card.service_log.filter(action=CARD_SERVICE_ACTIVATED).latest('date')
+        except:
+            return ''
+        else:
+            return last_disabled.date
+    
     
     def disable(self,date=None,descr=''):
         print "abonent disabling..."
@@ -491,6 +609,31 @@ class Abonent(models.Model):
             card.make_fees(date)
         return True
     
+    def was_active(self,date):
+        from tv.models import CARD_SERVICE_ACTIVATED, CARD_SERVICE_DEACTIVATED
+        last_activated_qs = self.catv_card.service_log.filter(action=CARD_SERVICE_ACTIVATED,date__lte=date).order_by('-date')
+        last_deactivated_qs = self.catv_card.service_log.filter(action=CARD_SERVICE_DEACTIVATED,date__lte=date).order_by('-date')
+        if not last_activated_qs.count():
+            return False
+        if not last_deactivated_qs.count():
+            return True
+        
+        last_activated = last_activated_qs[0]
+        last_deactivated = last_deactivated_qs[0]
+        
+        if last_activated.date < last_deactivated.date:
+            return False
+        if last_activated.date > last_deactivated.date:
+            return True
+        if last_activated.timestamp < last_deactivated.timestamp:
+            return False
+        if last_activated.timestamp > last_deactivated.timestamp:
+            return True
+        if last_activated.pk < last_deactivated.pk:
+            return False
+        else:
+            return True
+        
     # WARNING! This method was used once during MIGRATION. Future uses RESTRICTED! This will cause  history DATA CORRUPT!  
     def import_catv_history(self):        
         from tv.models import CardHistory, CARD_SERVICE_ACTIVATED, CARD_SERVICE_DEACTIVATED
@@ -545,6 +688,7 @@ class Abonent(models.Model):
         self.bill.balance=0
         self.bill.save()
         Fee.objects.filter(bill=self.bill).delete()
+        self.catv_card.service_log.all().delete()
         
         pp = Payment.objects.filter(bill=self.bill)
         for p in pp:
@@ -572,12 +716,21 @@ class Abonent(models.Model):
                 print "        processing interval %s-%s" % (i.start,i.finish)
             if not i.finish:
                 i.finish = thismonth
-            d = i.start            
+            d = i.start    
+            
+            for service in self.catv_card.services.all():
+                service.active=True
+                service.save(sdate=d,descr="%s/%s" % (i.s1,i.s2))
+                self.catv_card.active = True
+                self.catv_card.save()
+                self.disabled= False
+                self.save()
+                
             dd = date_formatter(add_months(d,1))['month'].date()
             
             if debug:
                 print "            starting date %s" % d
-            pp = Payment.objects.filter(bill=self.bill,maked=False,timestamp__lte=d)
+            pp = Payment.objects.filter(bill=self.bill,maked=False,bank_date__lte=d)
             for p in pp:
                 p.save()
                 p.make()
@@ -612,7 +765,7 @@ class Abonent(models.Model):
             new = False                
             d = dd
             dd = date_formatter(add_months(d,1))['month'].date()
-            pp = Payment.objects.filter(bill=self.bill,maked=False,timestamp__lte=d)
+            pp = Payment.objects.filter(bill=self.bill,maked=False,bank_date__lte=d)
             for p in pp:
                 p.save()
                 p.make()
@@ -629,7 +782,7 @@ class Abonent(models.Model):
                 f.make()                
                 d = dd
                 dd = date_formatter(add_months(d,1))['month'].date()
-                pp = Payment.objects.filter(bill=self.bill,maked=False,timestamp__lte=d)
+                pp = Payment.objects.filter(bill=self.bill,maked=False,bank_date__lte=d)
                 for p in pp:
                     p.save()
                     p.make()
@@ -647,9 +800,16 @@ class Abonent(models.Model):
                 maxid = Fee.objects.aggregate(Max('id'))['id__max']
                 f = Fee.objects.get(pk=maxid)                 
                 f.make()
+                
+                for service in self.catv_card.services.all():
+                    service.active=False
+                    service.save(sdate=d,descr="")
+                    self.catv_card.active = False
+                    self.catv_card.save()
+                    self.disabled= True
+                    self.save()
             
-            
-            pp = Payment.objects.filter(bill=self.bill,maked=False,timestamp__lte=d)
+            pp = Payment.objects.filter(bill=self.bill,maked=False,bank_date__lte=d)
             for p in pp:
                 p.save()
                 p.make()
@@ -715,7 +875,8 @@ class Abonent(models.Model):
         obj['deactivated'] = self.deactivated
         obj['disabled'] = self.disabled
         obj['fee'] = 25
-        obj['bill__balance'] = self.bill.balance
+        obj['bill__balance'] = self.bill.balance_get()
+        obj['bill__balance_wo_credit'] = self.bill.balance_get_wo_credit()
         return obj
 
 

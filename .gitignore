@@ -4,5 +4,6 @@
 *.bin
 *.sql*
 .idea
+.settings
 settings_local.py
 nbproject
