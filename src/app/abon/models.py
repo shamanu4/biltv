@@ -601,7 +601,24 @@ class Abonent(models.Model):
         if len(self.cards.filter(num__lte=0))==0:
             print "creating CaTV card ..."
             self.create_catv_card()
-            
+
+    def delete(self, *args, **kwargs):
+        from django.core.serializers import serialize
+        return super(self.__class__, self).delete(*args,**kwargs)
+        # initialize list of objects for backup
+        backup_objects = []
+        # adding Abonent object
+        backup_objects += list(serialize("json",[self]))
+        # adding Bill
+        backup_objects += list(serialize("json",[self.bill]))
+        # adding Payments
+        backup_objects += list(serialize("json",self.bill.payments.all()))
+        # adding Fees
+        backup_objects += list(serialize("json",self.bill.fees.all()))
+
+
+
+
     def make_fees(self,date):
         if self.deleted or self.disabled:
             return False
