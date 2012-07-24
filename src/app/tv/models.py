@@ -2,7 +2,7 @@
 
 from django.db import models
 from logger.models import logging_postsave, logging_postdelete
-from datetime import datetime, date, time
+from datetime import datetime, date, time, timedelta
 from app.abills.models import Tp
 
 class Trunk(models.Model):
@@ -1352,6 +1352,8 @@ class CardService(models.Model):
             sr = RestoreService()
             sr.service = self
             sr.tp = self.tp
+            sr.abonent = self.card.owner
+            sr.bill = self.card.owner.bill
             self.tp = self.tp.fallback_tp
             self.active = False
             self.save(save_only=True)
@@ -1502,13 +1504,40 @@ class RestoreService(models.Model):
 
     service = models.ForeignKey(CardService,related_name='backup')
     tp = models.ForeignKey(TariffPlan)
+    abonent = models.ForeignKey("abon.Abonent")
+    bill = models.ForeignKey("abon.Bill",related_name="saved_services")
     create_date = models.DateField(default=date.today)
     restore_date = models.DateField(blank=True,null=True)
     restored = models.BooleanField(default=False)
     feedback_sum = models.FloatField(default=0)
 
     def __unicode__(self):
-        return "%s (%s) %s" % (self.service,self.create_date,self.tp.name)
+        return "%s (%s) %s" % (self.service.__unicode__(),self.create_date,self.tp.name)
+
+    def restore(self):
+
+        self.restored=True
+        self.restore_date=date.today()
+        self.save()
+
+        p = Payment()
+        p.bill = self.bill
+        p.sum = self.feedback_sum
+        p.descr = ""
+        p.inner_descr = "Возврат за первый неоплоч. месяц"
+        p.admin_id = 2
+        p.bank_date = date.today()
+        p.save()
+        p.make()
+
+        service = self.service
+        service.deactivate()
+        service.activated=date.today()
+        service.tp = self.tp
+        service.save()
+        service.activate()
+
+        return service.active
 
 
 

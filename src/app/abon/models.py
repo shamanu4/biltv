@@ -456,6 +456,16 @@ class Bill(models.Model):
             except:
                 pass
 
+    def restore_tp_check(self):
+        if self.balance_get()>=0 and self.saved_services.filter(restored=False).count():
+            for s in self.saved_services.all():
+                print "try to restore service %s" % s
+                if s.restore():
+                    print "    restored"
+                else:
+                    print "    failed"
+
+
     def save(self,*args,**kwargs):
         if 'last_operation_date' in kwargs:
             last_operation_date = kwargs['last_operation_date']
@@ -466,6 +476,7 @@ class Bill(models.Model):
         print "bill recalc from %s" % last_operation_date
         self.fix_operations_log(last_operation_date)
         self.checksum()
+        self.restore_tp_check()
 
 
 class Credit(models.Model):
@@ -482,6 +493,7 @@ class Credit(models.Model):
     def save(self, *args, **kwargs):
         from tv.models import CardService
         super(self.__class__, self).save(*args, **kwargs)
+        self.bill.restore_tp_check()
         for fee in self.bill.fees.filter(maked__exact=False,deleted__exact=False,rolled_by__exact=None):
             print fee
             if not fee.card or not fee.tp:
