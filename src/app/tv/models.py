@@ -1118,7 +1118,10 @@ class Card(models.Model):
             print "no user for tp promotion off"
             return False
         u.promotion_off(self,cs,pl,timestamp)
-    
+
+    def check_abills_bill_link(self,cs):
+        self.owner.check_abills_bill_link(self,cs)
+
     # WARNING! This method was used once during MIGRATION. Future uses RESTRICTED! This will cause  history DATA CORRUPT!  
     def timestamp_and_activation_fix(self):
         from django.core.exceptions import ObjectDoesNotExist
@@ -1294,7 +1297,9 @@ class CardService(models.Model):
             c.save()
 
         super(self.__class__, self).save(*args, **kwargs)
-        
+
+        self.card.check_abills_bill_link(self)
+
         if self.active:
             self.promotion_on(self.activated)
         else:
