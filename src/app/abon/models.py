@@ -989,7 +989,7 @@ class AbillsLink(models.Model):
         f.bill = self.abonent.bill
         f.sum = sum
         f.descr = 'Услуги "Интернет"'
-        f.inner_descr = descr
+        f.inner_descr = f.descr
         f.admin_id= 2
         f.bank_date = date.today()
         f.save()
