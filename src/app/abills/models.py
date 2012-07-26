@@ -28,7 +28,8 @@ class Bill(models.Model):
     deposit = models.FloatField(default=0)
     uid = models.IntegerField(blank=True,null=True)
     company_id =models.IntegerField(blank=True,null=True)
-
+    sync = models.FloatField(default=0)
+    linked = models.BooleanField(default=0)
 
     def __unicode__(self):
         return "%s" % self.deposit
@@ -65,7 +66,14 @@ class User(models.Model):
     class Meta:
         db_table = 'users'
         ordering = ['login']
-    
+
+    @property
+    def bill(self):
+        try:
+            return self.company.bill
+        except:
+            return None
+
     @property
     def pi(self):
         try:

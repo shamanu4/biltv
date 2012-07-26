@@ -633,8 +633,21 @@ class Abonent(models.Model):
             return False
         else:
             return True
-        
-    # WARNING! This method was used once during MIGRATION. Future uses RESTRICTED! This will cause  history DATA CORRUPT!  
+
+    def abills_get_user(self,login):
+        from abills.models import User
+        try:
+            return User.objects.get(login__exact=login)
+        except:
+            return None
+
+    def check_abills_bill_link(self,card,cs):
+        print "checking link %s %s %s" % (self,card,cs)
+        u = self.abills_get_user(cs.extra)
+        if u:
+            AbillsLink.check(self,u,card,cs)
+
+    # WARNING! This method was used once during MIGRATION. Future uses RESTRICTED! This will cause  history DATA CORRUPT!
     def import_catv_history(self):        
         from tv.models import CardHistory, CARD_SERVICE_ACTIVATED, CARD_SERVICE_DEACTIVATED
         self.catv_card.service_log.filter(timestamp__lt='2011-03-07').delete()
@@ -880,4 +893,133 @@ class Abonent(models.Model):
         return obj
 
 
+
+class AbillsLink(models.Model):
+
+    abonent = models.ForeignKey(Abonent, unique=True)
+    abills = models.ForeignKey("abills.User", unique=True)
+    card = models.ForeignKey("tv.Card", unique=True)
+    service = models.ForeignKey("tv.CardService", unique=True)
+
+    class Meta:
+        pass
+    #    ordering = ['sorting']
+    #    unique_together = (("person", "address",),)
+    #    permissions = (
+    #        ("can_manage_disabled_abonents", "Can manage disabled abonents"),
+    #        ("can_delete_abonents", "Can delete abonents (RPC)"),
+    #        )
+
+    def __unicode__(self):
+        return "%s" % (self.abonent.__unicode__(),)
+
+    def delete(self, *args, **kwargs):
+        bill = self.abills.bill
+        bill.linked = False
+        bill.deposit = 0
+        bill.sync = 0
+        bill.save()
+        self.abills.admin_log('Unlinked from TV billing. deposit set to %s UAH' % (bill.sync,), datetime.now())
+        super(self.__class__, self).delete(*args, **kwargs)
+
+    @classmethod
+    def exists(cls,abonent,abills,card,service):
+        return cls.objects.filter(abonent=abonent,abills=abills,card=card,service=service).count()>0
+
+    @classmethod
+    def conflicts(cls,abonent,abills,card,service):
+        from django.db.models import Q
+        return cls.objects.filter(Q(abonent=abonent)|Q(abills=abills)|Q(card=card)|Q(service=service)).count()>0
+
+    @classmethod
+    def create(cls,abonent,abills,card,service):
+        obj = cls()
+        obj.abonent=abonent
+        obj.abills=abills
+        obj.card=card
+        obj.service=service
+        try:
+            obj.save()
+        except:
+            return False
+        obj.new_link()
+        return True
+
+    @classmethod
+    def check(cls,abonent,abills,card,service):
+        if not cls.exists(abonent,abills,card,service):
+            if not cls.conflicts(abonent,abills,card,service):
+                cls.create(abonent,abills,card,service)
+        else:
+            obj =  cls.objects.get(abonent=abonent,abills=abills,card=card,service=service)
+            obj.sync()
+
+    @classmethod
+    def process(cls):
+        for link in cls.objects.all():
+            link.sync()
+
+    def new_link(self):
+        bill = self.abills.bill
+        bill.linked = True
+        bill.sync = bill.deposit
+        bill.deposit = 0
+        bill.save()
+        print "bill nulled"
+        self.abills.admin_log('Linked to TV billing. deposit was %s UAH' % (bill.sync,), datetime.now())
+        self.sync()
+
+    def payment(self,sum):
+        from tv.models import Payment
+        p = Payment()
+        p.register = None
+        p.source_id = 20
+        p.bill = self.abonent.bill
+        p.sum = sum
+        p.descr = ''
+        p.inner_descr = ''
+        p.admin_id= 2
+        p.bank_date = date.today()
+        p.save()
+        p.make()
+
+    def fee(self,sum):
+        from tv.models import Fee
+        f = Fee()
+        f.bill = self.abonent.bill
+        f.sum = sum
+        f.descr = 'Услуги "Интернет"'
+        f.inner_descr = descr
+        f.admin_id= 2
+        f.bank_date = date.today()
+        f.save()
+        f.make()
+
+    def sync(self):
+        u = self.abonent.abills_get_user(self.service.extra)
+        if not u == self.abills:
+            print "link not valid. deleting..."
+            self.delete()
+            return False
+        bill = self.abills.bill
+        print "syncing bill %s" % bill
+        if not bill.deposit == bill.sync:
+            diff = bill.sync - bill.deposit
+            print "diff %s" % diff
+            if diff>0:
+                self.payment(diff)
+            else:
+                self.fee(diff)
+            self.abills.admin_log('TV. deposit %s -> %s UAH' % (bill.deposit,self.abonent.bill.balance_get()), datetime.now())
+            bill.deposit = self.abonent.bill.balance_get()
+            bill.sync=bill.deposit
+            bill.save()
+        elif not bill.deposit == self.abonent.bill.balance_get():
+            print "local change"
+            self.abills.admin_log('TV. deposit %s -> %s UAH' % (bill.deposit,self.abonent.bill.balance_get()), datetime.now())
+            bill.deposit = self.abonent.bill.balance_get()
+            bill.sync=bill.deposit
+            bill.save()
+        else:
+            print "nothing to do"
 
