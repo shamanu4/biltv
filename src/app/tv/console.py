@@ -29,3 +29,6 @@ def fees_check():
                 cs.activate(activated=fee.timestamp.date())
                 fee.delete()
 
+def abills_sync():
+    from app.abon.models import AbillsLink
+    AbillsLink.process()
