@@ -997,12 +997,13 @@ class AbillsLink(models.Model):
 
     def sync(self):
         u = self.abonent.abills_get_user(self.service.extra)
+        bill = self.abills.bill
+        print
+        print "syncing abonent %s. card %s. bill %s" % (self.abonent,self.card,bill)
         if not u == self.abills:
             print "link not valid. deleting..."
             self.delete()
             return False
-        bill = self.abills.bill
-        print "syncing bill %s" % bill
         if not bill.deposit == bill.sync:
             diff = bill.sync - bill.deposit
             print "diff %s" % diff
@@ -1011,8 +1012,9 @@ class AbillsLink(models.Model):
                 diff=0
                 return False
             if -1<diff<0:
-                print "small negative delta. set to -1"
-                diff=-1
+                print "small negative delta. ignored"
+                diff=0
+                return False
             if diff>0:
                 self.payment(diff)
             else:
@@ -1022,6 +1024,10 @@ class AbillsLink(models.Model):
             bill.sync=bill.deposit
             bill.save()
         elif not bill.deposit == self.abonent.bill.balance_get():
+            diff = bill.deposit - self.abonent.bill.balance_get()
+            if -0.1<diff<0.1:
+                print "local change too small. ignored"
+                return False
             print "local change"
             self.abills.admin_log('TV. deposit %s -> %s UAH' % (bill.deposit,self.abonent.bill.balance_get()), datetime.now())
             bill.deposit = self.abonent.bill.balance_get()
