@@ -1020,10 +1020,8 @@ class AbillsLink(models.Model):
     def new_link(self):
         bill = self.abills.bill
         bill.linked = True
-        bill.sync = bill.deposit
-        bill.deposit = 0
+        bill.sync = 0
         bill.save()
-        print "bill nulled"
         self.abills.admin_log('Linked to TV billing. deposit was %s UAH' % (bill.sync,), datetime.now())
         self.sync()
 
@@ -1063,7 +1061,7 @@ class AbillsLink(models.Model):
             self.delete()
             return False
         if not bill.deposit == bill.sync:
-            diff = bill.sync - bill.deposit
+            diff = bill.deposit - bill.sync
             print "diff %s" % diff
             if 0<diff<1:
                 print "delta too small. ignored"
@@ -1076,7 +1074,7 @@ class AbillsLink(models.Model):
             if diff>0:
                 self.payment(diff)
             else:
-                self.fee(diff)
+                self.fee(-diff)
             self.abills.admin_log('TV. deposit %s -> %s UAH' % (bill.deposit,self.abonent.bill.balance_get()), datetime.now())
             bill.deposit = self.abonent.bill.balance_get()
             bill.sync=bill.deposit
