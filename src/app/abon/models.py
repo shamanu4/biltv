@@ -1006,11 +1006,11 @@ class AbillsLink(models.Model):
         if not bill.deposit == bill.sync:
             diff = bill.sync - bill.deposit
             print "diff %s" % diff
-            if diff>0 and diff<1:
+            if 0<diff<1:
                 print "delta too small. ignored"
                 diff=0
                 return False
-            if diff<0 and diff>-1:
+            if -1<diff<0:
                 print "small negative delta. set to -1"
                 diff=-1
             if diff>0:
