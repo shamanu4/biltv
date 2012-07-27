@@ -1390,7 +1390,7 @@ class CardService(models.Model):
                 total += fee.sum
             for fee in prepared:
                 allow_restore = allow_restore and not (fee.fee_type.ftype == FEE_TYPE_CUSTOM or fee.fee_type.ftype == FEE_TYPE_ONCE)
-            if allow_restore and (total>0 and self.card.balance <= total):
+            if allow_restore and (total>0 and self.card.balance <= settings.NEGATIVE_SUM_BACKUP):
                 print "restore condition"
                 if self.backup_tp(date,total):
                     print "backup ok"
