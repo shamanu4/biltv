@@ -179,8 +179,12 @@ def round1000(num):
     a = num*1000
     b = int(a % 1000)
     c = int(a)/1000
-    if b < 2:
+    if -2 < b < 0:
         return c/1.0
+    if 0 < b < 2:
+        return c/1.0
+    if b < -998:
+        return (c-1)/1.0
     if b > 998:
         return (c+1)/1.0
     return c + b/1000.0
