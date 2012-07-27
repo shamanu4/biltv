@@ -363,16 +363,11 @@ class Bill(models.Model):
 
 
     def balance_get_wo_credit(self):
+        from lib.functions import round1000
         from django.db.models import Sum
         balance = self.balance + (self.payments.filter(maked__exact=False,deleted__exact=False,rolled_by__exact=None).aggregate(total=Sum('sum'))['total'] or 0)
-        a = balance*1000
-        b = int(a % 1000)
-        c = int(a)/1000
-        if b < 2:
-            return c/1.0
-        if b > 998:
-            return (c+1)/1.0
-        return c + b/1000.0
+        return round1000(balance)
+
 
     def balance_get(self):
         return self.balance_get_wo_credit()+self.get_credit()
@@ -1052,6 +1047,7 @@ class AbillsLink(models.Model):
         f.make()
 
     def sync(self):
+        from lib.functions import round1000
         u = self.abonent.abills_get_user(self.service.extra)
         bill = self.abills.bill
         print
@@ -1061,7 +1057,7 @@ class AbillsLink(models.Model):
             self.delete()
             return False
         if not bill.deposit == bill.sync:
-            diff = bill.deposit - bill.sync
+            diff = round1000(bill.deposit - bill.sync)
             print "diff %s" % diff
             if 0<diff<1:
                 print "delta too small. ignored"
