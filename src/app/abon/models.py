@@ -395,30 +395,76 @@ class Bill(models.Model):
             res.extend(t.user_mask)
         return res
 
+    def balance_on_date(self,date=date.today()):
+        from itertools import chain
+        from operator import attrgetter
+        from tv.models import Fee,Payment
+        balance = 0
+        print "balance on date %s " % date
+        for op in sorted(
+                list(chain(self.fees.filter(deleted=False,maked=True,rolled_by=None,timestamp__lt=date),
+                    self.payments.filter(deleted=False,rolled_by=None,bank_date__lt=date),)),
+                    key=attrgetter('sort')):
+            if type(op)==Fee:
+                balance-=op.sum
+            if type(op)==Payment:
+                balance+=op.sum
+        print balance
+        return balance
+
     def operations_log(self,last_operation_date=None):
         from itertools import chain
         from operator import attrgetter
         if last_operation_date:
             return sorted(
-                list(chain(self.fees.filter(deleted=False,rolled_by=None,timestamp__gte=last_operation_date),
-                self.payments.filter(deleted=False,rolled_by=None,bank_date__gte=last_operation_date),)),
-                key=attrgetter('sort'))
+                list(chain(self.fees.filter(deleted=False,maked=True,rolled_by=None,timestamp__gte=last_operation_date),
+                    self.payments.filter(deleted=False,rolled_by=None,bank_date__gte=last_operation_date),)),
+                    key=attrgetter('sort'))
         else:
             return sorted(
-                list(chain(self.fees.filter(deleted=False,rolled_by=None),
-                self.payments.filter(deleted=False,rolled_by=None),)),
-                key=attrgetter('sort'))
+                list(chain(self.fees.filter(deleted=False,maked=True,rolled_by=None),
+                    self.payments.filter(deleted=False,rolled_by=None),)),
+                    key=attrgetter('sort'))
 
     def fix_operations_log(self,last_operation_date=None):
         from tv.models import Fee,Payment
-        b = 0
-        for e in self.operations_log(last_operation_date):
-            e.prev=b
-            e.save()
-            if type(e)==Fee:
-                b-=e.sum
-            if type(e)==Payment:
-                b+=e.sum
+        if not last_operation_date:
+            balance = 0
+        else:
+            balance = self.balance_on_date(last_operation_date)
+        print "fix_operations_log starting balance: %s" % balance
+        for op in self.operations_log(last_operation_date):
+            print "%s %s %s" % (type(op),op,balance)
+            op.prev=balance
+            op.save()
+            if type(op)==Fee:
+                balance-=op.sum
+            if type(op)==Payment:
+                balance+=op.sum
+
+    def checksum(self):
+        calculated = self.balance_on_date(date=date(2999, 12, 31))
+        current = self.balance_wo_credit
+        if not calculated == current:
+            try:
+                report = "bill checksum mismatch abonent_id:%s  bill_id:%s current:%s counted:%s" % (self.abonents.get().pk,self.pk,current,calculated)
+                print report
+                subject, from_email, to = 'BilTV checksum error', 'biltv@it-tim.net', 'mm@it-tim.net'
+                text_content = report
+                msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+                msg.send()
+            except:
+                pass
+
+    def restore_tp_check(self):
+        if self.balance_get()>=0 and self.saved_services.filter(restored=False).count():
+            for s in self.saved_services.all():
+                print "try to restore service %s" % s
+                if s.restore():
+                    print "    restored"
+                else:
+                    print "    failed"
+
 
     def save(self,*args,**kwargs):
         if 'last_operation_date' in kwargs:
@@ -427,7 +473,10 @@ class Bill(models.Model):
         else:
             last_operation_date = None
         super(self.__class__, self).save(*args, **kwargs)
+        print "bill recalc from %s" % last_operation_date
         self.fix_operations_log(last_operation_date)
+        self.checksum()
+        self.restore_tp_check()
 
 
 class Credit(models.Model):
@@ -444,6 +493,7 @@ class Credit(models.Model):
     def save(self, *args, **kwargs):
         from tv.models import CardService
         super(self.__class__, self).save(*args, **kwargs)
+        self.bill.restore_tp_check()
         for fee in self.bill.fees.filter(maked__exact=False,deleted__exact=False,rolled_by__exact=None):
             print fee
             if not fee.card or not fee.tp:
