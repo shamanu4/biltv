@@ -1057,8 +1057,10 @@ class AbillsLink(models.Model):
             self.delete()
             return False
         if not bill.deposit == bill.sync:
-            diff = round1000(bill.deposit - bill.sync)
+            diff = bill.deposit - bill.sync
             print "diff %s" % diff
+            diff = round1000(diff)
+            print "rounded diff %s" % diff
             if 0<diff<1:
                 print "delta too small. ignored"
                 diff=0
