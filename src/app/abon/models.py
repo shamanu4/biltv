@@ -364,7 +364,15 @@ class Bill(models.Model):
 
     def balance_get_wo_credit(self):
         from django.db.models import Sum
-        return self.balance + (self.payments.filter(maked__exact=False,deleted__exact=False,rolled_by__exact=None).aggregate(total=Sum('sum'))['total'] or 0)
+        balance = self.balance + (self.payments.filter(maked__exact=False,deleted__exact=False,rolled_by__exact=None).aggregate(total=Sum('sum'))['total'] or 0)
+        a = balance*1000
+        b = int(a % 1000)
+        c = int(a)/1000
+        if b < 2:
+            return c/1.0
+        if b > 998:
+            return (c+1)/1.0
+        return c + b/1000.0
 
     def balance_get(self):
         return self.balance_get_wo_credit()+self.get_credit()
