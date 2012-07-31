@@ -97,7 +97,7 @@ class TariffPlanFeeRelationshipInline(admin.TabularInline):
 
 class TariffPlanAdmin(admin.ModelAdmin):
     inlines = (TariffPlanChannelRelationshipInline,TariffPlanFeeRelationshipInline)
-    pass
+    list_display=('__unicode__','allow_restore','fallback_tp')
 admin.site.register(TariffPlan, TariffPlanAdmin)
 
 
