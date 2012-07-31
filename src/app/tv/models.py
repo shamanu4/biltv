@@ -1370,6 +1370,7 @@ class CardService(models.Model):
             return ok
 
     def check_negative(self,fees,date,fee_types_allowed):
+            import settings
             print "check negative"
             print fees
             ok = True
