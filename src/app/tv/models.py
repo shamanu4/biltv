@@ -750,7 +750,7 @@ class TariffPlanFeeRelationship(models.Model):
                 return self.make_fee(card,date['week'],**kwargs)
 
         if self.fee_type.ftype == FEE_TYPE_MONTHLY:
-            c = my_maked_fees.filter(timestamp__gte=date['month'])
+            c = my_maked_fees.filter(timestamp__gte=date['month'],timestamp__lt=add_months(date['month'],1))
             if c.count()>0:
                 return (False,"Fee already maked")
             else:
