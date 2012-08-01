@@ -716,7 +716,7 @@ class TariffPlanFeeRelationship(models.Model):
         return "%s - %s" % (self.tp.name, self.fee_type.name)
 
     def check_fee(self,card,fee_date=None,**kwargs):
-        from lib.functions import date_formatter         
+        from lib.functions import date_formatter, add_months
         date = date_formatter(fee_date)
         my_not_maked_fees = Fee.objects.filter(card__exact=card, tp__exact=self.tp, fee_type__exact=self.fee_type,maked__exact=False, deleted__exact=False, rolled_by__exact=None)
         my_not_maked_fees.delete()
