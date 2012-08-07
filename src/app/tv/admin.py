@@ -157,7 +157,10 @@ admin.site.register(CardHistory, CardHistoryAdmin)
 Fee
 """
 class FeeAdmin(admin.ModelAdmin):
-    pass
+    raw_id_fields=(
+        'bill',
+        'rolled_by',
+    )
 admin.site.register(Fee, FeeAdmin)
 
 """
@@ -185,7 +188,11 @@ admin.site.register(FeeCustomRanges, FeeCustomRangesAdmin)
 Payment
 """
 class PaymentAdmin(admin.ModelAdmin):
-    pass
+    raw_id_fields=(
+        'bill',
+        'rolled_by',
+        'register',
+    )
 admin.site.register(Payment, PaymentAdmin)
 
 """
