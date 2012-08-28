@@ -149,7 +149,7 @@ admin.site.register(CardService, CardServiceAdmin)
 CardHistory
 """
 class CardHistoryAdmin(admin.ModelAdmin):
-    pass
+    raw_id_fields=('owner','card')
 admin.site.register(CardHistory, CardHistoryAdmin)
 
 
