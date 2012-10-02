@@ -1405,7 +1405,10 @@ class CardService(models.Model):
                     pass
             if allow_negative or (total>0 and self.card.balance - total >-1):
                 for fee in prepared:
-                    ok = ok and fee.make()[0]
+                    try:
+                        ok = ok and fee.make()[0]
+                    except:
+                        ok = False
             else:
                 ok = False
                 for fee in prepared:
