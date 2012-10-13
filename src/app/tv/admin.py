@@ -97,7 +97,7 @@ class TariffPlanFeeRelationshipInline(admin.TabularInline):
 
 class TariffPlanAdmin(admin.ModelAdmin):
     inlines = (TariffPlanChannelRelationshipInline,TariffPlanFeeRelationshipInline)
-    pass
+    list_display=('__unicode__','allow_restore','fallback_tp')
 admin.site.register(TariffPlan, TariffPlanAdmin)
 
 
@@ -149,7 +149,7 @@ admin.site.register(CardService, CardServiceAdmin)
 CardHistory
 """
 class CardHistoryAdmin(admin.ModelAdmin):
-    pass
+    raw_id_fields=('owner','card')
 admin.site.register(CardHistory, CardHistoryAdmin)
 
 
@@ -157,7 +157,10 @@ admin.site.register(CardHistory, CardHistoryAdmin)
 Fee
 """
 class FeeAdmin(admin.ModelAdmin):
-    pass
+    raw_id_fields=(
+        'bill',
+        'rolled_by',
+    )
 admin.site.register(Fee, FeeAdmin)
 
 """
@@ -185,7 +188,11 @@ admin.site.register(FeeCustomRanges, FeeCustomRangesAdmin)
 Payment
 """
 class PaymentAdmin(admin.ModelAdmin):
-    pass
+    raw_id_fields=(
+        'bill',
+        'rolled_by',
+        'register',
+    )
 admin.site.register(Payment, PaymentAdmin)
 
 """

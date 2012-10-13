@@ -10,7 +10,7 @@ class Group(models.Model):
 
     class Meta:
         ordering = ['name']
-        
+
     def __unicode__(self):
         return self.name
 
@@ -47,7 +47,7 @@ class Person(models.Model):
         return "%s (%s)" % (self.sorting,self.passport)
 
     def save(self, *args, **kwargs):
-        from lib.functions import latinaze            
+        from lib.functions import latinaze
         self.passport=latinaze(self.passport)
         self.firstname = self.firstname.capitalize()
         self.lastname = self.lastname.capitalize()
@@ -57,7 +57,7 @@ class Person(models.Model):
             abonent.save()
         super(self.__class__, self).save(*args, **kwargs)
 
-        
+
 
     def delete(self, *args, **kwargs):
         if self.abonents.count() > 0:
@@ -144,7 +144,7 @@ class City(models.Model):
     """
     <label> must be ended with space. <label> and <street> contacted without delimeter.
     """
-    
+
     class Meta:
         ordering = ['name']
 
@@ -210,7 +210,7 @@ class House(models.Model):
 
     class Meta:
         ordering = ['num']
-        
+
     def __unicode__(self):
         return self.num
 
@@ -321,7 +321,7 @@ class Address(models.Model):
     def ordernum(self):
         return self.get_code()
 
-    def save(self, *args, **kwargs):        
+    def save(self, *args, **kwargs):
         self.sorting = unicode("%s%s, %s, %s %s" % (self.building.street.city.label, self.building.street.name, self.building.house.num, u'кв.', self.flat))
         super(self.__class__, self).save(*args,**kwargs)
 
@@ -340,34 +340,37 @@ class Address(models.Model):
 
 class Bill(models.Model):
 
-    balance = models.FloatField(default=0)     
+    balance = models.FloatField(default=0)
     deleted = models.BooleanField(default=False)
-    
+
     class Meta:
         permissions= (
             ("manage_bills", "Can manage bills"),
         )
 
     def __unicode__(self):
-        return "%s" % self.balance_get()        
+        return "%s" % self.balance_get()
 
     def get_credit(self,dt=None):
         from django.db.models import Sum
         import settings
         if not dt:
-            dt = date.today()               
+            dt = date.today()
         credit = self.credits.filter(valid_from__lte=dt,valid_until__gte=dt).aggregate(total=Sum('sum'))['total'] or 0
         if credit < settings.ALL_USERS_CREDIT:
             return settings.ALL_USERS_CREDIT
         return credit
-        
-        
+
+
     def balance_get_wo_credit(self):
-        from django.db.models import Sum               
-        return self.balance + (self.payments.filter(maked__exact=False,deleted__exact=False,rolled_by__exact=None).aggregate(total=Sum('sum'))['total'] or 0)
+        from lib.functions import round1000
+        from django.db.models import Sum
+        balance = self.balance + (self.payments.filter(maked__exact=False,deleted__exact=False,rolled_by__exact=None).aggregate(total=Sum('sum'))['total'] or 0)
+        return round1000(balance)
+
 
     def balance_get(self):
-        return self.balance_get_wo_credit()+self.get_credit()       
+        return self.balance_get_wo_credit()+self.get_credit()
 
     @property
     def balance_int(self):
@@ -376,18 +379,18 @@ class Bill(models.Model):
     @property
     def balance_rounded(self):
         return int(self.balance_get()*100)/100.0
-    
+
     @property
     def balance_wo_credit(self):
         return self.balance_get_wo_credit()
-    
+
     @property
     def bin_balance(self):
         from lib.functions import int_to_4byte_wrapped
         return int_to_4byte_wrapped(self.balance_int)
 
     @property
-    def bin_flags(self):        
+    def bin_flags(self):
         from tv.models import Trunk
         res = []
         trunks = Trunk.objects.all()
@@ -395,30 +398,76 @@ class Bill(models.Model):
             res.extend(t.user_mask)
         return res
 
+    def balance_on_date(self,date=date.today()):
+        from itertools import chain
+        from operator import attrgetter
+        from tv.models import Fee,Payment
+        balance = 0
+        print "balance on date %s " % date
+        for op in sorted(
+                list(chain(self.fees.filter(deleted=False,maked=True,rolled_by=None,timestamp__lt=date),
+                    self.payments.filter(deleted=False,rolled_by=None,bank_date__lt=date),)),
+                    key=attrgetter('sort')):
+            if type(op)==Fee:
+                balance-=op.sum
+            if type(op)==Payment:
+                balance+=op.sum
+        print balance
+        return balance
+
     def operations_log(self,last_operation_date=None):
         from itertools import chain
         from operator import attrgetter
         if last_operation_date:
             return sorted(
-                list(chain(self.fees.filter(deleted=False,rolled_by=None,timestamp__gte=last_operation_date),
-                self.payments.filter(deleted=False,rolled_by=None,bank_date__gte=last_operation_date),)),
-                key=attrgetter('sort'))
+                list(chain(self.fees.filter(deleted=False,maked=True,rolled_by=None,timestamp__gte=last_operation_date),
+                    self.payments.filter(deleted=False,rolled_by=None,bank_date__gte=last_operation_date),)),
+                    key=attrgetter('sort'))
         else:
             return sorted(
-                list(chain(self.fees.filter(deleted=False,rolled_by=None),
-                self.payments.filter(deleted=False,rolled_by=None),)),
-                key=attrgetter('sort'))
+                list(chain(self.fees.filter(deleted=False,maked=True,rolled_by=None),
+                    self.payments.filter(deleted=False,rolled_by=None),)),
+                    key=attrgetter('sort'))
 
     def fix_operations_log(self,last_operation_date=None):
         from tv.models import Fee,Payment
-        b = 0
-        for e in self.operations_log(last_operation_date):
-            e.prev=b
-            e.save()
-            if type(e)==Fee:
-                b-=e.sum
-            if type(e)==Payment:
-                b+=e.sum
+        if not last_operation_date:
+            balance = 0
+        else:
+            balance = self.balance_on_date(last_operation_date)
+        print "fix_operations_log starting balance: %s" % balance
+        for op in self.operations_log(last_operation_date):
+            print "%s %s %s" % (type(op),op,balance)
+            op.prev=balance
+            op.save()
+            if type(op)==Fee:
+                balance-=op.sum
+            if type(op)==Payment:
+                balance+=op.sum
+
+    def checksum(self):
+        calculated = self.balance_on_date(date=date(2999, 12, 31))
+        current = self.balance_wo_credit
+        if not calculated == current:
+            try:
+                report = "bill checksum mismatch abonent_id:%s  bill_id:%s current:%s counted:%s" % (self.abonents.get().pk,self.pk,current,calculated)
+                print report
+                subject, from_email, to = 'BilTV checksum error', 'biltv@it-tim.net', 'mm@it-tim.net'
+                text_content = report
+                msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+                msg.send()
+            except:
+                pass
+
+    def restore_tp_check(self):
+        if self.balance_get()>=0 and self.saved_services.filter(restored=False).count():
+            for s in self.saved_services.all():
+                print "try to restore service %s" % s
+                if s.restore():
+                    print "    restored"
+                else:
+                    print "    failed"
+
 
     def save(self,*args,**kwargs):
         if 'last_operation_date' in kwargs:
@@ -427,7 +476,10 @@ class Bill(models.Model):
         else:
             last_operation_date = None
         super(self.__class__, self).save(*args, **kwargs)
+        print "bill recalc from %s" % last_operation_date
         self.fix_operations_log(last_operation_date)
+        self.checksum()
+        self.restore_tp_check()
 
 
 class Credit(models.Model):
@@ -444,6 +496,7 @@ class Credit(models.Model):
     def save(self, *args, **kwargs):
         from tv.models import CardService
         super(self.__class__, self).save(*args, **kwargs)
+        self.bill.restore_tp_check()
         for fee in self.bill.fees.filter(maked__exact=False,deleted__exact=False,rolled_by__exact=None):
             print fee
             if not fee.card or not fee.tp:
@@ -499,9 +552,9 @@ class Abonent(models.Model):
         unique_together = (("person", "address",),)
         permissions = (
             ("can_manage_disabled_abonents", "Can manage disabled abonents"),
-            ("can_delete_abonents", "Can delete abonents (RPC)"),            
+            ("can_delete_abonents", "Can delete abonents (RPC)"),
         )
-        
+
     def __unicode__(self):
         return "%s" % (self.sorting,)
 
@@ -514,12 +567,12 @@ class Abonent(models.Model):
     def bin_card(self):
         from lib.functions import int_to_4byte_wrapped
         return int_to_4byte_wrapped((self.card_id-1)*2)
-    
+
     @property
     def catv_card(self):
         card = (self.cards.filter(num=-self.pk) or [None])[0]
         return card
-    
+
     @property
     def deactivated(self):
         from tv.models import CARD_SERVICE_DEACTIVATED
@@ -531,7 +584,7 @@ class Abonent(models.Model):
             return ''
         else:
             return last_disabled.date
-    
+
     @property
     def activated(self):
         from tv.models import CARD_SERVICE_ACTIVATED
@@ -541,27 +594,27 @@ class Abonent(models.Model):
             return ''
         else:
             return last_disabled.date
-    
-    
+
+
     def disable(self,date=None,descr=''):
         print "abonent disabling..."
-        if not self.catv_card:            
+        if not self.catv_card:
             return False
         else:
             self.disabled=True
             self.save()
-            print "abonent disabled..." 
-            print date       
+            print "abonent disabled..."
+            print date
             return self.catv_card.deactivate(date,descr)
-    
+
     def enable(self,date=None,descr=''):
-        if not self.catv_card:            
+        if not self.catv_card:
             return False
         else:
             self.disabled=False
             self.save()
             return self.catv_card.activate(date,descr)
-    
+
     def get_code(self):
         return "%s" % (self.address.get_code())
 
@@ -601,14 +654,14 @@ class Abonent(models.Model):
         if len(self.cards.filter(num__lte=0))==0:
             print "creating CaTV card ..."
             self.create_catv_card()
-            
+
     def make_fees(self,date):
         if self.deleted or self.disabled:
             return False
         for card in self.cards.all():
             card.make_fees(date)
         return True
-    
+
     def was_active(self,date):
         from tv.models import CARD_SERVICE_ACTIVATED, CARD_SERVICE_DEACTIVATED
         last_activated_qs = self.catv_card.service_log.filter(action=CARD_SERVICE_ACTIVATED,date__lte=date).order_by('-date')
@@ -617,10 +670,10 @@ class Abonent(models.Model):
             return False
         if not last_deactivated_qs.count():
             return True
-        
+
         last_activated = last_activated_qs[0]
         last_deactivated = last_deactivated_qs[0]
-        
+
         if last_activated.date < last_deactivated.date:
             return False
         if last_activated.date > last_deactivated.date:
@@ -633,9 +686,22 @@ class Abonent(models.Model):
             return False
         else:
             return True
-        
-    # WARNING! This method was used once during MIGRATION. Future uses RESTRICTED! This will cause  history DATA CORRUPT!  
-    def import_catv_history(self):        
+
+    def abills_get_user(self,login):
+        from abills.models import User
+        try:
+            return User.objects.get(login__exact=login)
+        except:
+            return None
+
+    def check_abills_bill_link(self,card,cs):
+        print "checking link %s %s %s" % (self,card,cs)
+        u = self.abills_get_user(cs.extra)
+        if u:
+            AbillsLink.check(self,u,card,cs)
+
+    # WARNING! This method was used once during MIGRATION. Future uses RESTRICTED! This will cause  history DATA CORRUPT!
+    def import_catv_history(self):
         from tv.models import CardHistory, CARD_SERVICE_ACTIVATED, CARD_SERVICE_DEACTIVATED
         self.catv_card.service_log.filter(timestamp__lt='2011-03-07').delete()
         print self
@@ -649,23 +715,23 @@ class Abonent(models.Model):
                 history = CardHistory(date=interval.finish, card=self.catv_card, action=CARD_SERVICE_DEACTIVATED, descr="", oid=1)
                 history.save()
                 #print "    DEACTIVATED: %s" % history.__unicode__()
-            
+
     def launch_hamster(self,countdown=True,debug=True):
         from lib.functions import date_formatter, add_months
         from tv.models import FeeType, Fee, Payment, TariffPlan
         from django.db.models import Max
         from time import sleep
         import gc
-        
+
         gc.enable()
-        
+
         if debug:
             print "Abonent %s" % self
             if countdown:
                 print "    hamster ready to be launched."
                 print "    all finance log will be recalculated."
                 print "    use only when neccecary."
-                print "    -------------------------------------"        
+                print "    -------------------------------------"
                 print "    you have 5 sec to cancel... (Ctrl+C)"
                 try:
                     sleep(1)
@@ -682,14 +748,14 @@ class Abonent(models.Model):
                     print "    hamster launching cancelled..."
                     print "    Bye..."
                     return False
-        
+
             print "        resetting all finance log..."
-            
+
         self.bill.balance=0
         self.bill.save()
         Fee.objects.filter(bill=self.bill).delete()
         self.catv_card.service_log.all().delete()
-        
+
         pp = Payment.objects.filter(bill=self.bill)
         for p in pp:
             p.maked=False
@@ -698,26 +764,26 @@ class Abonent(models.Model):
             p.save()
         if debug:
             print "            Done..."
-        
+
         catv = FeeType.objects.get(pk=5)
         catv_part = FeeType.objects.get(pk=1)
         tp = TariffPlan.objects.all()
         tp = tp[0]
-        
+
         thismonth = date_formatter(date.today())['month'].date()
         nextmonth = date_formatter(add_months(thismonth,1))['month'].date()
-                
+
         new = True
         prev_closing_fee = 0
         prev_closing_month = date(1970,1,1)
-                
+
         for i in self.intervals.all():
             if debug:
                 print "        processing interval %s-%s" % (i.start,i.finish)
             if not i.finish:
                 i.finish = thismonth
-            d = i.start    
-            
+            d = i.start
+
             for service in self.catv_card.services.all():
                 service.active=True
                 service.save(sdate=d,descr="%s/%s" % (i.s1,i.s2))
@@ -725,9 +791,9 @@ class Abonent(models.Model):
                 self.catv_card.save()
                 self.disabled= False
                 self.save()
-                
+
             dd = date_formatter(add_months(d,1))['month'].date()
-            
+
             if debug:
                 print "            starting date %s" % d
             pp = Payment.objects.filter(bill=self.bill,maked=False,bank_date__lte=d)
@@ -748,11 +814,11 @@ class Abonent(models.Model):
                 if sum+prev_closing_fee>full and date_formatter(d)['month'].date() == prev_closing_month:
                     print "                overpowered fee catched! fixed..."
                     f = Fee(bill=self.bill,card=self.catv_card,sum=full-prev_closing_fee,tp=tp,fee_type=catv_part,timestamp=d, inner_descr=u'Кабельное ТВ | подключение (!)')
-                else: 
+                else:
                     f = Fee(bill=self.bill,card=self.catv_card,sum=sum,tp=tp,fee_type=catv_part,timestamp=d, inner_descr=u'Кабельное ТВ | подключение')
                 f.save()
                 maxid = Fee.objects.aggregate(Max('id'))['id__max']
-                f = Fee.objects.get(pk=maxid) 
+                f = Fee.objects.get(pk=maxid)
                 f.make()
             else:
                 if debug:
@@ -760,47 +826,47 @@ class Abonent(models.Model):
                 f = Fee(bill=self.bill,card=self.catv_card,sum=0,tp=tp,fee_type=catv_part,timestamp=d, inner_descr=u'Кабельное ТВ | подключение (оплачено на месте)')
                 f.save()
                 maxid = Fee.objects.aggregate(Max('id'))['id__max']
-                f = Fee.objects.get(pk=maxid)                 
+                f = Fee.objects.get(pk=maxid)
                 f.make()
-            new = False                
+            new = False
             d = dd
             dd = date_formatter(add_months(d,1))['month'].date()
             pp = Payment.objects.filter(bill=self.bill,maked=False,bank_date__lte=d)
             for p in pp:
                 p.save()
                 p.make()
-            
-            
+
+
             while dd < i.finish or dd == nextmonth or dd == thismonth:
                 if debug:
                     print "            processing date %s" % d
-                sum = catv.get_sum(date=d)['fee']              
+                sum = catv.get_sum(date=d)['fee']
                 f = Fee(bill=self.bill,card=self.catv_card,sum=sum,tp=tp,fee_type=catv,timestamp=d, inner_descr=u'Кабельное ТВ | абонплата')
                 f.save()
                 maxid = Fee.objects.aggregate(Max('id'))['id__max']
-                f = Fee.objects.get(pk=maxid)                 
-                f.make()                
+                f = Fee.objects.get(pk=maxid)
+                f.make()
                 d = dd
                 dd = date_formatter(add_months(d,1))['month'].date()
                 pp = Payment.objects.filter(bill=self.bill,maked=False,bank_date__lte=d)
                 for p in pp:
                     p.save()
                     p.make()
-            
-            
+
+
             if d < thismonth:
                 if debug:
                     print "            closing date %s" % d
                 full = catv.get_sum(date=i.finish)['fee']
-                sum = full - catv_part.get_sum(date=i.finish)['ret']                
+                sum = full - catv_part.get_sum(date=i.finish)['ret']
                 prev_closing_fee = sum
                 prev_closing_month = date_formatter(i.finish)['month'].date()
                 f = Fee(bill=self.bill,card=self.catv_card,sum=sum,tp=tp,fee_type=catv,timestamp=i.finish, inner_descr=u'Кабельное ТВ | отключение')
                 f.save()
                 maxid = Fee.objects.aggregate(Max('id'))['id__max']
-                f = Fee.objects.get(pk=maxid)                 
+                f = Fee.objects.get(pk=maxid)
                 f.make()
-                
+
                 for service in self.catv_card.services.all():
                     service.active=False
                     service.save(sdate=d,descr="")
@@ -808,41 +874,41 @@ class Abonent(models.Model):
                     self.catv_card.save()
                     self.disabled= True
                     self.save()
-            
+
             pp = Payment.objects.filter(bill=self.bill,maked=False,bank_date__lte=d)
             for p in pp:
                 p.save()
                 p.make()
-        
+
         pp = Payment.objects.filter(bill=self.bill,maked=False)
         for p in pp:
             p.save()
             p.make()
-                                       
+
         if debug:
             print "    hamster finished his work and stopped"
             print "    dont forget donate to WWF ;)"
             print "    Bye..."
-        
+
         gc.collect()
         return True
-    
+
     @classmethod
     def hamsters_swarm(cls,fa=0,fb=0,ts=0,tc=0,tr=0):
         import time
-        import gc        
+        import gc
         from lib.functions import seconds2hhmmss
         #import thread
-        
+
         gc.enable()
-        
-        #print "thread started..."        
-        start = ts or int(time.time())            
-        total = tc or cls.objects.all().count()        
+
+        #print "thread started..."
+        start = ts or int(time.time())
+        total = tc or cls.objects.all().count()
         ready = tr or 0
-        
+
         #print {'fa':fa,'fb':fb,'ts':start,'tc':total,'tr':ready}
-        
+
         if (fa or fb) and (fa < fb):
             qs = cls.objects.all()[fa:fb]
         else:
@@ -854,17 +920,17 @@ class Abonent(models.Model):
                 gc.collect()
                 elapsed=int(time.time())-start
                 progress=float("%.3f" % (ready/total*100))
-                remain=int(elapsed*total/ready) 
+                remain=int(elapsed*total/ready)
                 print "processed abonents %s/%s (%s%%) elapsed: %s remain: %s" % (ready,total,progress,seconds2hhmmss(elapsed),seconds2hhmmss(remain))
-        
+
         #print "restarting thread..."
         return {'fa':fb,'fb':fb*2-fa,'ts':start,'tc':total,'tr':ready}
-            
-                
-            
+
+
+
     def store_record(self):
         obj = {}
-        obj['id'] = self.pk        
+        obj['id'] = self.pk
         obj['code'] = self.code
         obj['person'] = self.person.fio_short()
         obj['person__passport'] = self.person.passport
@@ -880,4 +946,147 @@ class Abonent(models.Model):
         return obj
 
 
+
+class AbillsLink(models.Model):
+
+    abonent = models.ForeignKey(Abonent, unique=True)
+    abills = models.ForeignKey("abills.User", unique=True)
+    card = models.ForeignKey("tv.Card", unique=True)
+    service = models.ForeignKey("tv.CardService", unique=True)
+
+    class Meta:
+        pass
+    #    ordering = ['sorting']
+    #    unique_together = (("person", "address",),)
+    #    permissions = (
+    #        ("can_manage_disabled_abonents", "Can manage disabled abonents"),
+    #        ("can_delete_abonents", "Can delete abonents (RPC)"),
+    #        )
+
+    def __unicode__(self):
+        return "%s" % (self.abonent.__unicode__(),)
+
+    def delete(self, *args, **kwargs):
+        bill = self.abills.bill
+        bill.linked = False
+        bill.deposit = 0
+        bill.sync = 0
+        bill.save()
+        self.abills.admin_log('Unlinked from TV billing. deposit set to %s UAH' % (bill.sync,), datetime.now())
+        super(self.__class__, self).delete(*args, **kwargs)
+
+    @classmethod
+    def exists(cls,abonent,abills,card,service):
+        return cls.objects.filter(abonent=abonent,abills=abills,card=card,service=service).count()>0
+
+    @classmethod
+    def conflicts(cls,abonent,abills,card,service):
+        from django.db.models import Q
+        return cls.objects.filter(Q(abonent=abonent)|Q(abills=abills)|Q(card=card)|Q(service=service)).count()>0
+
+    @classmethod
+    def create(cls,abonent,abills,card,service):
+        obj = cls()
+        obj.abonent=abonent
+        obj.abills=abills
+        obj.card=card
+        obj.service=service
+        try:
+            obj.save()
+        except:
+            return False
+        obj.new_link()
+        return True
+
+    @classmethod
+    def check(cls,abonent,abills,card,service):
+        if not cls.exists(abonent,abills,card,service):
+            if not cls.conflicts(abonent,abills,card,service):
+                cls.create(abonent,abills,card,service)
+        else:
+            obj =  cls.objects.get(abonent=abonent,abills=abills,card=card,service=service)
+            obj.sync()
+
+    @classmethod
+    def process(cls):
+        for link in cls.objects.all():
+            link.sync()
+
+    def new_link(self):
+        bill = self.abills.bill
+        bill.linked = True
+        bill.sync = 0
+        bill.save()
+        self.abills.admin_log('Linked to TV billing. deposit was %s UAH' % (bill.sync,), datetime.now())
+        self.sync()
+
+    def payment(self,sum):
+        from tv.models import Payment
+        p = Payment()
+        p.register = None
+        p.source_id = 20
+        p.bill = self.abonent.bill
+        p.sum = sum
+        p.descr = ''
+        p.inner_descr = ''
+        p.admin_id= 2
+        p.bank_date = date.today()
+        p.save()
+        p.make()
+
+    def fee(self,sum):
+        from tv.models import Fee
+        f = Fee()
+        f.bill = self.abonent.bill
+        f.sum = sum
+        f.descr = 'Услуги "Интернет"'
+        f.inner_descr = f.descr
+        f.admin_id= 2
+        f.bank_date = date.today()
+        f.save()
+        f.make()
+
+    def sync(self):
+        from lib.functions import round1000
+        u = self.abonent.abills_get_user(self.service.extra)
+        bill = self.abills.bill
+        print
+        print "syncing abonent %s. card %s. bill %s" % (self.abonent,self.card,bill)
+        if not u == self.abills:
+            print "link not valid. deleting..."
+            self.delete()
+            return False
+        if not bill.deposit == bill.sync:
+            diff = bill.deposit - bill.sync
+            print "diff %s" % diff
+            diff = round1000(diff)
+            print "rounded diff %s" % diff
+            if 0<diff<1:
+                print "delta too small. ignored"
+                diff=0
+                return False
+            if -1<diff<0:
+                print "small negative delta. ignored"
+                diff=0
+                return False
+            if diff>0:
+                self.payment(diff)
+            else:
+                self.fee(-diff)
+            self.abills.admin_log('TV. deposit %s -> %s UAH' % (bill.deposit,self.abonent.bill.balance_get()), datetime.now())
+            bill.deposit = self.abonent.bill.balance_get()
+            bill.sync=bill.deposit
+            bill.save()
+        elif not bill.deposit == self.abonent.bill.balance_get():
+            diff = bill.deposit - self.abonent.bill.balance_get()
+            if -0.1<diff<0.1:
+                print "local change too small. ignored"
+                return False
+            print "local change"
+            self.abills.admin_log('TV. deposit %s -> %s UAH' % (bill.deposit,self.abonent.bill.balance_get()), datetime.now())
+            bill.deposit = self.abonent.bill.balance_get()
+            bill.sync=bill.deposit
+            bill.save()
+        else:
+            print "nothing to do"
 
