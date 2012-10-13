@@ -2,98 +2,98 @@
 from datetime import date, datetime
 from django.db import models
 
-class Status(models.Model):
-
-    iac = models.ForeignKey("abon.Abonent", to_field="extid", db_column="iac", related_name="intervals")
-    begin = models.DateField()
-    end = models.DateField()
-    start = models.DateField()
-    finish = models.DateField()
-    s1 = models.FloatField()
-    s2 = models.FloatField()
-    
-    @classmethod
-    def fix_period_start(cls):
-        from tv.models import Fee
-        from tv.models import FeeType
-        from tv.models import TariffPlan
-
-        ss = cls.objects.filter(start__gte='2006-02-01').filter(start__lt='2011-03-01')
-        ft = FeeType.objects.all()
-        ft = ft[0]
-        ft2 = FeeType.objects.all()
-        ft2 = ft2[4]
-        tp = TariffPlan.objects.all()
-        tp = tp[0]
-
-        for s in ss:
-            m1 = ft.get_sum(date=s.start)['fee']
-            m2 = ft2.get_sum(date=s.start)['fee']
-            m = m2-m1
-            try:
-                bill = s.iac.bill
-                card = s.iac.catv_card
-                print "%s %s | %s | %s %s" % (card,bill,m,m1,m2)
-                f = Fee(bill=bill,card=card,sum=-m,tp=tp,fee_type=ft,inner_descr=u'перенос бази. возврат подключение',timestamp=s.start)
-                f.save()
-                f.make()
-            except:
-                print "EXCEPTION CAUGHT!"
-    
-    @classmethod
-    def fix_period_end(cls):
-        from tv.models import Fee
-        from tv.models import FeeType
-        from tv.models import TariffPlan
-
-        ss = cls.objects.filter(finish__lte='2011-03-01')
-        ft = FeeType.objects.all()
-        ft = ft[0]
-        tp = TariffPlan.objects.all()
-        tp = tp[0]
-
-        for s in ss:
-            if not s.finish:
-                continue                
-            try:
-                bill = s.iac.bill
-                card = s.iac.catv_card
-                m = ft.get_sum(date=s.finish)['ret']
-                print "%s %s | %s |" % (card,bill,m)
-                f = Fee(bill=bill,card=card,sum=-m,tp=tp,fee_type=ft,inner_descr=u'перенос бази. возврат отключение',timestamp=s.finish)
-                f.save()
-                f.make()
-            except:
-                print "EXCEPTION CAUGHT!"
+#class Status(models.Model):
+#
+#    iac = models.ForeignKey("abon.Abonent", to_field="extid", db_column="iac", related_name="intervals")
+#    begin = models.DateField()
+#    end = models.DateField()
+#    start = models.DateField()
+#    finish = models.DateField()
+#    s1 = models.FloatField()
+#    s2 = models.FloatField()
+#
+#    @classmethod
+#    def fix_period_start(cls):
+#        from tv.models import Fee
+#        from tv.models import FeeType
+#        from tv.models import TariffPlan
+#
+#        ss = cls.objects.filter(start__gte='2006-02-01').filter(start__lt='2011-03-01')
+#        ft = FeeType.objects.all()
+#        ft = ft[0]
+#        ft2 = FeeType.objects.all()
+#        ft2 = ft2[4]
+#        tp = TariffPlan.objects.all()
+#        tp = tp[0]
+#
+#        for s in ss:
+#            m1 = ft.get_sum(date=s.start)['fee']
+#            m2 = ft2.get_sum(date=s.start)['fee']
+#            m = m2-m1
+#            try:
+#                bill = s.iac.bill
+#                card = s.iac.catv_card
+#                print "%s %s | %s | %s %s" % (card,bill,m,m1,m2)
+#                f = Fee(bill=bill,card=card,sum=-m,tp=tp,fee_type=ft,inner_descr=u'перенос бази. возврат подключение',timestamp=s.start)
+#                f.save()
+#                f.make()
+#            except:
+#                print "EXCEPTION CAUGHT!"
+#
+#    @classmethod
+#    def fix_period_end(cls):
+#        from tv.models import Fee
+#        from tv.models import FeeType
+#        from tv.models import TariffPlan
+#
+#        ss = cls.objects.filter(finish__lte='2011-03-01')
+#        ft = FeeType.objects.all()
+#        ft = ft[0]
+#        tp = TariffPlan.objects.all()
+#        tp = tp[0]
+#
+#        for s in ss:
+#            if not s.finish:
+#                continue
+#            try:
+#                bill = s.iac.bill
+#                card = s.iac.catv_card
+#                m = ft.get_sum(date=s.finish)['ret']
+#                print "%s %s | %s |" % (card,bill,m)
+#                f = Fee(bill=bill,card=card,sum=-m,tp=tp,fee_type=ft,inner_descr=u'перенос бази. возврат отключение',timestamp=s.finish)
+#                f.save()
+#                f.make()
+#            except:
+#                print "EXCEPTION CAUGHT!"
+#
+#    @classmethod
+#    def fix_all(cls):
+#        cls.fix_period_start()
+#        cls.fix_period_end()
         
-    @classmethod
-    def fix_all(cls):
-        cls.fix_period_start()
-        cls.fix_period_end()
-        
 
-class Intervals(models.Model):
+#class Intervals(models.Model):
+#
+#    ic = models.ForeignKey("abon.Abonent", to_field="extid", db_column="iac", related_name="intervals2")
+#    start = models.DateField()
+#    end = models.DateField()
+#    cost = models.FloatField()
+#    months = models.IntegerField()
+#
+#class Import(models.Model):
+#    order = models.CharField(max_length=80)
+#    street = models.CharField(max_length=80)
+#    house = models.CharField(max_length=80)
+#    flat = models.CharField(max_length=80)
+#    passport = models.CharField(max_length=80)
+#    fio = models.CharField(max_length=80)
+#    iac = models.IntegerField()
+#    ic = models.IntegerField()
     
-    ic = models.ForeignKey("abon.Abonent", to_field="extid", db_column="iac", related_name="intervals2")
-    start = models.DateField()
-    end = models.DateField()    
-    cost = models.FloatField()
-    months = models.IntegerField()
-                
-class Import(models.Model):
-    order = models.CharField(max_length=80)
-    street = models.CharField(max_length=80)
-    house = models.CharField(max_length=80)
-    flat = models.CharField(max_length=80)
-    passport = models.CharField(max_length=80)
-    fio = models.CharField(max_length=80)
-    iac = models.IntegerField()
-    ic = models.IntegerField()
-    
-class Proplata(models.Model):
-    iac = models.ForeignKey("abon.Abonent", to_field="extid", db_column="iac", related_name="proplatu")
-    d1 = models.DateField()
-    sum = models.IntegerField()
+#class Proplata(models.Model):
+#    iac = models.ForeignKey("abon.Abonent", to_field="extid", db_column="iac", related_name="proplatu")
+#    d1 = models.DateField()
+#    sum = models.IntegerField()
 
 
 """
@@ -131,3 +131,142 @@ for i in ii:
         service.save(no_log=True)
     a.launch_hamster(countdown=False)
 """
+
+
+class House(models.Model):
+
+    name = models.CharField(max_length=10)
+    code = models.CharField(max_length=5)
+    num = models.PositiveSmallIntegerField()
+    korp = models.PositiveSmallIntegerField()
+    letter = models.CharField(max_length=1)
+
+    class Meta:
+        pass
+
+    def __unicode__(self):
+        return self.name
+
+
+
+class Street(models.Model):
+
+    name = models.CharField(max_length=40)
+    code = models.CharField(max_length=3)
+
+    class Meta:
+        pass
+
+    def __unicode__(self):
+        return self.name
+
+
+
+class Address(models.Model):
+
+    street = models.ForeignKey(Street)
+    house = models.ForeignKey(House)
+    loft = models.CharField(max_length=10)
+    tel = models.CharField(max_length=20)
+    remark = models.TextField()
+    faceorder = models.CharField(max_length=13)
+    pereoform = models.BooleanField()
+
+    class Meta:
+        pass
+
+    def __unicode__(self):
+        return "%s, %s" % (self.street.name, self.house.name)
+
+
+
+class Person(models.Model):
+
+    fio = models.CharField(max_length=60)
+    passport = models.CharField(max_length=20)
+
+    class Meta:
+        pass
+
+    def __unicode__(self):
+        return self.fio
+
+
+
+class Abonent(models.Model):
+
+    address = models.ForeignKey(Address)
+    person = models.ForeignKey(Person)
+    active = models.BooleanField()
+
+    class Meta:
+        pass
+
+    def __unicode__(self):
+        return "%s [%s]" % (self.address.__unicode__(),self.person.__unicode__())
+
+
+
+class Category(models.Model):
+
+    name = models.CharField(max_length=40)
+
+    class Meta:
+        pass
+
+    def __unicode__(self):
+        return self.name
+
+
+
+class Tariff(models.Model):
+
+    category = models.ForeignKey(Category)
+    tar = models.FloatField()
+    d1 = models.DateField()
+    d2 = models.DateField()
+
+    class Meta:
+        pass
+
+    def __unicode__(self):
+        return str(self.tar)
+
+
+
+class AbonentCat(models.Model):
+
+    abonent = models.ForeignKey(Abonent)
+    category = models.ForeignKey(Category)
+    d1 = models.DateField()
+    d2 = models.DateField()
+
+    class Meta:
+        pass
+
+    def __unicode__(self):
+        return "%s - %s" % (self.abonent.__unicode__(),self.category.__unicode__())
+
+
+
+class Proplata(models.Model):
+
+    abonent = models.ForeignKey(Abonent)
+    d1 = models.DateField()
+    d2 = models.DateField()
+    sum = models.FloatField()
+    y = models.PositiveSmallIntegerField()
+    m = models.PositiveSmallIntegerField()
+    v = models.CharField(max_length=20)
+    log = models.TextField()
+
+    class Meta:
+        pass
+
+    def __unicode__(self):
+        return "%s : %s" % (self.abonent.__unicode__(),self.sum)
+
+
+
+
+

@@ -119,7 +119,7 @@ INSTALLED_APPS = (
     'tv',
     'abon',
     'data',                         # migration data
-    'abills',
+#    'abills',
 )
 
 DIGITAL_CARD_ALLOW_DELETE = True
