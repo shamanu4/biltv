@@ -123,7 +123,7 @@ INSTALLED_APPS = (
 )
 
 DIGITAL_CARD_ALLOW_DELETE = True
-PROGRAM_VERSION = 'v0.13.6'
+PROGRAM_VERSION = 'v0.13.6p'
 
 #TODO: move this option in settings_local
 EXPORT_PATH = rel('..','export')
