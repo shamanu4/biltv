@@ -135,8 +135,6 @@ NEGATIVE_SUM_BACKUP = -50
 ALL_USERS_CREDIT = 1
 DEFAULT_CATV_TP_ID = 1
 
-
-
 try:
     from settings_local import *
 except ImportError:
