@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 from django import forms
-from tv.models import *
+from app.tv.models import *
 from django.db.models import Q
 
 """
@@ -97,7 +97,7 @@ class TariffPlanFeeRelationshipInline(admin.TabularInline):
 
 class TariffPlanAdmin(admin.ModelAdmin):
     inlines = (TariffPlanChannelRelationshipInline,TariffPlanFeeRelationshipInline)
-    list_display=('__unicode__','allow_restore','fallback_tp')
+    list_display=('__unicode__',)
 admin.site.register(TariffPlan, TariffPlanAdmin)
 
 
@@ -208,13 +208,13 @@ PaymentRegister
 class PaymentRegisterAdmin(admin.ModelAdmin):
     pass
 admin.site.register(PaymentRegister, PaymentRegisterAdmin)
-
-"""
-PromotionLink
-"""
-class PromotionLinkAdmin(admin.ModelAdmin):
-    list_display=('tp','abills_tp')
-admin.site.register(PromotionLink, PromotionLinkAdmin)
+#
+#"""
+#PromotionLink
+#"""
+#class PromotionLinkAdmin(admin.ModelAdmin):
+#    list_display=('tp','abills_tp')
+#admin.site.register(PromotionLink, PromotionLinkAdmin)
 
 """
 PaymentAutoMake
