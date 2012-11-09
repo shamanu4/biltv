@@ -933,9 +933,13 @@ class Card(models.Model):
     def send(self):
         from time import time
         start = time()
-        for uq in self.defer():
-            print "TIME: %s, CARD: %s" % (time()-start,uq.packet.card)
+        deferred = self.defer()
+        print "calculated in %s seconds" % (time()-start,)
+        start = time()
+        for uq in deferred:
+            print "TIME: %s, CARD: %s BEGIN" % (time()-start,uq.packet.card)
             uq.run()
+            print "TIME: %s, CARD: %s END" % (time()-start,uq.packet.card)
             print "===================================================================================================="
 
     @classmethod
