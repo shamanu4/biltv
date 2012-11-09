@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 
 def send_cards():
-    from app.tv.models import CardDigital
-    cc = CardDigital.objects.all().order_by('id')
-    for c in cc:
-        c.send()
+    from app.tv.models import Card
+    Card.send_all()
 
 def payments_automake():
     from app.tv.models import PaymentAutoMake
