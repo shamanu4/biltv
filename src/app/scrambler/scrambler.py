@@ -4,6 +4,7 @@ from time import time
 
 class BasicPacket:    
     data=[]
+    card=0
 
     def __init__(self):
         self.data = [0x71,0x00,0xff]
@@ -97,6 +98,7 @@ class UserPacket(BasicPacket):
             self.data.extend(int_to_4byte_wrapped(card.balance_int or 0))
             self.mk_prefix()
             self.append_crc()
+            self.card=card.num
         print
         print "Generating packet for card #%s" % card.num
     
@@ -154,7 +156,7 @@ class BasicQuery:
     def run(self):
         import socket
         import struct
-        print "timestamp %s" % time()
+        print "timestamp %s. card #%s" % (time(),self.packet.card)
         print "running query %s\n request: %s" % (self.__class__,self.packet.hex())
         if not settings.SCR1_ENABLED:
             print "disabled in config. query terminated"
