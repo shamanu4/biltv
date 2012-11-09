@@ -156,7 +156,6 @@ class BasicQuery:
     def run(self):
         import socket
         import struct
-        print "timestamp %s. card #%s" % (time(),self.packet.card)
         print "running query %s\n request: %s" % (self.__class__,self.packet.hex())
         if not settings.SCR1_ENABLED:
             print "disabled in config. query terminated"

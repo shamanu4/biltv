@@ -931,8 +931,12 @@ class Card(models.Model):
         uq.run()
 
     def send(self):
+        from time import time
+        start = time()
         for uq in self.defer():
+            print "TIME: %s, CARD: %s" % (time()-start,uq.packet.card)
             uq.run()
+            print "===================================================================================================="
 
     @classmethod
     def send_all(cls):
