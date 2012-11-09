@@ -918,18 +918,33 @@ class Card(models.Model):
         else:
             return "CaTV"
 
-    def send_one(self):
+    def defer_one(self):
         if self.num<0:
             return False
         CardDigital.touch(self)
         from scrambler import scrambler
-        u = scrambler.UserQuery(self.num)
-        u.run()
+        uq = scrambler.UserQuery(self.num)
+        return uq
+
+    def send_one(self):
+        uq = self.defer_one()
+        uq.run()
 
     def send(self):
+        for uq in self.defer():
+            uq.run()
+
+    @classmethod
+    def send_all(cls):
+        Card().send()
+
+    def defer(self):
+        deferred = []
         cc = CardDigital.objects.all().order_by('id')
         for c in cc:
-            c.send()
+            uq = c.card.defer_one()
+            deferred.append(uq)
+        return deferred
 
     def save(self, *args, **kwargs):
 
@@ -1405,7 +1420,10 @@ class CardService(models.Model):
                     pass
             if allow_negative or (total>0 and self.card.balance - total >-1):
                 for fee in prepared:
-                    ok = ok and fee.make()[0]
+                    try:
+                        ok = ok and fee.make()[0]
+                    except:
+                        ok = False
             else:
                 ok = False
                 for fee in prepared:
