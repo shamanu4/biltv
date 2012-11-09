@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import settings
+from time import time
 
 class BasicPacket:    
     data=[]
@@ -153,7 +154,7 @@ class BasicQuery:
     def run(self):
         import socket
         import struct
-
+        print "timestamp %s" % time()
         print "running query %s\n request: %s" % (self.__class__,self.packet.hex())
         if not settings.SCR1_ENABLED:
             print "disabled in config. query terminated"
