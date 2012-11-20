@@ -145,9 +145,22 @@ class House(models.Model):
         pass
 
     def __unicode__(self):
-        return self.name
+        result = self.name
+#        result = self.num
+#        if self.korp:
+#            result += "/%s" % self.korp
+#        if self.letter:
+#            result += self.letter
+        return result
 
-
+    @classmethod
+    def export(cls):
+        from abon.models import House as AbonHouse
+        AbonHouse.objects.all().delete()
+        data = cls.objects.all()
+        for entry in data:
+            a = AbonHouse(num=entry.name,code=entry.code)
+            a.save()
 
 class Street(models.Model):
 
@@ -160,6 +173,17 @@ class Street(models.Model):
     def __unicode__(self):
         return self.name
 
+    @classmethod
+    def export(cls):
+        from abon.models import Street as AbonStreet, City as AbonCity
+        AbonStreet.objects.all().delete()
+        AbonCity.objects.all().delete()
+        city = AbonCity(name='default_city')
+        city.save()
+        data = cls.objects.all()
+        for entry in data:
+            a = AbonStreet(name=entry.name,code=entry.code,city=city)
+            a.save()
 
 
 class Address(models.Model):
@@ -178,6 +202,17 @@ class Address(models.Model):
     def __unicode__(self):
         return "%s, %s" % (self.street.name, self.house.name)
 
+    @classmethod
+    def export(cls):
+        from abon.models import Address as AbonAddress, Building as AbonBuilding
+        AbonAddress.objects.all().delete()
+        AbonBuilding.objects.all().delete()
+        data = cls.objects.all()
+        for entry in data:
+            a = AbonAddress.get_or_create_cls(street=entry.street.name,house=entry.house.name,flat=entry.loft,override=entry.faceorder)
+            a.comment = "%s\n%s" % (entry.tel or '',entry.remark or '')
+            a.save()
+
 
 
 class Person(models.Model):
@@ -191,6 +226,16 @@ class Person(models.Model):
     def __unicode__(self):
         return self.fio
 
+    @classmethod
+    def export(cls):
+        from abon.models import Person as AbonPerson
+        AbonPerson.objects.all().delete()
+        data = cls.objects.all()
+        for entry in data:
+            if entry.passport == "no-passport":
+                entry.passport = "no-passport-%s" % entry.pk
+            a = AbonPerson(lastname=entry.fio, passport=entry.passport)
+            a.save()
 
 
 class Abonent(models.Model):
@@ -205,6 +250,32 @@ class Abonent(models.Model):
     def __unicode__(self):
         return "%s [%s]" % (self.address.__unicode__(),self.person.__unicode__())
 
+    @classmethod
+    def export(cls):
+        from abon.models import Abonent as AbonAbonent, Address as AbonAddress, Person as AbonPerson, Bill as AbonBill
+        AbonAbonent.objects.all().delete()
+        data = cls.objects.all()
+        for entry in data:
+            try:
+                print entry.person
+            except:
+                print "person does not exists. abonent id %s" % entry.pk
+                continue
+            try:
+                print entry.address
+            except:
+                print "address does not exists. abonent id: %s" % entry.pk
+                continue
+            addr = AbonAddress.get_or_create_cls(entry.address.street.name,entry.address.house.name,entry.address.loft,entry.address.faceorder)
+            person = AbonPerson.get_or_create_cls(entry.person.fio,entry.person.passport)
+            try:
+                a = AbonAbonent.objects.get(person=person,address=addr)
+            except AbonAbonent.DoesNotExist:
+                bill = AbonBill.objects.create()
+                a = AbonAbonent(address=addr,person=person,bill=bill,comment=entry.address.remark,extid=entry.pk,disabled=not entry.active)
+            a.save()
+            if entry.address.tel:
+                person.contact_add(0,entry.address.tel)
 
 
 class Category(models.Model):
@@ -247,7 +318,34 @@ class AbonentCat(models.Model):
     def __unicode__(self):
         return "%s - %s" % (self.abonent.__unicode__(),self.category.__unicode__())
 
-
+    @classmethod
+    def export(cls):
+        from abon.models import Abonent as AbonAbonent
+        from tv.models import TariffPlan
+        from datetime import date
+        today = date.today()
+        for entry in cls.objects.all():
+            try:
+                print entry.abonent
+            except:
+                print "abonent %s does not exist" % entry.abonent_id
+                continue
+            try:
+                a = AbonAbonent.objects.get(extid=entry.abonent.pk)
+            except:
+                print "abonent %s does not exist" % entry.abonent_id
+                continue
+            card = a.catv_card
+            service = card.services.get()
+            try:
+                tp = TariffPlan.objects.get(comment=entry.category_id)
+            except:
+                print "tp id % does not exist" % entry.category_id
+                continue
+            service.tp =tp
+            service.save()
+            if entry.abonent.active:
+                card.activate(activated=today)
 
 class Proplata(models.Model):
 

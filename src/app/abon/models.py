@@ -49,6 +49,7 @@ class Person(models.Model):
     def save(self, *args, **kwargs):
         from lib.functions import latinaze
         self.passport=latinaze(self.passport)
+        self.fio_set()
         self.firstname = self.firstname.capitalize()
         self.lastname = self.lastname.capitalize()
         self.middlename = self.middlename.capitalize()
@@ -57,7 +58,14 @@ class Person(models.Model):
             abonent.save()
         super(self.__class__, self).save(*args, **kwargs)
 
-
+    def fio_set(self):
+        import re
+        r = re.compile("(\S+)[\ |\.]{1}(\S+)[\ |\.]{1}([^\ \.]+)[\ |\.]?.*")
+        m = r.match(self.lastname)
+        if m:
+            self.lastname = m.group(1)
+            self.firstname = m.group(2)
+            self.middlename = m.group(3)
 
     def delete(self, *args, **kwargs):
         if self.abonents.count() > 0:
@@ -66,6 +74,17 @@ class Person(models.Model):
             self.deleted=1
             self.save()
             return (0,"deleted")
+
+    @classmethod
+    def get_or_create_cls(cls,fio,passport):
+        from lib.functions import latinaze
+        passport = latinaze(passport)
+        try:
+            person = cls.objects.get(passport=passport)
+        except cls.DoesNotExist:
+            person = cls(passport=passport,lastname=fio)
+            person.save()
+        return person
 
     def fio(self):
         return "%s %s %s" % (self.lastname, self.firstname, self.middlename)
@@ -258,6 +277,17 @@ class Building(models.Model):
             building.save()
         return building
 
+    @classmethod
+    def get_or_create_cls(cls,street,house):
+        try:
+            building =cls.objects.get(street__sorting=street,house__num=house)
+        except cls.DoesNotExist:
+            s = Street.objects.get(sorting=street)
+            h = House.objects.get(num=house)
+            building = cls(street=s,house=h)
+            building.save()
+        return building
+
     def get_code(self):
         return "%s%s%s" % (self.street.code, self.house.code, self.code)
 
@@ -312,8 +342,23 @@ class Address(models.Model):
         address.save()
         return address
 
+    @classmethod
+    def get_or_create_cls(cls,street,house,flat,override=0):
+        building = Building.get_or_create_cls(street,house)
+        if not override:
+            override=0
+        try:
+            address = Address.objects.get(building=building,flat=flat)
+        except Address.DoesNotExist:
+            try:
+                address = Address.objects.get(override=override)
+            except Address.DoesNotExist:
+                address = Address(building=building,flat=flat,override=override)
+        address.save()
+        return address
+
     def get_code(self):
-        if len(self.override)>0:
+        if self.override and len(self.override)>0:
             return self.override
         return "%s%s%s" % (self.building.get_code(), '0' * (3-len(str(self.flat))) + str(self.flat), self.code)
 
@@ -322,6 +367,8 @@ class Address(models.Model):
         return self.get_code()
 
     def save(self, *args, **kwargs):
+        if self.override == 0:
+            self.override = self.get_code()
         self.sorting = unicode("%s%s, %s, %s %s" % (self.building.street.city.label, self.building.street.name, self.building.house.num, u'кв.', self.flat))
         super(self.__class__, self).save(*args,**kwargs)
 
@@ -460,13 +507,14 @@ class Bill(models.Model):
                 pass
 
     def restore_tp_check(self):
-        if self.balance_get()>=0 and self.saved_services.filter(restored=False).count():
-            for s in self.saved_services.all():
-                print "try to restore service %s" % s
-                if s.restore():
-                    print "    restored"
-                else:
-                    print "    failed"
+        pass
+#        if self.balance_get()>=0 and self.saved_services.filter(restored=False).count():
+#            for s in self.saved_services.all():
+#                print "try to restore service %s" % s
+#                if s.restore():
+#                    print "    restored"
+#                else:
+#                    print "    failed"
 
 
     def save(self,*args,**kwargs):

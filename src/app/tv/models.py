@@ -1418,10 +1418,10 @@ class CardService(models.Model):
                 
     def check_past_activation(self,activated):
         from lib.functions import date_formatter, add_months
-        last_fee_date = FeesCalendar.get_last_fee_date().timestamp
+        last_fee_date = FeesCalendar.get_last_fee_date()
         if not activated:
             activated = date.today()
-        if activated < last_fee_date:
+        if last_fee_date and activated < last_fee_date:
             next_fee_date = add_months(date_formatter(activated)['month'].date(),1)
             self.make_fees(next_fee_date)
             self.check_past_activation(next_fee_date)
@@ -1455,7 +1455,10 @@ class FeesCalendar(models.Model):
     
     @classmethod
     def get_last_fee_date(cls):
-        return cls.objects.latest('timestamp')
+        try:
+            return cls.objects.latest('timestamp').timestamp
+        except:
+            return None
 
     @classmethod
     def check_next_fee(cls,date):
