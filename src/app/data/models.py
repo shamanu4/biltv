@@ -159,7 +159,7 @@ class House(models.Model):
         AbonHouse.objects.all().delete()
         data = cls.objects.all()
         for entry in data:
-            a = AbonHouse(num=entry.name,code=entry.code)
+            a = AbonHouse(num=entry.name,code=entry.code,id=entry.pk)
             a.save()
 
 class Street(models.Model):
@@ -182,7 +182,7 @@ class Street(models.Model):
         city.save()
         data = cls.objects.all()
         for entry in data:
-            a = AbonStreet(name=entry.name,code=entry.code,city=city)
+            a = AbonStreet(name=entry.name,code=entry.code,city=city,id=entry.pk)
             a.save()
 
 
@@ -234,7 +234,7 @@ class Person(models.Model):
         for entry in data:
             if entry.passport == "no-passport":
                 entry.passport = "no-passport-%s" % entry.pk
-            a = AbonPerson(lastname=entry.fio, passport=entry.passport)
+            a = AbonPerson(lastname=entry.fio, passport=entry.passport, id=entry.pk)
             a.save()
 
 
@@ -272,7 +272,7 @@ class Abonent(models.Model):
                 a = AbonAbonent.objects.get(person=person,address=addr)
             except AbonAbonent.DoesNotExist:
                 bill = AbonBill.objects.create()
-                a = AbonAbonent(address=addr,person=person,bill=bill,comment=entry.address.remark,extid=entry.pk,disabled=not entry.active)
+                a = AbonAbonent(address=addr,person=person,bill=bill,comment=entry.address.remark,extid=entry.pk,disabled=not entry.active, id=entry.pk)
             a.save()
             if entry.address.tel:
                 person.contact_add(0,entry.address.tel)

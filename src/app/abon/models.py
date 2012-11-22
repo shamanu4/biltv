@@ -189,7 +189,7 @@ class Street(models.Model):
 
     city = models.ForeignKey(City, default=1, related_name='streets')
     name = models.CharField(max_length=40)
-    code = models.CharField(max_length=2, unique=True)
+    code = models.CharField(max_length=4, unique=True)
     deleted = models.BooleanField(default=False)
     comment = models.TextField(blank=True, null=True)
     sorting = models.CharField(max_length=80)
@@ -255,7 +255,7 @@ class Building(models.Model):
 
     street = models.ForeignKey(Street, related_name='buildings')
     house = models.ForeignKey(House, related_name='buildings')
-    code = models.CharField(max_length=2)
+    code = models.CharField(max_length=11)
     deleted = models.BooleanField(default=False)
     comment = models.TextField(blank=True, null=True)
     sorting = models.CharField(blank=True, max_length=100, unique=True)
@@ -313,7 +313,7 @@ class Address(models.Model):
 
     building = models.ForeignKey(Building, related_name='addresses')
     flat = models.PositiveIntegerField()
-    code = models.CharField(max_length=2)
+    code = models.CharField(max_length=20)
     deleted = models.BooleanField(default=False)
     comment = models.TextField(blank=True, null=True)
     sorting = models.CharField(blank=True, max_length=100, unique=True)
