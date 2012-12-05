@@ -150,7 +150,11 @@ class BasicQuery:
     def __init__(self, *args, **kwargs):
         pass
 
-    def run(self):
+    def run(self,iteration=0):
+        if iteration>2:
+            return {
+                "error":"maximum retries done to send data"
+            }
         import socket
         import struct
 
@@ -162,24 +166,28 @@ class BasicQuery:
         self.response = None
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.setsockopt(socket.SOL_SOCKET,socket.SO_RCVTIMEO,struct.pack('ll',3,0))
+        s.settimeout(0.3)
         s.connect((self.host, self.port))
-        if len(self.request) != s.send(self.request):
-            return {
-                "error":"cannot send to %s:%d\n$!" % (self.host, self.port),
-            }
-        else:
-            try:
-                (data,addr) = s.recvfrom(1024)                
-            except socket.error, msg:                
+        try:
+            if len(self.request) != s.send(self.request):
                 return {
-                    "error":"socket error: %s" % msg
-                }            
-            except:
-                return {
-                    "error":"socket error: %s" % msg
+                    "error":"cannot send to %s:%d\n$!" % (self.host, self.port),
                 }
-            self.response = data
-            return self.unpack()
+            else:
+                try:
+                    (data,addr) = s.recvfrom(1024)
+                except socket.error, msg:
+                    return {
+                        "error":"socket error: %s" % msg
+                    }
+                except:
+                    return {
+                        "error":"socket error: %s" % msg
+                    }
+                self.response = data
+                return self.unpack()
+        except:
+            self.run(iteration=iteration+1)
 
     def unpack(self):
         import struct
