@@ -91,7 +91,8 @@ class UserPacket(BasicPacket):
             else:
                 self.data.append(0x01)
             c = CardDigital.objects.count()
-            self.data.extend(int_to_4byte_wrapped(c))
+#            self.data.extend(int_to_4byte_wrapped(c))
+            self.data.extend(int_to_4byte_wrapped(card.digital.pk))
             self.data.extend(int_to_4byte_wrapped(card.digital.pk))
             self.data.extend(int_to_4byte_wrapped((card.num-1)*2))
             self.data.extend(card.bin_flags)
@@ -100,7 +101,7 @@ class UserPacket(BasicPacket):
             self.append_crc()
             self.card=card.num
         print
-        print "Generating packet for card #%s" % card.num
+        print "Generating packet for card #%s at position %s" % (card.num, card.digital.pk)
     
     @classmethod
     def export_card(cls,card_num):
