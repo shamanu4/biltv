@@ -170,7 +170,7 @@ class BasicQuery:
         import socket
         import struct
         print "running query %s\n request: %s" % (self.__class__,self.packet.hex())
-        logger.debug("running query %s\n request: %s" % (self.__class__,self.packet.hex()))
+        logger.debug("running query %s\n request: %s" % (self.packet.card, self.packet.hex()))
         if not settings.SCR1_ENABLED:
             logger.warning("disabled in config. query terminated")
             print "disabled in config. query terminated"
