@@ -91,8 +91,8 @@ class UserPacket(BasicPacket):
             else:
                 self.data.append(0x01)
             c = CardDigital.objects.count()
-#            self.data.extend(int_to_4byte_wrapped(c))
-            self.data.extend(int_to_4byte_wrapped(card.digital.pk))
+            self.data.extend(int_to_4byte_wrapped(c))
+#            self.data.extend(int_to_4byte_wrapped(card.digital.pk))
             self.data.extend(int_to_4byte_wrapped(card.digital.pk))
             self.data.extend(int_to_4byte_wrapped((card.num-1)*2))
             self.data.extend(card.bin_flags)
