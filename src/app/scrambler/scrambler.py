@@ -214,6 +214,7 @@ class BasicQuery:
         self.data.update({'result':u[1]})
         self.data.update({'checksum':u[2]})
         print "finished query %s\n data: %s" % (self.__class__,self.data)
+        logger.debug("finished query %s\n data: %s" % (self.packet.card,self.data))
         return self.data
 
     def cutzero(self,data):
