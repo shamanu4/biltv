@@ -1,6 +1,13 @@
 # -*- coding: utf-8 -*-
 import settings
 from time import time
+import logging
+logger = logging.getLogger('scrambler')
+hdlr = logging.FileHandler('/var/log/scrambler.log')
+formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+hdlr.setFormatter(formatter)
+logger.addHandler(hdlr)
+logger.setLevel(logging.DEBUG)
 
 class BasicPacket:    
     data=[]
@@ -156,13 +163,16 @@ class BasicQuery:
 
     def run(self,iteration=0):
         if iteration>2:
+            logger.error("maximum retries done to send data")
             return {
                 "error":"maximum retries done to send data"
             }
         import socket
         import struct
         print "running query %s\n request: %s" % (self.__class__,self.packet.hex())
+        logger.debug("running query %s\n request: %s" % (self.__class__,self.packet.hex()))
         if not settings.SCR1_ENABLED:
+            logger.warning("disabled in config. query terminated")
             print "disabled in config. query terminated"
             return False
         
@@ -173,6 +183,7 @@ class BasicQuery:
         s.connect((self.host, self.port))
         try:
             if len(self.request) != s.send(self.request):
+                logger.error("cannot send to %s:%d\n$!" % (self.host, self.port))
                 return {
                     "error":"cannot send to %s:%d\n$!" % (self.host, self.port),
                 }
@@ -180,12 +191,14 @@ class BasicQuery:
                 try:
                     (data,addr) = s.recvfrom(1024)
                 except socket.error, msg:
+                    logger.error("socket error: %s" % msg)
                     return {
                         "error":"socket error: %s" % msg
                     }
                 except:
+                    logger.error("other error")
                     return {
-                        "error":"socket error: %s" % msg
+                        "error":"other error"
                     }
                 self.response = data
                 return self.unpack()
