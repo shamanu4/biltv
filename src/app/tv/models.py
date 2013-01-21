@@ -468,6 +468,7 @@ class Payment(models.Model):
 
     def save(self, *args, **kwargs):
         super(self.__class__, self).save(*args, **kwargs)
+        self.bill.resend_cards()
         for fee in self.bill.fees.filter(maked__exact=False,deleted__exact=False,rolled_by__exact=None):
             print fee
             if not fee.card or not fee.tp:
