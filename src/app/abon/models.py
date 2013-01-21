@@ -468,6 +468,9 @@ class Bill(models.Model):
                 else:
                     print "    failed"
 
+    def resend_cards(self):
+        for abonent in self.abonents.all():
+            abonent.send_cards()
 
     def save(self,*args,**kwargs):
         if 'last_operation_date' in kwargs:
@@ -497,6 +500,7 @@ class Credit(models.Model):
         from tv.models import CardService
         super(self.__class__, self).save(*args, **kwargs)
         self.bill.restore_tp_check()
+        self.bill.resend_cards()
         for fee in self.bill.fees.filter(maked__exact=False,deleted__exact=False,rolled_by__exact=None):
             print fee
             if not fee.card or not fee.tp:
@@ -654,6 +658,10 @@ class Abonent(models.Model):
         if len(self.cards.filter(num__lte=0))==0:
             print "creating CaTV card ..."
             self.create_catv_card()
+
+    def send_cards(self):
+        for card in self.cards.all():
+            card.save()
 
     def make_fees(self,date):
         if self.deleted or self.disabled:
