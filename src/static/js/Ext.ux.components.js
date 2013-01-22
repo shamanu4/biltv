@@ -1755,6 +1755,7 @@ Ext.ux.CardTpCombo = Ext.extend(Ext.form.ComboBox, {
         }
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.CardTpCombo.superclass.initComponent.apply(this, arguments);
+        this.store.load()
     }
 }),
 
@@ -2205,6 +2206,65 @@ Ext.ux.AbonCreditsGrid = Ext.extend(Ext.ux.CustomGrid ,{
 
 Ext.reg('ext:ux:abon-credits-grid', Ext.ux.AbonCreditsGrid);
 
+Ext.ux.AbonSchedGrid = Ext.extend(Ext.ux.CustomGrid ,{
+    initComponent: function(){
+        var config = {
+            store: new Ext.data.DirectStore({
+                restful: true,
+                autoLoad: false,
+                autoSave: false,
+                reader: new Ext.data.JsonReader({
+                    root: 'data',
+                    totalProperty: 'total',
+                    fields: [
+                        'id',
+                        'date',
+                        'type',
+                        'card',
+                        'service_old',
+                        'service_new',
+                        'manager'
+                    ]
+                }),
+                writer: new Ext.data.JsonWriter({
+                    encode: false,
+                    writeAllFields: true,
+                    listful: true
+                }),
+                api: {
+                    read: AbonApi.abon_sched_get,
+                    create: AbonApi.abon_sched_add,
+                    update: AbonApi.abon_sched_update,
+                    destroy: AbonApi.foo
+                },
+                baseParams : {
+                    start:0,
+                    limit:10,
+                    uid:this.oid,
+                }
+            }),
+            columns: [
+                {header: "Id", dataIndex: 'id', width:40},
+                {header: "Type", dataIndex: 'type', width:65},
+                {header: "Date", dataIndex: 'date', width:120,
+                    editor: new Ext.form.DateField({format:"Y-m-d"})
+                },
+                {header: "Card", dataIndex: 'card', width:80, editor: new Ext.ux.AbonCardCombo({uid: this.oid})},
+                {header: "Old service", dataIndex: 'service_old', width:160, editor: new Ext.form.TextField()},
+                {header: "New service", dataIndex: 'service_new', width:160, editor: new Ext.ux.CardTpCombo() },
+                {header: "manager", dataIndex: 'manager', width:120}
+            ],
+            pageSize: 12,
+            height: 380
+        }
+        Ext.apply(this, Ext.apply(this.initialConfig, config));
+        Ext.ux.AbonSchedGrid.superclass.initComponent.apply(this, [config]);
+    },
+    title: 'Планировщик',
+    ds_model: sched_ds_model
+});
+
+Ext.reg('ext:ux:abon-sched-grid', Ext.ux.AbonSchedGrid);
 
 Ext.ux.AbonCommentsPanel = Ext.extend(Ext.Panel ,{
 	    initComponent: function() {
@@ -2329,6 +2389,14 @@ Ext.ux.AbonInfoPanel = Ext.extend(Ext.Panel ,{
                         parent_form: this,
                         items: [{
                             xtype: 'ext:ux:abon-credits-grid',
+                            oid: this.oid
+                        }]
+                    },{
+                        title: 'Планировщик',
+                        xtype: 'panel',
+                        parent_form: this,
+                        items: [{
+                            xtype: 'ext:ux:abon-sched-grid',
                             oid: this.oid
                         }]
                     }]
@@ -4119,6 +4187,58 @@ Ext.ux.AbonTpMoveCombo = Ext.extend(Ext.form.ComboBox, {
     }
 });
 
+Ext.ux.AbonCardCombo = Ext.extend(Ext.form.ComboBox, {
+    initComponent: function() {
+        var config = {
+            //cs_id:0,
+            store: new Ext.data.DirectStore({
+                api: {
+                    read: AbonApi.cards_get,
+                    create: AbonApi.foo,
+                    update: AbonApi.foo,
+                    destroy: AbonApi.foo
+                },
+                restful: true,
+                autoLoad: true,
+                reader: new Ext.data.JsonReader({
+                    root: 'data',
+                    totalProperty: 'total',
+                    //idProperty: 'id',
+                    fields: [
+                        'id',
+                        'num',
+                    ]
+                }),
+                baseParams : {
+                    service_id:0
+                },
+                listeners: {
+                    load: {
+                        fn: function(store,records,options){
+                            for(var i=0, len=records.length; i < len; i++){
+                                if(records[i].data.num < 0) {
+                                    records[i].data.num = 'CaTV'
+                                }
+                            }
+                        },
+                        scope: this
+                    }
+                }
+            }),
+            editable: false,
+            forceSelection: true,
+            lazyRender: false,
+            triggerAction: 'all',
+            valueField: 'id',
+            displayField: 'num',
+            mode: 'local'
+        }
+        Ext.apply(this, Ext.apply(this.initialConfig, config));
+        Ext.ux.AbonCardCombo.superclass.initComponent.apply(this, arguments);
+        this.store.setBaseParam('uid',this.uid)
+    }
+});
+
 Ext.ux.AbonTpMoveForm = Ext.ux.AbonInfoPanel = Ext.extend(Ext.Window ,{
     initComponent: function() {
         var config = {
@@ -4162,5 +4282,4 @@ Ext.ux.AbonTpMoveForm = Ext.ux.AbonInfoPanel = Ext.extend(Ext.Window ,{
         Ext.ux.AbonTpMoveForm.superclass.initComponent.apply(this, arguments);        
     }
 });
-alert
 
