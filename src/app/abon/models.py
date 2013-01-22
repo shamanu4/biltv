@@ -317,7 +317,8 @@ class Address(models.Model):
     deleted = models.BooleanField(default=False)
     comment = models.TextField(blank=True, null=True)
     sorting = models.CharField(blank=True, max_length=100, unique=True)
-    override = models.CharField(max_length=20, unique=True, default="")
+    override = models.CharField(max_length=20,blank=True, null=True)
+    flat_ext = models.PositiveIntegerField(blank=True, null=True)
 
     class Meta:
         ordering = ['sorting']
