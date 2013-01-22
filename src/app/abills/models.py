@@ -84,20 +84,20 @@ class User(models.Model):
     def promotion(self,fee):
         self.payment(fee.bonus, u'акція. %s. %s' % (fee.tp.__unicode__(), fee.timestamp ) )        
     
-    def promotion_on(self,card,cs,pl,timestamp):
-        pi = self.pi
-        print pi
-        if pi:
-            pi.card_num = card.num
-        pi.save()
-        self.tp_set(pl.abills_tp, timestamp)
-    
-    def promotion_off(self,card,cs,pl,timestamp):
-        pi = self.pi
-        if pi:
-            pi.card_num = card.num
-        pi.save()
-        self.tp_set(pl.abills_tp, timestamp)
+#    def promotion_on(self,card,cs,pl,timestamp):
+#        pi = self.pi
+#        print pi
+#        if pi:
+#            pi.card_num = card.num
+#        pi.save()
+#        self.tp_set(pl.abills_tp, timestamp)
+#
+#    def promotion_off(self,card,cs,pl,timestamp):
+#        pi = self.pi
+#        if pi:
+#            pi.card_num = card.num
+#        pi.save()
+#        self.tp_set(pl.abills_tp, timestamp)
     
     def tp_set(self,tp,timestamp):
         if not timestamp:
