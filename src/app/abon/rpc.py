@@ -687,6 +687,97 @@ class AbonApiClass(object):
         return {}
     abon_credit_update._args_len = 1
 
+    @check_perm('accounts.rpc_abon_sched_get')
+    @store_read
+    def abon_sched_get(self,rdata,request):
+        from abon.models import Abonent, Credit
+        from tv.models import TpScheduler
+        uid = int(rdata['uid'])
+        if uid>0:
+            try:
+                abonent=Abonent.objects.get(pk=uid)
+            except Abonent.DoesNotExist:
+                return dict(success=False, title='Сбой загрузки планировщика', msg='abonent not found', errors='', data={} )
+            return TpScheduler.objects.filter(card__owner=abonent).order_by('-date')
+        return {}
+    abon_sched_get._args_len = 1
+
+    @check_perm('accounts.rpc_abon_sched_add')
+    def abon_sched_add(self,rdata,request):
+        from abon.models import Abonent
+        from tv.models import TpScheduler, Card, CardService, TariffPlan
+        uid = int(rdata['uid'])
+        print rdata
+        if uid>0:
+            try:
+                abonent=Abonent.objects.get(pk=uid)
+            except Abonent.DoesNotExist:
+                return dict(success=False, title='Сбой сохранения планировщика', msg='abonent not found', errors='', data={} )
+
+            data = rdata.pop('data',None)
+            if not data:
+                return dict(success=False, title='Сбой сохранения планировщика', msg='no data', errors='', data={} )
+
+            try:
+                card = Card.objects.get(pk=int(data.pop('card',None)))
+            except:
+                return dict(success=False, title='Сбой сохранения планировщика', msg='wrong card', errors='', data={} )
+            if not card.owner == abonent:
+                return dict(success=False, title='Сбой сохранения планировщика', msg='card not belongs to this abonent', errors='', data={} )
+
+            service_old = data.pop('service_old',None)
+            if service_old:
+                try:
+                    service_old = CardService.objects.get(pk=service_old)
+                except:
+                    return dict(success=False, title='Сбой сохранения планировщика', msg='wrong card service (old)', errors='', data={} )
+            if not service_old.card == card:
+                return dict(success=False, title='Сбой сохранения планировщика', msg='card service not belongs to card', errors='', data={} )
+
+            service_new = data.pop('service_new',None)
+            if service_new:
+                try:
+                    service_new = TariffPlan.objects.get(pk=service_new)
+                except:
+                    return dict(success=False, title='Сбой сохранения планировщика', msg='wrong tariff plan (new)', errors='', data={} )
+
+            dt = data.pop('date',None)
+            try:
+                dt = datetime.strptime(dt,'%Y-%m-%dT%H:%M:%S').date()
+            except:
+                return dict(success=False, title='Сбой сохранения планировщика', msg='error parsing date', errors='', data={} )
+
+            if not dt or not card:
+                return dict(success=False, title='Сбой сохранения планировщика', msg='you have to enter valid card and date', errors='', data={} )
+            if not service_old and not service_new:
+                return dict(success=False, title='Сбой сохранения планировщика', msg='you have to enter either old or new service', errors='', data={} )
+
+            sched = TpScheduler(date=dt, _type=1, card=card, manager=request.user)
+            if service_old:
+                sched.service_old = service_old
+            if service_new:
+                sched.service_new = service_new
+            sched.save()
+            if not sched.pk:
+                return dict(success=False, title='Сбой сохранения планировщика', msg='error saving scheduler', errors='', data={} )
+            return dict(success=True, title='Сохранено', msg='saved', errors='', data=sched.store_record() )
+        return {}
+    abon_sched_add._args_len = 1
+
+    @check_perm('accounts.rpc_abon_sched_update')
+    def abon_sched_update(self,rdata,request):
+        from abon.models import Abonent
+        from tv.models import TpScheduler
+        uid = int(rdata['uid'])
+        if uid>0:
+            try:
+                abonent=Abonent.objects.get(pk=uid)
+            except Abonent.DoesNotExist:
+                return dict(success=False, title='Сбой загрузки планировщика', msg='abonent not found', errors='', data={} )
+            return TpScheduler.objects.filter(card__owner=abonent).order_by('-date')
+        return {}
+    abon_sched_update._args_len = 1
+
     @check_perm('accounts.rpc_abon_registers_get')
     @store_read
     def registers_get(self,rdata,request):
