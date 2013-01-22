@@ -427,6 +427,17 @@ var credit_ds_model = Ext.data.Record.create([
     'manager'
 ]);
 
+var sched_ds_model = Ext.data.Record.create([
+    'id',
+    'date',
+    'type',
+    'card',
+    'service_old',
+    'service_new',
+    'manager'
+]);
+
+
 Ext.ux.free_card_combo_store = new Ext.data.DirectStore({
                 restful: true,
                 autoLoad: false,
