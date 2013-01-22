@@ -1106,19 +1106,19 @@ class Card(models.Model):
             return False
         u.promotion(fee)
     
-    def promotion_on(self,cs,pl,timestamp):
-        u = self.abills_get_user(cs.extra)
-        if not u:
-            print "no user for tp promotion on"
-            return False
-        u.promotion_on(self,cs,pl,timestamp)
-    
-    def promotion_off(self,cs,pl,timestamp):
-        u = self.abills_get_user(cs.extra)
-        if not u:
-            print "no user for tp promotion off"
-            return False
-        u.promotion_off(self,cs,pl,timestamp)
+#    def promotion_on(self,cs,pl,timestamp):
+#        u = self.abills_get_user(cs.extra)
+#        if not u:
+#            print "no user for tp promotion on"
+#            return False
+#        u.promotion_on(self,cs,pl,timestamp)
+#
+#    def promotion_off(self,cs,pl,timestamp):
+#        u = self.abills_get_user(cs.extra)
+#        if not u:
+#            print "no user for tp promotion off"
+#            return False
+#        u.promotion_off(self,cs,pl,timestamp)
     
     # WARNING! This method was used once during MIGRATION. Future uses RESTRICTED! This will cause  history DATA CORRUPT!  
     def timestamp_and_activation_fix(self):
@@ -1508,4 +1508,46 @@ class PaymentAutoMake(models.Model):
 
     def __unicode__(self):
         return self.register.__unicode__()
+
+
+
+class TpScheduler(models.Model):
+
+    SCHED_TYPES = (
+        (0,'service change'),
+        (1,'service add'),
+        (2,'service delete'),
+    )
+
+    date = models.DateField()
+    _type = models.PositiveSmallIntegerField(choices=SCHED_TYPES)
+    card = models.ForeignKey(Card)
+    service_old = models.ForeignKey(CardService, blank=True, null=True, related_name="sched_old")
+    service_new = models.ForeignKey(TariffPlan, blank=True, null=True, related_name="sched_new")
+    manager = models.ForeignKey("accounts.User")
+
+    def save(self, force_insert=False, force_update=False, using=None):
+        if self._type == 0 and ( not self.service_old or not self.service_new):
+            return False
+        if self._type == 1 and not self.service_new:
+            return False
+        if self._type == 2 and not self.service_old:
+            return False
+        super(TpScheduler,self).save(force_insert=False, force_update=False, using=None)
+
+    def store_record(self):
+        obj = {}
+        obj['id'] = self.pk
+        obj['card'] = self.card.pk
+        if self.service_old:
+            obj['service_old'] = self.service_old.tp.__unicode__()
+        else:
+            obj['service_old'] = None
+        if self.service_new:
+            obj['service_new'] = self.service_new.__unicode__()
+        else:
+            obj['service_new'] = None
+        obj['date'] = self.date
+        obj['manager'] = self.manager.username
+        return obj
 
