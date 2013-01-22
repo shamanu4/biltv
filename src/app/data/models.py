@@ -212,7 +212,8 @@ class Address(models.Model):
             a = AbonAddress.get_or_create_cls(street=entry.street.name,house=entry.house.name,flat=entry.loft,override=entry.faceorder)
             a.comment = "%s\n%s" % (entry.tel or '',entry.remark or '')
             a.save()
-
+            if entry.faceorder and not ( entry.faceorder[:-1] == a.ordernum or entry.faceorder == a.ordernum):
+                print "%s -> %sX" % (entry.faceorder,a.ordernum)
 
 
 class Person(models.Model):
