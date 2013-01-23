@@ -16,5 +16,10 @@
         </tr>
     </table>
     </form>
+    <ul>
+    {% for line in errors %}
+        <li>{{ line }}</li>
+    {% endfor %}
+    </ul>
 </body>
 </html>

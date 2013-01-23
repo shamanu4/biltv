@@ -19,6 +19,7 @@ def handle_uploaded_file(f,table,fields):
     ff = fields.split(';')
     cursor.execute("TRUNCATE TABLE %s" % table)
     chunk = ""
+    errors = []
     for line in f:
         line = line.decode('windows-1251')
         line = "%s%s" % (chunk,line)
@@ -36,7 +37,10 @@ def handle_uploaded_file(f,table,fields):
                 clear_list.append(d)
         query = "INSERT INTO %s VALUES (%s)" % (table,",".join(clear_list))
         print query
-        cursor.execute(query)
+        try:
+            cursor.execute(query)
+        except Exception,e:
+            errors.append((query,e))
 
 @render_to('data/txt2sql.html')
 def txt2sql(request):
@@ -45,8 +49,8 @@ def txt2sql(request):
     if request.method == 'POST':
         f = DataFileForm(request.POST)
         if f.is_valid() and request.FILES:
-            handle_uploaded_file(request.FILES['txt'],f.cleaned_data['table'],f.cleaned_data['fields'])
-            return {}
+            errs = handle_uploaded_file(request.FILES['txt'],f.cleaned_data['table'],f.cleaned_data['fields'])
+            return {'errors':errs}
         else:
             return {'form':f}
 

@@ -160,7 +160,11 @@ class House(models.Model):
         data = cls.objects.all()
         for entry in data:
             a = AbonHouse(num=entry.name,code=entry.code,id=entry.pk)
-            a.save()
+            try:
+                a.save()
+            except Exception,e:
+                print e
+
 
 class Street(models.Model):
 
@@ -183,17 +187,20 @@ class Street(models.Model):
         data = cls.objects.all()
         for entry in data:
             a = AbonStreet(name=entry.name,code=entry.code,city=city,id=entry.pk)
-            a.save()
+            try:
+                a.save()
+            except Exception,e:
+                print e
 
 
 class Address(models.Model):
 
     street = models.ForeignKey(Street)
     house = models.ForeignKey(House)
-    loft = models.CharField(max_length=10)
-    tel = models.CharField(max_length=20)
-    remark = models.TextField()
-    faceorder = models.CharField(max_length=13)
+    loft = models.CharField(max_length=10,blank=True,null=True)
+    tel = models.CharField(max_length=40,blank=True,null=True)
+    remark = models.TextField(blank=True,null=True)
+    faceorder = models.CharField(max_length=13,blank=True,null=True)
     pereoform = models.BooleanField()
 
     class Meta:
@@ -209,9 +216,12 @@ class Address(models.Model):
         AbonBuilding.objects.all().delete()
         data = cls.objects.all()
         for entry in data:
-            a = AbonAddress.get_or_create_cls(street=entry.street.name,house=entry.house.name,flat=entry.loft,override=entry.faceorder)
-            a.comment = "%s\n%s" % (entry.tel or '',entry.remark or '')
-            a.save()
+            try:
+                a = AbonAddress.get_or_create_cls(street=entry.street.name,house=entry.house.name,flat=entry.loft,override=entry.faceorder)
+                a.comment = "%s\n%s" % (entry.tel or '',entry.remark or '')
+                a.save()
+            except Exception,e:
+                print e
             if entry.faceorder and not ( entry.faceorder[:-1] == a.ordernum or entry.faceorder == a.ordernum):
                 print "%s -> %sX" % (entry.faceorder,a.ordernum)
 
@@ -267,14 +277,20 @@ class Abonent(models.Model):
             except:
                 print "address does not exists. abonent id: %s" % entry.pk
                 continue
-            addr = AbonAddress.get_or_create_cls(entry.address.street.name,entry.address.house.name,entry.address.loft,entry.address.faceorder)
-            person = AbonPerson.get_or_create_cls(entry.person.fio,entry.person.passport)
+            try:
+                addr = AbonAddress.get_or_create_cls(entry.address.street.name,entry.address.house.name,entry.address.loft,entry.address.faceorder)
+                person = AbonPerson.get_or_create_cls(entry.person.fio,entry.person.passport)
+            except Exception,e:
+                print e
             try:
                 a = AbonAbonent.objects.get(person=person,address=addr)
             except AbonAbonent.DoesNotExist:
                 bill = AbonBill.objects.create()
                 a = AbonAbonent(address=addr,person=person,bill=bill,comment=entry.address.remark,extid=entry.pk,disabled=not entry.active, id=entry.pk)
-            a.save()
+            try:
+                a.save()
+            except Exception,e:
+                print e
             if entry.address.tel:
                 person.contact_add(0,entry.address.tel)
 
@@ -310,8 +326,8 @@ class AbonentCat(models.Model):
 
     abonent = models.ForeignKey(Abonent)
     category = models.ForeignKey(Category)
-    d1 = models.DateField()
-    d2 = models.DateField()
+#    d1 = models.DateField(blank=True,null=True)
+#    d2 = models.DateField(blank=True,null=True)
 
     class Meta:
         pass

@@ -120,6 +120,7 @@ INSTALLED_APPS = (
     'tv',
     'abon',
     'data',                         # migration data
+    'south',
 #    'abills',
 )
 
