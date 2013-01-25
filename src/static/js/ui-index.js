@@ -147,6 +147,15 @@ Ext.onReady(function(){
 		o = e.currentTarget;
 		Engine.menu.cashier.abon_card_func.tp_move_form(o.getAttribute('val'),o);
 	});
+
+    /*
+     * Abonent card tps grid special buttons
+     */
+
+    $(".sched_delete").live('click', function(e) {
+        o = e.currentTarget;
+        Engine.menu.cashier.sched.sched_delete(o.getAttribute('val'),o);
+    });
 });
 
 

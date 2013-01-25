@@ -388,6 +388,15 @@ Engine = {
 					}
 				},
 			},
+            sched: {
+                sched_delete: function(sched_id) {
+                    if(confirm("удалить планировщик?")) {
+                        AbonApi.abon_sched_delete({
+                            sched_id:sched_id
+                        })
+                    }
+                }
+            },
 			report: {
 				launch: function() {
 					window.open('/report','_newtab');

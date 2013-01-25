@@ -2250,9 +2250,14 @@ Ext.ux.AbonSchedGrid = Ext.extend(Ext.ux.CustomGrid ,{
                     editor: new Ext.form.DateField({format:"Y-m-d"})
                 },
                 {header: "Card", dataIndex: 'card', width:80, editor: new Ext.ux.AbonCardCombo({uid: this.oid})},
-                {header: "Old service", dataIndex: 'service_old', width:160, editor: new Ext.form.TextField()},
-                {header: "New service", dataIndex: 'service_new', width:160, editor: new Ext.ux.CardTpCombo() },
-                {header: "manager", dataIndex: 'manager', width:120}
+                {header: "Service ID", dataIndex: 'service_old', width:160, editor: new Ext.form.TextField()},
+                {header: "Tariff", dataIndex: 'service_new', width:160, editor: new Ext.ux.CardTpCombo() },
+                {header: "Manager", dataIndex: 'manager', width:120},
+                {header: "", dataIndex: 'id', width:26,
+                    renderer: function(value, metaData, record, rowIndex, colIndex, store) {
+                        return '<img src="/static/extjs/custom/delete_16.png" class="sched_delete" val="'+record.data.id+'">';
+                    }
+                },
             ],
             pageSize: 12,
             height: 380

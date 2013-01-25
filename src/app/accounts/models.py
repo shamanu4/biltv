@@ -51,6 +51,10 @@ class User(BaseUser):
             ("rpc_abon_abonent_delete", "RPC abon.abonent_delete"),
             ("rpc_abon_credits_get", "RPC abon.credit_get"),
             ("rpc_abon_credits_set", "RPC abon.credit_set"),
+            ("rpc_abon_sched_get", "RPC abon.sched_get"),
+            ("rpc_abon_sched_add", "RPC abon.sched_add"),
+            ("rpc_abon_sched_update", "RPC abon.sched_update"),
+            ("rpc_abon_sched_delete", "RPC abon.sched_delete"),
         )
     
     def store_record(self):

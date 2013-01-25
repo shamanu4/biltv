@@ -778,6 +778,21 @@ class AbonApiClass(object):
         return {}
     abon_sched_update._args_len = 1
 
+    @check_perm('accounts.rpc_abon_sched_delete')
+    def abon_sched_delete(self,rdata,request):
+        from abon.models import Abonent
+        from tv.models import TpScheduler
+        sched_id = int(rdata['sched_id'])
+        if sched_id>0:
+            try:
+                sched=TpScheduler.objects.get(pk=sched_id)
+            except TpScheduler.DoesNotExist:
+                return dict(success=False, title='Сбой удаления планировщика', msg='scheduler not found', errors='', data={} )
+            sched.delete()
+            return dict(success=True, title='Удалено', msg='deleted...', data={} )
+        return dict(success=False, title='Сбой удаления планировщика', msg='wrong request data', errors='', data={} )
+    abon_sched_delete._args_len = 1
+
     @check_perm('accounts.rpc_abon_registers_get')
     @store_read
     def registers_get(self,rdata,request):
