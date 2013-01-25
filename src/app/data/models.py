@@ -382,6 +382,12 @@ class Proplata(models.Model):
         return "%s : %s" % (self.abonent.__unicode__(),self.sum)
 
 
+class Balans(models.Model):
+    abonent = models.ForeignKey(Abonent)
+    sum = models.FloatField(default=0)
+
+    def __unicode__(self):
+        return "%s : %s" % (self.abonent.__unicode__(),self.sum)
 
 
 

@@ -825,13 +825,17 @@ class AbonApiClass(object):
             bank_date = datetime.strptime(tmpdate,'%Y-%m-%dT%H:%M:%S').date()
         except ValueError:
             return dict(success=False, title='Сбой проведения оплаты', msg='invalid date', errors='', data={} )    
-        
-        pr = Payment.objects.latest('id')
-        pt = Payment.objects.filter(id__gte=pr.id-5,bill=abonent.bill)
-        
-        if not request.user.has_perm("accounts.rpc_abon_make_double_payment"):
-            if pt.count()>0:
-                return dict(success=False, title='Сбой проведения оплаты', msg='Возможно повторный ввод квитанции', errors='', data={} )
+
+        try:
+            pr = Payment.objects.latest('id')
+            pt = Payment.objects.filter(id__gte=pr.id-5,bill=abonent.bill)
+        except:
+            pass
+        else:
+            if not request.user.has_perm("accounts.rpc_abon_make_double_payment"):
+                if pt.count()>0:
+                    return dict(success=False, title='Сбой проведения оплаты', msg='Возможно повторный ввод квитанции', errors='', data={} )
+
         
         p = Payment()
         p.register = register

@@ -14,12 +14,14 @@ class DataFileForm(forms.Form):
 
 def handle_uploaded_file(f,table,fields):
     from django.db import connection
+    import re
     cursor = connection.cursor()
     table = 'data_%s' % table
     ff = fields.split(';')
     cursor.execute("TRUNCATE TABLE %s" % table)
     chunk = ""
     errors = []
+    money = re.compile("(\-?)(\d+)\,(\d*)\S\.")
     for line in f:
         line = line.decode('windows-1251')
         line = "%s%s" % (chunk,line)
@@ -29,8 +31,16 @@ def handle_uploaded_file(f,table,fields):
             continue
         data = line.split(";")
         clear_list = []
+        j = 0
         for i,f in enumerate(ff):
-            d = data[i].replace('\n', '').replace('\r', '')
+            if f =='n':
+                clear_list.append('null')
+                j+=1
+                continue
+            d = data[i-j].replace('\n', '').replace('\r', '')
+            m = money.match(d)
+            if m:
+                d = str(float("%s%s.%s" % (m.group(1),m.group(2),m.group(3))))
             if d is None or d == '':
                 clear_list.append('null')
             else:
