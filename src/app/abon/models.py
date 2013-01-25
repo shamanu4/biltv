@@ -367,6 +367,10 @@ class Address(models.Model):
     def ordernum(self):
         return self.get_code()
 
+    @property
+    def generated(self):
+        return "%s%s" % (self.building.get_code(), '0' * (3-len(str(self.flat))) + str(self.flat))
+
     def save(self, *args, **kwargs):
         if self.override == 0:
             self.override = self.get_code()

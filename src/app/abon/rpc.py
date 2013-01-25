@@ -198,6 +198,27 @@ class AbonApiClass(object):
 
     abonent_set._args_len = 1
 
+    def regenerate(self, rdata, request):
+        uid = int(rdata['uid'])
+        data = 0
+        from abon.models import Abonent
+        if uid>0:
+            try:
+                abonent=Abonent.objects.get(pk=uid)
+            except Abonent.DoesNotExist:
+                return dict(success=False, title='Сбой генерации', msg='abonent not found', errors='')
+            else:
+                try:
+                    service = abonent.catv_card.services.all()[0].tp_id
+                except:
+                    service = 0
+                data = str(abonent.address.generated) + "0" + str(service)
+        else:
+            return dict(success=False, title='Сбой генерации', msg='wrong data', errors='')
+        return dict(success=True, title="Сгенерировано", msg=('generated'), data=data)
+
+    regenerate._args_len = 1
+
     @check_perm('accounts.rpc_abon_enable')
     def enable(self, rdata, request):
         from abon.models import Abonent

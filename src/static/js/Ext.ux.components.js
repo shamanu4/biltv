@@ -1455,6 +1455,29 @@ Ext.ux.AddressForm = Ext.extend(Ext.FormPanel, {
                 name: 'ext',
                 allowBlank:false
             },
+            this.form_generate_field = {
+                xtype: 'button',
+                icon: '/static/img/icons/green/16x16/Calc.png',
+                fieldLabel: 'Генерировать',
+                name: 'generate',
+                allowBlank:false,
+                listeners: {
+                    click : {
+                        fn: function(obj) {
+                            this.ext_f = obj.ownerCt.form.items.items[4]
+                            this.ext_f.setValue('generating')
+                            AbonApi.regenerate({
+                                uid: (this.oid || 0)
+                            },function (result,e) {
+                                this.ext_f.setValue(result.data)
+                            }.createDelegate(this));
+                        },
+                        scope: this
+                    },
+                    scope: this
+                },
+                scope: this
+            },
 			/*
 			this.activated_field = new Ext.form.DateField({
                 fieldLabel: 'Подключен',
