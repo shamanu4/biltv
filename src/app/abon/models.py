@@ -307,9 +307,19 @@ class Building(models.Model):
         obj['comment'] = self.comment
         return obj
 
-
+ALPHA_INDEX = [u'', u'\u0430', u'\u0431', u'\u0432', u'\u0433', u'\u0434', u'\u0435', u'\u0454', u'\u0436', u'\u0437',
+               u'\u0438', u'\u0456', u'\u0457', u'\u0439', u'\u043a', u'\u043b', u'\u043c', u'\u043d', u'\u043e',
+               u'\u043f', u'\u0440', u'\u0441', u'\u0442', u'\u0443', u'\u0444', u'\u0445', u'\u0446', u'\u0447',
+               u'\u0448', u'\u0449', u'\u044e', u'\u044f', u'\u044c']
 
 class Address(models.Model):
+
+    FLAT_EXT_TYPE_CHOICES = (
+        (0, u'none'),
+        (1, u'slash'),
+        (2, u'alpha'),
+        (3, u'invalid'),
+    )
 
     building = models.ForeignKey(Building, related_name='addresses')
     flat = models.PositiveIntegerField()
@@ -318,43 +328,37 @@ class Address(models.Model):
     comment = models.TextField(blank=True, null=True)
     sorting = models.CharField(blank=True, max_length=100, unique=True)
     override = models.CharField(max_length=20,blank=True, null=True)
-    flat_ext = models.PositiveIntegerField(blank=True, null=True)
+    flat_ext = models.PositiveIntegerField(blank=True, default=0)
+    flat_ext_type = models.PositiveSmallIntegerField(choices=FLAT_EXT_TYPE_CHOICES, default=0)
 
     class Meta:
         ordering = ['sorting']
-        unique_together = (("building", "flat",),)
+        unique_together = (("building", "flat", "flat_ext", "flat_ext_type"),)
 
     def __unicode__(self):
         return "%s" % (self.sorting,)
 
     def get_or_create(self,building,flat,override=''):
+        flat, flat_ext, flat_ext_type = self.clean_flat_other(flat)
         try:
-            address = Address.objects.get(building=building,flat=flat)
+            address = Address.objects.get(building=building, flat=flat, flat_ext=flat_ext, flat_ext_type=flat_ext_type)
         except Address.DoesNotExist:
-            try:
-                address = Address.objects.get(override=override)
-                if address==self:
-                    address.flat=flat
-                    address.building=building
-                else:
-                    address = Address(building=building,flat=flat,override=override)
-            except Address.DoesNotExist:
-                address = Address(building=building,flat=flat,override=override)
+            address = Address(building=building,flat=flat, flat_ext=flat_ext, flat_ext_type=flat_ext_type)
         address.save()
         return address
 
     @classmethod
     def get_or_create_cls(cls,street,house,flat,override=0):
+        flat, flat_ext, flat_ext_type = cls.clean_flat_other(flat)
+        print "cls"
+        print (flat, flat_ext, flat_ext_type)
         building = Building.get_or_create_cls(street,house)
         if not override:
             override=0
         try:
-            address = Address.objects.get(building=building,flat=flat)
+            address = Address.objects.get(building=building, flat=flat, flat_ext=flat_ext, flat_ext_type=flat_ext_type)
         except Address.DoesNotExist:
-            try:
-                address = Address.objects.get(override=override)
-            except Address.DoesNotExist:
-                address = Address(building=building,flat=flat,override=override)
+            address = Address(building=building,flat=flat, flat_ext=flat_ext, flat_ext_type=flat_ext_type)
         address.save()
         return address
 
@@ -371,10 +375,58 @@ class Address(models.Model):
     def generated(self):
         return "%s%s" % (self.building.get_code(), '0' * (3-len(str(self.flat))) + str(self.flat))
 
+    @staticmethod
+    def clean_flat_other(flat_other):
+
+        flat_other = unicode(flat_other).lower()
+        flat = 0
+        flat_ext = 0
+        flat_ext_type = 0
+
+        import re
+        flat_clean = re.compile("^(\d{1,3})$")
+        flat_slash = re.compile("^(\d{1,3})\/(\d{1,2})$")
+        flat_alpha = re.compile("^(\d{1,3})(\w{1})$", re.U)
+        if flat_clean.match(flat_other):
+            m = flat_clean.match(flat_other)
+            flat = m.group(1)
+        elif flat_slash.match(flat_other):
+            m = flat_slash.match(flat_other)
+            flat = m.group(1)
+            flat_ext = m.group(2)
+            flat_ext_type = 1
+        elif flat_alpha.match(flat_other):
+            m = flat_alpha.match(flat_other)
+            flat = m.group(1)
+            try:
+                flat_ext = ALPHA_INDEX.index(unicode(m.group(2)).lower())
+                flat_ext_type = 2
+            except:
+                flat_ext = 0
+                flat_ext_type = 3
+        else:
+            flat = 0
+            flat_ext = 0
+            flat_ext_type = 3
+        return flat, flat_ext, flat_ext_type
+
+    @property
+    def flat_extended(self):
+        if self.flat_ext_type == 0:
+            return self.flat
+        if self.flat_ext_type == 1:
+            return "%s/%s" % (self.flat,self.flat_ext)
+        if self.flat_ext_type == 2:
+            return "%s%s" % (self.flat,ALPHA_INDEX[self.flat_ext])
+        if self.flat_ext_type == 3:
+            return "invalid format"
+
     def save(self, *args, **kwargs):
+        if self.flat_ext_type ==3:
+            raise Exception, "Invalid flat data format. Accepting: [digit]{1,3} or [digit]{1,3}[alpha]{1} or [digit]{1,3}/[digit]{1,2}"
         if self.override == 0:
             self.override = self.get_code()
-        self.sorting = unicode("%s%s, %s, %s %s" % (self.building.street.city.label, self.building.street.name, self.building.house.num, u'кв.', self.flat))
+        self.sorting = unicode("%s%s, %s, %s %s" % (self.building.street.city.label, self.building.street.name, self.building.house.num, u'кв.', self.flat_extended))
         super(self.__class__, self).save(*args,**kwargs)
 
     def store_record(self):
@@ -385,7 +437,7 @@ class Address(models.Model):
         obj['ext'] = self.override
         obj['street'] = self.building.street.__unicode__()
         obj['house'] = self.building.house.__unicode__()
-        obj['flat'] = self.flat
+        obj['flat'] = self.flat_extended
         return obj
 
 
@@ -598,7 +650,7 @@ class Abonent(models.Model):
     code = models.CharField(blank=False, max_length=20)
     confirmed = models.BooleanField(default=False)
     disabled = models.BooleanField(default=True)
-    extid = models.PositiveIntegerField(default=0, unique=True)
+    extid = models.PositiveIntegerField(default=0)
 
     class Meta:
         ordering = ['sorting']

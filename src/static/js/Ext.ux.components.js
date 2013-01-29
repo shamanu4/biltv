@@ -1448,7 +1448,6 @@ Ext.ux.AddressForm = Ext.extend(Ext.FormPanel, {
                 fieldLabel: 'Квартира',
                 name: 'flat',
                 allowBlank:false,
-                vtype:'decimal'
             },
 			this.form_ext_field = {
                 fieldLabel: 'Номер счёта',

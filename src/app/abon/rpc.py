@@ -112,9 +112,14 @@ class AbonApiClass(object):
             address=Address()
         form = AddressForm(rdata)
         result = []
-
+        print "--"
+        print address
+        print "--"
         if form.is_valid():
-            res = form.save(address)
+            try:
+                res = form.save(address)
+            except Exception, e:
+                return dict(success=False, title='Сбой загрузки формы', msg=str(e), errors='')
             ok = res[0]
             result.append(res[1].store_record())
             msg = res[2]
