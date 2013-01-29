@@ -217,7 +217,7 @@ class AbonApiClass(object):
                     service = abonent.catv_card.services.all()[0].tp_id
                 except:
                     service = 0
-                data = str(abonent.address.generated) + "0" + str(service)
+                data = str(abonent.address.generated) + str(service)
         else:
             return dict(success=False, title='Сбой генерации', msg='wrong data', errors='')
         return dict(success=True, title="Сгенерировано", msg=('generated'), data=data)

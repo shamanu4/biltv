@@ -373,7 +373,7 @@ class Address(models.Model):
 
     @property
     def generated(self):
-        return "%s%s" % (self.building.get_code(), '0' * (3-len(str(self.flat))) + str(self.flat))
+        return "%s%s" % (self.building.get_code(), '0' * (3-len(str(self.flat))) + str(self.flat)) + str(self.flat_ext)
 
     @staticmethod
     def clean_flat_other(flat_other):
