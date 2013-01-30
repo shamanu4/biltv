@@ -1010,6 +1010,7 @@ class AbillsLink(models.Model):
     def check(cls,abonent,abills,card,service):
         from django.db.models import Q
         print "abills linking check"
+        print (abonent,abills,card,service)
         if not cls.exists(abonent,abills,card,service):
             if not cls.conflicts(abonent,abills,card,service):
                 print "creating new link"
