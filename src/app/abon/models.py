@@ -1016,7 +1016,10 @@ class AbillsLink(models.Model):
                 cls.create(abonent,abills,card,service)
             else:
                 print "link for %s conflicts with other" % abonent
-                print cls.objects.filter(Q(abonent=abonent)|Q(abills=abills)|Q(card=card)|Q(service=service))
+                print "abonent %s" % cls.objects.filter(abonent=abonent)
+                print "abills %s" % cls.objects.filter(abills=abills)
+                print "card %s" % cls.objects.filter(card=card)
+                print "service %s" % cls.objects.filter(service=service)
         else:
             obj =  cls.objects.get(abonent=abonent,abills=abills,card=card,service=service)
             obj.sync()
