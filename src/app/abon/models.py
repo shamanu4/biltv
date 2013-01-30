@@ -959,8 +959,8 @@ class AbillsLink(models.Model):
 
     abonent = models.ForeignKey(Abonent, unique=True)
     abills = models.ForeignKey("abills.User", unique=True)
-    card = models.ForeignKey("tv.Card", unique=True)
-    service = models.ForeignKey("tv.CardService", unique=True)
+    card = models.ForeignKey("tv.Card", unique=True, related_name="abills_links")
+    service = models.ForeignKey("tv.CardService", unique=True, related_name="abills_links")
 
     class Meta:
         pass

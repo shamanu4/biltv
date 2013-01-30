@@ -969,7 +969,8 @@ class Card(models.Model):
                 action = CARD_OWNER_ADDED
                 oid = self.owner.pk
         else:
-            if not old.owner == self.owner:                
+            if not old.owner == self.owner:
+                self.abills_links.all().delete()
                 if old.owner:
                     if not self.owner:
                         action = CARD_OWNER_REMOVED
@@ -1011,6 +1012,7 @@ class Card(models.Model):
                 del kwargs['deactivation_processed']
         else:
             if not self.owner and self.pk:
+                self.abills_links.all().delete()
                 self.detach()
                 self.deactivate()
         
@@ -1326,6 +1328,7 @@ class CardService(models.Model):
                     if self.card.num>0:
                         self.card.send_one()
                     return False
+                self.abills_links.all().delete()
                 if not old.active == self.active:
                     if self.active:
                         action = CARD_SERVICE_ACTIVATED
