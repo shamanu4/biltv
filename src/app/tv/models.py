@@ -970,7 +970,9 @@ class Card(models.Model):
                 oid = self.owner.pk
         else:
             if not old.owner == self.owner:
-                self.abills_links.all().delete()
+                for link in self.abills_links.all():
+                    print "deleting link %s" % link
+                    link.delete()
                 if old.owner:
                     if not self.owner:
                         action = CARD_OWNER_REMOVED
@@ -1328,7 +1330,9 @@ class CardService(models.Model):
                     if self.card.num>0:
                         self.card.send_one()
                     return False
-                self.abills_links.all().delete()
+                for link in self.abills_links.all():
+                    print "deleting link %s" % link
+                    link.delete()
                 if not old.active == self.active:
                     if self.active:
                         action = CARD_SERVICE_ACTIVATED

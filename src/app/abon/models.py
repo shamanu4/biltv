@@ -981,6 +981,7 @@ class AbillsLink(models.Model):
         bill.sync = 0
         bill.save()
         self.abills.admin_log('Unlinked from TV billing. deposit set to %s UAH' % (bill.sync,), datetime.now())
+        print ('Unlinked from TV billing. deposit set to %s UAH' % (bill.sync,), datetime.now())
         super(self.__class__, self).delete(*args, **kwargs)
 
     @classmethod
