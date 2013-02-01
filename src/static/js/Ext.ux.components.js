@@ -1447,12 +1447,12 @@ Ext.ux.AddressForm = Ext.extend(Ext.FormPanel, {
 			this.form_flat_field = {
                 fieldLabel: 'Квартира',
                 name: 'flat',
-                allowBlank:false,
+                allowBlank:false
             },
 			this.form_ext_field = {
                 fieldLabel: 'Номер счёта',
                 name: 'ext',
-                allowBlank:false
+                allowBlank:true
             },
             this.form_generate_field = {
                 xtype: 'button',

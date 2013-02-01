@@ -129,7 +129,7 @@ class AbonApiClass(object):
         if ok:
             return dict(success=True, data=result)
         else:
-            return dict(success=False, title="Ошибка записи", msg=msg, data={})
+            return dict(success=False, title="Ошибка записи !!", msg=msg, data={})
 
     address_set._form_handler = True
 
@@ -219,7 +219,7 @@ class AbonApiClass(object):
                     service = 0
                 data = str(abonent.address.generated) + str(service)
         else:
-            return dict(success=False, title='Сбой генерации', msg='wrong data', errors='')
+            return dict(success=False, title='Сбой генерации', msg='Абонент должен быть сохранен перед генерацией счета', errors='')
         return dict(success=True, title="Сгенерировано", msg=('generated'), data=data)
 
     regenerate._args_len = 1

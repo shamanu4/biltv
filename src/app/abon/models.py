@@ -365,7 +365,7 @@ class Address(models.Model):
     def get_code(self):
         if self.override and len(self.override)>0:
             return self.override
-        return "%s%s%s" % (self.building.get_code(), '0' * (3-len(str(self.flat))) + str(self.flat), self.code)
+        return self.generated
 
     @property
     def ordernum(self):
@@ -424,7 +424,7 @@ class Address(models.Model):
     def save(self, *args, **kwargs):
         if self.flat_ext_type ==3:
             raise Exception, "Invalid flat data format. Accepting: [digit]{1,3} or [digit]{1,3}[alpha]{1} or [digit]{1,3}/[digit]{1,2}"
-        if self.override == 0:
+        if not self.override:
             self.override = self.get_code()
         self.sorting = unicode("%s%s, %s, %s %s" % (self.building.street.city.label, self.building.street.name, self.building.house.num, u'кв.', self.flat_extended))
         super(self.__class__, self).save(*args,**kwargs)

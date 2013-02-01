@@ -50,7 +50,9 @@ def handle_uploaded_file(f,table,fields):
         try:
             cursor.execute(query)
         except Exception,e:
+            print e
             errors.append((query,e))
+    return errors
 
 @render_to('data/txt2sql.html')
 def txt2sql(request):

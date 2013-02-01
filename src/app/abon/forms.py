@@ -148,7 +148,7 @@ class AddressForm(forms.Form):
     street = forms.CharField(required=True, max_length=40)
     house = forms.CharField(required=True, max_length=40)
     flat = forms.CharField(required=True, max_length=40)
-    ext = forms.CharField(required=True, max_length=20)
+    ext = forms.CharField(required=False, max_length=20)
     deleted = forms.BooleanField(required=False)
     comment = forms.CharField(required=False)
     
