@@ -125,7 +125,7 @@ INSTALLED_APPS = (
 )
 
 DIGITAL_CARD_ALLOW_DELETE = True
-PROGRAM_VERSION = 'v0.13.9p'
+PROGRAM_VERSION = 'v0.14.0p'
 
 #TODO: move this option in settings_local
 EXPORT_PATH = rel('..','export')
@@ -134,8 +134,8 @@ SCR1_IP = "192.168.17.40"
 SCR1_PORT = 49153
 NEGATIVE_SUM_LOCK = -25
 NEGATIVE_SUM_BACKUP = -50
-ALL_USERS_CREDIT = 1
-DEFAULT_CATV_TP_ID = 1
+ALL_USERS_CREDIT = 0
+DEFAULT_CATV_TP_ID = 4
 
 try:
     from settings_local import *

@@ -137,9 +137,9 @@ class House(models.Model):
 
     name = models.CharField(max_length=10)
     code = models.CharField(max_length=5)
-    num = models.PositiveSmallIntegerField()
-    korp = models.PositiveSmallIntegerField()
-    letter = models.CharField(max_length=1)
+    num = models.PositiveSmallIntegerField(null=True, blank=True)
+    korp = models.PositiveSmallIntegerField(null=True, blank=True)
+    letter = models.CharField(max_length=1,null=True, blank=True)
 
     class Meta:
         pass
@@ -190,7 +190,11 @@ class Street(models.Model):
             try:
                 a.save()
             except Exception,e:
-                print e
+                a = AbonStreet(name="%s-%s" % (entry.name,entry.pk),code=entry.code,city=city,id=entry.pk)
+                try:
+                    a.save()
+                except Exception,e:
+                    print e
 
 
 class Address(models.Model):
@@ -199,8 +203,8 @@ class Address(models.Model):
     house = models.ForeignKey(House)
     loft = models.CharField(max_length=10,blank=True,null=True)
     tel = models.CharField(max_length=40,blank=True,null=True)
+    faceorder = models.CharField(max_length=20,blank=True,null=True)
     remark = models.TextField(blank=True,null=True)
-    faceorder = models.CharField(max_length=13,blank=True,null=True)
     pereoform = models.BooleanField()
 
     class Meta:
@@ -221,6 +225,8 @@ class Address(models.Model):
                 a.comment = "%s\n%s" % (entry.tel or '',entry.remark or '')
                 a.save()
             except Exception,e:
+                print entry
+                print entry.pk
                 print e
             if entry.faceorder and not ( entry.faceorder[:-1] == a.ordernum or entry.faceorder == a.ordernum):
                 print "%s -> %sX" % (entry.faceorder,a.ordernum)
@@ -229,13 +235,18 @@ class Address(models.Model):
 class Person(models.Model):
 
     fio = models.CharField(max_length=60)
-    passport = models.CharField(max_length=20)
+    passport = models.CharField(max_length=20, blank=True, null=True)
 
     class Meta:
         pass
 
     def __unicode__(self):
         return self.fio
+
+    def save(self, *args, **kw):
+        if not self.passport:
+            self.passport = "NO-PASSPORT-%s" % self.pk
+        super(Person,self).save(*args, **kw)
 
     @classmethod
     def export(cls):
@@ -265,6 +276,7 @@ class Abonent(models.Model):
     def export(cls):
         from abon.models import Abonent as AbonAbonent, Address as AbonAddress, Person as AbonPerson, Bill as AbonBill
         AbonAbonent.objects.all().delete()
+        AbonBill.objects.all().delete()
         data = cls.objects.all()
         for entry in data:
             try:
@@ -360,7 +372,7 @@ class AbonentCat(models.Model):
                 print "tp id % does not exist" % entry.category_id
                 continue
             service.tp =tp
-            service.save()
+            service.save(chtp=1)
             if entry.abonent.active:
                 card.activate(activated=today)
 
@@ -388,6 +400,25 @@ class Balans(models.Model):
 
     def __unicode__(self):
         return "%s : %s" % (self.abonent.__unicode__(),self.sum)
+
+    @classmethod
+    def export(cls):
+        from tv.models import Payment
+        from abon.models import Abonent as AbonAbonent
+        for entry in cls.objects.all():
+            try:
+                print entry.abonent
+            except:
+                print "abonent %s does not exist" % entry.abonent_id
+                continue
+            try:
+                a = AbonAbonent.objects.get(extid=entry.abonent.pk)
+            except Exception,e:
+                print e
+                continue
+            p = Payment(bill=a.bill,sum=entry.sum)
+            p.save()
+            p.make()
 
 
 

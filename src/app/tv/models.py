@@ -1249,7 +1249,7 @@ class CardService(models.Model):
             oid = self.tp.pk
         else:
             old = CardService.objects.get(pk=self.pk)
-            if not old.tp.pk == self.tp.pk and not chtp:
+            if not chtp and not old.tp.pk == self.tp.pk:
                 dt = self.activated
                 act = old.active
                 if act:

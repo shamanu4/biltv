@@ -22,12 +22,19 @@ def handle_uploaded_file(f,table,fields):
     chunk = ""
     errors = []
     money = re.compile("(\-?)(\d+)\,(\d*)\S\.")
+    lines = 0
+    queries = 0
     for line in f:
+        lines += 1
         line = line.decode('windows-1251')
         line = "%s%s" % (chunk,line)
         chunk = ""
         if line.count('"') % 2:
             chunk = line
+            print "CHUNK %s" % chunk
+            continue
+        if line.find(";")<0:
+            print "EMPTY LINE %s" % line
             continue
         data = line.split(";")
         clear_list = []
@@ -46,13 +53,14 @@ def handle_uploaded_file(f,table,fields):
             else:
                 clear_list.append(d)
         query = "INSERT INTO %s VALUES (%s)" % (table,",".join(clear_list))
-        print query
+#        print query
+        queries += 1
         try:
             cursor.execute(query)
         except Exception,e:
             print e
             errors.append((query,e))
-    return errors
+    return errors, lines, queries
 
 @render_to('data/txt2sql.html')
 def txt2sql(request):
@@ -61,8 +69,12 @@ def txt2sql(request):
     if request.method == 'POST':
         f = DataFileForm(request.POST)
         if f.is_valid() and request.FILES:
-            errs = handle_uploaded_file(request.FILES['txt'],f.cleaned_data['table'],f.cleaned_data['fields'])
-            return {'errors':errs}
+            errs, lines, queries = handle_uploaded_file(request.FILES['txt'],f.cleaned_data['table'],f.cleaned_data['fields'])
+            return {
+                'errors':errs,
+                'lines':str(lines),
+                'queries':str(queries)
+            }
         else:
             return {'form':f}
 

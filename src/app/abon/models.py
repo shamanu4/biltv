@@ -351,8 +351,6 @@ class Address(models.Model):
     @classmethod
     def get_or_create_cls(cls,street,house,flat,override=0):
         flat, flat_ext, flat_ext_type = cls.clean_flat_other(flat)
-        print "cls"
-        print (flat, flat_ext, flat_ext_type)
         building = Building.get_or_create_cls(street,house)
         if not override:
             override=0
