@@ -54,9 +54,9 @@ class Person(models.Model):
         self.lastname = self.lastname.capitalize()
         self.middlename = self.middlename.capitalize()
         self.sorting = self.fio_short()
-        for abonent in self.abonents.all():
-            if abonent.pk:
-                abonent.save()
+#        for abonent in self.abonents.all():
+#            if abonent.pk:
+#                abonent.save()
         super(self.__class__, self).save(*args, **kwargs)
 
     def fio_set(self):
