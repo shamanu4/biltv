@@ -723,18 +723,21 @@ class Abonent(models.Model):
         return "%s" % (self.address.get_code())
 
     def create_catv_card(self):
+        print "create catv card"
         from tv.models import Card, CardService, TariffPlan
         from settings import DEFAULT_CATV_TP_ID
         try:
             t = TariffPlan.objects.get(pk=DEFAULT_CATV_TP_ID)
         except TariffPlan.DoesNotExist:
             return False
+        print "TP %s" % t
         try:
             c = Card.objects.get(num=-self.pk)
         except Card.DoesNotExist:
             c = Card()
         else:
             c.detach()
+        print "CARD %s" % c
         c.num = -self.pk
         c.owner=self
         c.save()
@@ -742,6 +745,7 @@ class Abonent(models.Model):
         s.card = c
         s.tp = t
         s.save()
+        print "SERVICE %s %s %s" % (s, s.card, s.tp)
         #c.activate(self.activated)
         return True
 

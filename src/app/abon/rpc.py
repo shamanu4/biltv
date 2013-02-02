@@ -136,6 +136,7 @@ class AbonApiClass(object):
     @check_perm('accounts.rpc_abon_abonent_get')
     def abonent_get(self, rdata, request):
         from abon.models import Abonent
+        from django.conf import settings
         if 'uid' in rdata and rdata['uid']>0:
             try:
                 a=Abonent.objects.get(pk=rdata['uid'])
@@ -143,8 +144,9 @@ class AbonApiClass(object):
                 return dict(success=False, title='Сбой загрузки формы', msg='abonent not found', errors='')
             else:
                 return dict(success=True, data=[a.store_record()])
-        elif 'code' in rdata:
-            a=Abonent.objects.filter(code__iexact=rdata['code'])
+        elif 'code' in rdata and rdata['code']:
+            code = str(rdata['code'])[:settings.ABONENT_CODE_LOOKUP_MAX_LENGTH]
+            a=Abonent.objects.filter(code__istartswith=code)
             if a.count()>1:
                 a.filter(disabled__exact=False)
             if a.count()==0:
@@ -161,8 +163,10 @@ class AbonApiClass(object):
     @store_read
     def abonent_get_by_code(self, rdata, request):
         from abon.models import Abonent
-        if 'code' in rdata:
-            res =  Abonent.objects.filter(code__iexact=rdata['code']).order_by('disabled')
+        from django.conf import settings
+        if 'code' in rdata and rdata['code']:
+            code = str(rdata['code'])[:settings.ABONENT_CODE_LOOKUP_MAX_LENGTH]
+            res =  Abonent.objects.filter(code__istartswith=code).order_by('disabled')
             if 'filter_disabled' in rdata and rdata['filter_disabled']:
                 if not request.user.has_perm('abon.can_manage_disabled_abonents'):
                     res = res.filter(disabled__exact=False)
@@ -213,11 +217,12 @@ class AbonApiClass(object):
             except Abonent.DoesNotExist:
                 return dict(success=False, title='Сбой генерации', msg='abonent not found', errors='')
             else:
-                try:
-                    service = abonent.catv_card.services.all()[0].tp_id
-                except:
-                    service = 0
-                data = str(abonent.address.generated) + str(service)
+#                try:
+#                    service = abonent.catv_card.services.all()[0].tp_id
+#                except:
+#                    service = 0
+#                data = str(abonent.address.generated) + str(service)
+                data = str(abonent.address.generated)
         else:
             return dict(success=False, title='Сбой генерации', msg='Абонент должен быть сохранен перед генерацией счета', errors='')
         return dict(success=True, title="Сгенерировано", msg=('generated'), data=data)

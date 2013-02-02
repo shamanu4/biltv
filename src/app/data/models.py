@@ -365,6 +365,9 @@ class AbonentCat(models.Model):
                 print "abonent %s does not exist" % entry.abonent_id
                 continue
             card = a.catv_card
+            if not card:
+                a.create_catv_card()
+                card = a.catv_card
             service = card.services.get()
             try:
                 tp = TariffPlan.objects.get(comment=entry.category_id)

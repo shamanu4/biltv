@@ -6,5 +6,6 @@
 *.txt*
 .idea
 .settings
+.venv/*
 settings_local.py
 nbproject

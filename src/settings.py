@@ -125,7 +125,7 @@ INSTALLED_APPS = (
 )
 
 DIGITAL_CARD_ALLOW_DELETE = True
-PROGRAM_VERSION = 'v0.14.0p'
+PROGRAM_VERSION = 'v0.14.1p'
 
 #TODO: move this option in settings_local
 EXPORT_PATH = rel('..','export')
@@ -136,6 +136,7 @@ NEGATIVE_SUM_LOCK = -25
 NEGATIVE_SUM_BACKUP = -50
 ALL_USERS_CREDIT = 0
 DEFAULT_CATV_TP_ID = 4
+ABONENT_CODE_LOOKUP_MAX_LENGTH=12
 
 try:
     from settings_local import *
