@@ -3310,7 +3310,7 @@ Ext.ux.FeeForm = Ext.extend(Ext.Panel ,{
 							fieldLabel: 'Описание',							
 						}),
 						this.allowzero = new Ext.form.Checkbox({
-							fieldLabel: 'Разрешить 0',							
+							fieldLabel: 'Разрешить <=0',
 						}),		
 						this.autopay = new Ext.form.Checkbox({
 							fieldLabel: 'Автопополнение',							
