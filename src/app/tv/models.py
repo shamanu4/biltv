@@ -629,7 +629,10 @@ class Fee(models.Model):
         except:
             return False
         else:
-            return True
+            if self.rolled_by:
+                return True
+            else:
+                return False
 
     def rollback(self):
         if not self.rolled:
