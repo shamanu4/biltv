@@ -146,12 +146,12 @@ class FeeIntervals(models.Model):
 class FeeType(models.Model):
 
     FEE_TYPES = (
-        (FEE_TYPE_DAILY, u'daily'),
-        (FEE_TYPE_WEEKLY, u'weekly'),
+#        (FEE_TYPE_DAILY, u'daily'),
+#        (FEE_TYPE_WEEKLY, u'weekly'),
         (FEE_TYPE_MONTHLY, u'monthly'),
-        (FEE_TYPE_YEARLY, u'yearly'),
+#        (FEE_TYPE_YEARLY, u'yearly'),
         (FEE_TYPE_ONCE, u'once'),
-        (FEE_TYPE_CUSTOM, u'custom'),
+#        (FEE_TYPE_CUSTOM, u'custom'),
     )
 
     name = models.CharField(max_length=32,default='fee type')
@@ -627,10 +627,12 @@ class Fee(models.Model):
         try:
             self.fee
         except Fee.DoesNotExist:
-            if self.rolled_by:
-                return True
-            else:
+            try:
+                self.rolled_by
+            except:
                 return False
+            else:
+                return True
         else:
             return True
 
