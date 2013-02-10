@@ -952,7 +952,7 @@ class Card(models.Model):
         if old and not action == None:
             c = CardHistory()
             c.card = self
-            c.date = sdate
+            c.date = sdate or date.today()
             c.action = action
             c.oid = oid
             c.descr = descr
