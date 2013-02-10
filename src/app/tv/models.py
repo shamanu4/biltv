@@ -625,14 +625,9 @@ class Fee(models.Model):
     @property
     def rolled(self):
         try:
-            self.fee
-        except Fee.DoesNotExist:
-            try:
-                self.rolled_by
-            except:
-                return False
-            else:
-                return True
+            self.rolled_by
+        except:
+            return False
         else:
             return True
 
