@@ -1466,10 +1466,13 @@ class FeesCalendar(models.Model):
     def check_next_fee(cls,date):
         from lib.functions import date_formatter
         month = date_formatter(date)['month']
-        if cls.get_last_fee_date().timestamp < month.date():
+        try:
+            if cls.get_last_fee_date().timestamp < month.date():
+                return True
+            else:
+                return False
+        except:
             return True
-        else:
-            return False
           
     @classmethod
     def make_fees(cls,date):
