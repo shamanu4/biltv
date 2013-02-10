@@ -766,7 +766,7 @@ class Abonent(models.Model):
     def make_fees(self,date):
         if self.deleted or self.disabled:
             return False
-        for card in self.cards.all():
+        for card in self.cards.filter(active=True):
             card.make_fees(date)
         return True
 

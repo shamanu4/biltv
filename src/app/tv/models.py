@@ -1070,7 +1070,7 @@ class Card(models.Model):
     def make_fees(self,date):
         if not self.active or self.deleted:
             return False
-        for service in self.services.all():
+        for service in self.services.filter(active=True):
             service.make_fees(date)
     
     def check_past_deactivation(self,deactivated):
@@ -1353,14 +1353,14 @@ class CardService(models.Model):
         print self.active
         if not self.active:
             fees = self.tp.fees.all()
-            (ok,prepared,total) = self.check_negative(fees,activated,(FEE_TYPE_ONCE, FEE_TYPE_CUSTOM))
+            (ok,prepared,total) = self.check_negative(fees,activated,(FEE_TYPE_DAILY, FEE_TYPE_WEEKLY, FEE_TYPE_MONTHLY, FEE_TYPE_YEARLY))
             if ok:
                 self.active=True
                 self.activated=activated or date.today()
             else:
                 self.deactivate()
                 return False
-            self.promotion_on(activated)
+#            self.promotion_on(activated)
             self.save(sdate=activated,descr=descr,no_log=no_log)
         if isinstance(activated,datetime):
             activated = activated.date()
@@ -1372,11 +1372,11 @@ class CardService(models.Model):
         print 'deactivating service'
         print deactivated
         if self.active:
-            fees = self.tp.fees.filter(Q(fee_type__ftype__exact=FEE_TYPE_CUSTOM)|Q(fee_type__proportional__exact=True,fee_type__ftype__exact=FEE_TYPE_ONCE))
-            for fee in fees:
-                fee.make_ret(self.card,deactivated)
+#            fees = self.tp.fees.filter(Q(fee_type__ftype__exact=FEE_TYPE_CUSTOM)|Q(fee_type__proportional__exact=True,fee_type__ftype__exact=FEE_TYPE_ONCE))
+#            for fee in fees:
+#                fee.make_ret(self.card,deactivated)
             self.active=False
-            self.promotion_off(deactivated)
+#            self.promotion_off(deactivated)
             self.save(sdate=deactivated,descr=descr)
         return True
     
