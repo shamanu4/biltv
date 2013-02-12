@@ -56,7 +56,7 @@ def abonlist(request):
                 if ab.disabled:
                     continue
                 if ab.cards.count()>1:
-                    l.append("&nbsp;&nbsp;&nbsp;%s&nbsp;&nbsp;%s (&#1062;&#1080;&#1092;&#1088;&#1072;)" % (a.flat,"%s" % ab.person.fio_short()))
+                    l.append("&nbsp;&nbsp;&nbsp;%s&nbsp;&nbsp;%s (&#1062;&#1080;&#1092;&#1088;&#1072;)" % (a.flat or "","%s" % ab.person.fio_short()))
                 else:
                     l.append("&nbsp;&nbsp;&nbsp;%s&nbsp;&nbsp;%s" % (a.flat or "","%s" % ab.person.fio_short()))
         if len(l):
@@ -115,7 +115,7 @@ def abonlist_d(request):
                 if ab.disabled:
                     continue
                 if ab.cards.count()>1:
-                    l.append("&nbsp;&nbsp;&nbsp;%s&nbsp;&nbsp;%s (&#1062;&#1080;&#1092;&#1088;&#1072;)" % (a.flat,"%s" % ab.person.fio_short()))
+                    l.append("&nbsp;&nbsp;&nbsp;%s&nbsp;&nbsp;%s (&#1062;&#1080;&#1092;&#1088;&#1072;)" % (a.flat or "","%s" % ab.person.fio_short()))
                 else:
                     pass
         if len(l):
