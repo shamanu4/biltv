@@ -50,16 +50,86 @@ def abonlist(request):
     from app.abon.models import Building
     lines = []
     for b in Building.objects.all():
-        lines.append("")
-        lines.append(b)
+        l = []
         for a in b.addresses.all().order_by('flat'):
             for ab in a.abonents.all():
                 if ab.disabled:
                     continue
                 if ab.cards.count()>1:
-                    lines.append("&nbsp;&nbsp;&nbsp;%s&nbsp;%s (&#1062;&#1080;&#1092;&#1088;&#1072;)" % (a.flat,"%s" % ab.person.fio_short()))
+                    l.append("&nbsp;&nbsp;&nbsp;%s&nbsp;&nbsp;%s (&#1062;&#1080;&#1092;&#1088;&#1072;)" % (a.flat,"%s" % ab.person.fio_short()))
                 else:
-                    lines.append("&nbsp;&nbsp;&nbsp;%s&nbsp;%s" % (a.flat,"%s" % ab.person.fio_short()))
+                    l.append("&nbsp;&nbsp;&nbsp;%s&nbsp;&nbsp;%s" % (a.flat or "","%s" % ab.person.fio_short()))
+        if len(l):
+            lines.append(
+                [b,l]
+            )
+    res = []
+
+    for chapter in lines:
+        header,ll = chapter
+        res.append("")
+        res.append("<b>%s</b>" % header)
+        for l in ll:
+            res.append(l)
     return {
-        'lines':lines
+        'lines':res
+    }
+
+@login_required
+@render_to('ui/abonlist.html')
+def abonlist_c(request):
+    from app.abon.models import Building
+    lines = []
+    for b in Building.objects.all():
+        l = []
+        for a in b.addresses.all().order_by('flat'):
+            for ab in a.abonents.all():
+                if ab.disabled:
+                    continue
+                l.append("&nbsp;&nbsp;&nbsp;%s&nbsp;&nbsp;%s" % (a.flat or "","%s" % ab.person.fio_short()))
+        if len(l):
+            lines.append(
+                [b,l]
+            )
+    res = []
+
+    for chapter in lines:
+        header,ll = chapter
+        res.append("")
+        res.append("<b>%s</b>" % header)
+        for l in ll:
+            res.append(l)
+    return {
+        'lines':res
+    }
+
+@login_required
+@render_to('ui/abonlist.html')
+def abonlist_d(request):
+    from app.abon.models import Building
+    lines = []
+    for b in Building.objects.all():
+        l = []
+        for a in b.addresses.all().order_by('flat'):
+            for ab in a.abonents.all():
+                if ab.disabled:
+                    continue
+                if ab.cards.count()>1:
+                    l.append("&nbsp;&nbsp;&nbsp;%s&nbsp;&nbsp;%s (&#1062;&#1080;&#1092;&#1088;&#1072;)" % (a.flat,"%s" % ab.person.fio_short()))
+                else:
+                    pass
+        if len(l):
+            lines.append(
+                [b,l]
+            )
+    res = []
+
+    for chapter in lines:
+        header,ll = chapter
+        res.append("")
+        res.append("<b>%s</b>" % header)
+        for l in ll:
+            res.append(l)
+    return {
+        'lines':res
     }
