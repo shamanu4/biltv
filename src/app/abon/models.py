@@ -1108,4 +1108,3 @@ class AbillsLink(models.Model):
             bill.save()
         else:
             print "nothing to do"
-
