@@ -3369,7 +3369,7 @@ Ext.ux.FeeForm = Ext.extend(Ext.Panel ,{
                 }
             },
             submitaction: function() {
-            				if(this.feetype<1) {
+            				if(!this.feetype) {
 								Ext.ux.msg('Ошибка ввода',"выберите тип снятия",Ext.Msg.ERROR)
 								return false
 							}

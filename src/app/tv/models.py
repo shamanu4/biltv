@@ -546,7 +546,8 @@ class Payment(models.Model):
             r.rolled_by = self
             r.timestamp = self.timestamp
             r.save()
-            r.make()            
+            r.make()
+            self.source = None
             self.rolled_by=r
             self.save()
             return (True,r)
@@ -608,7 +609,8 @@ class Fee(models.Model):
         if self.maked:
             return (True,self)
         self.prev = self.bill.balance_get()
-        if self.fee_type and not self.fee_type.allow_negative:
+        # if self.fee_type and not self.fee_type.allow_negative:
+        if self.card and self.card.num>0:
             if self.sum > 0 and ((self.bill.balance_get() - self.sum) < -1):
                 self.descr = "Not enough money (%s < %s)" % (self.bill.balance_get(),self.sum)
                 self.save()
@@ -617,9 +619,12 @@ class Fee(models.Model):
         self.maked=True
         self.save()
         self.bill.save(last_operation_date=self.timestamp)
-        if self.bonus and self.card:
-            print "fee promotion"
-            self.card.promotion(self)
+        # if self.bonus and self.card:
+        #     print "fee promotion"
+        #     self.card.promotion(self)
+        if self.card and self.card.num>0 and not self.rolled:
+            for fee in self.__class__.objects.filter(card=self.card.owner.catv_card,timestamp=self.timestamp):
+                fee.rollback()
         return (True,self)
 
     @property
@@ -717,28 +722,28 @@ class TariffPlanFeeRelationship(models.Model):
         if self.fee_type.ftype == FEE_TYPE_DAILY:
             c = my_maked_fees.filter(timestamp__gte=date['day'])
             if c.count()>0:
-                return (False,"Fee already maked")
+                return (True,c[0],"Fee already maked")
             else:
                 return self.make_fee(card,date['day'],**kwargs)
 
         if self.fee_type.ftype == FEE_TYPE_WEEKLY:
             c = my_maked_fees.filter(timestamp__gte=date['week'])
             if c.count()>0:
-                return (False,"Fee already maked")
+                return (True,c[0],"Fee already maked")
             else:
                 return self.make_fee(card,date['week'],**kwargs)
 
         if self.fee_type.ftype == FEE_TYPE_MONTHLY:
             c = my_maked_fees.filter(timestamp__gte=date['month'])
             if c.count()>0:
-                return (False,"Fee already maked")
+                return (True,c[0],"Fee already maked")
             else:
                 return self.make_fee(card,date['month'],**kwargs)
 
         if self.fee_type.ftype == FEE_TYPE_YEARLY:
             c = my_maked_fees.filter(timestamp__gte=date['year'])
             if c.count()>0:
-                return (False,"Fee already maked")
+                return (True,c[0],"Fee already maked")
             else:
                 return self.make_fee(card,date['year'],**kwargs)
 
@@ -1068,6 +1073,10 @@ class Card(models.Model):
         self.services.all().delete()
         
     def make_fees(self,date):
+        for sched in self.sched.filter(date__lte=date):
+            sched.service_old.tp = sched.service_new
+            sched.service_old.save()
+            sched.delete()
         if not self.active or self.deleted:
             return False
         for service in self.services.filter(active=True):
@@ -1337,6 +1346,12 @@ class CardService(models.Model):
             for fee in prepared:
                 allow_negative = allow_negative and fee.fee_type.allow_negative
                 total += fee.sum
+
+            if self.card.num > 0:
+                allow_negative = False
+            else:
+                allow_negative = True
+
             if allow_negative or (total>0 and self.card.balance - total >-1):
                 for fee in prepared:
                     ok = ok and fee.make()[0]
@@ -1483,7 +1498,20 @@ class FeesCalendar(models.Model):
             month = date_formatter(date)['month']
             cls.make_fees(month)            
             instance = cls(timestamp=month)
-            instance.save()    
+            instance.save()
+
+    @classmethod
+    def make_test_fees(cls,date,abonent_id):
+        from abon.models import Abonent
+        active = Abonent.objects.filter(pk=abonent_id, disabled__exact=False, deleted__exact=False)
+        for abonent in active:
+            abonent.make_fees(date)
+
+    @classmethod
+    def push_next_test_fee(cls,date,abonent_id):
+        from lib.functions import date_formatter
+        month = date_formatter(date)['month']
+        cls.make_test_fees(month,abonent_id)
     
     
     
@@ -1521,7 +1549,7 @@ class TpScheduler(models.Model):
 
     date = models.DateField()
     _type = models.PositiveSmallIntegerField(choices=SCHED_TYPES)
-    card = models.ForeignKey(Card)
+    card = models.ForeignKey(Card, related_name="sched")
     service_old = models.ForeignKey(CardService, blank=True, null=True, related_name="sched_old")
     service_new = models.ForeignKey(TariffPlan, blank=True, null=True, related_name="sched_new")
     manager = models.ForeignKey("accounts.User")

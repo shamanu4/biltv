@@ -749,6 +749,18 @@ class Abonent(models.Model):
         #c.activate(self.activated)
         return True
 
+    @property
+    def have_digital_service(self):
+        have = False
+        for c in self.cards.filter(num__gt=0):
+            if have:
+                break
+            for s in c.services.all():
+                if s.active:
+                    have = True
+                    break
+        return have
+
     def save(self, *args, **kwargs):
         try:
             self.bill
@@ -764,10 +776,18 @@ class Abonent(models.Model):
             self.create_catv_card()
 
     def make_fees(self,date):
+        from tv.models import Fee
         if self.deleted or self.disabled:
             return False
-        for card in self.cards.filter(active=True):
+        for card in self.cards.filter(active=True, num__gt=0):
             card.make_fees(date)
+            for fee in Fee.objects.filter(card=card,timestamp__lt=date, maked=False):
+                fee.timestamp = date
+                fee.save()
+                fee.make()
+        if not self.have_digital_service:
+            for card in self.cards.filter(active=True, num__lt=0):
+                card.make_fees(date)
         return True
 
     def was_active(self,date):

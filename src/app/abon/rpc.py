@@ -1185,6 +1185,8 @@ class AbonApiClass(object):
             else:                
                 if register.closed:
                     return dict(success=False, title='Сбой подтверждение платежей', msg='реестр закрыт', errors='', data={} )
+                elif not register.is_filled:
+                    return dict(success=False, title='Сбой подтверждение платежей', msg='реестр не заполнен', errors='', data={} )
                 else:
                     payments = register.payments.filter(maked__exact=False,deleted__exact=False)
                     count = payments.count()
