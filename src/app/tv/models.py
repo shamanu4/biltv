@@ -146,12 +146,12 @@ class FeeIntervals(models.Model):
 class FeeType(models.Model):
 
     FEE_TYPES = (
-        (FEE_TYPE_DAILY, u'daily'),
-        (FEE_TYPE_WEEKLY, u'weekly'),
+#        (FEE_TYPE_DAILY, u'daily'),
+#        (FEE_TYPE_WEEKLY, u'weekly'),
         (FEE_TYPE_MONTHLY, u'monthly'),
-        (FEE_TYPE_YEARLY, u'yearly'),
+#        (FEE_TYPE_YEARLY, u'yearly'),
         (FEE_TYPE_ONCE, u'once'),
-        (FEE_TYPE_CUSTOM, u'custom'),
+#        (FEE_TYPE_CUSTOM, u'custom'),
     )
 
     name = models.CharField(max_length=32,default='fee type')
@@ -630,14 +630,14 @@ class Fee(models.Model):
     @property
     def rolled(self):
         try:
-            self.fee
-        except Fee.DoesNotExist:
+            self.rolled_by
+        except:
+            return False
+        else:
             if self.rolled_by:
                 return True
             else:
                 return False
-        else:
-            return True
 
     def rollback(self):
         if not self.rolled:
@@ -960,7 +960,7 @@ class Card(models.Model):
         if old and not action == None:
             c = CardHistory()
             c.card = self
-            c.date = sdate
+            c.date = sdate or date.today()
             c.action = action
             c.oid = oid
             c.descr = descr
@@ -1479,10 +1479,13 @@ class FeesCalendar(models.Model):
     def check_next_fee(cls,date):
         from lib.functions import date_formatter
         month = date_formatter(date)['month']
-        if cls.get_last_fee_date().timestamp < month.date():
+        try:
+            if cls.get_last_fee_date().timestamp < month.date():
+                return True
+            else:
+                return False
+        except:
             return True
-        else:
-            return False
           
     @classmethod
     def make_fees(cls,date):

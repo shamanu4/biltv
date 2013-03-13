@@ -419,7 +419,7 @@ class Balans(models.Model):
             except Exception,e:
                 print e
                 continue
-            p = Payment(bill=a.bill,sum=entry.sum)
+            p = Payment(bill=a.bill,sum=entry.sum,admin_id=2)
             p.save()
             p.make()
 
