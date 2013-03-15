@@ -1355,7 +1355,7 @@ class CardService(models.Model):
             if allow_negative or (total>0 and self.card.balance - total >-1):
                 for fee in prepared:
                     ok = ok and fee.make()[0]
-            else:
+            elif total>0:
                 ok = False
                 for fee in prepared:
                     fee.inner_descr = "Not enough money (%s < %s)" % (self.card.balance,total)
