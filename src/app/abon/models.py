@@ -591,7 +591,7 @@ class Credit(models.Model):
     sum = models.FloatField(default=0)
     valid_from = models.DateField(default=date.today)
     valid_until = models.DateField(blank=True,null=True)
-    #valid = models.BooleanField(default=True)
+    #valid = models.BooleanField(default=True)dress
     manager = models.ForeignKey("accounts.User",blank=True,null=True)
 
     def __unicode__(self):

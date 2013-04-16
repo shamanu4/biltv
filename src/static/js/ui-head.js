@@ -414,6 +414,13 @@ Engine = {
                     Ext.getCmp('tab-panel').toolbars[0].add(grid);
                     Ext.getCmp('tab-panel').toolbars[0].add(grid);
                     Ext.getCmp('tab-panel').toolbars[0].doLayout();
+                },
+                send_all: function() {
+                    if(confirm("Переслать все карточки?")) {
+                        AbonApi.card_send_all({
+                            action:'confirm',
+                        });
+                    }
                 }
             }
         }

@@ -193,6 +193,10 @@ Ext.ux.menu = {
                     'text': 'Карточки'                    
                 },{
                     'text': 'Стволы'
+                },{
+                    'id': 'menu-scrambler-send-button',
+                    'handler': Engine.menu.scrambler.card.send_all,
+                    'text': 'Переслать все карточки'
                 },
             ]
         }

@@ -1304,3 +1304,12 @@ class AbonApiClass(object):
         return False
     
     report._args_len = 1
+
+    @check_perm("tv.manage_trunk")
+    def card_send_all(self, rdata, request):
+        from tv.models import CardDigital
+        for card in CardDigital.objects.all():
+            card.send()
+        return  dict(success=True, title='Переслано', msg='send %s cards' % CardDigital.objects.all().count() , errors='' )
+
+    card_send_all._args_len = 1
