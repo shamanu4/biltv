@@ -30,22 +30,24 @@ class RegisterForm(forms.Form):
     source = forms.IntegerField(required=True)
     total = forms.FloatField(required=True)
     closed = forms.BooleanField(required=False)
-    start = forms.DateField(required=True)
-    end = forms.DateField(required=True)
-    bank = forms.DateField(required=True)
+    start = forms.DateField(required=False)
+    end = forms.DateField(required=False)
+    bank = forms.DateField(required=False)
     
     def __init__(self,rdata):
         import re
         r = re.compile('(\d{4}\-\d{2}-\d{2}).*')
-        rtst = r.match(rdata['start'])
-        if rtst:
-            rdata['start'] = rtst.group(1)
-        rtst = r.match(rdata['end'])
-        if rtst:
-            rdata['end'] = rtst.group(1)
-        rtst = r.match(rdata['bank'])
-        if rtst:
-            rdata['bank'] = rtst.group(1)
+        if 'start' in rdata and 'end' in rdata:
+            rtst = r.match(rdata['start'])
+            if rtst:
+                rdata['start'] = rtst.group(1)
+            rtst = r.match(rdata['end'])
+            if rtst:
+                rdata['end'] = rtst.group(1)
+        if 'bank' in rdata:
+            rtst = r.match(rdata['bank'])
+            if rtst:
+                rdata['bank'] = rtst.group(1)
         super(self.__class__, self).__init__(rdata)
         
         
