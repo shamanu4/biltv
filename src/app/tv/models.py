@@ -367,8 +367,8 @@ class PaymentRegister(models.Model):
     source = models.ForeignKey("tv.PaymentSource")
     total = models.FloatField(default=0)
     closed = models.BooleanField(default=False)
-    start = models.DateField(default=date.today)
-    end = models.DateField(default=date.today)
+    start = models.DateField(blank=True,null=True)
+    end = models.DateField(blank=True,null=True)
     bank = models.DateField(blank=True,null=True)
             
     def __unicode__(self):

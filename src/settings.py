@@ -113,6 +113,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.admin',
+    'south',
     # 'django_extensions',          # optional, neede for development only
     'accounts',
     'logger',
@@ -122,8 +123,8 @@ INSTALLED_APPS = (
     'abills',
 )
 
-DIGITAL_CARD_ALLOW_DELETE = False
-PROGRAM_VERSION = 'v0.13.7'
+DIGITAL_CARD_ALLOW_DELETE = True
+PROGRAM_VERSION = 'v0.13.8'
 
 #TODO: move this option in settings_local
 EXPORT_PATH = rel('..','export')
