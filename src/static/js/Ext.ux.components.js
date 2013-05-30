@@ -787,7 +787,7 @@ Ext.ux.RegisterGrid = Ext.extend(Ext.ux.CustomGrid ,{
                 {header: "Id", dataIndex: 'id', width:70, editable:false},
                 {header: "Source", dataIndex: 'source', width:165, editable:false, editor: new Ext.ux.SourceCombo(),
 					renderer: function(value, metaData, record, rowIndex, colIndex, store){
-						if (value === undefined) {
+						if (true) {
 							this.editable = true
 						}
 						return value;
@@ -795,7 +795,7 @@ Ext.ux.RegisterGrid = Ext.extend(Ext.ux.CustomGrid ,{
                 },
                 {header: "Total", dataIndex: 'total', width:100, editable:false, editor: new Ext.form.TextField(),
 					renderer: function(value, metaData, record, rowIndex, colIndex, store){
-						if (value === undefined) {
+						if (true) {
 							this.editable = true
 						}
 						return value;
@@ -803,7 +803,7 @@ Ext.ux.RegisterGrid = Ext.extend(Ext.ux.CustomGrid ,{
 				},
                 {header: "Start", dataIndex: 'start', width:100, editable:false, editor: new Ext.form.DateField({format:'Y-m-d'}),
 					renderer: function(value, metaData, record, rowIndex, colIndex, store){
-						if (value === undefined) {
+						if (true) {
 							this.editable = true
 						}
 						return value;
@@ -820,7 +820,7 @@ Ext.ux.RegisterGrid = Ext.extend(Ext.ux.CustomGrid ,{
 				},
 				{header: "End", dataIndex: 'end', width:100, editable:false, editor: new Ext.form.DateField({format:'Y-m-d'}),
 					renderer: function(value, metaData, record, rowIndex, colIndex, store){
-						if (value === undefined) {
+						if (true) {
 							this.editable = true
 						}
 						return value;
@@ -828,7 +828,7 @@ Ext.ux.RegisterGrid = Ext.extend(Ext.ux.CustomGrid ,{
 				},
 				{header: "Bank", dataIndex: 'bank', width:100, editable:false, editor: new Ext.form.DateField({format:'Y-m-d'}),
 					renderer: function(value, metaData, record, rowIndex, colIndex, store){
-						if (value === undefined) {
+						if (true) {
 							this.editable = true
 						}
 						return value;

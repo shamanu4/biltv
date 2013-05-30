@@ -43,6 +43,7 @@ class User(BaseUser):
             ("rpc_abon_reg_payments_get", "RPC abon.reg_payments_get"),
             ("rpc_abon_reg_payments_delete", "RPC abon.reg_payments_delete"),
             ("rpc_abon_reg_payments_partially_confirm", "RPC abon.reg_payments_partially_confirm"),
+            ("rpc_abon_reg_change", "RPC abon.reg_change"),
             ("rpc_abon_history_delete", "RPC abon.history_delete"),
             ("rpc_abon_admins_get", "RPC abon.admins_get"),
             ("rpc_abon_comment_get", "RPC abon.comment_get"),

@@ -3,7 +3,7 @@
 from lib.extjs import RpcRouter, store_read, check_perm
 from tv.rpc import TvApiClass
 from abon.rpc import AbonApiClass
-
+from tv.models import PaymentRegister
 class MainApiClass(object):
 
     def is_authenticated(self, request):
@@ -74,8 +74,17 @@ class GridApiClass(object):
 
     @check_perm('accounts.rpc_update_generic_grid')
     def update(self,rdata,request):
+
+        """
+        dirty dirty hack
+        """
+        if self.model == PaymentRegister:
+            if not request.user.has_perm('accounts.rpc_abon_reg_change'):
+                return dict(success=False, title="Ошибка записи", msg="Только для чтения", data={})
+
         if not self.form:
             return dict(success=False, title="Ошибка записи", msg="Только для чтения", data={})
+
         result = []
         data = rdata['data']
         try:
@@ -91,6 +100,7 @@ class GridApiClass(object):
                 msg = res[2]
             else:
                 ok = False
+                print form._errors
                 msg = form._errors
         if ok:
             return dict(success=True, title="Сохранено", msg="saved", data=result)
