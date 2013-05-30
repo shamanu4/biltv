@@ -27,7 +27,7 @@ class CardForm(forms.Form):
 
 class RegisterForm(forms.Form):
     
-    source = forms.IntegerField(required=True)
+    source = forms.CharField(required=True, max_length=128)
     total = forms.FloatField(required=True)
     closed = forms.BooleanField(required=False)
     start = forms.DateField(required=False)
@@ -37,14 +37,14 @@ class RegisterForm(forms.Form):
     def __init__(self,rdata):
         import re
         r = re.compile('(\d{4}\-\d{2}-\d{2}).*')
-        if 'start' in rdata and 'end' in rdata:
+        if 'start' in rdata and 'end' in rdata and rdata['start'] and rdata['end']:
             rtst = r.match(rdata['start'])
             if rtst:
                 rdata['start'] = rtst.group(1)
             rtst = r.match(rdata['end'])
             if rtst:
                 rdata['end'] = rtst.group(1)
-        if 'bank' in rdata:
+        if 'bank' in rdata and rdata['bank']:
             rtst = r.match(rdata['bank'])
             if rtst:
                 rdata['bank'] = rtst.group(1)
@@ -54,9 +54,17 @@ class RegisterForm(forms.Form):
     def clean_source(self):
         from tv.models import PaymentSource
         try:
-            source = PaymentSource.objects.get(pk=self.cleaned_data['source'])
-        except PaymentSource.DoesNotExist:
-            raise forms.ValidationError("Source related object not exists.")
+            source_id = int(self.cleaned_data['source'])
+        except ValueError:
+            try:
+                source = PaymentSource.objects.get(name=self.cleaned_data['source'])
+            except PaymentSource.DoesNotExist:
+                raise forms.ValidationError("Source related object not exists.")
+        else:
+            try:
+                source = PaymentSource.objects.get(pk=source_id)
+            except PaymentSource.DoesNotExist:
+                raise forms.ValidationError("Source related object not exists.")
         return source
     
     def save(self,obj=None):

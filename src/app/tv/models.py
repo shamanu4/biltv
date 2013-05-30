@@ -417,7 +417,15 @@ class PaymentRegister(models.Model):
     def payments_maked_sum(self):
         from django.db.models import Sum
         return self.payments.filter(maked__exact=True).aggregate(payments_maked_sum=Sum('sum'))['payments_maked_sum']
-    
+
+    def save(self, *args, **kwargs):
+        if self.closed and (not self.is_confirmed or not self.is_filled):
+            self.closed = False
+            self.save()
+        if not self.closed:
+            self.try_close()
+        super(PaymentRegister, self).save(*args, **kwargs)
+
     def store_record(self):
         obj = {}
         obj['id'] = self.pk
