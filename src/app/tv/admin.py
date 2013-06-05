@@ -68,8 +68,13 @@ admin.site.register(TariffPlanFeeRelationship, TariffPlanFeeRelationshipAdmin)
 """
 FeeType
 """
+
+class FeeRangesInline(admin.TabularInline):
+    model = FeeRanges
+    extra = 1
+
 class FeeTypeAdmin(admin.ModelAdmin):
-    pass
+    inlines = (FeeRangesInline,)
 admin.site.register(FeeType, FeeTypeAdmin)
 
 
@@ -174,7 +179,7 @@ admin.site.register(FeeIntervals, FeeIntervalsAdmin)
 FeeRanges
 """
 class FeeRangesAdmin(admin.ModelAdmin):
-    pass
+    list_filter = ('fee_type','interval')
 admin.site.register(FeeRanges, FeeRangesAdmin)
 
 """
