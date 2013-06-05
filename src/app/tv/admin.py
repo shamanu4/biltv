@@ -161,11 +161,18 @@ admin.site.register(CardHistory, CardHistoryAdmin)
 """
 Fee
 """
+
+def rollback(modeladmin, request, queryset):
+    for fee in queryset:
+        fee.rollback()
+rollback.short_description = "Rollback selected fees"
+
 class FeeAdmin(admin.ModelAdmin):
     raw_id_fields=(
         'bill',
         'rolled_by',
     )
+    actions = [rollback,]
 admin.site.register(Fee, FeeAdmin)
 
 """
