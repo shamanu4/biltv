@@ -461,7 +461,7 @@ class Bill(models.Model):
 
     def restore_tp_check(self):
         if self.balance_get()>=0 and self.saved_services.filter(restored=False).count():
-            for s in self.saved_services.all():
+            for s in self.saved_services.filter(restored=False):
                 print "try to restore service %s" % s
                 if s.restore():
                     print "    restored"
