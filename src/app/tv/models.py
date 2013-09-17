@@ -1564,6 +1564,9 @@ class RestoreService(models.Model):
 
     def restore(self):
 
+        if self.restored:
+            return False
+
         self.restored=True
         self.restore_date=date.today()
         self.save()
