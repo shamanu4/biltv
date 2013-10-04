@@ -561,7 +561,7 @@ Ext.ux.illegal_store = new Ext.data.DirectStore({
 			'code',
             'date',
             'comment',
-            'active',
+            'deleted',
         ]
     }),
     writer: new Ext.data.JsonWriter({
