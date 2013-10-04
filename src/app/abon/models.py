@@ -446,6 +446,7 @@ class Bill(models.Model):
                 balance+=op.sum
 
     def checksum(self):
+        from django.core.mail import EmailMultiAlternatives
         calculated = self.balance_on_date(date=date(2999, 12, 31))
         current = self.balance_wo_credit
         if not calculated == current:
