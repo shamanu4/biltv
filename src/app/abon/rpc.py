@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from abon.models import Illegal
 
 from lib.extjs import store_read, check_perm
 from datetime import datetime, date
@@ -686,6 +687,71 @@ class AbonApiClass(object):
             return c.store_record()
         return {}
     abon_credit_update._args_len = 1
+
+    @check_perm('accounts.rpc_read_generic_grid')
+    @store_read
+    def abon_illegal_get(self,rdata,request):
+        from abon.models import Abonent, Illegal
+        uid = int(rdata['uid'])
+        if uid>0:
+            try:
+                abonent=Abonent.objects.get(pk=uid)
+            except Abonent.DoesNotExist:
+                return dict(success=False, title='Сбой загрузки нелегалов', msg='abonent not found', errors='', data={} )
+            return Illegal.objects.filter(code=abonent.address.override)
+        return {}
+    abon_illegal_get._args_len = 1
+
+    @check_perm('accounts.rpc_add_in_generic_grid')
+    @store_read
+    def abon_illegal_add(self,rdata,request):
+        from abon.models import Abonent, Credit
+        uid = int(rdata['uid'])
+        data = rdata['data']
+        if uid>0:
+            try:
+                abonent=Abonent.objects.get(pk=uid)
+            except Abonent.DoesNotExist:
+                return dict(success=False, title='Сбой добавления нелегала', msg='abonent not found', errors='', data={})
+            dt=data['date']
+            try:
+                dt = datetime.strptime(dt,'%Y-%m-%dT%H:%M:%S').date()
+            except ValueError:
+                return dict(success=False, title='Сбой добавления нелегала', msg='invalid date', errors='', data={} )
+            c = Illegal(code=abonent.address.override, date=dt, comment=data['comment'], deleted=data['deleted'])
+            c.save()
+            return c.store_record()
+        return {}
+    abon_illegal_add._args_len = 1
+
+    @check_perm('accounts.rpc_update_in_generic_grid')
+    @store_read
+    def abon_illegal_update(self,rdata,request):
+        from abon.models import Abonent, Illegal
+        from abon.forms import IllegalForm
+        uid = int(rdata['uid'])
+        print rdata
+        data = rdata['data']
+        if uid>0:
+            try:
+                abonent=Abonent.objects.get(pk=uid)
+            except Abonent.DoesNotExist:
+                return dict(success=False, title='Сбой изменения нелегала', msg='abonent not found', errors='', data={})
+            else:
+                data['code'] = abonent.address.override
+            try:
+                illegal=Illegal.objects.get(pk=int(data['id']))
+            except Illegal.DoesNotExist:
+                illegal = None
+                return dict(success=False, title='Сбой изменения нелегала', msg='illegal not found', errors='', data={})
+            form = IllegalForm(data, instance=illegal)
+            if form.is_valid():
+                res = form.save()
+                return res[1].store_record()
+            else:
+                return dict(success=False, title='Сбой изменения нелегала', msg=form.errors, errors='', data={})
+        return {}
+    abon_illegal_update._args_len = 1
 
     @check_perm('accounts.rpc_abon_registers_get')
     @store_read
