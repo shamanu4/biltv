@@ -1,9 +1,23 @@
-/*!
- * Ext JS Library 3.3.0
- * Copyright(c) 2006-2010 Ext JS, Inc.
- * licensing@extjs.com
- * http://www.extjs.com/license
- */
+/*
+This file is part of Ext JS 3.4
+
+Copyright (c) 2011-2013 Sencha Inc
+
+Contact:  http://www.sencha.com/contact
+
+GNU General Public License Usage
+This file may be used under the terms of the GNU General Public License version 3.0 as
+published by the Free Software Foundation and appearing in the file LICENSE included in the
+packaging of this file.
+
+Please review the following information to ensure the GNU General Public License version 3.0
+requirements will be met: http://www.gnu.org/copyleft/gpl.html.
+
+If you are unsure which license is appropriate for your use, please contact the sales department
+at http://www.sencha.com/contact.
+
+Build date: 2013-04-03 15:07:25
+*/
 /**
  * @class Ext.grid.RowSelectionModel
  * @extends Ext.grid.AbstractSelectionModel
@@ -119,7 +133,7 @@ Ext.grid.RowSelectionModel = Ext.extend(Ext.grid.AbstractSelectionModel,  {
             s = this.getSelections(),
             i = 0,
             len = s.length, 
-            index;
+            index, r;
             
         this.silent = true;
         this.clearSelections(true);
@@ -514,9 +528,7 @@ Ext.grid.RowSelectionModel = Ext.extend(Ext.grid.AbstractSelectionModel,  {
             r = newCell[0];
             c = newCell[1];
 
-            if(last.row != r){
-                this.selectRow(r); // *** highlight newly-selected cell and update selection
-            }
+            this.onEditorSelect(r, last.row);
 
             if(g.isEditor && g.editing){ // *** handle tabbing while editorgrid is in edit mode
                 ae = g.activeEditor;
@@ -526,6 +538,12 @@ Ext.grid.RowSelectionModel = Ext.extend(Ext.grid.AbstractSelectionModel,  {
                 }
             }
             g.startEditing(r, c);
+        }
+    },
+    
+    onEditorSelect: function(row, lastRow){
+        if(lastRow != row){
+            this.selectRow(row); // *** highlight newly-selected cell and update selection
         }
     },
     

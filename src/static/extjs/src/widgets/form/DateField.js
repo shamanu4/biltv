@@ -1,9 +1,23 @@
-/*!
- * Ext JS Library 3.3.0
- * Copyright(c) 2006-2010 Ext JS, Inc.
- * licensing@extjs.com
- * http://www.extjs.com/license
- */
+/*
+This file is part of Ext JS 3.4
+
+Copyright (c) 2011-2013 Sencha Inc
+
+Contact:  http://www.sencha.com/contact
+
+GNU General Public License Usage
+This file may be used under the terms of the GNU General Public License version 3.0 as
+published by the Free Software Foundation and appearing in the file LICENSE included in the
+packaging of this file.
+
+Please review the following information to ensure the GNU General Public License version 3.0
+requirements will be met: http://www.gnu.org/copyleft/gpl.html.
+
+If you are unsure which license is appropriate for your use, please contact the sales department
+at http://www.sencha.com/contact.
+
+Build date: 2013-04-03 15:07:25
+*/
 /**
  * @class Ext.form.DateField
  * @extends Ext.form.TriggerField
@@ -132,13 +146,13 @@ disabledDates: ["^03"]
 
     // PUBLIC -- to be documented
     safeParse : function(value, format) {
-        if (/[gGhH]/.test(format.replace(/(\\.)/g, ''))) {
+        if (Date.formatContainsHourInfo(format)) {
             // if parse format contains hour information, no DST adjustment is necessary
             return Date.parseDate(value, format);
         } else {
             // set time to 12 noon, then clear the time
             var parsedDate = Date.parseDate(value + ' ' + this.initTime, format + ' ' + this.initTimeFormat);
-
+ 
             if (parsedDate) {
                 return parsedDate.clearTime();
             }

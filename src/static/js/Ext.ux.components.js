@@ -233,6 +233,12 @@ Ext.ux.menu = {
                     'text': 'Отчет по задолженностям',
                     'oid': 0,
                     'my_owner_ct_id':0
+                },{
+                    'id': 'menu-cashier-illegal-button',
+                    'handler': Engine.menu.cashier.illegal.openGrid,
+                    'text': 'Отчет по нелегалам',
+                    'oid': 0,
+                    'my_owner_ct_id':0
                 }
             ]
         }
@@ -619,6 +625,19 @@ Ext.ux.BuildingGrid = Ext.extend(Ext.ux.CustomGrid ,{
             ]
 });
 
+Ext.ux.IllegalGrid = Ext.extend(Ext.ux.CustomGrid ,{
+            store: 'illegal-store',
+            ds_model: illegal_ds_model,
+            title: 'Нелегалы',
+            columns: [
+                {header: "Id", dataIndex: 'id'},
+                {header: "Код", dataIndex: 'code', editor: new Ext.form.TextField()},
+                {header: "Дата", dataIndex: 'date', xtype: 'datecolumn', editor: new Ext.form.DateField({format:'Y-m-d'}), format:'Y-m-d'},
+                {header: "Погашено", dataIndex: 'deleted', xtype: 'checkcolumn', editable:true},
+                {header: "Комментарий", dataIndex: 'comment', editor: new Ext.form.TextField(), width:300},
+            ],
+});
+
 Ext.ux.AbonentGrid = Ext.extend(Ext.ux.CustomGridNE ,{
 	initComponent: function() {
         var config = {
@@ -757,7 +776,7 @@ Ext.ux.CardGrid = Ext.extend(Ext.ux.CustomGrid ,{
                 {header: "Id", dataIndex: 'id', width:100},
                 {header: "Num", dataIndex: 'num', width:100, editor: new Ext.form.TextField()},
                 {header: "Owner", dataIndex: 'owner', width:300},
-                {header: "Active", dataIndex: 'active', width:100, xtype: 'booleancolumn'},
+                {header: "Active", dataIndex: 'active', width:100, xtype: 'booleancolumn', default:true},
                 {header: "Activated", dataIndex: 'activated', width:150},
             ]         
 });

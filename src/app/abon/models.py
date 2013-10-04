@@ -337,6 +337,21 @@ class Address(models.Model):
         return obj
 
 
+class Illegal(models.Model):
+    code = models.CharField(max_length=20, default="")
+    date = models.DateField(default=date.today)
+    comment = models.TextField(blank=True, null=True)
+    deleted = models.BooleanField(default=False)
+
+    def store_record(self):
+        obj = {}
+        obj['id'] = self.pk
+        obj['code'] = self.code
+        obj['date'] = self.date
+        obj['comment'] = self.comment
+        obj['deleted'] = self.deleted
+        return obj
+
 
 class Bill(models.Model):
 

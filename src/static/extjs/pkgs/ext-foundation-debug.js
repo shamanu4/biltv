@@ -1,15 +1,29 @@
-/*!
- * Ext JS Library 3.3.0
- * Copyright(c) 2006-2010 Ext JS, Inc.
- * licensing@extjs.com
- * http://www.extjs.com/license
- */
+/*
+This file is part of Ext JS 3.4
+
+Copyright (c) 2011-2013 Sencha Inc
+
+Contact:  http://www.sencha.com/contact
+
+GNU General Public License Usage
+This file may be used under the terms of the GNU General Public License version 3.0 as
+published by the Free Software Foundation and appearing in the file LICENSE included in the
+packaging of this file.
+
+Please review the following information to ensure the GNU General Public License version 3.0
+requirements will be met: http://www.gnu.org/copyleft/gpl.html.
+
+If you are unsure which license is appropriate for your use, please contact the sales department
+at http://www.sencha.com/contact.
+
+Build date: 2013-04-03 15:07:25
+*/
 /**
  * @class Ext
  */
 
 Ext.ns("Ext.grid", "Ext.list", "Ext.dd", "Ext.tree", "Ext.form", "Ext.menu",
-       "Ext.state", "Ext.layout", "Ext.app", "Ext.ux", "Ext.chart", "Ext.direct");
+       "Ext.state", "Ext.layout.boxOverflow", "Ext.app", "Ext.ux", "Ext.chart", "Ext.direct", "Ext.slider");
     /**
      * Namespace alloted for extensions to the framework.
      * @property ux
@@ -210,9 +224,7 @@ ImageComponent = Ext.extend(Ext.BoxComponent, {
          * intended for arguments of type {@link Ext.Element} and {@link Ext.Component}, but any subclass of
          * {@link Ext.util.Observable} can be passed in.  Any number of elements and/or components can be
          * passed into this function in a single call as separate arguments.
-         * @param {Mixed} arg1 An {@link Ext.Element}, {@link Ext.Component}, or an Array of either of these to destroy
-         * @param {Mixed} arg2 (optional)
-         * @param {Mixed} etc... (optional)
+         * @param {Mixed...} args An {@link Ext.Element}, {@link Ext.Component}, or an Array of either of these to destroy
          */
         destroy : function(){
             Ext.each(arguments, function(arg){
@@ -956,7 +968,7 @@ var t = new Ext.Template(
      * @property
      * @hide repeat doc
      */
-    re : /\{([\w-]+)(?:\:([\w\.]*)(?:\((.*?)?\))?)?\}/g,
+    re : /\{([\w\-]+)(?:\:([\w\.]*)(?:\((.*?)?\))?)?\}/g,
     argsRe : /^\s*['"](.*)["']\s*$/,
     compileARe : /\\/g,
     compileBRe : /(\r\n|\n)/g,
@@ -1255,7 +1267,7 @@ Ext.defer = Ext.util.Functions.defer;
  * <b>If omitted, defaults to the scope in which the original function is called or the browser window.</b>
  * @return {Function} The new function
  * @member Ext
- * @method defer
+ * @method createInterceptor
  */
 
 Ext.createInterceptor = Ext.util.Functions.createInterceptor;
@@ -1268,7 +1280,7 @@ Ext.createInterceptor = Ext.util.Functions.createInterceptor;
  * If omitted, defaults to the scope in which the original function is called or the browser window.
  * @return {Function} The new function
  * @member Ext
- * @method defer
+ * @method createSequence
  */
 
 Ext.createSequence = Ext.util.Functions.createSequence;
@@ -1283,7 +1295,7 @@ Ext.createSequence = Ext.util.Functions.createSequence;
  * if a number the args are inserted at the specified position
  * @return {Function} The new function
  * @member Ext
- * @method defer
+ * @method createDelegate
  */
 Ext.createDelegate = Ext.util.Functions.createDelegate;
 /**
@@ -1516,6 +1528,7 @@ Ext.apply(Ext.EventManager, function(){
        textSize,
        D = Ext.lib.Dom,
        propRe = /^(?:scope|delay|buffer|single|stopEvent|preventDefault|stopPropagation|normalized|args|delegate)$/,
+       unload = Ext.EventManager._unload,
        curWidth = 0,
        curHeight = 0,
        // note 1: IE fires ONLY the keydown event on specialkey autorepeat
@@ -1526,6 +1539,11 @@ Ext.apply(Ext.EventManager, function(){
                    !((Ext.isGecko && !Ext.isWindows) || Ext.isOpera);
 
    return {
+       _unload: function(){
+           Ext.EventManager.un(window, "resize", this.fireWindowResize, this);
+           unload.call(Ext.EventManager);    
+       },
+       
        // private
        doResizeEvent: function(){
            var h = D.getViewHeight(),
@@ -2082,7 +2100,7 @@ Ext.Element.addMethods({
      * @param {Boolean/Object} animate (optional) True for the default animation or a standard Element animation config object
      * @param {Boolean/Number} monitorScroll (optional) True to monitor body scroll and reposition. If this parameter
      * is a number, it is used as the buffer delay (defaults to 50ms).
-     * @param {Function} callback The function to call after the animation finishes
+     * @param {Function} callback (optional) The function to call after the animation finishes
      * @return {Ext.Element} this
      */
     anchorTo : function(el, alignment, offsets, animate, monitorScroll, callback){        
@@ -2829,7 +2847,6 @@ Ext.Element.addMethods(function(){
         unselectable : function(){
             this.dom.unselectable = "on";
             return this.swallowEvent("selectstart", true).
-                        applyStyles("-moz-user-select:none;-khtml-user-select:none;").
                         addClass("x-unselectable");
         },
 
@@ -3210,7 +3227,7 @@ Ext.Element.addMethods(
                     el,
                     mask;
 
-                if (!(/^body/i.test(dom.tagName) && me.getStyle('position') == 'static')) {
+                if (!/^body/i.test(dom.tagName) && me.getStyle('position') == 'static') {
                     me.addClass(XMASKEDRELATIVE);
                 }
                 if (el = data(dom, 'maskMsg')) {
@@ -3427,18 +3444,18 @@ els.setWidth(100).hide(true);
 </code></pre>
  */
 Ext.CompositeElement = Ext.extend(Ext.CompositeElementLite, {
-    
+
     constructor : function(els, root){
         this.elements = [];
         this.add(els, root);
     },
-    
+
     // private
     getElement : function(el){
         // In this case just return it, since we already have a reference to it
         return el;
     },
-    
+
     // private
     transformElement : function(el){
         return Ext.get(el);
@@ -3448,12 +3465,14 @@ Ext.CompositeElement = Ext.extend(Ext.CompositeElementLite, {
     * Adds elements to this composite.
     * @param {String/Array} els A string CSS selector, an array of elements or an element
     * @return {CompositeElement} this
+    * @ignore
     */
 
     /**
      * Returns the Element object at the specified index
      * @param {Number} index
      * @return {Ext.Element}
+     * @ignore
      */
 
     /**
@@ -3472,6 +3491,7 @@ Ext.CompositeElement = Ext.extend(Ext.CompositeElementLite, {
      * Defaults to the <code>element</code> at the current <code>index</code>
      * within the composite.
      * @return {CompositeElement} this
+     * @ignore
      */
 });
 
@@ -3485,6 +3505,7 @@ Ext.CompositeElement = Ext.extend(Ext.CompositeElementLite, {
  * @return {CompositeElementLite/CompositeElement}
  * @member Ext.Element
  * @method select
+ * @static
  */
 Ext.Element.select = function(selector, unique, root){
     var els;
@@ -4454,6 +4475,20 @@ Date.monthNumbers = {
         // handle camel casing for english month names (since the keys for the Date.monthNumbers hash are case sensitive)
         return Date.monthNumbers[name.substring(0, 1).toUpperCase() + name.substring(1, 3).toLowerCase()];
     },
+    
+    /**
+     * Checks if the specified format contains hour information
+     * @param {Object} format The format to check
+     * @return {Boolean} True if the format contains hour information
+     * @static
+     */
+    formatContainsHourInfo : (function(){
+        var stripEscapeRe = /(\\.)/g,
+            hourInfoRe = /([gGhHisucUOPZ]|M\$)/;
+        return function(format){
+            return hourInfoRe.test(format.replace(stripEscapeRe, ''));
+        };
+    })(),
 
     /**
      * The base format-code to formatting-function hashmap used by the {@link #format} method.
@@ -4700,9 +4735,12 @@ dt = Date.parseDate("2006-02-29 03:20:01", "Y-m-d H:i:s", true); // returns null
                 calc = [],
                 regex = [],
                 special = false,
-                ch = "";
+                ch = "",
+                i = 0,
+                obj,
+                last;
 
-            for (var i = 0; i < format.length; ++i) {
+            for (; i < format.length; ++i) {
                 ch = format.charAt(i);
                 if (!special && ch == "\\") {
                     special = true;
@@ -4710,13 +4748,21 @@ dt = Date.parseDate("2006-02-29 03:20:01", "Y-m-d H:i:s", true); // returns null
                     special = false;
                     regex.push(String.escape(ch));
                 } else {
-                    var obj = $f(ch, currentGroup);
+                    obj = $f(ch, currentGroup);
                     currentGroup += obj.g;
                     regex.push(obj.s);
                     if (obj.g && obj.c) {
-                        calc.push(obj.c);
+                        if (obj.calcLast) {
+                            last = obj.c;
+                        } else {
+                            calc.push(obj.c);
+                        }
                     }
                 }
+            }
+            
+            if (last) {
+                calc.push(last);
             }
 
             Date.parseRegexes[regexNum] = new RegExp("^" + regex.join('') + "$", 'i');
@@ -4834,14 +4880,12 @@ dt = Date.parseDate("2006-02-29 03:20:01", "Y-m-d H:i:s", true); // returns null
          * even though it doesn't exactly match the spec. It gives much more flexibility
          * in being able to specify case insensitive regexes.
          */
-        a: {
-            g:1,
-            c:"if (/(am)/i.test(results[{0}])) {\n"
-                + "if (!h || h == 12) { h = 0; }\n"
-                + "} else { if (!h || h < 12) { h = (h || 0) + 12; }}",
-            s:"(am|pm|AM|PM)"
+        a: function(){
+            return $f("A");
         },
         A: {
+            // We need to calculate the hour before we apply AM/PM when parsing
+            calcLast: true,
             g:1,
             c:"if (/(am)/i.test(results[{0}])) {\n"
                 + "if (!h || h == 12) { h = 0; }\n"
@@ -6175,10 +6219,13 @@ Ext.util.Format = function() {
         /**
          * Checks a reference and converts it to the default value if it's empty
          * @param {Mixed} value Reference to check
-         * @param {String} defaultValue The value to insert of it's undefined (defaults to "")
+         * @param {String} defaultValue The value to insert if it's undefined (defaults to "")
          * @return {String}
          */
         defaultValue : function(value, defaultValue) {
+            if (!defaultValue && defaultValue !== 0) {
+                defaultValue = '';
+            }
             return value !== undefined && value !== '' ? value : defaultValue;
         },
 
@@ -6826,7 +6873,7 @@ Ext.XTemplate = function(){
 };
 Ext.extend(Ext.XTemplate, Ext.Template, {
     // private
-    re : /\{([\w-\.\#]+)(?:\:([\w\.]*)(?:\((.*?)?\))?)?(\s?[\+\-\*\\]\s?[\d\.\+\-\*\\\(\)]+)?\}/g,
+    re : /\{([\w\-\.\#]+)(?:\:([\w\.]*)(?:\((.*?)?\))?)?(\s?[\+\-\*\\]\s?[\d\.\+\-\*\\\(\)]+)?\}/g,
     // private
     codeRe : /\{\[((?:\\\]|.|\n)*?)\]\}/g,
 
@@ -7405,6 +7452,7 @@ Ext.KeyNav.prototype = {
     del : false,
     home : false,
     end : false,
+    space : false,
 
     // quick lookup hash
     keyToHandler : {
@@ -7419,7 +7467,8 @@ Ext.KeyNav.prototype = {
         35 : "end",
         13 : "enter",
         27 : "esc",
-        9  : "tab"
+        9  : "tab",
+        32 : "space"
     },
     
     stopKeyUp: function(e) {
@@ -7941,6 +7990,7 @@ Ext.util.Cookies = {
  * custom exception-handling.  Framework errors will often extend from the base
  * Ext.Error class.
  * @param {Object/Error} e The thrown exception object.
+ * @member Ext
  */
 Ext.handleError = function(e) {
     throw e;

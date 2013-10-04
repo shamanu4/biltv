@@ -1,9 +1,23 @@
-/*!
- * Ext JS Library 3.3.0
- * Copyright(c) 2006-2010 Ext JS, Inc.
- * licensing@extjs.com
- * http://www.extjs.com/license
- */
+/*
+This file is part of Ext JS 3.4
+
+Copyright (c) 2011-2013 Sencha Inc
+
+Contact:  http://www.sencha.com/contact
+
+GNU General Public License Usage
+This file may be used under the terms of the GNU General Public License version 3.0 as
+published by the Free Software Foundation and appearing in the file LICENSE included in the
+packaging of this file.
+
+Please review the following information to ensure the GNU General Public License version 3.0
+requirements will be met: http://www.gnu.org/copyleft/gpl.html.
+
+If you are unsure which license is appropriate for your use, please contact the sales department
+at http://www.sencha.com/contact.
+
+Build date: 2013-04-03 15:07:25
+*/
 (function(){
 
 var EXTUTIL = Ext.util,
@@ -784,7 +798,27 @@ Ext.DomHelper = function(){
         return node;
     }
 
-
+    /**
+     * @ignore
+     * Fix for IE9 createContextualFragment missing method
+     */   
+    function createContextualFragment(html){
+        var div = document.createElement("div"),
+            fragment = document.createDocumentFragment(),
+            i = 0,
+            length, childNodes;
+        
+        div.innerHTML = html;
+        childNodes = div.childNodes;
+        length = childNodes.length;
+        
+        for (; i < length; i++) {
+            fragment.appendChild(childNodes[i].cloneNode(true));
+        }
+        
+        return fragment;
+    }
+    
     pub = {
         /**
          * Returns the markup for the passed Element(s) config.
@@ -825,7 +859,6 @@ Ext.DomHelper = function(){
                 }
             }
         },
-
         /**
          * Inserts an HTML fragment into the DOM.
          * @param {String} where Where to insert the html in relation to el - beforeBegin, afterBegin, beforeEnd, afterEnd.
@@ -836,10 +869,10 @@ Ext.DomHelper = function(){
         insertHtml : function(where, el, html){
             var hash = {},
                 hashVal,
-                setStart,
                 range,
-                frag,
                 rangeEl,
+                setStart,
+                frag,
                 rs;
 
             where = where.toLowerCase();
@@ -863,14 +896,24 @@ Ext.DomHelper = function(){
                 setStart = 'setStart' + (endRe.test(where) ? 'After' : 'Before');
                 if (hash[where]) {
                     range[setStart](el);
-                    frag = range.createContextualFragment(html);
+                    if (!range.createContextualFragment) {
+                        frag = createContextualFragment(html);
+                    }
+                    else {
+                        frag = range.createContextualFragment(html);
+                    }
                     el.parentNode.insertBefore(frag, where == beforebegin ? el : el.nextSibling);
                     return el[(where == beforebegin ? 'previous' : 'next') + 'Sibling'];
                 } else {
                     rangeEl = (where == afterbegin ? 'first' : 'last') + 'Child';
                     if (el.firstChild) {
                         range[setStart](el[rangeEl]);
-                        frag = range.createContextualFragment(html);
+                        if (!range.createContextualFragment) {
+                            frag = createContextualFragment(html);
+                        }
+                        else {
+                            frag = range.createContextualFragment(html);
+                        }
                         if(where == afterbegin){
                             el.insertBefore(frag, el.firstChild);
                         }else{
@@ -1036,11 +1079,11 @@ Ext.Template.prototype = {
     /**
      * @cfg {RegExp} re The regular expression used to match template variables.
      * Defaults to:<pre><code>
-     * re : /\{([\w-]+)\}/g                                     // for Ext Core
-     * re : /\{([\w-]+)(?:\:([\w\.]*)(?:\((.*?)?\))?)?\}/g      // for Ext JS
+     * re : /\{([\w\-]+)\}/g                                     // for Ext Core
+     * re : /\{([\w\-]+)(?:\:([\w\.]*)(?:\((.*?)?\))?)?\}/g      // for Ext JS
      * </code></pre>
      */
-    re : /\{([\w-]+)\}/g,
+    re : /\{([\w\-]+)\}/g,
     /**
      * See <code>{@link #re}</code>.
      * @type RegExp
@@ -1260,7 +1303,7 @@ Ext.DomQuery = function(){
     	trimRe = /^\s+|\s+$/g,
     	tplRe = /\{(\d+)\}/g,
     	modeRe = /^(\s?[\/>+~]\s?|\s|$)/,
-    	tagTokenRe = /^(#)?([\w-\*]+)/,
+    	tagTokenRe = /^(#)?([\w\-\*]+)/,
     	nthRe = /(\d*)n\+?(\d*)/, 
     	nthRe2 = /\D/,
     	// This is for IE MSXML which does not support expandos.
@@ -1774,7 +1817,7 @@ Ext.DomQuery = function(){
          * Selects the value of a node, optionally replacing null with the defaultValue.
          * @param {String} selector The selector/xpath query
          * @param {Node} root (optional) The start of the query (defaults to document).
-         * @param {String} defaultValue
+         * @param {String} defaultValue (optional)
          * @return {String}
          */
         selectValue : function(path, root, defaultValue){
@@ -1799,7 +1842,7 @@ Ext.DomQuery = function(){
          * Selects the value of a node, parsing integers and floats. Returns the defaultValue, or 0 if none is specified.
          * @param {String} selector The selector/xpath query
          * @param {Node} root (optional) The start of the query (defaults to document).
-         * @param {Number} defaultValue
+         * @param {Number} defaultValue (optional)
          * @return {Number}
          */
         selectNumber : function(path, root, defaultValue){
@@ -1846,19 +1889,19 @@ Ext.DomQuery = function(){
          * statement as specified by their index.
          */
         matchers : [{
-                re: /^\.([\w-]+)/,
+                re: /^\.([\w\-]+)/,
                 select: 'n = byClassName(n, " {1} ");'
             }, {
-                re: /^\:([\w-]+)(?:\(((?:[^\s>\/]*|.*?))\))?/,
+                re: /^\:([\w\-]+)(?:\(((?:[^\s>\/]*|.*?))\))?/,
                 select: 'n = byPseudo(n, "{1}", "{2}");'
             },{
-                re: /^(?:([\[\{])(?:@)?([\w-]+)\s?(?:(=|.=)\s?['"]?(.*?)["']?)?[\]\}])/,
-                select: 'n = byAttribute(n, "{2}", "{4}", "{3}", "{1}");'
+                re: /^(?:([\[\{])(?:@)?([\w\-]+)\s?(?:(=|.=)\s?(["']?)(.*?)\4)?[\]\}])/,
+                select: 'n = byAttribute(n, "{2}", "{5}", "{3}", "{1}");'
             }, {
-                re: /^#([\w-]+)/,
+                re: /^#([\w\-]+)/,
                 select: 'n = byId(n, "{1}");'
             },{
-                re: /^@([\w-]+)/,
+                re: /^@([\w\-]+)/,
                 select: 'return {firstChild:{nodeValue:attrValue(n, "{1}")}};'
             }
         ],
@@ -2137,7 +2180,7 @@ Ext.get('myInputField').on('keypress', function(){
  * also setup a delayed task for you to buffer events.</p> 
  * @constructor The parameters to this constructor serve as defaults and are not required.
  * @param {Function} fn (optional) The default function to call.
- * @param {Object} scope The default scope (The <code><b>this</b></code> reference) in which the
+ * @param {Object} scope (optional) The default scope (The <code><b>this</b></code> reference) in which the
  * function is called. If not specified, <code>this</code> will refer to the browser window.
  * @param {Array} args (optional) The default Array of arguments.
  */
@@ -2860,18 +2903,62 @@ el.un('click', this.handlerFn);
      * @param {String} namespace (optional) The namespace in which to look for the attribute
      * @return {String} The attribute value
      */
-    getAttribute : Ext.isIE ? function(name, ns){
-        var d = this.dom,
-            type = typeof d[ns + ":" + name];
+    getAttribute: (function(){
+        var test = document.createElement('table'),
+            isBrokenOnTable = false,
+            hasGetAttribute = 'getAttribute' in test,
+            unknownRe = /undefined|unknown/;
 
-        if(['undefined', 'unknown'].indexOf(type) == -1){
-            return d[ns + ":" + name];
+        if (hasGetAttribute) {
+
+            try {
+                test.getAttribute('ext:qtip');
+            } catch (e) {
+                isBrokenOnTable = true;
+            }
+
+            return function(name, ns) {
+                var el = this.dom,
+                    value;
+
+                if (el.getAttributeNS) {
+                    value  = el.getAttributeNS(ns, name) || null;
+                }
+
+                if (value == null) {
+                    if (ns) {
+                        if (isBrokenOnTable && el.tagName.toUpperCase() == 'TABLE') {
+                            try {
+                                value = el.getAttribute(ns + ':' + name);
+                            } catch (e) {
+                                value = '';
+                            }
+                        } else {
+                            value = el.getAttribute(ns + ':' + name);
+                        }
+                    } else {
+                        value = el.getAttribute(name) || el[name];
+                    }
+                }
+                return value || '';
+            };
+        } else {
+            return function(name, ns) {
+                var el = this.om,
+                    value,
+                    attribute;
+
+                if (ns) {
+                    attribute = el[ns + ':' + name];
+                    value = unknownRe.test(typeof attribute) ? undefined : attribute;
+                } else {
+                    value = el[name];
+                }
+                return value || '';
+            };
         }
-        return d[name];
-    } : function(name, ns){
-        var d = this.dom;
-        return d.getAttributeNS(ns, name) || d.getAttribute(ns + ":" + name) || d.getAttribute(name) || d[name];
-    },
+        test = null;
+    })(),
 
     /**
     * Update the innerHTML of this element
@@ -2923,10 +3010,6 @@ ep.autoBoxAdjust = true;
 // private
 var unitPattern = /\d+(px|em|%|en|ex|pt|in|cm|mm|pc)$/i,
     docEl;
-
-/**
- * @private
- */
 
 /**
  * Retrieves Ext.Element objects.
@@ -3037,6 +3120,7 @@ function garbageCollect(){
         for(eid in EC){
             o = EC[eid];
             if(o.skipGC){
+                Ext.EventManager.removeFromSpecialCache(o.el);
                 continue;
             }
             el = o.el;
@@ -3762,7 +3846,7 @@ Ext.Element.addMethods(function(){
                 s = me.dom.style;
 
             if(!animate || !me.anim){
-                if(Ext.isIE){
+                if(Ext.isIE9m){
                     var opac = opacity < 1 ? 'alpha(opacity=' + opacity * 100 + ')' : '',
                     val = s.filter.replace(opacityRe, '').replace(trimRe, '');
 
@@ -3783,7 +3867,7 @@ Ext.Element.addMethods(function(){
          */
         clearOpacity : function(){
             var style = this.dom.style;
-            if(Ext.isIE){
+            if(Ext.isIE9m){
                 if(!Ext.isEmpty(style.filter)){
                     style.filter = style.filter.replace(opacityRe, '').replace(trimRe, '');
                 }
@@ -3801,7 +3885,7 @@ Ext.Element.addMethods(function(){
         getHeight : function(contentHeight){
             var me = this,
                 dom = me.dom,
-                hidden = Ext.isIE && me.isStyle('display', 'none'),
+                hidden = Ext.isIE9m && me.isStyle('display', 'none'),
                 h = MATH.max(dom.offsetHeight, hidden ? 0 : dom.clientHeight) || 0;
 
             h = !contentHeight ? h : h - me.getBorderWidth("tb") - me.getPadding("tb");
@@ -3816,7 +3900,7 @@ Ext.Element.addMethods(function(){
         getWidth : function(contentWidth){
             var me = this,
                 dom = me.dom,
-                hidden = Ext.isIE && me.isStyle('display', 'none'),
+                hidden = Ext.isIE9m && me.isStyle('display', 'none'),
                 w = MATH.max(dom.offsetWidth, hidden ? 0 : dom.clientWidth) || 0;
             w = !contentWidth ? w : w - me.getBorderWidth("lr") - me.getPadding("lr");
             return w < 0 ? 0 : w;
@@ -6115,6 +6199,7 @@ if(Ext.DomQuery){
  * @return {CompositeElementLite/CompositeElement}
  * @member Ext.Element
  * @method select
+ * @static
  */
 Ext.Element.select = function(selector, root){
     var els;
@@ -6410,7 +6495,7 @@ Ext.Ajax.request({
                     url = Ext.urlAppend(url, dcp + '=' + (new Date().getTime()));
                 }
 
-                o.headers = Ext.apply(o.headers || {}, me.defaultHeaders || {});
+                o.headers = Ext.applyIf(o.headers || {}, me.defaultHeaders || {});
 
                 if(o.autoAbort === true || me.autoAbort) {
                     me.abort();
@@ -6739,7 +6824,7 @@ Ext.util.JSON = new (function(){
             return n < 10 ? "0" + n : n;
         },
         doDecode = function(json){
-            return eval("(" + json + ")");    
+            return json ? eval("(" + json + ")") : "";    
         },
         doEncode = function(o){
             if(!Ext.isDefined(o) || o === null){
@@ -6910,7 +6995,7 @@ Ext.EventManager = function(){
     var docReadyEvent,
         docReadyProcId,
         docReadyState = false,
-        DETECT_NATIVE = Ext.isGecko || Ext.isWebKit || Ext.isSafari,
+        DETECT_NATIVE = Ext.isGecko || Ext.isWebKit || Ext.isSafari || Ext.isIE10p,
         E = Ext.lib.Event,
         D = Ext.lib.Dom,
         DOC = document,
@@ -6930,7 +7015,7 @@ Ext.EventManager = function(){
             len = specialElCache.length,
             skip = false,
             o;
-            
+
         if (el) {
             if (el.getElementById || el.navigator) {
                 // look up the id
@@ -7023,7 +7108,7 @@ Ext.EventManager = function(){
      */
     function checkReadyState(e){
 
-        if(Ext.isIE && doScrollChk()){
+        if(Ext.isIE9m && doScrollChk()){
             return true;
         }
         if(DOC.readyState == COMPLETE){
@@ -7060,7 +7145,7 @@ Ext.EventManager = function(){
             if(DETECT_NATIVE) {
                 DOC.removeEventListener(DOMCONTENTLOADED, fireDocReady, false);
             }
-            if(Ext.isIE && checkReadyState.bindIE){  //was this was actually set ??
+            if(Ext.isIE9m && checkReadyState.bindIE){  //was this was actually set ??
                 DOC.detachEvent('onreadystatechange', checkReadyState);
             }
             E.un(WINDOW, "load", arguments.callee);
@@ -7081,7 +7166,7 @@ Ext.EventManager = function(){
         /*
          * Handle additional (exceptional) detection strategies here
          */
-        if (Ext.isIE){
+        if (Ext.isIE9m){
             //Use readystatechange as a backup AND primary detection mechanism for a FRAME/IFRAME
             //See if page is already loaded
             if(!checkReadyState()){
@@ -7373,6 +7458,17 @@ Ext.EventManager = function(){
                 return null;
             }
         },
+        
+        removeFromSpecialCache: function(o) {
+            var i = 0,
+                len = specialElCache.length;
+                
+            for (; i < len; ++i) {
+                if (specialElCache[i].el == o) {
+                    specialElCache.splice(i, 1); 
+                }
+            }
+        },
 
         purgeElement : function(el, recurse, eventName) {
             el = Ext.getDom(el);
@@ -7495,12 +7591,42 @@ Ext.onReady = Ext.EventManager.onDocumentReady;
         if (!bd) {
             return false;
         }
+
+        var cls = [];
         
-        var cls = [' ',
-                Ext.isIE ? "ext-ie " + (Ext.isIE6 ? 'ext-ie6' : (Ext.isIE7 ? 'ext-ie7' : 'ext-ie8'))
-                : Ext.isGecko ? "ext-gecko " + (Ext.isGecko2 ? 'ext-gecko2' : 'ext-gecko3')
-                : Ext.isOpera ? "ext-opera"
-                : Ext.isWebKit ? "ext-webkit" : ""];
+        if (Ext.isIE) {
+            // Only treat IE9 and less like IE in the css
+            if (!Ext.isIE10p) {
+                cls.push('ext-ie');
+            }
+            if (Ext.isIE6) {
+                cls.push('ext-ie6');
+            } else if (Ext.isIE7) {
+                cls.push('ext-ie7', 'ext-ie7m');
+            } else if (Ext.isIE8) {
+                cls.push('ext-ie8', 'ext-ie8m');
+            } else if (Ext.isIE9) {
+                cls.push('ext-ie9', 'ext-ie9m');
+            } else if (Ext.isIE10) {
+                cls.push('ext-ie10');
+            }
+        }
+        
+        if (Ext.isGecko) {
+            if (Ext.isGecko2) {
+                cls.push('ext-gecko2');
+            } else {
+                cls.push('ext-gecko3');
+            }
+        }
+        
+        if (Ext.isOpera) {
+            cls.push('ext-opera');
+        }
+        
+        if (Ext.isWebKit) {
+            cls.push('ext-webkit');
+        }
 
         if (Ext.isSafari) {
             cls.push("ext-safari " + (Ext.isSafari2 ? 'ext-safari2' : (Ext.isSafari3 ? 'ext-safari3' : 'ext-safari4')));
@@ -7519,6 +7645,12 @@ Ext.onReady = Ext.EventManager.onDocumentReady;
         if (Ext.isStrict || Ext.isBorderBox) {
             var p = bd.parentNode;
             if (p) {
+                if (!Ext.isStrict) {
+                    Ext.fly(p, '_internal').addClass('x-quirks');
+                    if (Ext.isIE9m && !Ext.isStrict) {
+                        Ext.isIEQuirks = true;
+                    }
+                }
                 Ext.fly(p, '_internal').addClass(((Ext.isStrict && Ext.isIE ) || (!Ext.enableForcedBoxModel && !Ext.isIE)) ? ' ext-strict' : ' ext-border-box');
             }
         }
@@ -7528,54 +7660,50 @@ Ext.onReady = Ext.EventManager.onDocumentReady;
             Ext.isForcedBorderBox = true;
             cls.push("ext-forced-border-box");
         }
-        
+
         Ext.fly(bd, '_internal').addClass(cls);
         return true;
     };
 
-    /*
-     * Assert Ext.isReady here. If Ext is loaded after the document is ready, none of the native 
-     * DOM onReady events will fire, because they have already passed.
-     */
-    Ext.isReady = initExtCss();
-    
-    if (!Ext.isReady) {
+    if (!initExtCss()) {
         Ext.onReady(initExtCss);
     }
 })();
 
-/**
- * Code used to detect certain browser feature/quirks/bugs at startup.
- */
+// Code used to detect certain browser feature/quirks/bugs at startup.
 (function(){
+    /**
+     * @class Ext.supports
+     * @ignore
+     */
     var supports = Ext.apply(Ext.supports, {
         /**
          * In Webkit, there is an issue with getting the margin right property, see
          * https://bugs.webkit.org/show_bug.cgi?id=13343
          */
         correctRightMargin: true,
-        
+
         /**
          * Webkit browsers return rgba(0, 0, 0) when a transparent color is used
          */
         correctTransparentColor: true,
-        
+
         /**
          * IE uses styleFloat, not cssFloat for the float property.
          */
         cssFloat: true
     });
-    
+
     var supportTests = function(){
             var div = document.createElement('div'),
                 doc = document,
                 view,
                 last;
-                
+
             div.innerHTML = '<div style="height:30px;width:50px;"><div style="height:20px;width:20px;"></div></div><div style="float:left;background-color:transparent;">';
             doc.body.appendChild(div);
             last = div.lastChild;
-            
+
             if((view = doc.defaultView)){
                 if(view.getComputedStyle(div.firstChild.firstChild, null).marginRight != '0px'){
                     supports.correctRightMargin = false;
@@ -7587,9 +7715,9 @@ Ext.onReady = Ext.EventManager.onDocumentReady;
             supports.cssFloat = !!last.style.cssFloat;
             doc.body.removeChild(div);
     };
-    
+
     if (Ext.isReady) {
-        supportTests();    
+        supportTests();
     } else {
         Ext.onReady(supportTests);
     }
@@ -7818,7 +7946,7 @@ Ext.EventObject = function(){
         </code></pre>
          * @param {Mixed} el The id, DOM element or Ext.Element to check
          * @param {Boolean} related (optional) true to test if the related target is within el instead of the target
-         * @param {Boolean} allowEl {optional} true to also check if the passed element is the target or related target
+         * @param {Boolean} allowEl (optional) true to also check if the passed element is the target or related target
          * @return {Boolean}
          */
         within : function(el, related, allowEl){
@@ -7831,4 +7959,93 @@ Ext.EventObject = function(){
      };
 
     return new Ext.EventObjectImpl();
-}();
+}();/**
+ * @class Ext.Loader
+ * @singleton
+ * Simple class to help load JavaScript files on demand
+ */
+Ext.Loader = Ext.apply({}, {
+    /**
+     * Loads a given set of .js files. Calls the callback function when all files have been loaded
+     * Set preserveOrder to true to ensure non-parallel loading of files if load order is important
+     * @param {Array} fileList Array of all files to load
+     * @param {Function} callback Callback to call after all files have been loaded
+     * @param {Object} scope The scope to call the callback in
+     * @param {Boolean} preserveOrder True to make files load in serial, one after the other (defaults to false)
+     */
+    load: function(fileList, callback, scope, preserveOrder) {
+        var scope       = scope || this,
+            head        = document.getElementsByTagName("head")[0],
+            fragment    = document.createDocumentFragment(),
+            numFiles    = fileList.length,
+            loadedFiles = 0,
+            me          = this;
+        
+        /**
+         * Loads a particular file from the fileList by index. This is used when preserving order
+         */
+        var loadFileIndex = function(index) {
+            head.appendChild(
+                me.buildScriptTag(fileList[index], onFileLoaded)
+            );
+        };
+        
+        /**
+         * Callback function which is called after each file has been loaded. This calls the callback
+         * passed to load once the final file in the fileList has been loaded
+         */
+        var onFileLoaded = function() {
+            loadedFiles ++;
+            
+            //if this was the last file, call the callback, otherwise load the next file
+            if (numFiles == loadedFiles && typeof callback == 'function') {
+                callback.call(scope);
+            } else {
+                if (preserveOrder === true) {
+                    loadFileIndex(loadedFiles);
+                }
+            }
+        };
+        
+        if (preserveOrder === true) {
+            loadFileIndex.call(this, 0);
+        } else {
+            //load each file (most browsers will do this in parallel)
+            Ext.each(fileList, function(file, index) {
+                fragment.appendChild(
+                    this.buildScriptTag(file, onFileLoaded)
+                );  
+            }, this);
+            
+            head.appendChild(fragment);
+        }
+    },
+    
+    /**
+     * @private
+     * Creates and returns a script tag, but does not place it into the document. If a callback function
+     * is passed, this is called when the script has been loaded
+     * @param {String} filename The name of the file to create a script tag for
+     * @param {Function} callback Optional callback, which is called when the script has been loaded
+     * @return {Element} The new script ta
+     */
+    buildScriptTag: function(filename, callback) {
+        var script  = document.createElement('script');
+        script.type = "text/javascript";
+        script.src  = filename;
+        
+        //IE has a different way of handling &lt;script&gt; loads, so we need to check for it here
+        if (script.readyState) {
+            script.onreadystatechange = function() {
+                if (script.readyState == "loaded" || script.readyState == "complete") {
+                    script.onreadystatechange = null;
+                    callback();
+                }
+            };
+        } else {
+            script.onload = callback;
+        }    
+        
+        return script;
+    }
+});

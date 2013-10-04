@@ -1,9 +1,23 @@
-/*!
- * Ext JS Library 3.3.0
- * Copyright(c) 2006-2010 Ext JS, Inc.
- * licensing@extjs.com
- * http://www.extjs.com/license
- */
+/*
+This file is part of Ext JS 3.4
+
+Copyright (c) 2011-2013 Sencha Inc
+
+Contact:  http://www.sencha.com/contact
+
+GNU General Public License Usage
+This file may be used under the terms of the GNU General Public License version 3.0 as
+published by the Free Software Foundation and appearing in the file LICENSE included in the
+packaging of this file.
+
+Please review the following information to ensure the GNU General Public License version 3.0
+requirements will be met: http://www.gnu.org/copyleft/gpl.html.
+
+If you are unsure which license is appropriate for your use, please contact the sales department
+at http://www.sencha.com/contact.
+
+Build date: 2013-04-03 15:07:25
+*/
 
 /**
  * @class Ext.data.Api
@@ -78,7 +92,7 @@ restActions : {
          * convention if desired.  However, the framework internally calls methods based upon the KEY so a way of retreiving the the words "create", "read", "update" and "destroy" is
          * required.  This method will cache discovered KEYS into the private validActions hash.
          * @param {String} name The runtime name of the action.
-         * @return {String||null} returns the action-key, or verb of the user-action or null if invalid.
+         * @return {String/null} returns the action-key, or verb of the user-action or null if invalid.
          * @nodoc
          */
         getVerb : function(name) {
@@ -790,9 +804,7 @@ Ext.StoreMgr = Ext.apply(new Ext.util.MixedCollection(), {
     /**
      * Registers one or more Stores with the StoreMgr. You do not normally need to register stores
      * manually.  Any store initialized with a {@link Ext.data.Store#storeId} will be auto-registered. 
-     * @param {Ext.data.Store} store1 A Store instance
-     * @param {Ext.data.Store} store2 (optional)
-     * @param {Ext.data.Store} etc... (optional)
+     * @param {Ext.data.Store...} stores Any number of Store instances
      */
     register : function(){
         for(var i = 0, s; (s = arguments[i]); i++){
@@ -802,9 +814,7 @@ Ext.StoreMgr = Ext.apply(new Ext.util.MixedCollection(), {
 
     /**
      * Unregisters one or more Stores with the StoreMgr
-     * @param {String/Object} id1 The id of the Store, or a Store instance
-     * @param {String/Object} id2 (optional)
-     * @param {String/Object} etc... (optional)
+     * @param {String/Object} ids IDs of the Stores, or Store instances
      */
     unregister : function(){
         for(var i = 0, s; (s = arguments[i]); i++){
@@ -982,7 +992,6 @@ var store = new Ext.data.Store({
      * for more details.</p>
      * This property may be modified after creation using the <code>{@link #setBaseParam}</code>
      * method.
-     * @property
      */
     /**
      * @cfg {Object} sortInfo A config object to specify the sort order in the request of a Store's
@@ -1095,7 +1104,7 @@ sortInfo: {
         dir : 'dir'
     },
 
-    isDestroyed: false,    
+    isDestroyed: false,
     hasMultiSort: false,
 
     // private
@@ -1103,22 +1112,22 @@ sortInfo: {
 
     constructor : function(config){
         /**
-         * @property multiSort
+         * @property hasMultiSort
          * @type Boolean
          * True if this store is currently sorted by more than one field/direction combination.
          */
-        
+
         /**
          * @property isDestroyed
          * @type Boolean
          * True if the store has been destroyed already. Read only
          */
-        
+
         this.data = new Ext.util.MixedCollection(false);
         this.data.getKey = function(o){
             return o.id;
         };
-        
+
 
         // temporary removed-records cache
         this.removed = [];
@@ -1463,30 +1472,30 @@ sortInfo: {
      * to add to the cache. See {@link #recordType}.
      */
     add : function(records) {
-        var i, record, index;
-        
+        var i, len, record, index;
+
         records = [].concat(records);
         if (records.length < 1) {
             return;
         }
-        
+
         for (i = 0, len = records.length; i < len; i++) {
             record = records[i];
-            
+
             record.join(this);
-            
+
             if (record.dirty || record.phantom) {
                 this.modified.push(record);
             }
         }
-        
+
         index = this.data.length;
         this.data.addAll(records);
-        
+
         if (this.snapshot) {
             this.snapshot.addAll(records);
         }
-        
+
         this.fireEvent('add', this, records, index);
     },
 
@@ -1499,16 +1508,21 @@ sortInfo: {
         var index = this.findInsertIndex(record);
         this.insert(index, record);
     },
-    
+
     /**
      * @private
      * Update a record within the store with a new reference
      */
-    doUpdate : function(rec){
-        this.data.replace(rec.id, rec);
-        if(this.snapshot){
-            this.snapshot.replace(rec.id, rec);
+    doUpdate: function(rec){
+        var id = rec.id;
+        // unjoin the old record
+        this.getById(id).join(null);
+
+        this.data.replace(id, rec);
+        if (this.snapshot) {
+            this.snapshot.replace(id, rec);
         }
+        rec.join(this);
         this.fireEvent('update', this, rec, Ext.data.Record.COMMIT);
     },
 
@@ -1582,24 +1596,24 @@ sortInfo: {
      * @param {Ext.data.Record[]} records An Array of Ext.data.Record objects to add to the cache.
      */
     insert : function(index, records) {
-        var i, record;
-        
+        var i, len, record;
+
         records = [].concat(records);
         for (i = 0, len = records.length; i < len; i++) {
             record = records[i];
-            
+
             this.data.insert(index + i, record);
             record.join(this);
-            
+
             if (record.dirty || record.phantom) {
                 this.modified.push(record);
             }
         }
-        
+
         if (this.snapshot) {
             this.snapshot.addAll(records);
         }
-        
+
         this.fireEvent('add', this, records, index);
     },
 
@@ -1738,13 +1752,13 @@ sortInfo: {
         var modified = this.modified,
             length   = records.length,
             record, i;
-        
+
         for (i = 0; i < length; i++) {
             record = records[i];
-            
+
             if (record.phantom && record.isValid()) {
                 record.markDirty();  // <-- Mark new records dirty (Ed: why?)
-                
+
                 if (modified.indexOf(record) == -1) {
                     modified.push(record);
                 }
@@ -2016,7 +2030,6 @@ sortInfo: {
         if (success === true) {
             try {
                 this.reader.realize(rs, data);
-                this.reMap(rs);
             }
             catch (e) {
                 this.handleException(e);
@@ -2090,8 +2103,8 @@ myStore.reload(lastOptions);
     // private
     // Called as a callback by the Reader during a load operation.
     loadRecords : function(o, options, success){
-        var i;
-        
+        var i, len;
+
         if (this.isDestroyed === true) {
             return;
         }
@@ -2189,8 +2202,8 @@ myStore.reload(lastOptions);
     /**
      * Returns an object describing the current sort state of this Store.
      * @return {Object} The sort state of the Store. An object with two properties:<ul>
-     * <li><b>field : String<p class="sub-desc">The name of the field by which the Records are sorted.</p></li>
-     * <li><b>direction : String<p class="sub-desc">The sort order, 'ASC' or 'DESC' (case-sensitive).</p></li>
+     * <li><b>field : String</b><p class="sub-desc">The name of the field by which the Records are sorted.</p></li>
+     * <li><b>direction : String</b><p class="sub-desc">The sort order, 'ASC' or 'DESC' (case-sensitive).</p></li>
      * </ul>
      * See <tt>{@link #sortInfo}</tt> for additional details.
      */
@@ -2229,7 +2242,7 @@ myStore.reload(lastOptions);
         for (var i=0, j = sorters.length; i < j; i++) {
             sortFns.push(this.createSortFunction(sorters[i].field, sorters[i].direction));
         }
-        
+
         if (sortFns.length == 0) {
             return;
         }
@@ -2396,7 +2409,7 @@ myStore.reload(lastOptions);
             sorters  : sorters,
             direction: direction
         };
-        
+
         if (this.remoteSort) {
             this.singleSort(sorters[0].field, sorters[0].direction);
 
@@ -2521,7 +2534,7 @@ myStore.reload(lastOptions);
      * against the field.
      * @param {Boolean} anyMatch (optional) <tt>true</tt> to match any part not just the beginning
      * @param {Boolean} caseSensitive (optional) <tt>true</tt> for case sensitive comparison
-     * @param {Boolean} exactMatch True to force exact match (^ and $ characters added to the regex). Defaults to false. Ignored if anyMatch is true.
+     * @param {Boolean} exactMatch (optional) True to force exact match (^ and $ characters added to the regex). Defaults to false. Ignored if anyMatch is true.
      */
     filter : function(property, value, anyMatch, caseSensitive, exactMatch){
         var fn;
@@ -2722,11 +2735,11 @@ myStore.reload(lastOptions);
         var modified = this.modified.slice(0),
             length   = modified.length,
             i;
-            
+
         for (i = 0; i < length; i++){
             modified[i].commit();
         }
-        
+
         this.modified = [];
         this.removed  = [];
     },
@@ -2740,16 +2753,16 @@ myStore.reload(lastOptions);
             mLength  = modified.length,
             rLength  = removed.length,
             i;
-        
+
         for (i = 0; i < mLength; i++) {
             modified[i].reject();
         }
-        
+
         for (i = 0; i < rLength; i++) {
             this.insert(removed[i].lastIndex || 0, removed[i]);
             removed[i].reject();
         }
-        
+
         this.modified = [];
         this.removed  = [];
     },
@@ -3117,6 +3130,7 @@ Ext.data.DataReader.prototype = {
             rs.data = data;
 
             rs.commit();
+            rs.store.reMap(rs);
         }
     },
 
@@ -3426,7 +3440,7 @@ Ext.data.DataWriter.prototype = {
      * {@link Ext.data.Record#phantom Phantom} records will have had their idProperty omitted in {@link #toHash} if determined to be auto-generated.
      * Non AUTOINCREMENT pks should have been protected.
      * @param {Hash} data Hashed by Ext.data.DataWriter#toHash
-     * @return {[Object]} Array of attribute-objects.
+     * @return {Object[]} Array of attribute-objects.
      * @protected
      */
     toArray : function(data) {
@@ -3788,7 +3802,7 @@ proxy.setApi(Ext.data.Api.actions.read, '/users/new_load_url');
      * request.  If all API-actions are routed to unique urls, the xaction parameter is unecessary.  However, if no api is defined
      * and all Proxy actions are routed to DataProxy#url, the server-side will require the xaction parameter to perform a switch to
      * the corresponding code for CRUD action.
-     * @param {String [Ext.data.Api.CREATE|READ|UPDATE|DESTROY]} action
+     * @param {String} action CREATE READ UPDATE or DESTROY
      * @return {Boolean}
      */
     isApiAction : function(action) {
@@ -4431,13 +4445,9 @@ Ext.extend(Ext.data.HttpProxy, Ext.data.DataProxy, {
 
             Ext.applyIf(o, this.conn);
 
-            // If a currently running request is found for this action, abort it.
-            if (this.activeRequest[action]) {
-                ////
-                // Disabled aborting activeRequest while implementing REST.  activeRequest[action] will have to become an array
-                // TODO ideas anyone?
-                //
-                //Ext.Ajax.abort(this.activeRequest[action]);
+            // If a currently running read request is found, abort it
+            if (action == Ext.data.Api.actions.read && this.activeRequest[action]) {
+                Ext.Ajax.abort(this.activeRequest[action]);
             }
             this.activeRequest[action] = Ext.Ajax.request(o);
         }else{
@@ -4680,7 +4690,7 @@ Ext.data.Types = new function(){
         stripRe: /[\$,%]/g,
         
         /**
-         * @type Object.
+         * @type Object
          * @property AUTO
          * This data type means that no conversion is applied to the raw data before it is placed into a Record.
          */
@@ -4691,7 +4701,7 @@ Ext.data.Types = new function(){
         },
 
         /**
-         * @type Object.
+         * @type Object
          * @property STRING
          * This data type means that the raw data is converted into a String before it is placed into a Record.
          */
@@ -4702,7 +4712,7 @@ Ext.data.Types = new function(){
         },
 
         /**
-         * @type Object.
+         * @type Object
          * @property INT
          * This data type means that the raw data is converted into an integer before it is placed into a Record.
          * <p>The synonym <code>INTEGER</code> is equivalent.</p>
@@ -4717,7 +4727,7 @@ Ext.data.Types = new function(){
         },
         
         /**
-         * @type Object.
+         * @type Object
          * @property FLOAT
          * This data type means that the raw data is converted into a number before it is placed into a Record.
          * <p>The synonym <code>NUMBER</code> is equivalent.</p>
@@ -4732,7 +4742,7 @@ Ext.data.Types = new function(){
         },
         
         /**
-         * @type Object.
+         * @type Object
          * @property BOOL
          * <p>This data type means that the raw data is converted into a boolean before it is placed into
          * a Record. The string "true" and the number 1 are converted to boolean <code>true</code>.</p>
@@ -4745,7 +4755,7 @@ Ext.data.Types = new function(){
         },
         
         /**
-         * @type Object.
+         * @type Object
          * @property DATE
          * This data type means that the raw data is converted into a Date before it is placed into a Record.
          * The date format is specified in the constructor of the {@link Ext.data.Field} to which this type is
@@ -4779,7 +4789,7 @@ Ext.data.Types = new function(){
     
     Ext.apply(this, {
         /**
-         * @type Object.
+         * @type Object
          * @property BOOLEAN
          * <p>This data type means that the raw data is converted into a boolean before it is placed into
          * a Record. The string "true" and the number 1 are converted to boolean <code>true</code>.</p>
@@ -4787,14 +4797,14 @@ Ext.data.Types = new function(){
          */
         BOOLEAN: this.BOOL,
         /**
-         * @type Object.
+         * @type Object
          * @property INTEGER
          * This data type means that the raw data is converted into an integer before it is placed into a Record.
          * <p>The synonym <code>INT</code> is equivalent.</p>
          */
         INTEGER: this.INT,
         /**
-         * @type Object.
+         * @type Object
          * @property NUMBER
          * This data type means that the raw data is converted into a number before it is placed into a Record.
          * <p>The synonym <code>FLOAT</code> is equivalent.</p>

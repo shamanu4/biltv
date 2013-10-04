@@ -1,9 +1,23 @@
-/*!
- * Ext JS Library 3.3.0
- * Copyright(c) 2006-2010 Ext JS, Inc.
- * licensing@extjs.com
- * http://www.extjs.com/license
- */
+/*
+This file is part of Ext JS 3.4
+
+Copyright (c) 2011-2013 Sencha Inc
+
+Contact:  http://www.sencha.com/contact
+
+GNU General Public License Usage
+This file may be used under the terms of the GNU General Public License version 3.0 as
+published by the Free Software Foundation and appearing in the file LICENSE included in the
+packaging of this file.
+
+Please review the following information to ensure the GNU General Public License version 3.0
+requirements will be met: http://www.gnu.org/copyleft/gpl.html.
+
+If you are unsure which license is appropriate for your use, please contact the sales department
+at http://www.sencha.com/contact.
+
+Build date: 2013-04-03 15:07:25
+*/
 ﻿/*
  * France (France) translation
  * By Thylia
@@ -116,6 +130,9 @@ if(Ext.util.Format){
         if(!Ext.isDate(v)) v = new Date(Date.parse(v));
         return v.dateFormat(format || "d/m/Y");
     };
+    Ext.util.Format.plural = function(v, s, p) {
+        return v + ' ' + (v <= 1 ? s : (p ? p : s + 's'));
+    };
 }
 
 if(Ext.DatePicker){
@@ -188,7 +205,8 @@ if(Ext.form.DateField){
       maxText           : "La date de ce champ ne peut être postérieure au {0}",
       invalidText       : "{0} n'est pas une date valide - elle doit être au format suivant: {1}",
       format            : "d/m/y",
-      altFormats        : "d/m/Y|d-m-y|d-m-Y|d/m|d-m|dm|dmy|dmY|d|Y-m-d"
+      altFormats        : "d/m/Y|d-m-y|d-m-Y|d/m|d-m|dm|dmy|dmY|d|Y-m-d",
+      startDay          : 1
    });
 }
 

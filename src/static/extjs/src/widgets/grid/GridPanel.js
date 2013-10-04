@@ -1,9 +1,23 @@
-/*!
- * Ext JS Library 3.3.0
- * Copyright(c) 2006-2010 Ext JS, Inc.
- * licensing@extjs.com
- * http://www.extjs.com/license
- */
+/*
+This file is part of Ext JS 3.4
+
+Copyright (c) 2011-2013 Sencha Inc
+
+Contact:  http://www.sencha.com/contact
+
+GNU General Public License Usage
+This file may be used under the terms of the GNU General Public License version 3.0 as
+published by the Free Software Foundation and appearing in the file LICENSE included in the
+packaging of this file.
+
+Please review the following information to ensure the GNU General Public License version 3.0
+requirements will be met: http://www.gnu.org/copyleft/gpl.html.
+
+If you are unsure which license is appropriate for your use, please contact the sales department
+at http://www.sencha.com/contact.
+
+Build date: 2013-04-03 15:07:25
+*/
 /**
  * @class Ext.grid.GridPanel
  * @extends Ext.Panel
@@ -42,7 +56,7 @@ var grid = new Ext.grid.GridPanel({
                 header: 'Last Updated', width: 135, dataIndex: 'lastChange',
                 xtype: 'datecolumn', format: 'M d, Y'
             }
-        ],
+        ]
     }),
     {@link #viewConfig}: {
         {@link Ext.grid.GridView#forceFit forceFit}: true,
@@ -139,7 +153,13 @@ Ext.grid.GridPanel = Ext.extend(Ext.Panel, {
      * <tt>{0}</tt> is replaced with the number of selected rows.
      */
     ddText : '{0} selected row{1}',
-    
+
+    /**
+     * @cfg {Boolean} dragCell Defaults to <code>false</code>. If using {@link #enableDragDrop} with a CellSelectionModel,
+     * set this to true to have the {@link #getView view}'s {@link Ext.grid.GridView#dragZone dragZone}'s <code>getDragData</code>
+     * method reference the selected <b>cell</b> using <code>[rowIndex, cellIndex]</code>
+     */
+
     /**
      * @cfg {Boolean} deferRowRender <P>Defaults to <tt>true</tt> to enable deferred row rendering.</p>
      * <p>This allows the GridPanel to be initially rendered empty, with the expensive update of the row
@@ -665,20 +685,22 @@ function(grid, rowIndex, columnIndex, e) {
             store = this.store,
             s,
             c,
-            oldIndex;
+            colIndex;
 
         if(cs){
             for(var i = 0, len = cs.length; i < len; i++){
                 s = cs[i];
                 c = cm.getColumnById(s.id);
                 if(c){
-                    cm.setState(s.id, {
+                    colIndex = cm.getIndexById(s.id);
+                    cm.setState(colIndex, {
                         hidden: s.hidden,
-                        width: s.width    
+                        width: s.width,
+                        sortable: c.sortable,
+                        editable: c.editable
                     });
-                    oldIndex = cm.getIndexById(s.id);
-                    if(oldIndex != i){
-                        cm.moveColumn(oldIndex, i);
+                    if(colIndex != i){
+                        cm.moveColumn(colIndex, i);
                     }
                 }
             }
@@ -928,7 +950,7 @@ function(grid, rowIndex, columnIndex, e) {
      * @return {String} The text
      */
     getDragDropText : function(){
-        var count = this.selModel.getCount();
+        var count = this.selModel.getCount ? this.selModel.getCount() : 1;
         return String.format(this.ddText, count, count == 1 ? '' : 's');
     }
 

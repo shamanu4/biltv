@@ -96,3 +96,12 @@ class AbonentAdmin(admin.ModelAdmin):
     pass
 admin.site.register(Abonent, AbonentAdmin)
 
+
+"""
+Illegal
+"""
+class IllegalAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(Illegal, IllegalAdmin)
+
+
