@@ -718,7 +718,13 @@ class AbonApiClass(object):
                 dt = datetime.strptime(dt,'%Y-%m-%dT%H:%M:%S').date()
             except ValueError:
                 return dict(success=False, title='Сбой добавления нелегала', msg='invalid date', errors='', data={} )
-            c = Illegal(code=abonent.address.override, date=dt, comment=data['comment'], deleted=data['deleted'])
+            comment = ''
+            if 'comment' in data:
+                comment = data['comment']
+            deleted = False
+            if 'deleted' in data:
+                deleted = data['deleted']
+            c = Illegal(code=abonent.address.override, date=dt, comment=comment, deleted=deleted)
             c.save()
             return c.store_record()
         return {}
