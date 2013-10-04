@@ -730,7 +730,7 @@ class AbonApiClass(object):
         return {}
     abon_illegal_add._args_len = 1
 
-    @check_perm('accounts.rpc_update_in_generic_grid')
+    @check_perm('accounts.rpc_update_generic_grid')
     @store_read
     def abon_illegal_update(self,rdata,request):
         from abon.models import Abonent, Illegal
