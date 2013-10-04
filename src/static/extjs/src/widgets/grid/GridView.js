@@ -1,9 +1,23 @@
-/*!
- * Ext JS Library 3.3.0
- * Copyright(c) 2006-2010 Ext JS, Inc.
- * licensing@extjs.com
- * http://www.extjs.com/license
- */
+/*
+This file is part of Ext JS 3.4
+
+Copyright (c) 2011-2013 Sencha Inc
+
+Contact:  http://www.sencha.com/contact
+
+GNU General Public License Usage
+This file may be used under the terms of the GNU General Public License version 3.0 as
+published by the Free Software Foundation and appearing in the file LICENSE included in the
+packaging of this file.
+
+Please review the following information to ensure the GNU General Public License version 3.0
+requirements will be met: http://www.gnu.org/copyleft/gpl.html.
+
+If you are unsure which license is appropriate for your use, please contact the sales department
+at http://www.sencha.com/contact.
+
+Build date: 2013-04-03 15:07:25
+*/
 /**
  * @class Ext.grid.GridView
  * @extends Ext.util.Observable
@@ -117,11 +131,14 @@ viewConfig: {
 
     /**
      * @cfg {Boolean} forceFit
-     * Defaults to <tt>false</tt>.  Specify <tt>true</tt> to have the column widths re-proportioned
-     * at <b>all times</b>.  The {@link Ext.grid.Column#width initially configured width}</tt> of each
+     * <p>Defaults to <tt>false</tt>.  Specify <tt>true</tt> to have the column widths re-proportioned
+     * at <b>all times</b>.</p>
+     * <p>The {@link Ext.grid.Column#width initially configured width}</tt> of each
      * column will be adjusted to fit the grid width and prevent horizontal scrolling. If columns are
      * later resized (manually or programmatically), the other columns in the grid <b>will</b> be resized
-     * to fit the grid width. See <tt>{@link #autoFill}</tt> also.
+     * to fit the grid width.</p>
+     * <p>Columns which are configured with <code>fixed: true</code> are omitted from being resized.</p>
+     * <p>See <tt>{@link #autoFill}</tt>.</p>
      */
     forceFit : false,
 
@@ -139,6 +156,11 @@ viewConfig: {
      * @cfg {String} sortDescText The text displayed in the 'Sort Descending' menu item (defaults to <tt>'Sort Descending'</tt>)
      */
     sortDescText : 'Sort Descending',
+    
+    /**
+     * @cfg {Boolean} hideSortIcons True to hide the sorting icons if sorting is disabled for a column. Defaults to <tt>false</tt>
+     */
+    hideSortIcons: false,
 
     /**
      * @cfg {String} columnsText The text displayed in the 'Columns' menu item (defaults to <tt>'Columns'</tt>)
@@ -339,7 +361,7 @@ viewConfig: {
      */
     cellTpl: new Ext.Template(
         '<td class="x-grid3-col x-grid3-cell x-grid3-td-{id} {css}" style="{style}" tabIndex="0" {cellAttr}>',
-            '<div class="x-grid3-cell-inner x-grid3-col-{id}" unselectable="on" {attr}>{value}</div>',
+            '<div class="x-grid3-cell-inner x-grid3-col-{id} x-unselectable" unselectable="on" {attr}>{value}</div>',
         '</td>'
     ),
     
@@ -960,7 +982,10 @@ viewConfig: {
                     beforeshow: this.beforeColMenuShow,
                     itemclick : this.handleHdMenuClick
                 });
-                this.hmenu.add('-', {
+                this.hmenu.add({
+                    itemId: 'sortSep',
+                    xtype: 'menuseparator'
+                }, {
                     itemId:'columns',
                     hideOnClick: false,
                     text: this.columnsText,
@@ -1418,8 +1443,8 @@ viewConfig: {
                 Ext.DomHelper.insertHtml('beforeEnd', this.mainBody.dom, html);
             }
             if (!isUpdate) {
-                this.fireEvent('rowsinserted', this, firstRow, lastRow);
                 this.processRows(firstRow);
+                this.fireEvent('rowsinserted', this, firstRow, lastRow);
             } else if (firstRow === 0 || firstRow >= last) {
                 //ensure first/last row is kept after an update.
                 Ext.fly(this.getRow(firstRow)).addClass(firstRow === 0 ? this.firstRowCls : this.lastRowCls);
@@ -1482,7 +1507,7 @@ viewConfig: {
             borderWidth = this.borderWidth;
         
         if (Ext.isNumber(columnWidth)) {
-            if (Ext.isBorderBox || (Ext.isWebKit && !Ext.isSafari2)) {
+            if (Ext.isBorderBox) {
                 return columnWidth + "px";
             } else {
                 return Math.max(columnWidth - borderWidth, 0) + "px";
@@ -2270,13 +2295,23 @@ viewConfig: {
                 sortable  = colModel.isSortable(index),
                 menu      = this.hmenu,
                 menuItems = menu.items,
-                menuCls   = this.headerMenuOpenCls;
+                menuCls   = this.headerMenuOpenCls,
+                sep;
             
             this.hdCtxIndex = index;
             
             Ext.fly(header).addClass(menuCls);
-            menuItems.get('asc').setDisabled(!sortable);
-            menuItems.get('desc').setDisabled(!sortable);
+            if (this.hideSortIcons) {
+                menuItems.get('asc').setVisible(sortable);
+                menuItems.get('desc').setVisible(sortable);
+                sep = menuItems.get('sortSep');
+                if (sep) {
+                    sep.setVisible(sortable);    
+                }
+            } else {
+                menuItems.get('asc').setDisabled(!sortable);
+                menuItems.get('desc').setDisabled(!sortable);
+            }
             
             menu.on('hide', function() {
                 Ext.fly(header).removeClass(menuCls);
@@ -2371,7 +2406,7 @@ viewConfig: {
     handleHdOut : function(e, target) {
         var header = this.findHeaderCell(target);
         
-        if (header && (!Ext.isIE || !e.within(header, true))) {
+        if (header && (!Ext.isIE9m || !e.within(header, true))) {
             this.activeHdRef = null;
             this.fly(header).removeClass('x-grid3-hd-over');
             header.style.cursor = '';

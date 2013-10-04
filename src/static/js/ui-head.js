@@ -392,7 +392,18 @@ Engine = {
 				launch: function() {
 					window.open('/report','_newtab');
 				}
-			}
+			},
+            illegal: {
+                openGrid: function() {
+                    var grid = Engine.getComponent(Ext.ux.IllegalGrid,'Ext.ux.IllegalGrid');
+                    if (grid.store && grid.rendered) {
+                        grid.store.load()
+                    }
+                    Ext.getCmp('tab-panel').toolbars[0].add(grid);
+                    Ext.getCmp('tab-panel').toolbars[0].add(grid);
+                    Ext.getCmp('tab-panel').toolbars[0].doLayout();
+                }
+            }
         },
         scrambler: {
             card: {

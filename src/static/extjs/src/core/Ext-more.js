@@ -1,15 +1,29 @@
-/*!
- * Ext JS Library 3.3.0
- * Copyright(c) 2006-2010 Ext JS, Inc.
- * licensing@extjs.com
- * http://www.extjs.com/license
- */
+/*
+This file is part of Ext JS 3.4
+
+Copyright (c) 2011-2013 Sencha Inc
+
+Contact:  http://www.sencha.com/contact
+
+GNU General Public License Usage
+This file may be used under the terms of the GNU General Public License version 3.0 as
+published by the Free Software Foundation and appearing in the file LICENSE included in the
+packaging of this file.
+
+Please review the following information to ensure the GNU General Public License version 3.0
+requirements will be met: http://www.gnu.org/copyleft/gpl.html.
+
+If you are unsure which license is appropriate for your use, please contact the sales department
+at http://www.sencha.com/contact.
+
+Build date: 2013-04-03 15:07:25
+*/
 /**
  * @class Ext
  */
 
 Ext.ns("Ext.grid", "Ext.list", "Ext.dd", "Ext.tree", "Ext.form", "Ext.menu",
-       "Ext.state", "Ext.layout", "Ext.app", "Ext.ux", "Ext.chart", "Ext.direct");
+       "Ext.state", "Ext.layout.boxOverflow", "Ext.app", "Ext.ux", "Ext.chart", "Ext.direct", "Ext.slider");
     /**
      * Namespace alloted for extensions to the framework.
      * @property ux
@@ -210,9 +224,7 @@ ImageComponent = Ext.extend(Ext.BoxComponent, {
          * intended for arguments of type {@link Ext.Element} and {@link Ext.Component}, but any subclass of
          * {@link Ext.util.Observable} can be passed in.  Any number of elements and/or components can be
          * passed into this function in a single call as separate arguments.
-         * @param {Mixed} arg1 An {@link Ext.Element}, {@link Ext.Component}, or an Array of either of these to destroy
-         * @param {Mixed} arg2 (optional)
-         * @param {Mixed} etc... (optional)
+         * @param {Mixed...} args An {@link Ext.Element}, {@link Ext.Component}, or an Array of either of these to destroy
          */
         destroy : function(){
             Ext.each(arguments, function(arg){

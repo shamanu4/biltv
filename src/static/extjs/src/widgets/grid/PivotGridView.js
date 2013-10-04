@@ -1,9 +1,23 @@
-/*!
- * Ext JS Library 3.3.0
- * Copyright(c) 2006-2010 Ext JS, Inc.
- * licensing@extjs.com
- * http://www.extjs.com/license
- */
+/*
+This file is part of Ext JS 3.4
+
+Copyright (c) 2011-2013 Sencha Inc
+
+Contact:  http://www.sencha.com/contact
+
+GNU General Public License Usage
+This file may be used under the terms of the GNU General Public License version 3.0 as
+published by the Free Software Foundation and appearing in the file LICENSE included in the
+packaging of this file.
+
+Please review the following information to ensure the GNU General Public License version 3.0
+requirements will be met: http://www.gnu.org/copyleft/gpl.html.
+
+If you are unsure which license is appropriate for your use, please contact the sales department
+at http://www.sencha.com/contact.
+
+Build date: 2013-04-03 15:07:25
+*/
 /**
  * @class Ext.grid.PivotGridView
  * @extends Ext.grid.GridView
@@ -127,7 +141,7 @@ Ext.grid.PivotGridView = Ext.extend(Ext.grid.GridView, {
             rowBuffer     = [],
             meta          = {},
             tstyle        = 'width:' + this.getGridInnerWidth() + 'px;',
-            colBuffer, column, i;
+            colBuffer, colCount, column, i, row;
         
         startRow = startRow || 0;
         endRow   = Ext.isDefined(endRow) ? endRow : rowCount - 1;
@@ -137,15 +151,13 @@ Ext.grid.PivotGridView = Ext.extend(Ext.grid.GridView, {
             colCount  = row.length;
             colBuffer = [];
             
-            rowIndex = startRow + i;
-
             //build up each column's HTML
-            for (j = 0; j < colCount; j++) {
-                cell = row[j];
-
+            for (var j = 0; j < colCount; j++) {
+                
+                meta.id    = i + '-' + j;
                 meta.css   = j === 0 ? 'x-grid3-cell-first ' : (j == (colCount - 1) ? 'x-grid3-cell-last ' : '');
                 meta.attr  = meta.cellAttr = '';
-                meta.value = cell;
+                meta.value = row[j];
 
                 if (Ext.isEmpty(meta.value)) {
                     meta.value = '&#160;';
@@ -210,7 +222,7 @@ Ext.grid.PivotGridView = Ext.extend(Ext.grid.GridView, {
         if (!templates.gcell) {
             templates.gcell = new Ext.XTemplate(
                 '<td class="x-grid3-hd x-grid3-gcell x-grid3-td-{id} ux-grid-hd-group-row-{row} ' + this.colHeaderCellCls + '" style="{style}">',
-                    '<div {tooltip} class="x-grid3-hd-inner x-grid3-hd-{id}" unselectable="on" style="{istyle}">', 
+                    '<div {tooltip} class="x-grid3-hd-inner x-grid3-hd-{id} x-unselectable" unselectable="on" style="{istyle}">', 
                         this.grid.enableHdMenu ? '<a class="x-grid3-hd-btn" href="#"></a>' : '', '{value}',
                     '</div>',
                 '</td>'
@@ -278,6 +290,24 @@ Ext.grid.PivotGridView = Ext.extend(Ext.grid.GridView, {
     getTotalColumnHeaderHeight: function() {
         return this.getColumnHeaders().length * 21;
     },
+    
+    /**
+     * Inherit docs
+     * @private
+     * @param {HTMLElement} el
+     */
+    getCellIndex : function(el) {
+        if (el) {
+            var match = el.className.match(this.colRe),
+                data;
+ 
+            if (match && (data = match[1])) {
+                return parseInt(data.split('-')[1], 10);
+            }
+        }
+        return false;
+    },
+    
     
     /**
      * @private

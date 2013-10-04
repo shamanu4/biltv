@@ -1,9 +1,23 @@
-/*!
- * Ext JS Library 3.3.0
- * Copyright(c) 2006-2010 Ext JS, Inc.
- * licensing@extjs.com
- * http://www.extjs.com/license
- */
+/*
+This file is part of Ext JS 3.4
+
+Copyright (c) 2011-2013 Sencha Inc
+
+Contact:  http://www.sencha.com/contact
+
+GNU General Public License Usage
+This file may be used under the terms of the GNU General Public License version 3.0 as
+published by the Free Software Foundation and appearing in the file LICENSE included in the
+packaging of this file.
+
+Please review the following information to ensure the GNU General Public License version 3.0
+requirements will be met: http://www.gnu.org/copyleft/gpl.html.
+
+If you are unsure which license is appropriate for your use, please contact the sales department
+at http://www.sencha.com/contact.
+
+Build date: 2013-04-03 15:07:25
+*/
 /**
  * @class Ext.menu.Menu
  * @extends Ext.Container
@@ -398,7 +412,7 @@ Ext.menu.Menu = Ext.extend(Ext.Container, {
             this.el.setXY(xy);
             this.el.show();
             Ext.menu.Menu.superclass.onShow.call(this);
-            if(Ext.isIE){
+            if(Ext.isIE9m){
                 // internal event, used so we don't couple the layout to the menu
                 this.fireEvent('autosize', this);
                 if(!Ext.isIE8){
@@ -567,6 +581,8 @@ Ext.menu.Menu = Ext.extend(Ext.Container, {
 
     // private
     getMenuItem : function(config) {
+        config.ownerCt = this;
+        
         if (!config.isXType) {
             if (!config.xtype && Ext.isBoolean(config.checked)) {
                 return new Ext.menu.CheckItem(config);

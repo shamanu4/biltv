@@ -1,9 +1,23 @@
-/*!
- * Ext JS Library 3.3.0
- * Copyright(c) 2006-2010 Ext JS, Inc.
- * licensing@extjs.com
- * http://www.extjs.com/license
- */
+/*
+This file is part of Ext JS 3.4
+
+Copyright (c) 2011-2013 Sencha Inc
+
+Contact:  http://www.sencha.com/contact
+
+GNU General Public License Usage
+This file may be used under the terms of the GNU General Public License version 3.0 as
+published by the Free Software Foundation and appearing in the file LICENSE included in the
+packaging of this file.
+
+Please review the following information to ensure the GNU General Public License version 3.0
+requirements will be met: http://www.gnu.org/copyleft/gpl.html.
+
+If you are unsure which license is appropriate for your use, please contact the sales department
+at http://www.sencha.com/contact.
+
+Build date: 2013-04-03 15:07:25
+*/
 ï»¿/**
  * Portuguese/Portugal (pt_PT) Translation
  * by Nuno Franco da Costa - francodacosta.com
@@ -101,7 +115,7 @@ if(Ext.DatePicker){
   Ext.apply(Ext.DatePicker.prototype, {
     todayText         : "Hoje",
     minText           : "A data &eacute; anterior ao m&iacute;nimo definido",
-    maxText           : "A data &eacute; posterior ao mï¿½ximo definido",
+    maxText           : "A data &eacute; posterior ao máximo definido",
     disabledDaysText  : "",
     disabledDatesText : "",
     monthNames        : Date.monthNames,
@@ -109,7 +123,7 @@ if(Ext.DatePicker){
     nextText          : 'M&ecirc;s Seguinte (Control+Right)',
     prevText          : 'M&ecirc;s Anterior (Control+Left)',
     monthYearText     : 'Escolha um m&ecirc;s (Control+Up/Down ava&ccedil;ar/recuar anos)',
-    todayTip          : "{0} (barra de espaï¿½o)",
+    todayTip          : "{0} (barra de espaço)",
     format            : "y/m/d",
     okText            : "*OK*",
     cancelText        : "Cancelar",
@@ -161,7 +175,8 @@ if(Ext.form.DateField){
     maxText           : "A data deste campo deve ser anterior a {0}",
     invalidText       : "{0} n&atilde;o &eacute; uma data v&aacute;lida - deve estar no seguinte formato{1}",
     format            : "y/m/d",
-    altFormats        : "m/d/Y|m-d-y|m-d-Y|m/d|m-d|md|mdy|mdY|d|Y-m-d"
+    altFormats        : "m/d/Y|m-d-y|m-d-Y|m/d|m-d|md|mdy|mdY|d|Y-m-d",
+    startDay          : 0
   });
 }
 

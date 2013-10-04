@@ -4,6 +4,7 @@ from lib.extjs import RpcRouter, store_read, check_perm
 from tv.rpc import TvApiClass
 from abon.rpc import AbonApiClass
 from tv.models import PaymentRegister
+
 class MainApiClass(object):
 
     def is_authenticated(self, request):
@@ -92,7 +93,7 @@ class GridApiClass(object):
         except self.model.DoesNotExist:
             return dict(success=False, msg="object not found")
         else:
-            form = self.form(data)
+            form = self.form(data, instance=obj)
             if form.is_valid():
                 res = form.save(obj)
                 ok = res[0]
@@ -136,26 +137,28 @@ class GridApiClass(object):
     def foo(self,rdata,request):
         print rdata
 
+
 class Router(RpcRouter):
-    
     def __init__(self):
-        from abon.models import City, Street, House, Building, Abonent
+        from abon.models import City, Street, House, Building, Abonent, Illegal
         from tv.models import Card, PaymentRegister, PaymentSource
-        from abon.forms import CityForm, StreetForm, HouseNumForm, BuildingForm
+        from abon.forms import CityForm, StreetForm, HouseNumForm, BuildingForm, IllegalForm
         from tv.forms import CardForm, RegisterForm
         from django.db.models import Q
+
         self.url = 'ui:router'
         self.actions = {
             'MainApi': MainApiClass(),
             'TvApi': TvApiClass(),
-            'AbonApi':  AbonApiClass(),
-            'CityGrid': GridApiClass(City,CityForm),
-            'StreetGrid': GridApiClass(Street,StreetForm),
-            'HouseNumGrid': GridApiClass(House,HouseNumForm),
-            'BuildingGrid': GridApiClass(Building,BuildingForm),
-            'AbonentGrid': GridApiClass(Abonent,None),
-            'CardGrid':GridApiClass(Card,CardForm,Q(**{"num__gte":0})),
-            'RegisterGrid':GridApiClass(PaymentRegister,RegisterForm),
-            'SourceGrid':GridApiClass(PaymentSource,None),
-        }                
+            'AbonApi': AbonApiClass(),
+            'CityGrid': GridApiClass(City, CityForm),
+            'StreetGrid': GridApiClass(Street, StreetForm),
+            'HouseNumGrid': GridApiClass(House, HouseNumForm),
+            'BuildingGrid': GridApiClass(Building, BuildingForm),
+            'AbonentGrid': GridApiClass(Abonent, None),
+            'CardGrid': GridApiClass(Card, CardForm, Q(**{"num__gte": 0})),
+            'RegisterGrid': GridApiClass(PaymentRegister, RegisterForm),
+            'SourceGrid': GridApiClass(PaymentSource, None),
+            'IllegalGrid': GridApiClass(Illegal, IllegalForm),
+        }
         self.enable_buffer = 50

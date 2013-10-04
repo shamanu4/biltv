@@ -1,9 +1,23 @@
-/*!
- * Ext JS Library 3.3.0
- * Copyright(c) 2006-2010 Ext JS, Inc.
- * licensing@extjs.com
- * http://www.extjs.com/license
- */
+/*
+This file is part of Ext JS 3.4
+
+Copyright (c) 2011-2013 Sencha Inc
+
+Contact:  http://www.sencha.com/contact
+
+GNU General Public License Usage
+This file may be used under the terms of the GNU General Public License version 3.0 as
+published by the Free Software Foundation and appearing in the file LICENSE included in the
+packaging of this file.
+
+Please review the following information to ensure the GNU General Public License version 3.0
+requirements will be met: http://www.gnu.org/copyleft/gpl.html.
+
+If you are unsure which license is appropriate for your use, please contact the sales department
+at http://www.sencha.com/contact.
+
+Build date: 2013-04-03 15:07:25
+*/
 /**
  * @class Ext.menu.Menu
  * @extends Ext.Container
@@ -398,7 +412,7 @@ Ext.menu.Menu = Ext.extend(Ext.Container, {
             this.el.setXY(xy);
             this.el.show();
             Ext.menu.Menu.superclass.onShow.call(this);
-            if(Ext.isIE){
+            if(Ext.isIE9m){
                 // internal event, used so we don't couple the layout to the menu
                 this.fireEvent('autosize', this);
                 if(!Ext.isIE8){
@@ -567,6 +581,8 @@ Ext.menu.Menu = Ext.extend(Ext.Container, {
 
     // private
     getMenuItem : function(config) {
+        config.ownerCt = this;
+        
         if (!config.isXType) {
             if (!config.xtype && Ext.isBoolean(config.checked)) {
                 return new Ext.menu.CheckItem(config);
@@ -722,17 +738,20 @@ Ext.menu.MenuNav = Ext.extend(Ext.KeyNav, function(){
  * @singleton
  */
 Ext.menu.MenuMgr = function(){
-   var menus, active, groups = {}, attached = false, lastShow = new Date();
+   var menus, 
+       active, 
+       map,
+       groups = {}, 
+       attached = false, 
+       lastShow = new Date();
+   
 
    // private - called when first menu is created
    function init(){
        menus = {};
        active = new Ext.util.MixedCollection();
-       Ext.getDoc().addKeyListener(27, function(){
-           if(active.length > 0){
-               hideAll();
-           }
-       });
+       map = Ext.getDoc().addKeyListener(27, hideAll);
+       map.disable();
    }
 
    // private
@@ -751,6 +770,7 @@ Ext.menu.MenuMgr = function(){
    function onHide(m){
        active.remove(m);
        if(active.length < 1){
+           map.disable();
            Ext.getDoc().un("mousedown", onMouseDown);
            attached = false;
        }
@@ -762,6 +782,7 @@ Ext.menu.MenuMgr = function(){
        lastShow = new Date();
        active.add(m);
        if(!attached){
+           map.enable();
            Ext.getDoc().on("mousedown", onMouseDown);
            attached = true;
        }
@@ -1062,11 +1083,16 @@ Ext.menu.BaseItem = Ext.extend(Ext.Component, {
         var pm = this.parentMenu;
         if(this.hideOnClick){
             if(pm.floating){
-                pm.hide.defer(this.clickHideDelay, pm, [true]);
+                this.clickHideDelayTimer = pm.hide.defer(this.clickHideDelay, pm, [true]);
             }else{
                 pm.deactivateActive();
             }
         }
+    },
+    
+    beforeDestroy: function(){
+        clearTimeout(this.clickHideDelayTimer);
+        Ext.menu.BaseItem.superclass.beforeDestroy.call(this);    
     },
 
     // private. Do nothing
@@ -1216,8 +1242,20 @@ Ext.menu.Item = Ext.extend(Ext.menu.BaseItem, {
     initComponent : function(){
         Ext.menu.Item.superclass.initComponent.call(this);
         if(this.menu){
+            // If array of items, turn it into an object config so we
+            // can set the ownerCt property in the config
+            if (Ext.isArray(this.menu)){
+                this.menu = { items: this.menu };
+            }
+            
+            // An object config will work here, but an instance of a menu
+            // will have already setup its ref's and have no effect
+            if (Ext.isObject(this.menu)){
+                this.menu.ownerCt = this;
+            }
+            
             this.menu = Ext.menu.MenuMgr.get(this.menu);
-            this.menu.ownerCt = this;
+            this.menu.ownerCt = undefined;
         }
     },
 
@@ -1225,7 +1263,7 @@ Ext.menu.Item = Ext.extend(Ext.menu.BaseItem, {
     onRender : function(container, position){
         if (!this.itemTpl) {
             this.itemTpl = Ext.menu.Item.prototype.itemTpl = new Ext.XTemplate(
-                '<a id="{id}" class="{cls}" hidefocus="true" unselectable="on" href="{href}"',
+                '<a id="{id}" class="{cls} x-unselectable" hidefocus="true" unselectable="on" href="{href}"',
                     '<tpl if="hrefTarget">',
                         ' target="{hrefTarget}"',
                     '</tpl>',
@@ -1284,6 +1322,8 @@ Ext.menu.Item = Ext.extend(Ext.menu.BaseItem, {
 
     //private
     beforeDestroy: function(){
+        clearTimeout(this.showTimer);
+        clearTimeout(this.hideTimer);
         if (this.menu){
             delete this.menu.ownerCt;
             this.menu.destroy();
@@ -1557,7 +1597,7 @@ Ext.reg('menucheckitem', Ext.menu.CheckItem);/**
             plain: true,
             showSeparator: false,
             items: this.picker = new Ext.DatePicker(Ext.applyIf({
-                internalRender: this.strict || !Ext.isIE,
+                internalRender: this.strict || !Ext.isIE9m,
                 ctCls: 'x-menu-date-item',
                 id: this.pickerId
             }, this.initialConfig))

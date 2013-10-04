@@ -2,6 +2,8 @@
 
 from django import forms
 from django.db.utils import IntegrityError
+from abon import models
+from .models import Illegal
 
 class CityForm(forms.Form):
     name = forms.CharField(required=True, max_length=40)
@@ -225,3 +227,28 @@ class AbonentForm(forms.Form):
             return (False,obj,error[1].decode('utf8'))
         else:
             return (True,obj,msg)
+
+
+
+class IllegalForm(forms.ModelForm):
+
+    class Meta:
+        model = Illegal
+
+    def __init__(self,rdata, **kw):
+        import re
+        r = re.compile('(\d{4}\-\d{2}-\d{2}).*')
+        if 'date' in rdata and rdata['date']:
+            rtst = r.match(rdata['date'])
+            if rtst:
+                rdata['date'] = rtst.group(1)
+        super(self.__class__, self).__init__(rdata, **kw)
+
+
+    def save(self,*args, **kw):
+        try:
+            super(IllegalForm, self).save(*args, **kw)
+        except Exception, e:
+            return (False, self.instance, e)
+        else:
+            return (True, self.instance, 'saved')

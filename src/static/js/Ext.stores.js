@@ -541,6 +541,49 @@ Ext.ux.register_store = new Ext.data.DirectStore({
     }
 });
 
+Ext.ux.illegal_store = new Ext.data.DirectStore({
+    api: {
+        read: IllegalGrid.read,
+        create: IllegalGrid.create,
+        update: IllegalGrid.update,
+        destroy: IllegalGrid.destroy
+    },
+    restful: true,
+    autoLoad: true,
+    autoSave: false,
+    storeId: 'illegal-store',
+    reader: new Ext.data.JsonReader({
+        root: 'data',
+        totalProperty: 'total',
+        //idProperty: 'id',
+        fields: [
+            'id',
+			'code',
+            'date',
+            'comment',
+            'active',
+        ]
+    }),
+    writer: new Ext.data.JsonWriter({
+        encode: false,
+        writeAllFields: true,
+        listful: true
+    }),
+    baseParams : {
+        start:0,
+        limit:16,
+        filter_fields:['code'],
+        filter_value:''
+    },
+    listeners:{
+        write: function (store,action,result,res,rs) {
+            if(store.client && store.client.onWrite) {
+                store.client.onWrite(res.result)
+            }
+        }
+    }
+});
+
 var register_ds_model = Ext.data.Record.create([
 			'id',
 			'source',
@@ -550,4 +593,12 @@ var register_ds_model = Ext.data.Record.create([
             'start',
 			'end',
 			'bank'
+]);
+
+var illegal_ds_model = Ext.data.Record.create([
+			'id',
+			'code',
+            'date',
+            'comment',
+            'deleted'
 ]);

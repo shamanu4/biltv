@@ -1,26 +1,43 @@
-/*!
- * Ext JS Library 3.3.0
- * Copyright(c) 2006-2010 Ext JS, Inc.
- * licensing@extjs.com
- * http://www.extjs.com/license
- */
+/*
+This file is part of Ext JS 3.4
+
+Copyright (c) 2011-2013 Sencha Inc
+
+Contact:  http://www.sencha.com/contact
+
+GNU General Public License Usage
+This file may be used under the terms of the GNU General Public License version 3.0 as
+published by the Free Software Foundation and appearing in the file LICENSE included in the
+packaging of this file.
+
+Please review the following information to ensure the GNU General Public License version 3.0
+requirements will be met: http://www.gnu.org/copyleft/gpl.html.
+
+If you are unsure which license is appropriate for your use, please contact the sales department
+at http://www.sencha.com/contact.
+
+Build date: 2013-04-03 15:07:25
+*/
 /**
  * @class Ext.menu.MenuMgr
  * Provides a common registry of all menu items on a page so that they can be easily accessed by id.
  * @singleton
  */
 Ext.menu.MenuMgr = function(){
-   var menus, active, groups = {}, attached = false, lastShow = new Date();
+   var menus, 
+       active, 
+       map,
+       groups = {}, 
+       attached = false, 
+       lastShow = new Date();
+   
 
    // private - called when first menu is created
    function init(){
        menus = {};
        active = new Ext.util.MixedCollection();
-       Ext.getDoc().addKeyListener(27, function(){
-           if(active.length > 0){
-               hideAll();
-           }
-       });
+       map = Ext.getDoc().addKeyListener(27, hideAll);
+       map.disable();
    }
 
    // private
@@ -39,6 +56,7 @@ Ext.menu.MenuMgr = function(){
    function onHide(m){
        active.remove(m);
        if(active.length < 1){
+           map.disable();
            Ext.getDoc().un("mousedown", onMouseDown);
            attached = false;
        }
@@ -50,6 +68,7 @@ Ext.menu.MenuMgr = function(){
        lastShow = new Date();
        active.add(m);
        if(!attached){
+           map.enable();
            Ext.getDoc().on("mousedown", onMouseDown);
            attached = true;
        }
