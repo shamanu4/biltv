@@ -11,7 +11,7 @@ class CityForm(forms.Form):
     deleted = forms.BooleanField(required=False)
     comment = forms.CharField(required=False)
 
-    def save(self,obj=None):
+    def save(self,obj=None, **kw):
         from abon.models import City
         if not obj:
             obj = City()
@@ -42,7 +42,7 @@ class StreetForm(forms.Form):
             raise forms.ValidationError("City related object not exists.")
         return city
 
-    def save(self,obj=None):
+    def save(self,obj=None, **kw):
         from abon.models import Street
         if not obj:
             obj = Street()
@@ -64,7 +64,7 @@ class HouseNumForm(forms.Form):
     deleted = forms.BooleanField(required=False)
     comment = forms.CharField(required=False)
 
-    def save(self,obj=None):
+    def save(self,obj=None, **kw):
         from abon.models import House
         if not obj:
             obj = House()
@@ -103,7 +103,7 @@ class BuildingForm(forms.Form):
             raise forms.ValidationError("House related object not exists.")
         return house
 
-    def save(self,obj=None):
+    def save(self,obj=None, **kw):
         from abon.models import Building
         if not obj:
             obj = Building()
@@ -127,7 +127,7 @@ class PersonForm(forms.Form):
     deleted = forms.BooleanField(required=False)
     comment = forms.CharField(required=False)
 
-    def save(self,obj):
+    def save(self,obj, **kw):
         from abon.models import Person
         if not obj:
             obj = Person()
@@ -154,7 +154,7 @@ class AddressForm(forms.Form):
     deleted = forms.BooleanField(required=False)
     comment = forms.CharField(required=False)
     
-    def save(self,obj):
+    def save(self,obj, **kw):
         from abon.models import Address,Building
         if not obj:
             obj = Address()
@@ -189,7 +189,7 @@ class AbonentForm(forms.Form):
     disabled = forms.BooleanField(required=False)
     comment = forms.CharField(required=False)
 
-    def save(self,obj=None):
+    def save(self,obj=None, **kw):
         from abon.models import Address,Person,Abonent
                 
         try:
