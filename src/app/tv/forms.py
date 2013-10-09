@@ -48,7 +48,7 @@ class RegisterForm(forms.Form):
             rtst = r.match(rdata['bank'])
             if rtst:
                 rdata['bank'] = rtst.group(1)
-        super(self.__class__, self).__init__(rdata, **kw)
+        super(self.__class__, self).__init__(rdata)
 
         
     def clean_source(self):
