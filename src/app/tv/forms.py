@@ -9,7 +9,7 @@ class CardForm(forms.Form):
     deleted = forms.BooleanField(required=False)
     comment = forms.CharField(required=False)
         
-    def save(self,obj=None):
+    def save(self,obj=None, **kw):
         from tv.models import Card
         if not obj:
             obj = Card()
@@ -34,7 +34,7 @@ class RegisterForm(forms.Form):
     end = forms.DateField(required=False)
     bank = forms.DateField(required=False)
     
-    def __init__(self,rdata):
+    def __init__(self,rdata, **kw):
         import re
         r = re.compile('(\d{4}\-\d{2}-\d{2}).*')
         if 'start' in rdata and 'end' in rdata and rdata['start'] and rdata['end']:
@@ -48,8 +48,8 @@ class RegisterForm(forms.Form):
             rtst = r.match(rdata['bank'])
             if rtst:
                 rdata['bank'] = rtst.group(1)
-        super(self.__class__, self).__init__(rdata)
-        
+        super(self.__class__, self).__init__(rdata, **kw)
+
         
     def clean_source(self):
         from tv.models import PaymentSource
@@ -67,7 +67,7 @@ class RegisterForm(forms.Form):
                 raise forms.ValidationError("Source related object not exists.")
         return source
     
-    def save(self,obj=None):
+    def save(self,obj=None,**kw):
         from tv.models import PaymentRegister
         if not obj:
             obj = PaymentRegister()
