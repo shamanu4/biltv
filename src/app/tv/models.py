@@ -380,7 +380,11 @@ class PaymentRegister(models.Model):
     @property
     def current(self):
         return Payment.objects.filter(register=self).aggregate(current=models.Sum('sum'))['current'] or 0
-    
+
+    @property
+    def current_maked(self):
+        return Payment.objects.filter(register=self, maked=True).aggregate(current=models.Sum('sum'))['current'] or 0
+
     def try_this_payment(self,sum):
         if not (self.current + sum) > self.total:
             return True
@@ -397,7 +401,7 @@ class PaymentRegister(models.Model):
     
     @property
     def is_filled(self):
-        return self.current == self.total 
+        return self.current_maked == self.total
     
     def try_close(self):
         if self.is_confirmed and self.is_filled:
