@@ -28,16 +28,21 @@ class Command(BaseCommand):
         io_loop.add_timeout(time.time() + 2, io_loop.stop)
 
     def handle(self, *args, **options):
-        if len(args) == 1:
+        if len(args) == 2:
             try:
-                port = int(args[0])
+                port = int(args[1])
+            except ValueError:
+                raise CommandError('Invalid port number specified')
+            try:
+                address = str(args[0])
             except ValueError:
                 raise CommandError('Invalid port number specified')
         else:
             port = 8888
+            address = "127.0.0.1"
 
         self.http_server = tornado.httpserver.HTTPServer(application)
-        self.http_server.listen(port, address="127.0.0.1")
+        self.http_server.listen(port, address)
 
         # Init signals handler
         signal.signal(signal.SIGTERM, self.sig_handler)
