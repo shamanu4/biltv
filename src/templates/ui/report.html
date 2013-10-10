@@ -27,11 +27,21 @@
 {% block body %}
     <script type="text/javascript">
     
-    window.lines  =0;
+    window.lines = 0;
+    ws = new WebSocket("ws://127.0.0.1:8888/xls/");
+    ws.onmessage = function(event) {
+        data = $.parseJSON(event.data);
+        if(data.ready) {
+            load_mask.hide();
+            window.open(data.url);
+        } else {
+            $(".x-mask-loading").html('<div>'+data.msg+'</div>')
+        }
+    }
     
     Ext.onReady(function(){
 		
-		load_mask = new Ext.LoadMask(Ext.getBody(),{msg:null});
+		load_mask = new Ext.LoadMask(Ext.getBody(),{msg:'подготовка...'});
 		//document.styleSheets[0].cssRules[942].style.removeProperty('overflow')
 		
 		street_store = new Ext.data.DirectStore({
@@ -182,7 +192,8 @@
         		listful: true,
     			baseParams : {
         			filter_fields:['address__building__street__id__exact','address__building__id__exact'],
-        			filter_value:''
+        			filter_value:'',
+                    xls: false,
        			},
        			listeners:{
        				beforeload: function(obj) {
@@ -262,6 +273,12 @@
                 },
                 scope: this
             },{
+                text: 'Завантажити xls',
+                handler: function(){
+                    this.xlsaction()
+                },
+                scope: this
+            },{
                 text: 'Друкувати',
                 handler: function(){
                     this.collapse();
@@ -288,7 +305,28 @@
                 	abonent_store.setBaseParam('filter_value',form.items.items[0].getValue())
                 }
                 abonent_store.setBaseParam('filter',{'bill__balance__lte':parseInt(form.items.items[2].getValue())})
+                abonent_store.setBaseParam('xls',false)
                 abonent_store.load()                
+            },
+            xlsaction: function() {
+                var form = this.getForm();
+                if(!form.isValid()) {
+                	return false
+                }
+                load_mask.show();
+                if(form.items.items[1].value>0) {
+                	abonent_store.setBaseParam('filter_fields',['address__building__id__exact'])
+                	abonent_store.setBaseParam('filter_value',form.items.items[1].getValue())
+                } else if(form.items.items[0].value>0) {
+                	abonent_store.setBaseParam('filter_fields',['address__building__street__id__exact'])
+                	abonent_store.setBaseParam('filter_value',form.items.items[0].getValue())
+                } else {
+                	abonent_store.setBaseParam('filter_fields',['address__building__street__name__istartswith'])
+                	abonent_store.setBaseParam('filter_value',form.items.items[0].getValue())
+                }
+                abonent_store.setBaseParam('filter',{'bill__balance__lte':parseInt(form.items.items[2].getValue())})
+                abonent_store.setBaseParam('xls',true)
+                abonent_store.load()
             },
 
             keys: [
