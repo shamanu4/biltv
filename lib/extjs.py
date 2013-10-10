@@ -92,7 +92,7 @@ def xls(data):
             worksheet.write('G%s' % cx, line['deactivated'], small)
         if line['comment']:
             cx += 1
-            comment = line['comment'].replace('\n','')
+            comment = line['comment'].replace('\n','    ')
             worksheet.merge_range('A%s:G%s' % (cx, cx), comment, merge_small)
         if not cur % 10:
             r.publish('xls', json.dumps({"ready": False, "msg": u"загрузка [%s/%s]" % (cur, total)}))
