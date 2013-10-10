@@ -39,6 +39,7 @@ class Person(models.Model):
     deleted = models.BooleanField(default=False)
     comment = models.TextField(blank=True, null=True)
     sorting = models.CharField(blank=True, max_length=100)
+    phone = models.CharField(blank=True, max_length=32, default='')
 
     class Meta:
         ordering = ['sorting']
@@ -111,6 +112,7 @@ class Person(models.Model):
         obj['lastname'] = self.lastname
         obj['middlename'] = self.middlename
         obj['passport'] = self.passport
+        obj['phone'] = self.phone
         return obj
 
 
@@ -288,6 +290,7 @@ class Address(models.Model):
     comment = models.TextField(blank=True, null=True)
     sorting = models.CharField(blank=True, max_length=100, unique=True)
     override = models.CharField(max_length=20, unique=True, default="")
+    phone = models.CharField(blank=True, max_length=32, default='')
 
     class Meta:
         ordering = ['sorting']
@@ -334,6 +337,7 @@ class Address(models.Model):
         obj['street'] = self.building.street.__unicode__()
         obj['house'] = self.building.house.__unicode__()
         obj['flat'] = self.flat
+        obj['phone'] = self.phone
         return obj
 
 

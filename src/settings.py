@@ -121,6 +121,7 @@ INSTALLED_APPS = (
     'abon',
     'data',                         # migration data
     'abills',
+    'ui',
 )
 
 DIGITAL_CARD_ALLOW_DELETE = True

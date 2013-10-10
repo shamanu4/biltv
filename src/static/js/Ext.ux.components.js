@@ -1297,6 +1297,11 @@ Ext.ux.PersonForm = Ext.extend(Ext.FormPanel, {
                 fieldLabel: 'Отчество',
                 name: 'middlename',
                 allowBlank:false
+            },
+			this.form_mobile_phone_field ={
+                fieldLabel: 'Моб. тел',
+                name: 'phone',
+                allowBlank:true
             }],
         /*
             buttons:[{
@@ -1474,6 +1479,11 @@ Ext.ux.AddressForm = Ext.extend(Ext.FormPanel, {
                 name: 'ext',
                 allowBlank:false
             },
+			this.form_phone_field ={
+                fieldLabel: 'Дом. тел',
+                name: 'phone',
+                allowBlank:true
+            }
 			/*
 			this.activated_field = new Ext.form.DateField({
                 fieldLabel: 'Подключен',

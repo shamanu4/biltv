@@ -12,6 +12,12 @@ from lib.functions import QuerySetChain
 from django.db.models import Q
 from django.utils.functional import update_wrapper
 from functools import wraps
+from django.conf import settings
+from datetime import datetime, date
+import redis
+import json
+import xlsxwriter
+
 
 def check_perm(perm):
     def decorator(func):
@@ -30,10 +36,73 @@ def check_perm(perm):
         return wraps(func)(inner_decorator) 
     return decorator
 
+
+def xls(data):
+    r = redis.StrictRedis()
+    filename = "xls_%s.xlsx" % str(datetime.now().strftime('%Y_%m_%d_%H_%M_%S'))
+    total = len(data)
+    cur = 0
+
+    # Create an new Excel file and add a worksheet.
+    workbook = xlsxwriter.Workbook("%s/xls/%s" % (settings.MEDIA_ROOT, filename))
+    worksheet = workbook.add_worksheet()
+
+    # Widen the first column to make the text clearer.
+    worksheet.set_column('A:A', 10)
+    worksheet.set_column('B:B', 18)
+    worksheet.set_column('C:C', 24)
+    worksheet.set_column('D:D', 6)
+    worksheet.set_column('E:E', 3)
+    worksheet.set_column('F:F', 7)
+    worksheet.set_column('G:G', 7)
+
+    bold = workbook.add_format({'bold': 1, 'font_size': 10})
+    small = workbook.add_format({'font_size': 10})
+    merge_small = workbook.add_format({'font_size': 8, 'font_color': "#505050"})
+    date_format = workbook.add_format({'num_format': 'd-m-yy', 'font_size': 10})
+
+    worksheet.write('A1', u'code', bold)
+    worksheet.write('B1', u'ФИО', bold)
+    worksheet.write('C1', u'Адрес', bold)
+    worksheet.write('D1', u'Баланс', bold)
+    worksheet.write('E1', u'Откл', bold)
+    worksheet.write('F1', u'Подключен', bold)
+    worksheet.write('G1', u'Отключен', bold)
+
+    cx = 1
+
+    for line in data:
+        cur += 1
+        cx += 1
+        worksheet.write('A%s' % cx, line['code'], small)
+        worksheet.write('B%s' % cx, line['person'], small)
+        worksheet.write('C%s' % cx, line['address'], small)
+        worksheet.write('D%s' % cx, line['bill__balance_wo_credit'], small)
+        if line['disabled']:
+            worksheet.write('E%s' % cx, "x")
+        else:
+            worksheet.write('E%s' % cx, "")
+        if type(line['activated']) == date:
+            worksheet.write_datetime('F%s' % cx, line['activated'], date_format)
+        else:
+            worksheet.write('F%s' % cx, line['activated'], small)
+        if type(line['deactivated']) == date:
+            worksheet.write_datetime('G%s' % cx, line['deactivated'], date_format)
+        else:
+            worksheet.write('G%s' % cx, line['deactivated'], small)
+        if line['comment']:
+            cx += 1
+            worksheet.merge_range('A%s:G%s' % (cx, cx), line['comment'], merge_small)
+        if not cur % 10:
+            r.publish('xls', json.dumps({"ready": False, "msg": u"загрузка [%s/%s]" % (cur, total)}))
+    r.publish('xls', json.dumps({"ready": True, "url": "%sxls/%s" % (settings.MEDIA_URL, filename)}))
+
+
 def store_read(func):
     def wrapper(*args, **kwargs):
         from lib.functions import latinaze
         import re
+        r = redis.StrictRedis()
         spec_lookup = re.compile("^.*\_{2}(i?exact|i?contains|(l|g)te|i?(start|end)swith)$")
         result = func(*args, **kwargs)
         rdata = args[1]
@@ -44,7 +113,9 @@ def store_read(func):
             success = True
             extras = {}
         total=0
-        if isinstance(result, QuerySet) or isinstance(result, QuerySetChain):                        
+        if isinstance(result, QuerySet) or isinstance(result, QuerySetChain):
+            if 'xls' in rdata and rdata['xls']:
+                r.publish('xls', json.dumps({"ready": False, "msg": u"обработка данных..."}))
             if 'filter_fields' in rdata and 'filter_value' in rdata:
                 query=None
                 if 'query' in rdata:
@@ -105,8 +176,20 @@ def store_read(func):
                     result = result.order_by('%s' % rdata['sort'])
             total = result.count()
             if 'start' in rdata and 'limit' in rdata:
-                result = result[rdata['start']:rdata['start']+rdata['limit']]            
-            result = [obj.store_record() for obj in result]
+                result = result[rdata['start']:rdata['start']+rdata['limit']]
+            if 'xls' in rdata and rdata['xls']:
+                rs = []
+                total = len(result)
+                cur = 0
+                for obj in result:
+                    cur += 1
+                    if not cur % 10:
+                        r.publish('xls', json.dumps({"ready": False, "msg": u"обработка [%s/%s]" % (cur, total)}))
+                    rs.append(obj.store_record())
+                xls(rs)
+                result = []
+            else:
+                result = [obj.store_record() for obj in result]
         return dict(data=result, success=success, total=total, extras=extras)
     return update_wrapper(wrapper, func)
 

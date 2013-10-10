@@ -1,0 +1,8 @@
+Django==1.3
+MySQL-python==1.2.4
+South==0.8.2
+git+https://github.com/jmcnamara/XlsxWriter
+git+https://github.com/evilkost/brukva
+redis==2.8.0
+tornado==3.1.1
+wsgiref==0.1.2
