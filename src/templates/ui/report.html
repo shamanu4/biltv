@@ -33,7 +33,9 @@
         data = $.parseJSON(event.data);
         if(data.ready) {
             load_mask.hide();
-            window.open(data.url);
+            setTimeout(function() {
+                window.open(data.url);
+            }, 3000);
         } else {
             $(".x-mask-loading").html('<div>'+data.msg+'</div>')
         }
