@@ -28,7 +28,7 @@
     <script type="text/javascript">
     
     window.lines = 0;
-    ws = new WebSocket("ws://192.168.33.70:8888/xls/");
+    ws = new WebSocket("ws://127.0.0.1:8888/xls/");
     ws.onmessage = function(event) {
         data = $.parseJSON(event.data);
         if(data.ready) {
