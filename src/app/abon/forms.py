@@ -126,6 +126,7 @@ class PersonForm(forms.Form):
     passport = forms.CharField(required=True, max_length=20)
     deleted = forms.BooleanField(required=False)
     comment = forms.CharField(required=False)
+    phone = forms.CharField(required=False)
 
     def save(self,obj, **kw):
         from abon.models import Person
@@ -137,6 +138,7 @@ class PersonForm(forms.Form):
         obj.passport = self.cleaned_data['passport']
         obj.deleted = self.cleaned_data['deleted'] or False
         obj.comment = self.cleaned_data['comment']
+        obj.phone = self.cleaned_data['phone']
         try:
             obj.save()
         except IntegrityError as error:
@@ -153,6 +155,7 @@ class AddressForm(forms.Form):
     ext = forms.CharField(required=True, max_length=20)
     deleted = forms.BooleanField(required=False)
     comment = forms.CharField(required=False)
+    phone = forms.CharField(required=False)
     
     def save(self,obj, **kw):
         from abon.models import Address,Building
@@ -170,6 +173,7 @@ class AddressForm(forms.Form):
         obj.override = self.cleaned_data['ext']
         obj.deleted = self.cleaned_data['deleted'] or False
         obj.comment = self.cleaned_data['comment']
+        obj.phone = self.cleaned_data['phone']
         try:
             obj.save()
         except IntegrityError as error:
