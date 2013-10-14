@@ -314,7 +314,7 @@
                 abonent_store.setBaseParam('filter',{'bill__balance__lte':parseInt(form.items.items[2].getValue())})
                 if(!form.items.items[3].getValue())
                 {
-                    abonent_store.setBaseParam('filter',{'disabled':false});
+                    abonent_store.setBaseParam('filter',{'disabled':0});
                 }
                 abonent_store.setBaseParam('xls',false);
                 abonent_store.load();
@@ -338,7 +338,7 @@
                 abonent_store.setBaseParam('filter',{'bill__balance__lte':parseInt(form.items.items[2].getValue())})
                 if(!form.items.items[3].getValue())
                 {
-                    abonent_store.setBaseParam('filter',{'disabled':false});
+                    abonent_store.setBaseParam('filter',{'disabled':0});
                 }
                 abonent_store.setBaseParam('xls',true);
                 abonent_store.load();
