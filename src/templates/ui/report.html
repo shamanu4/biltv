@@ -28,7 +28,7 @@
     <script type="text/javascript">
     
     window.lines = 0;
-    ws = new WebSocket("ws://192.168.33.70:8888/xls/");
+    ws = new WebSocket("{{ settings.TORNADO_SOCKET }}/xls/");
     ws.onmessage = function(event) {
         data = $.parseJSON(event.data);
         if(data.ready) {
@@ -154,8 +154,13 @@
 		
 		balance_input = new Ext.form.TextField({
 			fieldLabel: 'Баланс',
-			allowBlank: false,
-		})
+			allowBlank: false
+		});
+
+        disabled_input = new Ext.form.Checkbox({
+			fieldLabel: 'Показать отключенных',
+			allowBlank: true
+		});
 		
 		abonent_store = new Ext.data.DirectStore({
     			api: {
@@ -307,8 +312,12 @@
                 	abonent_store.setBaseParam('filter_value',form.items.items[0].getValue())
                 }
                 abonent_store.setBaseParam('filter',{'bill__balance__lte':parseInt(form.items.items[2].getValue())})
-                abonent_store.setBaseParam('xls',false)
-                abonent_store.load()                
+                if(!form.items.items[3].getValue())
+                {
+                    abonent_store.setBaseParam('filter',{'disabled':false});
+                }
+                abonent_store.setBaseParam('xls',false);
+                abonent_store.load();
             },
             xlsaction: function() {
                 var form = this.getForm();
@@ -327,8 +336,12 @@
                 	abonent_store.setBaseParam('filter_value',form.items.items[0].getValue())
                 }
                 abonent_store.setBaseParam('filter',{'bill__balance__lte':parseInt(form.items.items[2].getValue())})
-                abonent_store.setBaseParam('xls',true)
-                abonent_store.load()
+                if(!form.items.items[3].getValue())
+                {
+                    abonent_store.setBaseParam('filter',{'disabled':false});
+                }
+                abonent_store.setBaseParam('xls',true);
+                abonent_store.load();
             },
 
             keys: [
@@ -345,7 +358,8 @@
             items: [
             	street_combo,
             	building_combo,
-            	balance_input
+            	balance_input,
+                disabled_input
             ],
 
             // configs for BasicForm

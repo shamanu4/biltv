@@ -5,6 +5,7 @@ from settings import PROGRAM_VERSION
 from django.template.loader import render_to_string
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
 
 @render_to('ui/index.html')
 def index(request):
@@ -42,7 +43,9 @@ def traceback(request):
 @login_required
 @render_to('ui/report.html')
 def report(request):
-    return {}
+    return {
+        'settings': settings
+    }
 
 @login_required
 @render_to('ui/abonlist.html')
