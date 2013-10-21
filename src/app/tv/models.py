@@ -488,8 +488,9 @@ class Payment(models.Model):
         return "%s" % self.sum
 
     def save(self, *args, **kwargs):
-        if self.register.current + self.sum > self.register.total:
-            raise RegisterOverflowException(u'реестр переполнен')
+        if self.register:
+            if self.register.current + self.sum > self.register.total:
+                raise RegisterOverflowException(u'реестр переполнен')
 
         super(self.__class__, self).save(*args, **kwargs)
         self.bill.resend_cards()
