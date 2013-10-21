@@ -976,6 +976,7 @@ class Abonent(models.Model):
         obj['disabled'] = self.disabled
         obj['fee'] = 25
         obj['bill__balance'] = self.bill.balance_get()
+        obj['bill__balance2'] = self.bill.balance2
         obj['bill__balance_wo_credit'] = self.bill.balance_get_wo_credit()
         return obj
 

@@ -235,7 +235,7 @@
                 {header: "Code", dataIndex: 'code', width:80, sortable:true},
                 {header: "ФИО", dataIndex: 'person', width:140, sortable:true},
                 {header: "Адрес", dataIndex: 'address', width:200, sortable:true},
-                {header: "Баланс", dataIndex: 'bill__balance_wo_credit', width:60},
+                {header: "Баланс", dataIndex: 'bill__balance2', width:60},
                 //{header: "Comment", dataIndex: 'comment'},
                 {header: "Откл.", dataIndex: 'disabled', width: 56, sortable:true,
                     renderer: function(value, metaData, record, rowIndex, colIndex, store) {
@@ -313,7 +313,7 @@
                 }
                 if(!form.items.items[3].getValue())
                 {
-                    abonent_store.setBaseParam('filter',{'disabled':0, 'bill__balance__lte':parseInt(form.items.items[2].getValue())});
+                    abonent_store.setBaseParam('filter',{'disabled':0, 'bill__balance2__lte':parseInt(form.items.items[2].getValue())});
                 } else {
                     abonent_store.setBaseParam('filter',{'bill__balance2__lte':parseInt(form.items.items[2].getValue())})
                 }
@@ -338,7 +338,7 @@
                 }
                 if(!form.items.items[3].getValue())
                 {
-                    abonent_store.setBaseParam('filter',{'disabled':0, 'bill__balance__lte':parseInt(form.items.items[2].getValue())});
+                    abonent_store.setBaseParam('filter',{'disabled':0, 'bill__balance2__lte':parseInt(form.items.items[2].getValue())});
                 } else {
                     abonent_store.setBaseParam('filter',{'bill__balance2__lte':parseInt(form.items.items[2].getValue())})
                 }
