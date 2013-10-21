@@ -780,7 +780,7 @@ class AbonApiClass(object):
     
     @check_perm('accounts.rpc_abon_make_payment')
     def make_payment(self,rdata,request):
-        from tv.models import PaymentRegister, Payment
+        from tv.models import PaymentRegister, Payment, RegisterOverflowException
         from abon.models import Abonent
         from datetime import datetime
         
@@ -823,7 +823,10 @@ class AbonApiClass(object):
         p.inner_descr = descr
         p.admin= request.user
         p.bank_date = bank_date
-        p.save()
+        try:
+            p.save()
+        except RegisterOverflowException, e:
+            return dict(success=False, title='Сбой проведения оплаты', msg=e.msg, errors='', data={} )
                     
         return dict(success=True, title='Оплата принята', msg='...', errors='', data={} )
     

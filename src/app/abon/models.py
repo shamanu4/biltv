@@ -360,6 +360,7 @@ class Illegal(models.Model):
 class Bill(models.Model):
 
     balance = models.FloatField(default=0)
+    balance2 = models.FloatField(default=0)
     deleted = models.BooleanField(default=False)
 
     class Meta:
@@ -390,6 +391,10 @@ class Bill(models.Model):
 
     def balance_get(self):
         return self.balance_get_wo_credit()+self.get_credit()
+
+    def balance2set(self):
+        self.balance2 = self.balance_get_wo_credit()
+        self.save(nocheck=True)
 
     @property
     def balance_int(self):
@@ -422,7 +427,6 @@ class Bill(models.Model):
         from operator import attrgetter
         from tv.models import Fee,Payment
         balance = 0
-        print "balance on date %s " % date
         for op in sorted(
                 list(chain(self.fees.filter(deleted=False,maked=True,rolled_by=None,timestamp__lt=date),
                     self.payments.filter(deleted=False,rolled_by=None,bank_date__lt=date),)),
@@ -431,7 +435,7 @@ class Bill(models.Model):
                 balance-=op.sum
             if type(op)==Payment:
                 balance+=op.sum
-        print balance
+        #print balance
         return balance
 
     def operations_log(self,last_operation_date=None):
@@ -454,9 +458,7 @@ class Bill(models.Model):
             balance = 0
         else:
             balance = self.balance_on_date(last_operation_date)
-        print "fix_operations_log starting balance: %s" % balance
         for op in self.operations_log(last_operation_date):
-            print "%s %s %s" % (type(op),op,balance)
             op.prev=balance
             op.save()
             if type(op)==Fee:
@@ -468,16 +470,16 @@ class Bill(models.Model):
         from django.core.mail import EmailMultiAlternatives
         calculated = self.balance_on_date(date=date(2999, 12, 31))
         current = self.balance_wo_credit
-        if not calculated == current:
-            try:
-                report = "bill checksum mismatch abonent_id:%s  bill_id:%s current:%s counted:%s" % (self.abonents.get().pk,self.pk,current,calculated)
-                print report
-                subject, from_email, to = 'BilTV checksum error', 'biltv@it-tim.net', 'mm@it-tim.net'
-                text_content = report
-                msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
-                msg.send()
-            except:
-                pass
+        #if not calculated == current:
+        #    try:
+        #        report = "bill checksum mismatch abonent_id:%s  bill_id:%s current:%s counted:%s" % (self.abonents.get().pk,self.pk,current,calculated)
+        #        print report
+        #        subject, from_email, to = 'BilTV checksum error', 'biltv@it-tim.net', 'mm@it-tim.net'
+        #        text_content = report
+        #        msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+        #        msg.send()
+        #    except:
+        #        pass
 
     def restore_tp_check(self):
         if self.balance_get()>=0 and self.saved_services.filter(restored=False).count():
@@ -493,13 +495,17 @@ class Bill(models.Model):
             abonent.send_cards()
 
     def save(self,*args,**kwargs):
+        if 'nocheck' in kwargs:
+            del kwargs['nocheck']
+            return super(self.__class__, self).save(*args, **kwargs)
+
         if 'last_operation_date' in kwargs:
             last_operation_date = kwargs['last_operation_date']
             del kwargs['last_operation_date']
         else:
             last_operation_date = None
+
         super(self.__class__, self).save(*args, **kwargs)
-        print "bill recalc from %s" % last_operation_date
         self.fix_operations_log(last_operation_date)
         self.checksum()
         self.restore_tp_check()
@@ -522,7 +528,7 @@ class Credit(models.Model):
         self.bill.restore_tp_check()
         self.bill.resend_cards()
         for fee in self.bill.fees.filter(maked__exact=False,deleted__exact=False,rolled_by__exact=None):
-            print fee
+            #print fee
             if not fee.card or not fee.tp:
                 fee.make()
             else:
@@ -621,14 +627,14 @@ class Abonent(models.Model):
 
 
     def disable(self,date=None,descr=''):
-        print "abonent disabling..."
+        #print "abonent disabling..."
         if not self.catv_card:
             return False
         else:
             self.disabled=True
             self.save()
-            print "abonent disabled..."
-            print date
+            #print "abonent disabled..."
+            #print date
             return self.catv_card.deactivate(date,descr)
 
     def enable(self,date=None,descr=''):
@@ -676,7 +682,7 @@ class Abonent(models.Model):
         self.sorting = "%s, [ %s ]" % (self.address.sorting, self.person.fio_short())
         super(self.__class__, self).save(*args,**kwargs)
         if len(self.cards.filter(num__lte=0))==0:
-            print "creating CaTV card ..."
+            #print "creating CaTV card ..."
             self.create_catv_card()
 
     def send_cards(self):
@@ -723,7 +729,7 @@ class Abonent(models.Model):
             return None
 
     def check_abills_bill_link(self,card,cs):
-        print "checking link %s %s %s" % (self,card,cs)
+        #print "checking link %s %s %s" % (self,card,cs)
         u = self.abills_get_user(cs.extra)
         if u:
             AbillsLink.check(self,u,card,cs)
@@ -732,7 +738,7 @@ class Abonent(models.Model):
     def import_catv_history(self):
         from tv.models import CardHistory, CARD_SERVICE_ACTIVATED, CARD_SERVICE_DEACTIVATED
         self.catv_card.service_log.filter(timestamp__lt='2011-03-07').delete()
-        print self
+        #print self
         if not self.catv_card:
             return False
         for interval in self.intervals.all():
@@ -1001,7 +1007,7 @@ class AbillsLink(models.Model):
         bill.sync = 0
         bill.save()
         self.abills.admin_log('Unlinked from TV billing. deposit set to %s UAH' % (bill.sync,), datetime.now())
-        print ('Unlinked from TV billing. deposit set to %s UAH' % (bill.sync,), datetime.now())
+        #print ('Unlinked from TV billing. deposit set to %s UAH' % (bill.sync,), datetime.now())
         super(self.__class__, self).delete(*args, **kwargs)
 
     @classmethod
@@ -1030,18 +1036,19 @@ class AbillsLink(models.Model):
     @classmethod
     def check(cls,abonent,abills,card,service):
         from django.db.models import Q
-        print "abills linking check"
-        print (abonent,abills,card,service)
+        #print "abills linking check"
+        #print (abonent,abills,card,service)
         if not cls.exists(abonent,abills,card,service):
             if not cls.conflicts(abonent,abills,card,service):
-                print "creating new link"
+                #print "creating new link"
                 cls.create(abonent,abills,card,service)
             else:
-                print "link for %s conflicts with other" % abonent
-                print "abonent %s" % cls.objects.filter(abonent=abonent)
-                print "abills %s" % cls.objects.filter(abills=abills)
-                print "card %s" % cls.objects.filter(card=card)
-                print "service %s" % cls.objects.filter(service=service)
+                pass
+                #print "link for %s conflicts with other" % abonent
+                #print "abonent %s" % cls.objects.filter(abonent=abonent)
+                #print "abills %s" % cls.objects.filter(abills=abills)
+                #print "card %s" % cls.objects.filter(card=card)
+                #print "service %s" % cls.objects.filter(service=service)
         else:
             obj =  cls.objects.get(abonent=abonent,abills=abills,card=card,service=service)
             obj.sync()
@@ -1089,23 +1096,23 @@ class AbillsLink(models.Model):
         from lib.functions import round1000
         u = self.abonent.abills_get_user(self.service.extra)
         bill = self.abills.bill
-        print
-        print "syncing abonent %s. card %s. bill %s" % (self.abonent,self.card,bill)
+        #print
+        #print "syncing abonent %s. card %s. bill %s" % (self.abonent,self.card,bill)
         if not u == self.abills:
-            print "link not valid. deleting..."
+            #print "link not valid. deleting..."
             self.delete()
             return False
         if not bill.deposit == bill.sync:
             diff = bill.deposit - bill.sync
-            print "diff %s" % diff
+            #print "diff %s" % diff
             diff = round1000(diff)
-            print "rounded diff %s" % diff
+            #print "rounded diff %s" % diff
             if 0<diff<1:
-                print "delta too small. ignored"
+                #print "delta too small. ignored"
                 diff=0
                 return False
             if -1<diff<0:
-                print "small negative delta. ignored"
+                #print "small negative delta. ignored"
                 diff=0
                 return False
             if diff>0:
@@ -1119,12 +1126,13 @@ class AbillsLink(models.Model):
         elif not bill.deposit == self.abonent.bill.balance_get():
             diff = bill.deposit - self.abonent.bill.balance_get()
             if -0.1<diff<0.1:
-                print "local change too small. ignored"
+                #print "local change too small. ignored"
                 return False
-            print "local change"
+            #print "local change"
             self.abills.admin_log('TV. deposit %s -> %s UAH' % (bill.deposit,self.abonent.bill.balance_get()), datetime.now())
             bill.deposit = self.abonent.bill.balance_get()
             bill.sync=bill.deposit
             bill.save()
         else:
-            print "nothing to do"
+            pass
+            #print "nothing to do"

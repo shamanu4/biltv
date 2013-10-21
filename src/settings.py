@@ -114,7 +114,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.admin',
     'south',
-    # 'django_extensions',          # optional, neede for development only
+    #'django_extensions',          # optional, needed for development only
     'accounts',
     'logger',
     'tv',
