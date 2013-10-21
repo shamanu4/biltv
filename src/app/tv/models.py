@@ -458,6 +458,15 @@ class PaymentRegisterStamp(models.Model):
         return self.register.__unicode__()
 
 
+class RegisterOverflowException(Exception):
+
+    def __init__(self, msg):
+        from django.utils.encoding import smart_str
+        self.msg = smart_str(msg)
+
+    def __repr__(self):
+        return self.msg
+
 
 class Payment(models.Model):
 
@@ -479,8 +488,12 @@ class Payment(models.Model):
         return "%s" % self.sum
 
     def save(self, *args, **kwargs):
+        if self.register.current + self.sum > self.register.total:
+            raise RegisterOverflowException(u'реестр переполнен')
+
         super(self.__class__, self).save(*args, **kwargs)
         self.bill.resend_cards()
+        self.bill.balance2set()
         for fee in self.bill.fees.filter(maked__exact=False,deleted__exact=False,rolled_by__exact=None):
             print fee
             if not fee.card or not fee.tp:
@@ -610,6 +623,7 @@ class Fee(models.Model):
         return "%s" % self.sum
 
     def save(self, *args, **kwargs):
+        self.bill.balance2set()
         super(self.__class__, self).save(*args, **kwargs)
         
     def store_record(self):

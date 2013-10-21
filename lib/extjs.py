@@ -182,6 +182,7 @@ def store_read(func):
                 rs = []
                 total = len(result)
                 cur = 0
+                result = result.order_by('address__override')
                 for obj in result:
                     cur += 1
                     if not cur % 10:
