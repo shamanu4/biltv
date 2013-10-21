@@ -77,7 +77,7 @@ def xls(data):
         worksheet.write('A%s' % cx, line['code'], small)
         worksheet.write('B%s' % cx, line['person'], small)
         worksheet.write('C%s' % cx, line['address'], small)
-        worksheet.write('D%s' % cx, line['bill__balance_wo_credit'], small)
+        worksheet.write('D%s' % cx, line['bill__balance2'], small)
         if line['disabled']:
             worksheet.write('E%s' % cx, "x")
         else:
