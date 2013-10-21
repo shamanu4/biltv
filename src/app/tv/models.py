@@ -587,6 +587,8 @@ class Payment(models.Model):
             r.save()
             r.make()
             self.rolled_by=r
+            self.register = None
+            self.source = None
             self.save()
             return (True,r)
         return (False,"Already rolled back")
