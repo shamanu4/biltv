@@ -488,7 +488,7 @@ class Payment(models.Model):
         return "%s" % self.sum
 
     def save(self, *args, **kwargs):
-        if self.register:
+        if self.register and not self.pk:
             if self.register.current + self.sum > self.register.total:
                 raise RegisterOverflowException(u'реестр переполнен')
 
