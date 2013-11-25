@@ -1073,13 +1073,14 @@ class Card(models.Model):
         self.services.all().delete()
         
     def make_fees(self,date):
+        date = date or datetime.now()
         for sched in self.sched.filter(date__lte=date):
             sched.service_old.tp = sched.service_new
             sched.service_old.save()
             sched.delete()
         if not self.active or self.deleted:
             return False
-        for service in self.services.filter(active=True):
+        for service in self.services.filter(active=True, activated__lte=date):
             service.make_fees(date)
     
     def check_past_deactivation(self,deactivated):
