@@ -506,6 +506,7 @@ class Bill(models.Model):
             last_operation_date = None
 
         super(self.__class__, self).save(*args, **kwargs)
+        self.balance2set()
         self.fix_operations_log(last_operation_date)
         self.checksum()
         self.restore_tp_check()
