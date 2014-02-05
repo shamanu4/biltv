@@ -142,3 +142,5 @@ try:
 except ImportError:
     pass
 
+CHAN_COPY_SOURCE = 6
+CHAN_COPY_DESTINATION = [11, 12, 13, 14, 15, 9]
