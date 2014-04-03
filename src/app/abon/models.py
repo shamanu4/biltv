@@ -1038,19 +1038,19 @@ class AbillsLink(models.Model):
     @classmethod
     def check(cls,abonent,abills,card,service):
         from django.db.models import Q
-        #print "abills linking check"
-        #print (abonent,abills,card,service)
+        print "abills linking check"
+        print (abonent,abills,card,service)
         if not cls.exists(abonent,abills,card,service):
             if not cls.conflicts(abonent,abills,card,service):
-                #print "creating new link"
+                print "creating new link"
                 cls.create(abonent,abills,card,service)
             else:
                 pass
-                #print "link for %s conflicts with other" % abonent
-                #print "abonent %s" % cls.objects.filter(abonent=abonent)
-                #print "abills %s" % cls.objects.filter(abills=abills)
-                #print "card %s" % cls.objects.filter(card=card)
-                #print "service %s" % cls.objects.filter(service=service)
+                print "link for %s conflicts with other" % abonent
+                print "abonent %s" % cls.objects.filter(abonent=abonent)
+                print "abills %s" % cls.objects.filter(abills=abills)
+                print "card %s" % cls.objects.filter(card=card)
+                print "service %s" % cls.objects.filter(service=service)
         else:
             obj =  cls.objects.get(abonent=abonent,abills=abills,card=card,service=service)
             obj.sync()
