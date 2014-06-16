@@ -540,6 +540,7 @@ Ext.ux.StreetGrid = Ext.extend(Ext.ux.CustomGrid ,{
                 {header: "City", dataIndex: 'city',
                     editor: new Ext.form.ComboBox({
                         store: Ext.ux.cities_combo_store,
+                        
                         editable: true,
                         lazyRender: false,
                         triggerAction: 'all',
@@ -548,7 +549,7 @@ Ext.ux.StreetGrid = Ext.extend(Ext.ux.CustomGrid ,{
                         mode: 'local'
                     }),
                     renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-                         var index = Ext.ux.cities_combo_store.find('id',value)
+                         var index = Ext.ux.cities_combo_store.findExact('id',value)
                          if (index>=0) {
                             return Ext.ux.cities_combo_store.getAt(index).data.name
                          } else {
@@ -592,7 +593,7 @@ Ext.ux.BuildingGrid = Ext.extend(Ext.ux.CustomGrid ,{
                         mode: 'local'
                     }),
                     renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-                         var index = Ext.ux.streets_combo_store.find('id',value)
+                         var index = Ext.ux.streets_combo_store.findExact('id',value)
                          if (index>=0) {
                             return Ext.ux.streets_combo_store.getAt(index).data.name
                          } else {
@@ -612,7 +613,7 @@ Ext.ux.BuildingGrid = Ext.extend(Ext.ux.CustomGrid ,{
                         mode: 'local'
                     }),
                     renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-                         var index = Ext.ux.houses_combo_store.find('id',value)
+                         var index = Ext.ux.houses_combo_store.findExact('id',value)
                          if (index>=0) {
                             return Ext.ux.houses_combo_store.getAt(index).data.num
                          } else {
