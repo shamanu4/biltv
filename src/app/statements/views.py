@@ -12,7 +12,7 @@ from datetime import date, datetime
 import json
 import os
 import errno
-from subprocess import check_call
+from subprocess import Popen, PIPE
 from .forms import XLSUploadForm
 
 PATH = "/home/maxim/projects/biltv2/src/app/statements/tmp"
@@ -52,14 +52,15 @@ def handle_uploaded_file(f, day):
 
 
 def process(path, daystr):
-    check_call(['python', 'manage.py', 'import_xls', path, daystr, '--process'])
+    p = Popen(['python', 'manage.py', 'import_xls', path, daystr, '--process'], stdout=PIPE, stderr=PIPE)
+    output = p.communicate()
+    if output[1]:
+        raise RuntimeError(output[1])
 
 
 @login_required
 @csrf_exempt
 def upload(request):
-    print request.POST
-    print request.FILES
     if request.method == 'POST':
         form = XLSUploadForm(request.POST, request.FILES)
         if form.is_valid():
@@ -68,9 +69,7 @@ def upload(request):
             except Exception, e:
                 resp = {
                     "success": False,
-                    "errors": [
-                        str(e)
-                    ]
+                    "errors": str(e)
                 }
             else:
                 resp = {
@@ -82,5 +81,4 @@ def upload(request):
                 "success": False,
                 "errors": json.dumps(form.errors)
             }
-        print resp
         return HttpResponse(json.dumps(resp))

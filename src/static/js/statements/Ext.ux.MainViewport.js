@@ -46,6 +46,10 @@ Ext.ux.MainViewport = Ext.extend(Ext.Viewport, {
                                         setTimeout(function(){
                                             document.location.href="/statements/"+datestr;
                                         }, 1000)
+                                    },
+                                    failure: function(res, o) {
+                                        ps = JSON.parse(o.response.responseText)
+                                        Ext.ux.msg("Error", ps.errors, Ext.Msg.ERROR);
                                     }
                                 });
                             }

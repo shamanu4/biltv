@@ -79,12 +79,13 @@ class Command(BaseCommand):
                 entries.append(e)
 
             if not options['process']:
-                raise CommandError('no process option')
                 return json.dumps({
                     'statement': statement,
                     'entries': entries
                 })
-
-            s = Statement.objects.create(**statement)
-            for e in entries:
-                Entry.objects.create(statement=s, **e)
+            try:
+                s = Statement.objects.create(**statement)
+                for e in entries:
+                    Entry.objects.create(statement=s, **e)
+            except Exception, e:
+                raise CommandError("Database consistency error")
