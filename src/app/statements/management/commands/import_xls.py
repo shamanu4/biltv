@@ -42,7 +42,7 @@ class Command(BaseCommand):
             try:
                 parsed = pd.read_html(path, infer_types=False)
             except Exception, e:
-                raise CommandError("Can't parse file. Error: %s", e)
+                raise CommandError("Can't parse file. Error: %s" % e)
             else:
                 head = parsed[1]
                 data = parsed[2]
