@@ -121,11 +121,12 @@ INSTALLED_APPS = (
     'abon',
     'data',                         # migration data
     'abills',
+    'statements',
     'ui',
 )
 
 DIGITAL_CARD_ALLOW_DELETE = True
-PROGRAM_VERSION = 'v0.15.1'
+PROGRAM_VERSION = 'v0.16.1'
 
 #TODO: move this option in settings_local
 EXPORT_PATH = rel('..','export')

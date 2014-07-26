@@ -1668,8 +1668,16 @@ class FeesCalendar(models.Model):
 
 class PromotionLink(models.Model):
 
+    try:
+        TP_CHOICES = Tp.choices()
+    except:
+        TP_CHOICES = (
+            ('1', 'foo'),
+            ('2', 'bar'),
+        )
+
     tp = models.ForeignKey(TariffPlan,related_name='promotions',unique=True,blank=True,null=True)
-    abills_tp_id = models.IntegerField(choices=Tp.choices(),db_column="abills_tp_id") 
+    abills_tp_id = models.IntegerField(choices=TP_CHOICES,db_column="abills_tp_id")
 
     @property
     def abills_tp(self):
