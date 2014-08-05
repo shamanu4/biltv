@@ -17,5 +17,6 @@ urlpatterns = patterns('',
         {'document_root': MEDIA_ROOT, 'path':'favicon.ico'}),
     (r'^logs/admin/(?P<app_label>[^/]+)/(?P<model>[^/]+)/(?P<oid>\d+)/', 'logger.views.index'),
     (r'^admin/', include(admin.site.urls)),
-    (r'^', include('ui.urls', 'ui')),    
+    (r'^statements/', include('statements.urls', 'statements')),
+    (r'^', include('ui.urls', 'ui')),
 )
