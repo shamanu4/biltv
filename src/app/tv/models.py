@@ -1359,9 +1359,9 @@ class CardService(models.Model):
                     if self.card.num>0:
                         self.card.send_one()
                     return False
-                for link in self.abills_links.all():
-                    print "deleting link %s" % link
-                    link.delete()
+                #for link in self.abills_links.all():
+                #    print "deleting link %s" % link
+                #    link.delete()
                 if not old.active == self.active:
                     if self.active:
                         action = CARD_SERVICE_ACTIVATED
