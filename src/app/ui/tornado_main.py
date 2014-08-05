@@ -16,6 +16,9 @@ c.connect()
 
 
 class MainHandler(tornado.web.RequestHandler):
+    def check_origin(self, origin):
+        return True
+
     def get(self):
         self.set_header('Content-Type', 'text/plain')
         self.write('Hello. :)')
@@ -27,6 +30,9 @@ class MessagesHandler(tornado.websocket.WebSocketHandler):
         self.client = brukva.Client()
         self.client.connect()
         self.channel = ""
+
+    def check_origin(self, origin):
+        return True
 
     def open(self, thread_id):
         self.channel = thread_id
