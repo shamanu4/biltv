@@ -2,4 +2,9 @@
 
 {% block content %}
         <script type="text/javascript" src="{{ MEDIA_URL }}js/statements/ui-index.js?v={{ PROGRAM_VERSION }}"></script>
+        <script type="text/javascript">
+            Ext.onReady(function(){
+                Ext.getCmp("form-date-input").setValue("{{ day }}");
+            })
+        </script>
 {% endblock %}

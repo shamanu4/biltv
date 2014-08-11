@@ -21,7 +21,8 @@ Ext.ux.MainViewport = Ext.extend(Ext.Viewport, {
                         xtype: 'datefield',
                         format: 'Y-m-d',
                         fieldLabel: 'Date',
-                        name: 'day'
+                        name: 'day',
+                        id: "form-date-input"
                     },{
                         xtype: 'fileuploadfield',
                         id: 'form-file',
@@ -48,7 +49,7 @@ Ext.ux.MainViewport = Ext.extend(Ext.Viewport, {
                                         }, 1000)
                                     },
                                     failure: function(res, o) {
-                                        ps = JSON.parse(o.response.responseText)
+                                        ps = JSON.parse(o.response.responseText);
                                         Ext.ux.msg("Error", ps.errors, Ext.Msg.ERROR);
                                     }
                                 });

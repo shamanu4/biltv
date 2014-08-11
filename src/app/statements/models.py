@@ -43,6 +43,23 @@ class Entry(models.Model):
     def __unicode__(self):
         return self.timestamp.strftime("%Y-%m-%d %H:%M:%S")
 
+    def store_record(self):
+        return {
+            'statement_id': self.statement.id,
+            'parent_id': self.parent.id if self.parent else None,
+            'category_id': self.category.id if self.parent else None,
+            'pid': self.pid,
+            'timestamp': self.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+            'amount': "%0.2f" % self.amount,
+            'currency': self.currency,
+            'egrpou': self.egrpou,
+            'verbose_name': self.verbose_name,
+            'account_num': self.account_num,
+            'mfo': self.mfo,
+            'descr': self.descr,
+            'processed': self.processed
+        }
+
 
 TYPE_UNDEF = 0
 TYPE_INET = 1
