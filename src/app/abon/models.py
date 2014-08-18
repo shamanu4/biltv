@@ -1060,6 +1060,7 @@ class AbillsLink(models.Model):
                 print "abills %s" % cls.objects.filter(abills=abills)
                 print "card %s" % cls.objects.filter(card=card)
                 print "service %s" % cls.objects.filter(service=service)
+                raise RuntimeError("link for %s conflicts with other" % abonent)
         else:
             obj =  cls.objects.get(abonent=abonent,abills=abills,card=card,service=service)
             obj.sync()
