@@ -1,13 +1,10 @@
 from django.core.management.base import BaseCommand, CommandError
-from abon.models import Bill
+from tv.models import CardService
 
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        count = 0
-        total = Bill.objects.all().count()
-        for bill in Bill.objects.all():
-            bill.balance2set()
-            count += 1
-            if not (count % 20):
-                print "%s/%s" % (count, total)
+        css = CardService.objects.filter(extra__isnull=False)
+        for cs in css:
+            for link in cs.abills_links.all():
+                link.sync()
