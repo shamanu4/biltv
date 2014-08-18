@@ -1023,7 +1023,7 @@ class AbillsLink(models.Model):
         direct_users = cls.objects.filter(Q(abonent=abonent)|Q(abills=abills)|Q(card=card)|Q(service=service)).count()>0
         if direct_users:
             return direct_users
-        company_users = abills.company.clients.all()
+        company_users = [x.pk for x in abills.company.clients.all()]
         return cls.objects.filter(abills__in=company_users)
 
     @classmethod
