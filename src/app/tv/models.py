@@ -1311,7 +1311,7 @@ class CardService(models.Model):
                 pass
             else:
                 if not cs.pk == self.pk:
-                    raise RuntimeError("%s already joined to card %s" % cs.card.num)
+                    raise RuntimeError("%s already joined to card %s" % (self.extra, cs.card.num))
             # check unlink
             try:
                 cs = CardService.objects.get(pk=self.pk)
