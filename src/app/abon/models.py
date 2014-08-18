@@ -1020,11 +1020,15 @@ class AbillsLink(models.Model):
     @classmethod
     def conflicts(cls,abonent,abills,card,service):
         from django.db.models import Q
-        direct_users = cls.objects.filter(Q(abonent=abonent)|Q(abills=abills)|Q(card=card)|Q(service=service)).count()>0
+        print "check conflicts "
+        print cls.objects.filter(Q(abonent=abonent)|Q(abills=abills)|Q(card=card)|Q(service=service)).count()
+        direct_users = (cls.objects.filter(Q(abonent=abonent)|Q(abills=abills)|Q(card=card)|Q(service=service)).count()>0)
         if direct_users:
             return direct_users
         company_users = [x.pk for x in abills.company.clients.all()]
-        return cls.objects.filter(abills__in=company_users)
+        print company_users
+        print cls.objects.filter(abills__in=company_users)
+        return cls.objects.filter(abills__in=company_users).count()>0
 
     @classmethod
     def create(cls,abonent,abills,card,service):
