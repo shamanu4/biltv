@@ -1312,17 +1312,17 @@ class CardService(models.Model):
             else:
                 if not cs.pk == self.pk:
                     raise RuntimeError("%s already joined to card %s" % (self.extra, cs.card.num))
-            # check unlink
-            try:
-                cs = CardService.objects.get(pk=self.pk)
-            except CardService.DoesNotExist, e:
-                pass
-            else:
-                if not cs.extra == self.extra:
-                    print "Unlinked %s from %s" % (cs.extra, cs.card.num)
-                    for link in cs.abills_links.all():
-                        print "deleting link %s" % link
-                        link.delete()
+        # check unlink
+        try:
+            cs = CardService.objects.get(pk=self.pk)
+        except CardService.DoesNotExist, e:
+            pass
+        else:
+            if not cs.extra == self.extra:
+                print "Unlinked %s from %s" % (cs.extra, cs.card.num)
+                for link in cs.abills_links.all():
+                    print "deleting link %s" % link
+                    link.delete()
         action = None
         oid = None
         old = None
