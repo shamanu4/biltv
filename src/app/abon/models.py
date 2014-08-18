@@ -987,6 +987,7 @@ class AbillsLink(models.Model):
 
     abonent = models.ForeignKey(Abonent, unique=True)
     abills = models.ForeignKey("abills.User", unique=True)
+    # company = models.ForeignKey("abills.Company", unique=True)
     card = models.ForeignKey("tv.Card", unique=True, related_name="abills_links")
     service = models.ForeignKey("tv.CardService", unique=True, related_name="abills_links")
 
@@ -1019,7 +1020,11 @@ class AbillsLink(models.Model):
     @classmethod
     def conflicts(cls,abonent,abills,card,service):
         from django.db.models import Q
-        return cls.objects.filter(Q(abonent=abonent)|Q(abills=abills)|Q(card=card)|Q(service=service)).count()>0
+        direct_users = cls.objects.filter(Q(abonent=abonent)|Q(abills=abills)|Q(card=card)|Q(service=service)).count()>0
+        if direct_users:
+            return direct_users
+        company_users = abills.company.clients.all()
+        return cls.objects.filter(abills__in=company_users)
 
     @classmethod
     def create(cls,abonent,abills,card,service):
