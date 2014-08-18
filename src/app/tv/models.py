@@ -1148,7 +1148,7 @@ class Card(models.Model):
     def make_fees(self,date):
         if not self.active or self.deleted:
             return False
-        for service in self.services.all():
+        for service in self.services.filter(active=True):
             service.make_fees(date)
     
     def check_past_deactivation(self,deactivated):
