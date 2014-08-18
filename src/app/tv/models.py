@@ -1405,9 +1405,9 @@ class CardService(models.Model):
             c.descr = descr
             c.save()
 
-        super(self.__class__, self).save(*args, **kwargs)
-
         self.card.check_abills_bill_link(self)
+
+        super(self.__class__, self).save(*args, **kwargs)
 
         if self.active:
             self.promotion_on(self.activated)
