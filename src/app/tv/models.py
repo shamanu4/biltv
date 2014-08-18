@@ -1302,6 +1302,27 @@ class CardService(models.Model):
 
     def save(self, *args, **kwargs):
         print 'saving service'
+        if self.extra:
+            print 'checking extra'
+            # check unique
+            try:
+                cs = CardService.objects.get(extra=self.extra)
+            except CardService.DoesNotExist, e:
+                pass
+            else:
+                if not cs.pk == self.pk:
+                    raise RuntimeError("%s already joined to card %s" % cs.card.num)
+            # check unlink
+            try:
+                cs = CardService.objects.get(pk=self.pk)
+            except CardService.DoesNotExist, e:
+                pass
+            else:
+                if not cs.extra == self.extra:
+                    print "Unlinked %s from %s" % (cs.extra, cs.card.num)
+                    for link in cs.abills_links.all():
+                        print "deleting link %s" % link
+                        link.delete()
         action = None
         oid = None
         old = None
