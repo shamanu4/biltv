@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from lib.extjs import RpcRouter, store_read, check_perm
+from ui.rpc import GridApiClass
+from .forms import EntryForm
+from .models import Entry
 
 class MainApiClass(object):
 
@@ -54,5 +57,6 @@ class Router(RpcRouter):
         self.url = 'statements:router'
         self.actions = {
             'MainApi': MainApiClass(),
+            'EntryGrid': GridApiClass(Entry, EntryForm),
         }
         self.enable_buffer = 50

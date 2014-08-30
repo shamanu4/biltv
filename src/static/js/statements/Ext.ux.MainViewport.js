@@ -76,7 +76,20 @@ Ext.ux.MainViewport = Ext.extend(Ext.Viewport, {
                     width: 1000,
                     minSize: 100,
                     collapsible: true,
-                    margins: '0 0 0 5'
+                    margins: '0 0 0 5',
+                    items: [
+                        new Ext.ux.EntryGrid({
+                            store: new Ext.ux.EntryStore(Ext.apply({
+                                baseParams: {
+                                    start:0,
+                                    limit:16,
+                                    filter_fields:['amount,'],
+                                    filter_value:'',
+                                    filter: {'statement__id': window.statement_id }
+                                }
+                            }, Ext.ux.Entry_store_config))
+                        })
+                    ]
                 },
                 // in this instance the TabPanel is not wrapped by another panel
                 // since no title is needed, this Panel is added directly

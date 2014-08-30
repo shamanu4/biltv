@@ -14,6 +14,7 @@ import os
 import errno
 from subprocess import Popen, PIPE
 from .forms import XLSUploadForm
+from .models import Statement
 
 PATH = "/home/maxim/projects/biltv2/src/app/statements/tmp"
 
@@ -24,9 +25,15 @@ def index(request):
 
 @render_to('statements/index.html')
 def statement(request, day):
+    try:
+        statement_id = Statement.objects.get(day=day).pk
+    except Statement.DoesNotExist:
+        statement_id = 0
+    print ">>>%s<<<" % statement_id
     return {
         'PROGRAM_VERSION':PROGRAM_VERSION,
-        'day': day
+        'day': day,
+        'statement_id': statement_id
     }
 
 
