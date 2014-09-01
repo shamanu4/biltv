@@ -1,10 +1,18 @@
 {% extends 'statements/base.html' %}
 
 {% block content %}
-        <script type="text/javascript" src="{{ MEDIA_URL }}js/statements/ui-index.js?v={{ PROGRAM_VERSION }}"></script>
         <script type="text/javascript">
+            window.day = {{ day }};
+            window.statement_id = {{ statement_id }};
+            console.log(window.statement_id)
+
             Ext.onReady(function(){
-                Ext.getCmp("form-date-input").setValue("{{ day }}");
+                setTimeout(
+                        function() {
+                            Ext.getCmp("form-date-input").setValue("{{ day }}")
+                        }, 1000
+                );
             })
         </script>
+        <script type="text/javascript" src="{{ MEDIA_URL }}js/statements/ui-index.js?v={{ PROGRAM_VERSION }}"></script>
 {% endblock %}
