@@ -1027,10 +1027,10 @@ class AbillsLink(models.Model):
             return direct_users
         company_users = [x.pk for x in abills.company.clients.all()]
         print company_users
-        if cls.objects.filter(abills__in=company_users).count()>0:
+        if cls.objects.filter(abills__in=company_users).count() > 0:
             raise RuntimeError("link conflicts with other %s" % str(cls.objects.filter(abills__in=company_users)))
         print cls.objects.filter(abills__in=company_users)
-        return cls.objects.filter(abills__in=company_users).count()>0
+        return cls.objects.filter(abills__in=company_users).count() > 0
 
     @classmethod
     def create(cls,abonent,abills,card,service):
