@@ -1021,10 +1021,10 @@ class AbillsLink(models.Model):
     def conflicts(cls,abonent,abills,card,service):
         from django.db.models import Q
         print "check conflicts "
-        print cls.objects.filter(Q(abonent=abonent)|Q(abills=abills)|Q(card=card)|Q(service=service)).count()
-        direct_users = (cls.objects.filter(Q(abonent=abonent)|Q(abills=abills)|Q(card=card)|Q(service=service)).count()>0)
+        print cls.objects.filter(Q(abills=abills)|Q(card=card)|Q(service=service)).count()
+        direct_users = (cls.objects.filter(Q(abills=abills)|Q(card=card)|Q(service=service)).count()>0)
         if direct_users:
-            raise RuntimeError("link conflicts with other directly %s" % str(cls.objects.filter(Q(abonent=abonent)|Q(abills=abills)|Q(card=card)|Q(service=service))))
+            raise RuntimeError("link conflicts with other directly %s" % str(cls.objects.filter(Q(abills=abills)|Q(card=card)|Q(service=service))))
             return direct_users
         company_users = [x.pk for x in abills.company.clients.all()]
         print company_users
