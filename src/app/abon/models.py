@@ -1024,6 +1024,7 @@ class AbillsLink(models.Model):
         print cls.objects.filter(Q(abonent=abonent)|Q(abills=abills)|Q(card=card)|Q(service=service)).count()
         direct_users = (cls.objects.filter(Q(abonent=abonent)|Q(abills=abills)|Q(card=card)|Q(service=service)).count()>0)
         if direct_users:
+            raise RuntimeError("link conflicts with other %s" % str(cls.objects.filter(Q(abonent=abonent)|Q(abills=abills)|Q(card=card)|Q(service=service))))
             return direct_users
         company_users = [x.pk for x in abills.company.clients.all()]
         print company_users
