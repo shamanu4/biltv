@@ -1024,12 +1024,12 @@ class AbillsLink(models.Model):
         print cls.objects.filter(Q(abonent=abonent)|Q(abills=abills)|Q(card=card)|Q(service=service)).count()
         direct_users = (cls.objects.filter(Q(abonent=abonent)|Q(abills=abills)|Q(card=card)|Q(service=service)).count()>0)
         if direct_users:
-            raise RuntimeError("link conflicts with other %s" % str(cls.objects.filter(Q(abonent=abonent)|Q(abills=abills)|Q(card=card)|Q(service=service))))
+            raise RuntimeError("link conflicts with other directly %s" % str(cls.objects.filter(Q(abonent=abonent)|Q(abills=abills)|Q(card=card)|Q(service=service))))
             return direct_users
         company_users = [x.pk for x in abills.company.clients.all()]
         print company_users
         if cls.objects.filter(abills__in=company_users).count() > 0:
-            raise RuntimeError("link conflicts with other %s" % str(cls.objects.filter(abills__in=company_users)))
+            raise RuntimeError("link conflicts with other by company %s" % str(cls.objects.filter(abills__in=company_users)))
         print cls.objects.filter(abills__in=company_users)
         return cls.objects.filter(abills__in=company_users).count() > 0
 
