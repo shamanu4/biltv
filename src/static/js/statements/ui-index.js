@@ -22,36 +22,36 @@ Ext.onReady(function(){
 			}
 		}
 
-//    MainApi.get_categories(window.day, function(response){
-//        var panel = Ext.getCmp("center-tab-panel")
-//        Ext.each(response.data, function(category) {
-//            console.log(category)
-//            var tab = new Ext.ux.EntryGrid({
-//                            title: category.name,
-//                            store: new Ext.ux.EntryStore(Ext.apply({
-//                                baseParams: {
-//                                    start:0,
-//                                    limit:16,
-//                                    filter_fields:[
-//                                        'id',
-//                                        'pid',
-//                                        'amount',
-//                                        'currency',
-//                                        'egrpou',
-//                                        'verbose_name',
-//                                        'account_num',
-//                                        'mfo',
-//                                        'descr',
-//                                        'processed'
-//                                    ],
-//                                    filter_value:'',
-//                                    filter: {'statement__id': window.statement_id, 'category__pk':category.id }
-//                                }
-//                            }, Ext.ux.Entry_store_config))
-//                        });
-//            panel.add(tab)
-//        })
-//    });
+    MainApi.get_categories(window.day, function(response){
+        var panel = Ext.getCmp("center-tab-panel")
+        Ext.each(response.data, function(category) {
+            console.log(category)
+            var tab = new Ext.ux.EntryGrid({
+                            title: category.name,
+                            store: new Ext.ux.EntryStore(Ext.apply({
+                                baseParams: {
+                                    start:0,
+                                    limit:16,
+                                    filter_fields:[
+                                        'id',
+                                        'pid',
+                                        'amount',
+                                        'currency',
+                                        'egrpou',
+                                        'verbose_name',
+                                        'account_num',
+                                        'mfo',
+                                        'descr',
+                                        'processed'
+                                    ],
+                                    filter_value:'',
+                                    filter: {'statement__id': window.statement_id, 'category__pk':category.id }
+                                }
+                            }, Ext.ux.Entry_store_config))
+                        });
+            panel.add(tab)
+        })
+    });
 
 });
 

@@ -584,7 +584,7 @@ Ext.ux.TabPanel = Ext.extend(Ext.TabPanel,{
 });
 
 
-Ext.ux.new_cat_combo_store = new Ext.data.DirectStore({
+Ext.ux.Category_store_config = {
     restful: true,
     autoLoad: true,
     autoSave: false,
@@ -607,27 +607,34 @@ Ext.ux.new_cat_combo_store = new Ext.data.DirectStore({
         create: EntryGrid.foo,
         update: EntryGrid.foo,
         destroy: EntryGrid.foo
-    },
-    baseParams : {
-        day: window.day,
-        foo: 'bar'
+    }
+};
+
+Ext.ux.NewCategoryStore = Ext.extend(Ext.data.DirectStore, {
+    initComponent: function(options){
+        var config = {}
+        Ext.apply(this, Ext.apply(this.initialConfig, config));
+        options = options || {};
+        Ext.apply(this, options);
+        Ext.ux.new_cat_combo_store.superclass.initComponent.apply(this, arguments);
     }
 });
 
+//stst = new Ext.ux.new_cat_combo_store();
 
 Ext.ux.NewCategorySelect = Ext.extend(Ext.form.ComboBox, {
-    initComponent: function(){
+    initComponent: function(options){
         var config = {
-            store: Ext.ux.new_cat_combo_store,
             editable: true,
             forceSelection: true,
             lazyRender: false,
             triggerAction: 'all',
             valueField: 'id',
-            displayField: 'name',
-            mode: 'local'
+            displayField: 'name'
         }
         Ext.apply(this, Ext.apply(this.initialConfig, config));
+        options = options || {};
+        Ext.apply(this, options);
         Ext.ux.NewCategorySelect.superclass.initComponent.apply(this, arguments);
     }
 });

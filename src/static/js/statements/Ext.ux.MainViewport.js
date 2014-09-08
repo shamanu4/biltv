@@ -139,7 +139,13 @@ Ext.ux.MainViewport = Ext.extend(Ext.Viewport, {
 //                                alert('Botton1 Working Now');
                             }
                         },
-                            new Ext.ux.NewCategorySelect()
+                            new Ext.ux.NewCategorySelect({
+                                store: new Ext.ux.NewCategoryStore(Ext.apply({
+                                    baseParams: {
+                                        day: window.day
+                                    }
+                                }, Ext.ux.Category_store_config))
+                            })
                         ]
                     }
                 })
