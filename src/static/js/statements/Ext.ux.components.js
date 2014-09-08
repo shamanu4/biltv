@@ -329,9 +329,7 @@ Ext.ux.grid.BufferView = Ext.extend(Ext.grid.GridView, {
 Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
     store: null,
     ds_model: null,
-    columns: [],
-    height: 500,
-    boxMaxWidth: 1000,
+    colModel: null,
     instance: null,
     viewConfig: {
         //forceFit:true
@@ -352,7 +350,6 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
         options = options || {}
         var config = {
             frame:true,
-            closable: true,
             current_row: 0,
             unsaved_row: 0,
             tbar: [{
@@ -464,8 +461,16 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
 
 var entry_ds_model = Ext.data.Record.create([
     'id',
+    'pid',
     'timestamp',
     'amount',
+    'currency',
+    'egrpou',
+    'verbose_name',
+    'account_num',
+    'mfo',
+    'descr',
+    'processed'
 ]);
 
 
@@ -476,6 +481,7 @@ Ext.ux.Entry_store_config = {
         update: EntryGrid.update,
         destroy: EntryGrid.foo
     },
+    remoteSort: true,
     restful: true,
     autoLoad: true,
     autoSave: false,
@@ -483,11 +489,19 @@ Ext.ux.Entry_store_config = {
     reader: new Ext.data.JsonReader({
         root: 'data',
         totalProperty: 'total',
-        //idProperty: 'id',
+        idProperty: 'id',
         fields: [
             'id',
+            'pid',
             'timestamp',
             'amount',
+            'currency',
+            'egrpou',
+            'verbose_name',
+            'account_num',
+            'mfo',
+            'descr',
+            'processed'
         ]
     }),
     writer: new Ext.data.JsonWriter({
@@ -504,6 +518,7 @@ Ext.ux.Entry_store_config = {
     }
 };
 
+
 Ext.ux.EntryStore = Ext.extend(Ext.data.DirectStore, {
     initComponent: function(options) {
         config: Ext.ux.Entry_store_config;
@@ -515,21 +530,106 @@ Ext.ux.EntryStore = Ext.extend(Ext.data.DirectStore, {
 });
 
 
+var colModel = new Ext.grid.ColumnModel({
+    columns: [
+        {header: "Id", dataIndex: 'id', width:50, sortable: true},
+        {header: "Pid", dataIndex: 'pid', editor: new Ext.form.TextField(), sortable: true},
+        {header: "Timestamp", dataIndex: 'timestamp', editor: new Ext.form.TextField(), width:120, sortable: true},
+        {header: "Amount", dataIndex: 'amount', editor: new Ext.form.TextField(), width:50, sortable: true},
+        {header: "Currency", dataIndex: 'currency', editor: new Ext.form.TextField(), width:40, sortable: true},
+        {header: "EGRPOU", dataIndex: 'egrpou', editor: new Ext.form.TextField(), width:80, sortable: true},
+        {header: "Name", dataIndex: 'verbose_name', editor: new Ext.form.TextField(), width:200, sortable: true},
+        {header: "Account", dataIndex: 'account_num', editor: new Ext.form.TextField(), sortable: true},
+        {header: "MFO", dataIndex: 'mfo', editor: new Ext.form.TextField(), width:60, sortable: true},
+        {header: "Descr", dataIndex: 'descr', editor: new Ext.form.TextField(), width:200, sortable: true},
+        {header: "Processed", dataIndex: 'processed', editor: new Ext.form.TextField(), sortable: true},
+    ],
+    defaults: {
+        sortable: true,
+        width: 100
+    }
+});
+
+
 Ext.ux.EntryGrid = Ext.extend(Ext.ux.CustomGrid, {
     ds_model: entry_ds_model,
     title: 'Entry',
-    columns: [
-        {header: "Id", dataIndex: 'id'},
-        {header: "Amount", dataIndex: 'amount', editor: new Ext.form.TextField()},
-        {header: "Timestamp", dataIndex: 'timestamp', editor: new Ext.form.TextField()},
-    ],
+    stateful: true,
+    stateId: 'stateGrid1',
+    colModel: colModel,
     initComponent: function(options) {
         options = options || {};
-        var config = {};
+        var config = {
+            closable: false,
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.apply(this, options);
         Ext.ux.EntryGrid.superclass.initComponent.apply(this, arguments);
     }
 });
 
+
 Ext.reg('ext:ux:entry-grid', Ext.ux.EntryGrid);
+
+
+Ext.ux.TabPanel = Ext.extend(Ext.TabPanel,{
+    initComponent: function(){
+        var config = {
+            frame:true,
+            closable:false
+        };
+        Ext.apply(this, Ext.apply(this.initialConfig, config));
+        Ext.ux.TabPanel.superclass.initComponent.apply(this, arguments);
+    }
+});
+
+
+Ext.ux.new_cat_combo_store = new Ext.data.DirectStore({
+    restful: true,
+    autoLoad: true,
+    autoSave: false,
+    storeId: 'new_cat_combo_store',
+    reader: new Ext.data.JsonReader({
+        root: 'data',
+        totalProperty: 'total',
+        fields: [
+            'id',
+            'name',
+        ]
+    }),
+    writer: new Ext.data.JsonWriter({
+        encode: false,
+        writeAllFields: true,
+        listful: true
+    }),
+    api: {
+        read: MainApi.get_available_categories,
+        create: EntryGrid.foo,
+        update: EntryGrid.foo,
+        destroy: EntryGrid.foo
+    },
+    baseParams : {
+        day: window.day,
+        foo: 'bar'
+    }
+});
+
+
+Ext.ux.NewCategorySelect = Ext.extend(Ext.form.ComboBox, {
+    initComponent: function(){
+        var config = {
+            store: Ext.ux.new_cat_combo_store,
+            editable: true,
+            forceSelection: true,
+            lazyRender: false,
+            triggerAction: 'all',
+            valueField: 'id',
+            displayField: 'name',
+            mode: 'local'
+        }
+        Ext.apply(this, Ext.apply(this.initialConfig, config));
+        Ext.ux.NewCategorySelect.superclass.initComponent.apply(this, arguments);
+    }
+});
+
+Ext.reg('ext:ux:cat-select', Ext.ux.NewCategorySelect);

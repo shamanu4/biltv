@@ -45,6 +45,7 @@ class Entry(models.Model):
 
     def store_record(self):
         return {
+            'id': self.pk,
             'statement_id': self.statement.id,
             'parent_id': self.parent.id if self.parent else None,
             'category_id': self.category.id if self.parent else None,
@@ -66,7 +67,7 @@ TYPE_INET = 1
 TYPE_CATV = 2
 
 
-CATEGORY_TYPES=(
+CATEGORY_TYPES = (
     (TYPE_INET, u'INET'),
     (TYPE_CATV, u'CATV'),
     (TYPE_UNDEF, u'UNDEF'),
@@ -82,6 +83,12 @@ class Category(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    def store_record(self):
+        return {
+            'id': self.pk,
+            'name': self.name,
+        }
 
 
 class Filter(models.Model):

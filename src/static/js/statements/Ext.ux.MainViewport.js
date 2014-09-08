@@ -68,34 +68,59 @@ Ext.ux.MainViewport = Ext.extend(Ext.Viewport, {
 
                 new Ext.Panel({
                     region: 'south'
-                }), {
+                }),
+                new Ext.ux.TabPanel({
                     region: 'west',
                     id: 'west-panel', // see Ext.getCmp() below
-                    title: 'West',
+//                    title: 'West',
                     split: true,
                     width: 1000,
                     minSize: 100,
                     collapsible: true,
                     margins: '0 0 0 5',
+                    tbar: {
+                        items:[{
+                            xtype: 'button',
+                            ui: 'round',
+                            text: 'Button1',
+                            dock: 'left',
+                            handler: function(){
+//                                alert('Botton1 Working Now');
+                            }
+                        }]
+                    },
                     items: [
                         new Ext.ux.EntryGrid({
+                            title: "statement "+window.day,
                             store: new Ext.ux.EntryStore(Ext.apply({
                                 baseParams: {
                                     start:0,
                                     limit:16,
-                                    filter_fields:['amount,'],
+                                    filter_fields:[
+                                        'id',
+                                        'pid',
+                                        'amount',
+                                        'currency',
+                                        'egrpou',
+                                        'verbose_name',
+                                        'account_num',
+                                        'mfo',
+                                        'descr',
+                                        'processed'
+                                    ],
                                     filter_value:'',
-                                    filter: {'statement__id': window.statement_id }
+                                    filter: {'statement__id': window.statement_id, 'category__isnull':true }
                                 }
                             }, Ext.ux.Entry_store_config))
                         })
                     ]
-                },
+                }),
                 // in this instance the TabPanel is not wrapped by another panel
                 // since no title is needed, this Panel is added directly
                 // as a Container
-                new Ext.TabPanel({
+                new Ext.ux.TabPanel({
                     region: 'center', // a center region is ALWAYS required for border layout
+                    id: "center-tab-panel",
                     deferredRender: false,
                     activeTab: 0,     // first tab initially active
                     collapsible: true,
@@ -103,7 +128,20 @@ Ext.ux.MainViewport = Ext.extend(Ext.Viewport, {
                     width: 1000,
                     minSize: 100,
                     maxSize: 1200,
-                    items: []
+                    items: [ ],
+                    tbar: {
+                        items:[{
+                            xtype: 'button',
+                            ui: 'round',
+                            text: 'Button1',
+                            dock: 'left',
+                            handler: function(){
+//                                alert('Botton1 Working Now');
+                            }
+                        },
+                            new Ext.ux.NewCategorySelect()
+                        ]
+                    }
                 })
             ]
         };
