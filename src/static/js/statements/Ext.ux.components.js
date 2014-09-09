@@ -352,36 +352,37 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
             frame:true,
             current_row: 0,
             unsaved_row: 0,
-            tbar: [{
-                text: 'Apply',
-                icon: '/static/extjs/custom/tick_16.png',
-                cls: 'x-btn-text-icon',
-                handler: function() {
-                    this.store.save()
-                    //this.store.commitChanges();
-                },
-                scope: this
-            },{
-                text: 'Add',
-                icon: '/static/extjs/custom/plus_16.png',
-                cls: 'x-btn-text-icon',
-                handler: function() {
-                    this.store.insert(
-                        0,
-                        new this.ds_model()
-                    );
-                    this.startEditing(0,1);
-                },
-                scope: this
-            },{
-                text: 'Cancel',
-                icon: '/static/extjs/custom/block_16.png',
-                cls: 'x-btn-text-icon',
-                handler: function() {
-                    this.store.reload()
-                },
-                scope: this
-            },
+            tbar: [
+//            {
+//                text: 'Apply',
+//                icon: '/static/extjs/custom/tick_16.png',
+//                cls: 'x-btn-text-icon',
+//                handler: function() {
+//                    this.store.save()
+//                    //this.store.commitChanges();
+//                },
+//                scope: this
+//            },{
+//                text: 'Add',
+//                icon: '/static/extjs/custom/plus_16.png',
+//                cls: 'x-btn-text-icon',
+//                handler: function() {
+//                    this.store.insert(
+//                        0,
+//                        new this.ds_model()
+//                    );
+//                    this.startEditing(0,1);
+//                },
+//                scope: this
+//            },{
+//                text: 'Cancel',
+//                icon: '/static/extjs/custom/block_16.png',
+//                cls: 'x-btn-text-icon',
+//                handler: function() {
+//                    this.store.reload()
+//                },
+//                scope: this
+//            },
             new Ext.Toolbar.Spacer(),
              this.searchfield = new Ext.form.TextField({
                 listeners: {
@@ -407,9 +408,10 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                 icon: '/static/extjs/custom/delete_16.png',
                 cls: 'x-btn-text-icon',
                 handler: function() {
-                    this.searchfield.setValue('')
-                    this.store.baseParams.filter_value = ''
-                    this.store.load()
+                    var grid = Ext.getCmp(this.id);
+                    grid.searchfield.setValue('');
+                    grid.store.baseParams.filter_value = '';
+                    grid.store.load();
                 },
                 scope: this
             },
@@ -428,30 +430,51 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                         fn: function(e) {
                             return false;
                         }
+                    },
+                    afterrender: {
+                        fn: function(e) {
+                            var grid = Ext.getCmp(this.id);
+                            var GridDropTargetEl =  grid.getView().scroller.dom;
+                            var GridDropTarget = new Ext.dd.DropTarget(GridDropTargetEl, {
+                                ddGroup    : 'GridDD',
+                                notifyDrop : function(ddSource, e, data){
+                                    var records =  ddSource.dragData.selections;
+                                    Ext.each(records, ddSource.grid.store.remove, ddSource.grid.store);
+                                    grid.store.add(records);
+                                    Ext.each(records, function(r){
+                                        var target = grid.store.baseParams.filter.category__pk || 0;
+                                        console.log(r.id);
+                                        console.log(target);
+                                        MainApi.set_entry_category(r.id, target, function(response){
+                                            grid.store.reload();
+                                            ddSource.grid.store.reload();
+                                        });
+                                    });
+                                    return true;
+                                }
+                            });
+                        }
                     }
             },
             searchAction: function() {
-                this.store.baseParams.filter_value = this.searchfield.getValue()
-                this.store.load()
-            }
-          /*  sm: new Ext.grid.RowSelectionModel({
+                var grid = Ext.getCmp(this.id);
+                grid.store.baseParams.filter_value = grid.searchfield.getValue();
+                grid.store.load();
+            },
+            enableDragDrop: true,
+            ddGroup: "GridDD",
+            sm: new Ext.grid.RowSelectionModel({
                 singleSelect: true,
                 listeners: {
                     rowselect: {
                         fn: function(sm,index,record) {
-                            //if(this.current_row != index) {
-                            //    this.unsaved_row = this.current_row
-                            //    this.current_row = index
-                            //    this.store.save()
-                            //    this.store.commitChanges();
-                            //}
+
                         },
                         scope: this
                     }
                 }
             })
-          */
-        }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.apply(this, options);
         Ext.ux.CustomGrid.superclass.initComponent.apply(this, arguments);
@@ -478,14 +501,13 @@ Ext.ux.Entry_store_config = {
     api: {
         read: EntryGrid.read,
         create: EntryGrid.foo,
-        update: EntryGrid.update,
+        update: EntryGrid.foo,
         destroy: EntryGrid.foo
     },
     remoteSort: true,
     restful: true,
     autoLoad: true,
     autoSave: false,
-    storeId: 'entry-store',
     reader: new Ext.data.JsonReader({
         root: 'data',
         totalProperty: 'total',
@@ -501,7 +523,10 @@ Ext.ux.Entry_store_config = {
             'account_num',
             'mfo',
             'descr',
-            'processed'
+            'processed',
+            'statement_id',
+            'category_id',
+            'parent_id',
         ]
     }),
     writer: new Ext.data.JsonWriter({
@@ -533,16 +558,17 @@ Ext.ux.EntryStore = Ext.extend(Ext.data.DirectStore, {
 var colModel = new Ext.grid.ColumnModel({
     columns: [
         {header: "Id", dataIndex: 'id', width:50, sortable: true},
-        {header: "Pid", dataIndex: 'pid', editor: new Ext.form.TextField(), sortable: true},
-        {header: "Timestamp", dataIndex: 'timestamp', editor: new Ext.form.TextField(), width:120, sortable: true},
-        {header: "Amount", dataIndex: 'amount', editor: new Ext.form.TextField(), width:50, sortable: true},
-        {header: "Currency", dataIndex: 'currency', editor: new Ext.form.TextField(), width:40, sortable: true},
-        {header: "EGRPOU", dataIndex: 'egrpou', editor: new Ext.form.TextField(), width:80, sortable: true},
-        {header: "Name", dataIndex: 'verbose_name', editor: new Ext.form.TextField(), width:200, sortable: true},
-        {header: "Account", dataIndex: 'account_num', editor: new Ext.form.TextField(), sortable: true},
-        {header: "MFO", dataIndex: 'mfo', editor: new Ext.form.TextField(), width:60, sortable: true},
-        {header: "Descr", dataIndex: 'descr', editor: new Ext.form.TextField(), width:200, sortable: true},
-        {header: "Processed", dataIndex: 'processed', editor: new Ext.form.TextField(), sortable: true},
+        {header: "Pid", dataIndex: 'pid', sortable: true},
+        {header: "Timestamp", dataIndex: 'timestamp', width:120, sortable: true},
+        {header: "Amount", dataIndex: 'amount', width:50, sortable: true},
+        {header: "Currency", dataIndex: 'currency', width:40, sortable: true},
+        {header: "EGRPOU", dataIndex: 'egrpou', width:80, sortable: true},
+        {header: "Name", dataIndex: 'verbose_name', width:200, sortable: true},
+        {header: "Account", dataIndex: 'account_num', sortable: true},
+        {header: "MFO", dataIndex: 'mfo', sortable: true},
+        {header: "Descr", dataIndex: 'descr', sortable: true},
+        {header: "Processed", dataIndex: 'processed', sortable: true},
+        {header: "Descr", dataIndex: 'descr', sortable: true},
     ],
     defaults: {
         sortable: true,
@@ -560,7 +586,7 @@ Ext.ux.EntryGrid = Ext.extend(Ext.ux.CustomGrid, {
     initComponent: function(options) {
         options = options || {};
         var config = {
-            closable: false,
+            closable: false
         };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.apply(this, options);

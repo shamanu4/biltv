@@ -16,7 +16,6 @@ class MainApiClass(object):
                         msg='Hello %s!' % request.user)
         else:
             return dict(success=False, authenticated=False)
-
     is_authenticated._args_len = 0
 
     def login(self, rdata, request):
@@ -26,7 +25,6 @@ class MainApiClass(object):
         else:
             return dict(success=False, title='Сбой авторизации.', msg='authorization data is invaid',
                         errors=form._errors)
-
     login._form_handler = True
 
     def logout(self, request):
@@ -36,7 +34,6 @@ class MainApiClass(object):
         # msg handlead at client. title removed to prevent default msg handler
         # return dict(success=True, title='Завершение работы.', msg='logged out.')
         return dict(success=True, msg='logged out.')
-
     logout._args_len = 0
 
     def menu(self, request):
@@ -49,7 +46,6 @@ class MainApiClass(object):
         menuitems.append('address')
 
         return dict(success=True, menuitems=menuitems)
-
     menu._args_len = 0
 
     @store_read
@@ -60,9 +56,7 @@ class MainApiClass(object):
             return []
         else:
             return Category.objects.filter(lines__statement=st).distinct()
-
     get_categories._args_len = 1
-
 
     @store_read
     def get_available_categories(self, rdata, request):
@@ -76,8 +70,28 @@ class MainApiClass(object):
         else:
             existent = map(lambda x: x.pk, Category.objects.filter(lines__statement=st).distinct())
             return Category.objects.filter(~Q(pk__in=existent))
-
     get_available_categories._args_len = 1
+
+    def set_entry_category(self, entry_id, category_id, request):
+        try:
+            e = Entry.objects.get(pk=entry_id)
+        except Entry.DoesNotExist:
+            return dict(success=False, title='Ошибка', msg=str('no entry with id %s' % entry_id))
+        else:
+            if category_id>0:
+                try:
+                    c = Category.objects.get(pk=category_id)
+                except Category.DoesNotExist:
+                    return dict(success=False, title='Ошибка', msg=str('no category with id %s' % category_id))
+                else:
+                    e.category = c
+                    e.save()
+            else:
+                e.category = None
+                e.save()
+            return dict(success=True)
+    set_entry_category._args_len = 2
+
 
 
 class Router(RpcRouter):
