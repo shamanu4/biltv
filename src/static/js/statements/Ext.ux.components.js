@@ -434,6 +434,15 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                     afterrender: {
                         fn: function(e) {
                             var grid = Ext.getCmp(this.id);
+                            grid.getView().dragZone.onBeforeDrag = function(el, e) {
+                                var isValidDrag = true;
+                                Ext.each(el.selections, function(row) {
+                                    if(row.data.locked) {
+                                        isValidDrag = false;
+                                    }
+                                });
+                                return isValidDrag;
+                            };
                             var GridDropTargetEl =  grid.getView().scroller.dom;
                             var GridDropTarget = new Ext.dd.DropTarget(GridDropTargetEl, {
                                 ddGroup    : 'GridDD',
@@ -443,8 +452,6 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                                     grid.store.add(records);
                                     Ext.each(records, function(r){
                                         var target = grid.store.baseParams.filter.category__pk || 0;
-                                        console.log(r.id);
-                                        console.log(target);
                                         MainApi.set_entry_category(r.id, target, function(response){
                                             grid.store.reload();
                                             ddSource.grid.store.reload();
@@ -527,6 +534,8 @@ Ext.ux.Entry_store_config = {
             'statement_id',
             'category_id',
             'parent_id',
+            'register_id',
+            'locked'
         ]
     }),
     writer: new Ext.data.JsonWriter({
@@ -546,7 +555,7 @@ Ext.ux.Entry_store_config = {
 
 Ext.ux.EntryStore = Ext.extend(Ext.data.DirectStore, {
     initComponent: function(options) {
-        config: Ext.ux.Entry_store_config;
+        var config = Ext.ux.Entry_store_config;
         options = options || {};
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.apply(this, options);
@@ -559,16 +568,16 @@ var colModel = new Ext.grid.ColumnModel({
     columns: [
         {header: "Id", dataIndex: 'id', width:50, sortable: true},
         {header: "Pid", dataIndex: 'pid', sortable: true},
-        {header: "Timestamp", dataIndex: 'timestamp', width:120, sortable: true},
-        {header: "Amount", dataIndex: 'amount', width:50, sortable: true},
-        {header: "Currency", dataIndex: 'currency', width:40, sortable: true},
-        {header: "EGRPOU", dataIndex: 'egrpou', width:80, sortable: true},
-        {header: "Name", dataIndex: 'verbose_name', width:200, sortable: true},
-        {header: "Account", dataIndex: 'account_num', sortable: true},
-        {header: "MFO", dataIndex: 'mfo', sortable: true},
-        {header: "Descr", dataIndex: 'descr', sortable: true},
-        {header: "Processed", dataIndex: 'processed', sortable: true},
-        {header: "Descr", dataIndex: 'descr', sortable: true},
+        {header: "Час", dataIndex: 'timestamp', width:120, sortable: true},
+        {header: "Сума", dataIndex: 'amount', width:50, sortable: true},
+        {header: "Валюта", dataIndex: 'currency', width:40, sortable: true},
+        {header: "ЕГРПОУ", dataIndex: 'egrpou', width:80, sortable: true},
+        {header: "Назва", dataIndex: 'verbose_name', width:200, sortable: true},
+        {header: "Рахунок", dataIndex: 'account_num', sortable: true},
+        {header: "МФО", dataIndex: 'mfo', sortable: true},
+        {header: "Коментар", dataIndex: 'descr', sortable: true},
+        {header: "Проведено", dataIndex: 'processed', sortable: true},
+        {header: "Реєстр", dataIndex: 'register_id', sortable: true},
     ],
     defaults: {
         sortable: true,
@@ -621,6 +630,7 @@ Ext.ux.Category_store_config = {
         fields: [
             'id',
             'name',
+            'svc_type',
         ]
     }),
     writer: new Ext.data.JsonWriter({
@@ -638,7 +648,7 @@ Ext.ux.Category_store_config = {
 
 Ext.ux.NewCategoryStore = Ext.extend(Ext.data.DirectStore, {
     initComponent: function(options){
-        var config = {}
+        var config = {};
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         options = options || {};
         Ext.apply(this, options);

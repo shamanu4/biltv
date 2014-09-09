@@ -31,3 +31,15 @@
     /*z-index: 3;*/
     color: #777;
 }
+
+.icon-tab-title-UNDEF {
+    background-image: url("/static/extjs/svc_type/UNDEF.png") !important;
+}
+
+.icon-tab-title-CATV {
+    background-image: url("/static/extjs/svc_type/CATV.png") !important;
+}
+
+.icon-tab-title-INET {
+    background-image: url("/static/extjs/svc_type/INET.png") !important;
+}

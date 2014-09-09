@@ -78,6 +78,8 @@ class MainApiClass(object):
         except Entry.DoesNotExist:
             return dict(success=False, title='Ошибка', msg=str('no entry with id %s' % entry_id))
         else:
+            if e.processed:
+                return dict(success=False, title='Ошибка', msg=str('Entry with id %s already processed' % entry_id))
             if category_id>0:
                 try:
                     c = Category.objects.get(pk=category_id)

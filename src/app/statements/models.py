@@ -39,6 +39,7 @@ class Entry(models.Model):
     mfo = models.PositiveIntegerField()
     descr = models.TextField()
     processed = models.BooleanField(default=False)
+    register = models.ForeignKey("tv.PaymentRegister", blank=True, null=True)
 
     def __unicode__(self):
         return self.timestamp.strftime("%Y-%m-%d %H:%M:%S")
@@ -58,7 +59,9 @@ class Entry(models.Model):
             'account_num': self.account_num,
             'mfo': self.mfo,
             'descr': self.descr,
-            'processed': self.processed
+            'processed': self.processed,
+            'register_id': self.register.id if self.register else None,
+            'locked': self.processed or self.register
         }
 
 
@@ -88,6 +91,7 @@ class Category(models.Model):
         return {
             'id': self.pk,
             'name': self.name,
+            'svc_type': self.get_svc_type_display()
         }
 
 

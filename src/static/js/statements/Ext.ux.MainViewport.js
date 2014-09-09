@@ -35,7 +35,7 @@ Ext.ux.MainViewport = Ext.extend(Ext.Viewport, {
                         }
                     },{
                         xtype: 'button',
-                        text: 'Отправить',
+                        text: 'Відправити',
                         handler: function(){
                             if(fp.getForm().isValid()){
                                 fp.getForm().submit({
@@ -82,7 +82,7 @@ Ext.ux.MainViewport = Ext.extend(Ext.Viewport, {
                         items:[{
                             xtype: 'button',
                             ui: 'round',
-                            text: 'Button1',
+                            text: '_',
                             dock: 'left',
                             handler: function(){
 //                                alert('Botton1 Working Now');
@@ -91,7 +91,7 @@ Ext.ux.MainViewport = Ext.extend(Ext.Viewport, {
                     },
                     items: [
                         new Ext.ux.EntryGrid({
-                            title: "statement "+window.day,
+                            title: "виписка "+window.day,
                             store: new Ext.ux.EntryStore(Ext.apply({
                                 baseParams: {
                                     start:0,
@@ -130,23 +130,45 @@ Ext.ux.MainViewport = Ext.extend(Ext.Viewport, {
                     maxSize: 1200,
                     items: [ ],
                     tbar: {
-                        items:[{
-                            xtype: 'button',
-                            ui: 'round',
-                            text: 'Button1',
-                            dock: 'left',
-                            handler: function(){
-//                                alert('Botton1 Working Now');
-                            }
-                        },
+                        items:[
                             new Ext.ux.NewCategorySelect({
+                                id: 'add-new-cat-select',
                                 store: new Ext.ux.NewCategoryStore(Ext.apply({
                                     baseParams: {
                                         day: window.day
                                     }
                                 }, Ext.ux.Category_store_config))
-                            })
-                        ]
+                            }),
+                        {
+                            xtype: 'button',
+                            ui: 'round',
+                            icon: '/static/extjs/custom/plus_16.png',
+                            text: 'Додати',
+                            dock: 'left',
+                            handler: function(){
+                                var select = Ext.getCmp('add-new-cat-select');
+                                var record = select.store.data.items[select.selectedIndex].data;
+                                var panel = Ext.getCmp("center-tab-panel");
+                                if(select.value) {
+                                    window.panelAddTab(panel, record.name, record.id, record.svc_type);
+                                }
+                            }
+                        },{
+                            xtype: 'tbseparator',
+                        },{
+                            xtype: 'button',
+                            ui: 'round',
+                            icon: '/static/extjs/custom/label_16.png',
+                            text: 'Створити реєстр',
+                            dock: 'left',
+                            handler: function(){
+                                var select = Ext.getCmp('add-new-cat-select');
+                                var panel = Ext.getCmp("center-tab-panel");
+                                if(select.value) {
+                                    window.panelAddTab(panel, select.lastSelectionText, select.value);
+                                }
+                            }
+                        }]
                     }
                 })
             ]
