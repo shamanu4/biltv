@@ -1,0 +1,1007 @@
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="application/vnd.ms-excel; charset=UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=100">
+      <title>Отчет (форма для Excel)</title><style type="text/css">
+                    @page
+                    {margin:.98in .79in .98in .79in;
+                    mso-header-margin:.5in;
+                    mso-footer-margin:.5in;}
+                    tr
+                    {mso-height-source:auto;}
+                    col
+                    {mso-width-source:auto;}
+                    br
+                    {mso-data-placement:same-cell;}
+                    .style0
+                    {mso-number-format:General;
+                    text-align:general;
+                    vertical-align:bottom;
+                    white-space:nowrap;
+                    mso-rotate:0;
+                    mso-background-source:auto;
+                    mso-pattern:auto;
+                    color:windowtext;
+                    font-size:10.0pt;
+                    font-weight:400;
+                    font-style:normal;
+                    text-decoration:none;
+                    font-family:'Arial Unicode MS', Georgia, Arial;
+                    mso-generic-font-family:auto;
+                    mso-font-charset:204;
+                    border:none;
+                    mso-protection:locked visible;
+                    mso-style-name:Обычный;
+                    mso-style-id:0;}
+                    td
+                    {mso-style-parent:style0;
+                    padding-top:1px;
+                    padding-right:1px;
+                    padding-left:1px;
+                    mso-ignore:padding;
+                    color:windowtext;
+                    font-size:10.0pt;
+                    font-weight:400;
+                    font-style:normal;
+                    text-decoration:none;
+                    font-family:'Arial Unicode MS', Georgia, Arial;
+                    mso-generic-font-family:auto;
+                    mso-font-charset:204;
+                    mso-number-format:General;
+                    text-align:general;
+                    vertical-align:bottom;
+                    border:none;
+                    mso-background-source:auto;
+                    mso-pattern:auto;
+                    mso-protection:locked visible;
+                    white-space:nowrap;
+                    mso-rotate:0;}
+                    .xl24
+                    {mso-style-parent:style0;
+                    text-align:center;}
+                    .xl25
+                    {mso-style-parent:style0;
+                    font-size:9.0pt;
+                    font-weight:700;
+                    mso-generic-font-family:auto;
+                    mso-font-charset:0;
+                    text-align:left;
+                    vertical-align:middle;
+                    white-space:normal;}
+                    .xl26
+                    {mso-style-parent:style0;
+                    font-size:8.0pt;
+                    font-weight:700;
+                    mso-generic-font-family:auto;
+                    mso-font-charset:0;
+                    text-align:center;
+                    vertical-align:middle;
+                    border-top:0.5pt solid windowtext;
+                    border-right:none;
+                    border-bottom:0.5pt solid windowtext;
+                    border-left:0.5pt solid windowtext;
+                    background:silver;
+                    mso-pattern:auto none;
+                    white-space:normal;}
+                    .xl27
+                    {mso-style-parent:style0;
+                    font-size:8.0pt;
+                    font-weight:700;
+                    mso-generic-font-family:auto;
+                    mso-font-charset:0;
+                    text-align:center;
+                    vertical-align:middle;
+                    border:0.5pt solid windowtext;
+                    background:silver;
+                    mso-pattern:auto none;
+                    white-space:normal;}
+                    .xl28
+                    {mso-style-parent:style0;
+                    font-size:9.0pt;
+                    font-family:'Arial Unicode MS', Georgia, Arial;
+                    mso-generic-font-family:auto;
+                    mso-font-charset:0;
+                    text-align:left;
+                    white-space:normal;}
+                    .xl29
+                    {mso-style-parent:style0;
+                    font-size:9.0pt;
+                    font-family:'Arial Unicode MS', Georgia, Arial;
+                    mso-generic-font-family:auto;
+                    mso-font-charset:0;
+                    text-align:left;
+                    white-space:normal;
+                    mso-number-format:"Short Date";}
+                    .xl30
+                    {mso-style-parent:style0;
+                    font-size:9.0pt;
+                    font-family:'Arial Unicode MS', Georgia, Arial;
+                    mso-generic-font-family:auto;
+                    mso-font-charset:0;
+                    text-align:left;
+                    white-space:normal;
+                    mso-number-format:"hh\:mm\:ss";}
+                    .xl31
+                    {mso-style-parent:style0;
+                    font-size:9.0pt;
+                    font-family:'Arial Unicode MS', Georgia, Arial;
+                    mso-generic-font-family:auto;
+                    mso-font-charset:0;
+                    text-align:left;
+                    white-space:normal;
+                    mso-number-format:"\@";}
+                    .xl33
+                    {mso-style-parent:style0;
+                    font-size:9.0pt;
+                    font-family:'Arial Unicode MS', Georgia, Arial;
+                    font-weight:700;
+                    mso-generic-font-family:auto;
+                    mso-font-charset:0;
+                    mso-number-format:Fixed;
+                    text-align:right;
+                    white-space:normal;}
+                    .xl34
+                    {mso-style-parent:style0;
+                    font-size:9.0pt;
+                    font-weight:700;
+                    mso-number-format:0;
+                    text-align:right;
+                    border-top:none;
+                    border-right:none;
+                    border-bottom:1.0pt solid windowtext;
+                    border-left:none;
+                    white-space:normal;}
+                </style></head>
+   <body>
+      <table cellspacing="0" cellpadding="0" border="0" width="1500">
+         <tr class="xl24">
+            <th class="xl31" colspan="2" style="font-size:3.6mm; font-weight:700; text-align: center; border-bottom:1.0pt solid windowtext;">Отчет о дебетовых и кредитовых операциях по счету 26002351155001 "26002351155001"
+               с 09.09.2014 по 09.09.2014.
+            </th>
+         </tr>
+         <tr class="xl24">
+            <th align="right" style="text-align: center;" width="750">
+               <table cellspacing="0" cellpadding="0" border="0" width="100%">
+                  <tr class="xl24">
+                     <th class="xl25" style="text-align: right;">Входящий остаток</th>
+                     <th class="xl33">14330.18</th>
+                     <th class="xl25">UAH</th>
+                  </tr>
+                  <tr class="xl24">
+                     <th class="xl25" style="text-align: right;">Оборот по дебету</th>
+                     <th class="xl33" style="white-space: nowrap;">0.00</th>
+                     <th class="xl25"></th>
+                  </tr>
+                  <tr class="xl24">
+                     <th class="xl25" style="text-align: right; border-bottom:1.0pt solid windowtext;">Операций по дебету</th>
+                     <th class="xl34" style="border-bottom:1.0pt solid windowtext;">0</th>
+                     <th class="xl25" style="border-bottom:1.0pt solid windowtext;">&nbsp;</th>
+                  </tr>
+               </table>
+            </th>
+            <th align="right" style="text-align: center;" width="750">
+               <table cellspacing="0" cellpadding="0" border="0" width="100%">
+                  <tr class="xl24">
+                     <th class="xl25" style="text-align: right;">Исходящий остаток</th>
+                     <th class="xl33">30603.64</th>
+                     <th class="xl25" width="800">UAH</th>
+                  </tr>
+                  <tr class="xl24">
+                     <th class="xl25" style="text-align: right;">Оборот по кредиту</th>
+                     <th class="xl33" nowrap>16273.46</th>
+                     <th class="xl25" width="800">UAH</th>
+                  </tr>
+                  <tr class="xl24">
+                     <th class="xl25" style="text-align: right; border-bottom:1.0pt solid windowtext;">Операций по кредиту</th>
+                     <th class="xl34" style="border-bottom:1.0pt solid windowtext;">58</th>
+                     <th class="xl25" width="800" style="border-bottom:1.0pt solid windowtext;">&nbsp;</th>
+                  </tr>
+               </table>
+            </th>
+         </tr>
+         <tr class="xl24">
+            <th class="xl25" colspan="10" width="1500" height="10">&nbsp;</th>
+         </tr>
+      </table>
+      <table border="0" cellspacing="0" cellpadding="0" width="100%">
+         <tr class="xl24">
+            <th class="xl26">№</th>
+            <th class="xl26">Дата проводки</th>
+            <th class="xl26">Время проводки</th>
+            <th class="xl26" nowrap>Сумма</th>
+            <th class="xl26">Валюта</th>
+            <th class="xl26">ЕГРПОУ контрагента</th>
+            <th class="xl26">Наименование<br>контрагента
+            </th>
+            <th class="xl26">Счет контрагента</th>
+            <th class="xl26">МФО контрагента</th>
+            <th class="xl27" width="800" nowrap>Назначение платежа</th>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ПН741282З</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">18:04:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">150.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">31561226</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ТОВ `ТРК `ТIМ`</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028112016863</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">328685</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Сплата за послуги кабельного телебачення зг кв б/н вiд Тiток Галина Анатолiiвна,Умань
+               вул Комарова 21 кв 77 без ПДВ о/р 3602100077
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ПН3004</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">17:34:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">45.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">19017842</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">Платежi фiзичних осiб</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29020230460</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">380537</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Сплата за Степанова О.Н., , №0400501001 вiд Степанова О.Н., , ,iд. код</td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">36915259</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">17:17:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">960.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ТВБВ № 10023/0349 ФIЛIЇ-ЧЕРКАСЬКОГО ОБ</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">35190934900004</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Перераховано абонплату за користування L2 VPN-каналами зг. рах. № 1490 вiд 12/08/2014р.,
+               в т.ч.ПДВ 160,00.
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">11975063</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">17:17:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">30.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">26435422</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">АТ Банк "Фiнанси та Кредит"</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">290202710</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">331832</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">За послуги кабельного телебачення 08.2014 особ.рах.№7002601017 Платник - Фриюк Бронiслав
+               Васильович Деревянка 26а кв 17 Фриюк Бронiслав Васильович
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">11967537</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">17:17:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">30.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">26435422</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">АТ Банк "Фiнанси та Кредит"</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">290202710</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">331832</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">За послуги кабельного телебачення 08.2014р особ.рах.№2801200067 Платник - Добжанська
+               Нiна Петрiвна Республiканська 12-67 Добжанська Нiна Петрiвна
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">2652</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">16:01:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">486.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">01563969</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">УМАНСКИЙ КОЛГОСПНИЙ РИНОК</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">2600720957001</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">319092</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">За послуги iнтернету рах. 1687 вiд 08.09.2014. без ПДВ.</td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">2653</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">16:01:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">180.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">01563969</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">УМАНСКИЙ КОЛГОСПНИЙ РИНОК</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">2600720957001</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">319092</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">За транслягiю кабельного телебачення рах. 1688 вiд 08.09.2014. без ПДВ.</td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">1203ck</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">15:48:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">1800.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">35871504</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ТОВ "Баядера Логiстик"</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">26001308081729</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">351005</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">За абонт.плату iнтернет зг. рах. № 1663 вiд 18.08.2014 р.,в т.ч. ПДВ 20% - 300,00
+               грн.
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">77518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">350.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_ОДIНЦОВА Т.О.-200.00_Дорофеев Олександр Ва 30.00_БОГАЙЧУК В.В.
+               30.00_Мицик Сергiй Миколайо 30.00_Полiщук Олександр Iва 60.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">1000077518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">360.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_ЯДУШИНЬКА О.В.-30.00_Липинский Николай. Ив 100.00_кашперський
+               с 1 60.00_КРУГЛЯК Р П 50.00_Печений Сергiй Iванов 90.00_БОЙКО П В 30.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">1002077518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">270.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_Полянецкий А. П.-90.00_Гембарук Iрина Анатол 30.00_Левченко Лариса
+               Волод 60.00_Заховайко Любов Федор 60.00_Байкова Валентина Мик 30.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">77518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">330.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_ПЕТРЕНКО Г.Г.-120.00_ШЕВЧИК В.П. 30.00_Друзгальська Ольга Ан
+               30.00_РОМАНЮК 1 Л 60.00_Остроух Сергiй Анатол 60.00_КОВТЕНКО О1 30.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">1001077518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">90.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги Корлейноцева Д З_Бр1т О В-60.00_Бойко Е А 30.00</td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">77518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">190.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги Корлейноцева Д З_БАЛКОВА К С-30.00_Чернявський А О 30.00_Могильчак
+               О В 30.00_Чайка Ф Т 35.00_Сенько П П 35.00_Шишковський Д Г 30.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">1005077518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">210.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_Олiйник Володимир Мик-60.00_Дудник Вадим Миколайо 30.00_Конаков
+               А А 30.00_Деундяк Н Л 30.00_ЛЕВИЦЬКИЙ В А 30.00_ЛЕВИЦЬКА О М 30.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">1002077518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">180.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_Iса?в Юрiй Павлович-30.00_АсоскоМикола Афанасiй 60.00_Дмитрук
+               Дарiя Володим 30.00_Бойченко Петро Юрiйов 30.00_ДЕМЕДОВСЬКА Ю М 30.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">1001077518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">180.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_Коган Рива Аврумовна-30.00_Дихтяренко Володимир 30.00_Iльюшина
+               Наталiя Дм.* 30.00_ОЖОГ1НА Н С 30.00_ОЖОГ1НА Н С 30.00_ГУТ Ю.Т. 30.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">1000077518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">90.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги-640370042_МЯЛЯРЧУК МИКОЛА ОЛЕКС1ЙОВ-90.00</td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">1000077518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">30.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги-020700022_ТОРГАЛО-30.00</td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">77518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">30.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуг-120080006_прядко-30.00</td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">1001077518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">210.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_Трофiменко Олександр-60.00_Голубенко Олександр В 30.00_Шелепко
+               Валентина Гри 30.00_Зленко Олена Федорiвн 60.00_Довгань М. В. 30.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">77518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">205.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_Стародуб Юрiй Анатолi-90.00_Колесник Алiна Олексi 30.00_Щербинська
+               Любов Олек 25.00_Рябоконь Микола Олекс 30.00_БАЮК П.I. 30.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">1000077518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">330.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_ВОЛКОВ1ЦЬКА Н В-60.00_МАЗУР А.В. 30.00_Гордi?нко Валерiй Ана
+               30.00_КОМАР М В 150.00_Шатковська Нiна Микол 30.00_ШЕВЧУК С.М. 30.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">1000077518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">210.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_Федько Олексiй Олексi-30.00_Заменягре Вiорел Мико 90.00_Кравцов
+               Сергiй Борисо 30.00_Вдовiченко Алла Олекс 30.00_НОВОСАД М.П. 30.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">77518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">180.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_Корчков Олександр Сер-60.00_Гущин Володимир Iвано 30.00_Дробiлко
+               Тетяна Анато 30.00_Яременко Вiктор Васил 30.00_Скипник Анна Ва 30.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">77518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">300.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_Руденко Наталiя Вiтал-30.00_Смовж Володимир Вiтал 30.00_КАЧАНОВ
+               А.I. 30.00_Кравченко Вiктор Олек 90.00_РЯЗАНОВА О С 90.00_КIЗЯН МВ 30.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">77518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">240.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_СОКОРЕНКО СА-30.00_Катрич Вiра Iванiвна 30.00_Таранюк Iван Олексiйо
+               30.00_ОМЕЛЬЧУК Г.И. 60.00_Билоус Михаил. Петров 30.00_ЧОРНОУС 60.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">1000077518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">270.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_ВИШНЕВЕЦЬКИЙ ВО-30.00_ПШЕБИЛЬСКИЙ С.В 30.00_ПШЕБИЛЬСКИЙ С.В 30.00_Шкурко
+               Микола Афанасi 90.00_КОВАЛЬ Е В 30.00_ВАСИЛЬКОВСЬКИЙ АВ 60.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">77518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">210.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_КУЛIШ В.О.-30.00_Сапелкин Анатолий Сем 30.00_1ЩЕНКО Д М 60.00_Шевченко
+               Олена Панфiл 30.00_Цицилiна Наталiя Воло 30.00_ЯРОШЕВИЧ Я К 30.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">77518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">270.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_Галицька Ольга Олексi-30.00_Кузьменко Леонiд Iван-120.00_БАЛАШЕНКО-90.00_ТРЕТЯК
+               А-30.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">1001077518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">240.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_Бондар Григорiй Петро-60.00_ПОДОПРИГОРА Н.Д 30.00_Недопас В.
+               Ф. 60.00_Маслюченко Валерiй Ми 30.00_Лисова Любовь Филипов 60.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">1002077518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">330.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_Синяков В. Н.-30.00_Скляр Наталiя Андрiъ 90.00_Гармидер С. В.
+               30.00_Данилюк Валерiй Микол 30.00_Рыбак Т. Анат. 60.00_ПОМАЗАН I.I. 90.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">77518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">195.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги Корлейноцева Д З__ЖМУДЕНКО-120.00_Наконечна В В3701502000-45.00_С1ЛЬВЕЙСТРОВ-30.00</td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">1000077518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">240.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_Савченко Марiна Волод-30.00_БАРАНЮК Т А 90.00_Гриневич С. И.
+               30.00_Шевцов Володимир Iван 30.00_Головко Варвара Олекс 30.00_ЧИЖ В М 30.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">77518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">150.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_Мневская Л. А.-30.00_Жовнярчук Леонiд Йоси 30.00_Безе Оксана
+               Iванiвна 30.00_Балiцький Василь Федо 60.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">1004077518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">270.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_ЗАХАРЧУК С 1-60.00_Швець Микола Володими 60.00_Буртовой Валентин.
+               Фе 60.00_Юрченко Светлана. Ива 60.00_БIЛЕНКО Л.О. 30.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">1001077518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">330.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_Древинский В. С-60.00_Коpоташ Сергiй Микол. 90.00_КРОХМАЛЬОВА
+               Н.I. 30.00_Краснопольський Анато 60.00_Вакула Олена Борисiвн 90.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">1002077518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">210.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_РИСЕНКО А.В.-30.00_Новак Микола Олександ 30.00_СОКУР В.К. 60.00_Стрельнiков
+               Вiталiй М 30.00_Качка Петр. Денисович 30.00_РОЄНКО В В 30.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">77518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">360.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_Жук Галина Феофанiвна-180.00_Хамходера Галина Федо 30.00_ЧОРНА
+               Н.Й. 60.00_Качур Юлiя Валерi_вна 60.00_Черниченко Валентина 30.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">77518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">90.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги -1500400085_макаров д а-90.00</td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">1004077518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">210.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_Бунiна Валентина Миха-30.00_Коваль В. Н. 60.00_Чопова Валентина
+               Викт 30.00_ЧАПЛ1НСЬКИЙ П 1 30.00_Яровой Алксандр. Анат 60.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">1003077518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">210.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_Гайн П. И.-30.00_Кiфоренко Зiна_да Мик 30.00_КАЛIЄВСЬКИЙ С.В.
+               30.00_Мороз Василь Дмитрови 30.00_РАЧУК В.В. 60.00_ваганов н а 30.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">1003077518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">240.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_Яцкiв Василь Степанов-30.00_ЗАХАРОВА 90.00_люлька т г 30.00_Щербiнiн
+               Iгор Микол. 30.00_ПАВЛЮК Т В 30.00_ЯРМОЛЕНКО О Й 30.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">1000077518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">300.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_Ежова Оксана. Михайло-90.00_Сушкова Валентина Мик 30.00_ЛАБА
+               Л О 30.00_Сметана Майя Леонiдiв 60.00_ХОМИЧ М И 60.00_Вуйкова О В 30.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">1003077518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">270.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_Фесенко Галина Володи-60.00_Павленко ОЛьга Петрiв 60.00_Терещук
+               Григорий. Ива 90.00_Стецик Анатолiй Якови 30.00_ФИЛАТОВА М.М. 30.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">1002077518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">240.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_Кернос Костянтин Мико-30.00_ШЕВЧУК О.Л. 30.00_Орлов Анатолiй
+               Василь 90.00_Сироткин Г. П. 30.00_БОНДАРЕНКО Н.В. 30.00_ЛАВРЕНОВ А 1 30.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">1000077518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">180.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_Фурман Лидия Федоровн-30.00_НАЗАРЕНКО В.А. 30.00_ОЛIЙНИК О.I.
+               60.00_Кочерженко Йосип Воль 30.00_Кочерженко Йосип Воль 30.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">77518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">297.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_Яровенко Леся Василiв-30.00_Кравец Лидия. Василье 87.00_коржовський
+               г г 60.00_Ремешевский В. Н. 30.00_ЛЄБЄДЄВА М.М. 60.00_Чикмасов 30.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">1001077518</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">270.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">02767059</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ВОБ Умань</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29028934901006</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">354507</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги_Стрижевська Тетяна Iв-30.00_ШЕКСТЕЛО К.Х. 30.00_Терещенко Борис.
+               Алек 90.00_Бондаренко Катерина Ф 90.00_Кошолап Людмила Iванi 30.00
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">E0909TMU1U</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:35:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">155.36</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14360570</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">РАСЧЕТЫ ПО КАРТАМ (UAH)</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29246827509065</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">305299</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">LIQPAY 42601801 DESCR Internet (id:7946) Order 7946</td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">8483K_umn</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:16:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">30.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">24214088</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ПАТ "Банк "Київська Русь"</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">2902490293</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">319092</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">абонплата за послуги кабельного телебачення 1403000001 Левченко I М</td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">2120K_um2</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:16:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">3.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">24214088</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ПАТ "Банк "Київська Русь"</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">2902690295</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">319092</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги кабельного телебачення 0208700039 Руденко Л. П.</td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">2126K_um2</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:16:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">90.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">24214088</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ПАТ "Банк "Київська Русь"</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">2902690295</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">319092</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги кабельного телебачення 7200400006 Полiщук Анастасiя Михайлiвна</td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">2129K_um2</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14:16:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">30.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">24214088</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ПАТ "Банк "Київська Русь"</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">2902690295</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">319092</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Абонплата за послуги кабельного телебачення 3600200013 Черепанська Катерина Гнатiвна</td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">11961455</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">11:31:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">30.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">26435422</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">АТ Банк "Фiнанси та Кредит"</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">290202710</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">331832</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">За послуги кабельного телебачення 08.2014р особ.рах.№3602900062 Платник - Чоботар
+               Марiя Петрiвна Комарова 29-62 Чоботар Марiя Петрiвна
+            </td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">625</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">10:46:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">76.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">22802875</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">ТОВ "Лiкапрод"</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">26007101159</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">380805</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">За послуги iнтернету з/но дог. 13/05/11 вiд 13.05.11 в т. ч. ПДВ20%-12,67грн</td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">E0909YFF86</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">06:32:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">97.10</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14360570</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">РАСЧЕТЫ ПО КАРТАМ (UAH)</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29246827509065</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">305299</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">LIQPAY 42583597 DESCR Internet (id:7943) Order 7943</td>
+         </tr>
+         <tr class="xl24">
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">@2PL430102</td>
+            <td class="xl29" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">09.09.2014</td>
+            <td class="xl30" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">03:44:00</td>
+            <td class="xl33" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">2714.00</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">UAH</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">14360570</td>
+            <td class="xl28" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">Транз.сч. по догов. платеж. CN/CS</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">29027866200016</td>
+            <td class="xl31" style="border-left:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext;">305299</td>
+            <td class="xl28" width="800" style="border-left:0.5pt solid windowtext; border-right:0.5pt solid windowtext; border-bottom:0.5pt solid windowtext; white-space: nowrap;">Платежи по договору, за КТБ, согласно реестра @2PL430102 от 20140908.Количество платежей
+               - 52 шт. на общую сумму: 2714.00 грн., удержано коммисии: 0.00 грн.
+            </td>
+         </tr>
+      </table>
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+         <tr>
+            <th colspan="10" width="1" height="20">&nbsp;</th>
+         </tr>
+      </table>
+   </body>
+</html>

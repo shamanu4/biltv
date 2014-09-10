@@ -29,7 +29,6 @@ def statement(request, day):
         statement_id = Statement.objects.get(day=day).pk
     except Statement.DoesNotExist:
         statement_id = 0
-    print ">>>%s<<<" % statement_id
     return {
         'PROGRAM_VERSION':PROGRAM_VERSION,
         'day': day,
