@@ -411,62 +411,81 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                     var grid = Ext.getCmp(this.id);
                     grid.searchfield.setValue('');
                     grid.store.baseParams.filter_value = '';
-                    grid.store.load();
+                    grid.store.reload();
+                    this.resizeAction();
                 },
                 scope: this
             },
             ],
-            bbar: new Ext.PagingToolbar({
-                pageSize:  this.pageSize || 16,
+            bbar: this.pager = new Ext.PagingToolbar({
+//                pageSize:  this.pageSize || 16,
                 store: this.store
             }),
             listeners: {
-                    beforeclose: {
-                        fn: function(obj) {
-                            obj.hide()
-                        }
-                    },
-                    beforedestroy: {
-                        fn: function(e) {
-                            return false;
-                        }
-                    },
-                    afterrender: {
-                        fn: function(e) {
-                            var grid = Ext.getCmp(this.id);
-                            grid.getView().dragZone.onBeforeDrag = function(el, e) {
-                                var isValidDrag = true;
-                                Ext.each(el.selections, function(row) {
-                                    if(row.data.locked) {
-                                        isValidDrag = false;
-                                    }
-                                });
-                                return isValidDrag;
-                            };
-                            var GridDropTargetEl =  grid.getView().scroller.dom;
-                            var GridDropTarget = new Ext.dd.DropTarget(GridDropTargetEl, {
-                                ddGroup    : 'GridDD',
-                                notifyDrop : function(ddSource, e, data){
-                                    var records =  ddSource.dragData.selections;
-                                    Ext.each(records, ddSource.grid.store.remove, ddSource.grid.store);
-                                    grid.store.add(records);
-                                    Ext.each(records, function(r){
-                                        var target = grid.store.baseParams.filter.category__pk || 0;
-                                        MainApi.set_entry_category(r.id, target, function(response){
-                                            grid.store.reload();
-                                            ddSource.grid.store.reload();
-                                        });
-                                    });
-                                    return true;
+                beforeclose: {
+                    fn: function(obj) {
+                        obj.hide()
+                    }
+                },
+                beforedestroy: {
+                    fn: function(e) {
+                        return false;
+                    }
+                },
+                afterrender: {
+                    fn: function(e) {
+                        var grid = Ext.getCmp(this.id);
+                        grid.getView().dragZone.onBeforeDrag = function(el, e) {
+                            var isValidDrag = true;
+                            Ext.each(el.selections, function(row) {
+                                if(row.data.locked) {
+                                    isValidDrag = false;
                                 }
                             });
-                        }
+                            return isValidDrag;
+                        };
+                        var GridDropTargetEl =  grid.getView().scroller.dom;
+                        var GridDropTarget = new Ext.dd.DropTarget(GridDropTargetEl, {
+                            ddGroup    : 'GridDD',
+                            notifyDrop : function(ddSource, e, data){
+                                var records =  ddSource.dragData.selections;
+                                Ext.each(records, ddSource.grid.store.remove, ddSource.grid.store);
+                                grid.store.add(records);
+                                Ext.each(records, function(r){
+                                    var target = grid.store.baseParams.filter.category__pk || 0;
+                                    MainApi.set_entry_category(r.id, target, function(response){
+                                        grid.store.reload();
+                                        ddSource.grid.store.reload();
+                                    });
+                                });
+                                return true;
+                            }
+                        });
+                        this.resizeAction();
+                    }
+                },
+                resize: {
+                    fn: function(e) {
+                        this.resizeAction();
+                    }
+                }
+
+            },
+            resizeAction: function() {
+                var grid = Ext.getCmp(this.id);
+                    var height = grid.getView().scroller.getHeight();
+                    if(height>100) {
+                        delete grid.pager.pageSize;
+                        delete grid.pageSize;
+                        grid.pager.pageSize = parseInt((height-10)/21);
+                        $("#"+grid.pager.id).find('button.x-tbar-loading').click();
                     }
             },
             searchAction: function() {
                 var grid = Ext.getCmp(this.id);
                 grid.store.baseParams.filter_value = grid.searchfield.getValue();
-                grid.store.load();
+                grid.store.reload();
+                this.resizeAction();
             },
             enableDragDrop: true,
             ddGroup: "GridDD",
@@ -513,7 +532,7 @@ Ext.ux.Entry_store_config = {
     },
     remoteSort: true,
     restful: true,
-    autoLoad: true,
+    autoLoad: false,
     autoSave: false,
     reader: new Ext.data.JsonReader({
         root: 'data',

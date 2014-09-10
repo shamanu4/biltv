@@ -92,10 +92,11 @@ Ext.ux.MainViewport = Ext.extend(Ext.Viewport, {
                     items: [
                         new Ext.ux.EntryGrid({
                             title: "виписка "+window.day,
+                            id: "main-grid",
                             store: new Ext.ux.EntryStore(Ext.apply({
                                 baseParams: {
                                     start:0,
-                                    limit:16,
+                                    limit:20,
                                     filter_fields:[
                                         'id',
                                         'pid',
