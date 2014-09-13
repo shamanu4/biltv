@@ -353,38 +353,7 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
             current_row: 0,
             unsaved_row: 0,
             tbar: [
-//            {
-//                text: 'Apply',
-//                icon: '/static/extjs/custom/tick_16.png',
-//                cls: 'x-btn-text-icon',
-//                handler: function() {
-//                    this.store.save()
-//                    //this.store.commitChanges();
-//                },
-//                scope: this
-//            },{
-//                text: 'Add',
-//                icon: '/static/extjs/custom/plus_16.png',
-//                cls: 'x-btn-text-icon',
-//                handler: function() {
-//                    this.store.insert(
-//                        0,
-//                        new this.ds_model()
-//                    );
-//                    this.startEditing(0,1);
-//                },
-//                scope: this
-//            },{
-//                text: 'Cancel',
-//                icon: '/static/extjs/custom/block_16.png',
-//                cls: 'x-btn-text-icon',
-//                handler: function() {
-//                    this.store.reload()
-//                },
-//                scope: this
-//            },
-            new Ext.Toolbar.Spacer(),
-             this.searchfield = new Ext.form.TextField({
+            this.searchfield = new Ext.form.TextField({
                 listeners: {
                     specialkey: {
                         fn: function(field, e){
@@ -395,9 +364,9 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                         scope: this
                     }
                 }
-            }),
-            new Ext.Toolbar.Spacer(),
-            {
+            }),{
+                xtype: 'tbseparator'
+            },{
                 icon: '/static/extjs/custom/search_16.png',
                 cls: 'x-btn-text-icon',
                 handler: function() {
@@ -415,8 +384,35 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                     this.resizeAction();
                 },
                 scope: this
+            },{
+                xtype: 'tbseparator'
+            },{
+                xtype: 'label',
+                text: 'Всього:'
             },
-            ],
+            this.lb_total = new Ext.form.TextField({
+                width: '60px'
+            }),{
+                xtype: 'tbseparator'
+            },{
+                xtype: 'label',
+                text: 'Не в реєстрах:'
+            },
+            this.lb_unregistered = new Ext.form.TextField({
+                xtype: 'textfield',
+                width: '60px'
+            }),{
+                xtype: 'tbseparator'
+            },{
+                xtype: 'label',
+                text: 'Не проведені:'
+            },
+            this.lb_unprocessed = new Ext.form.TextField({
+                xtype: 'textfield',
+                width: '60px'
+            }),{
+                xtype: 'tbseparator'
+            }],
             bbar: this.pager = new Ext.PagingToolbar({
 //                pageSize:  this.pageSize || 16,
                 store: this.store
@@ -456,6 +452,9 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                                     MainApi.set_entry_category(r.id, target, function(response){
                                         grid.store.reload();
                                         ddSource.grid.store.reload();
+                                        if(grid.update_stats) {
+                                            grid.update_stats();
+                                        }
                                     });
                                 });
                                 return true;

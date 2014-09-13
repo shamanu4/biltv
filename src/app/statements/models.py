@@ -3,6 +3,7 @@ __author__ = 'maxim'
 
 from django.db import models
 from datetime import date
+from tv.models import PaymentRegister
 import json
 
 
@@ -61,7 +62,7 @@ class Entry(models.Model):
             'descr': self.descr,
             'processed': self.processed,
             'register_id': self.register.id if self.register else None,
-            'locked': self.processed or self.register
+            'locked': self.processed or not self.register is None
         }
 
 
@@ -87,11 +88,66 @@ class Category(models.Model):
     def __unicode__(self):
         return self.name
 
+    def can_create_register(self):
+        return self.svc_type == TYPE_CATV and not self.auto_processed and (True if self.source else False) and \
+               self.get_unregistered_unprocessed_lines().count() > 0
+
+    def get_total_amount(self):
+        return self.lines.all().aggregate(models.Sum('amount'))['amount__sum'] or 0
+
+    def get_processed_amount(self):
+        return self.lines.filter(processed=True).aggregate(models.Sum('amount'))['amount__sum'] or 0
+
+    def get_unprocessed_amount(self):
+        return self.get_total_amount() - self.get_processed_amount()
+
+    def get_unregistered_unprocessed_amount(self):
+        return self.get_unregistered_unprocessed_lines().aggregate(models.Sum('amount'))['amount__sum'] or 0
+
+    def get_unregistered_unprocessed_lines(self):
+        return self.lines.filter(processed=False, register__isnull=True)
+
+    def get_registry_start(self):
+        return self.get_unregistered_unprocessed_lines().aggregate(models.Min('timestamp'))['timestamp__min'].date()
+
+    def get_registry_end(self):
+        return self.get_unregistered_unprocessed_lines().aggregate(models.Max('timestamp'))['timestamp__max'].date()
+
+    def get_registry_bank(self):
+        lines = self.get_unregistered_unprocessed_lines()
+        if lines.count():
+            return lines[0].statement.day
+        else:
+            return None
+
+    def create_register(self):
+        """
+            source = models.ForeignKey("tv.PaymentSource")
+            total = models.FloatField(default=0)
+            closed = models.BooleanField(default=False)
+            start = models.DateField(blank=True,null=True)
+            end = models.DateField(blank=True,null=True)
+            bank = models.DateField(blank=True,null=True)
+        """
+        register = PaymentRegister.objects.create(source=self.source,
+                                                  total=self.get_unregistered_unprocessed_amount(),
+                                                  start=self.get_registry_start(),
+                                                  end=self.get_registry_end(),
+                                                  bank=self.get_registry_bank(),
+                                                  )
+        self.get_unregistered_unprocessed_lines().update(register=register)
+        return register
+
     def store_record(self):
         return {
             'id': self.pk,
             'name': self.name,
-            'svc_type': self.get_svc_type_display()
+            'svc_type': self.get_svc_type_display(),
+            'source_id': self.source_id if self.source else None,
+            'can_create_register': self.can_create_register(),
+            'total': self.get_total_amount(),
+            'unregistered': self.get_unregistered_unprocessed_amount(),
+            'unprocessed': self.get_unprocessed_amount()
         }
 
 

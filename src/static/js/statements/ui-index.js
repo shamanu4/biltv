@@ -52,16 +52,44 @@ Ext.onReady(function () {
                     filter_value: '',
                     filter: {'statement__id': window.statement_id, 'category__pk': category_id }
                 }
-            }, Ext.ux.Entry_store_config))
+            }, Ext.ux.Entry_store_config)),
+            listeners: {
+                activate: function() {
+                    if(this.can_create_register) {
+                        Ext.getCmp('create-register-btn').enable();
+                    } else {
+                        Ext.getCmp('create-register-btn').disable();
+                    }
+                }
+
+            },
+            update_stats: function() {
+                var tab = Ext.getCmp(this.id);
+                MainApi.update_stats(tab.category_id, null, function(response) {
+                    tab.can_create_register = response.can_create_register;
+                    if(tab.can_create_register) {
+                        Ext.getCmp('create-register-btn').enable();
+                    } else {
+                        Ext.getCmp('create-register-btn').disable();
+                    }
+                    tab.lb_total.setValue(response.total);
+                    tab.lb_unregistered.setValue(response.unregistered);
+                    tab.lb_unprocessed.setValue(response.unprocessed);
+                });
+            }
         });
         panel.add(tab);
-        return true;
+        return tab;
     };
 
     MainApi.get_categories(window.day, function (response) {
         var panel = Ext.getCmp("center-tab-panel");
         Ext.each(response.data, function (category) {
-            window.panelAddTab(panel, category.name, category.id, category.svc_type);
+            var tab = window.panelAddTab(panel, category.name, category.id, category.svc_type);
+            tab.can_create_register = category.can_create_register;
+            tab.source_id = category.source_id;
+            tab.category_id = category.id;
+            tab.update_stats();
         })
     });
 

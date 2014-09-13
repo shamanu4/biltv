@@ -94,6 +94,35 @@ class MainApiClass(object):
             return dict(success=True)
     set_entry_category._args_len = 2
 
+    def create_register(self, category_id, request):
+        try:
+            c = Category.objects.get(pk=category_id)
+        except Category.DoesNotExist:
+            return dict(success=False, title='Ошибка', msg=str('no category with id %s' % category_id))
+        else:
+            if not c.can_create_register():
+                return dict(success=False, title='Ошибка', msg=str('category with id %s cant create register' % category_id))
+            else:
+                register = c.create_register()
+                return dict(success=True, title="Создан реестр №%s" % register.pk, msg=str("created register #%s" % register.pk))
+    create_register._args_len = 1
+
+    def update_stats(self, category_id, statement_id, request):
+        if category_id>0:
+            try:
+                c = Category.objects.get(pk=category_id)
+            except Category.DoesNotExist:
+                return dict(success=False, title='Ошибка', msg=str('no category with id %s' % category_id))
+            else:
+                return c.store_record()
+        elif statement_id>0:
+            try:
+                st = Statement.objects.get(pk=statement_id)
+            except Statement.DoesNotExist:
+                return dict(success=False, title='Ошибка', msg=str('no statement with id %s' % statement_id))
+            else:
+                pass
+    update_stats._args_len = 2
 
 
 class Router(RpcRouter):

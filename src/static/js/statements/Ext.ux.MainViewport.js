@@ -144,7 +144,7 @@ Ext.ux.MainViewport = Ext.extend(Ext.Viewport, {
                             xtype: 'button',
                             ui: 'round',
                             icon: '/static/extjs/custom/plus_16.png',
-                            text: 'Додати',
+                            text: 'Додати банк',
                             dock: 'left',
                             handler: function(){
                                 var select = Ext.getCmp('add-new-cat-select');
@@ -155,19 +155,20 @@ Ext.ux.MainViewport = Ext.extend(Ext.Viewport, {
                                 }
                             }
                         },{
-                            xtype: 'tbseparator',
+                            xtype: 'tbseparator'
                         },{
                             xtype: 'button',
+                            id: 'create-register-btn',
+                            disabled: true,
                             ui: 'round',
                             icon: '/static/extjs/custom/label_16.png',
                             text: 'Створити реєстр',
                             dock: 'left',
                             handler: function(){
-                                var select = Ext.getCmp('add-new-cat-select');
-                                var panel = Ext.getCmp("center-tab-panel");
-                                if(select.value) {
-                                    window.panelAddTab(panel, select.lastSelectionText, select.value);
-                                }
+                                var tab = Ext.getCmp('center-tab-panel').getActiveTab();
+                                MainApi.create_register(tab.category_id, function(response){
+                                    tab.update_stats()
+                                });
                             }
                         }]
                     }
