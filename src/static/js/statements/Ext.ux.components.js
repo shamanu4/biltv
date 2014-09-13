@@ -649,6 +649,7 @@ Ext.ux.Category_store_config = {
             'id',
             'name',
             'svc_type',
+            'source_id'
         ]
     }),
     writer: new Ext.data.JsonWriter({

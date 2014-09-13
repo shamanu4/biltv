@@ -65,7 +65,7 @@ Ext.onReady(function () {
             },
             update_stats: function() {
                 var tab = Ext.getCmp(this.id);
-                MainApi.update_stats(tab.category_id, null, function(response) {
+                MainApi.update_stats(tab.category_id, 0, function(response) {
                     tab.can_create_register = response.can_create_register;
                     if(tab.can_create_register) {
                         Ext.getCmp('create-register-btn').enable();

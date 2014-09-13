@@ -151,7 +151,9 @@ Ext.ux.MainViewport = Ext.extend(Ext.Viewport, {
                                 var record = select.store.data.items[select.selectedIndex].data;
                                 var panel = Ext.getCmp("center-tab-panel");
                                 if(select.value) {
-                                    window.panelAddTab(panel, record.name, record.id, record.svc_type);
+                                    var tab = window.panelAddTab(panel, record.name, record.id, record.svc_type);
+                                    tab.category_id = record.id;
+                                    tab.source_id = record.source_id;
                                 }
                             }
                         },{
