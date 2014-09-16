@@ -2,7 +2,6 @@
 __author__ = 'maxim'
 
 from decorators import render_to
-from settings import PROGRAM_VERSION
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
@@ -16,7 +15,10 @@ from subprocess import Popen, PIPE
 from .forms import XLSUploadForm
 from .models import Statement
 
-PATH = "/home/maxim/projects/biltv2/src/app/statements/tmp"
+from django.conf import settings
+
+PROGRAM_VERSION = settings.PROGRAM_VERSION
+PATH = settings.STATEMENTS_PATH
 
 
 def index(request):
