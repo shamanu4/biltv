@@ -88,5 +88,6 @@ class Command(BaseCommand):
                 s = Statement.objects.create(**statement)
                 for e in entries:
                     Entry.objects.create(statement=s, **e)
+                s.save()
             except Exception, e:
                 raise CommandError("Database consistency error")
