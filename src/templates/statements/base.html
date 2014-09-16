@@ -16,7 +16,14 @@
         });
 
         Ext.Ajax.on('requestcomplete', function(req,response){
-            batch = eval(response.responseText);
+            try {
+                batch = eval(response.responseText);
+            }
+            catch (e) {
+                console.log(e);
+                return false;
+            }
+
             for(line in batch) {
                 if(isInt(line)) {
                     data = batch[line]
