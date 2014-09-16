@@ -19,7 +19,7 @@ from django.conf import settings
 
 PROGRAM_VERSION = settings.PROGRAM_VERSION
 PATH = settings.STATEMENTS_PATH
-
+PROJECT_ROOT = settings.PROJECT_ROOT
 
 def index(request):
     return HttpResponseRedirect(reverse("statements:statement", kwargs={'day': date.today().strftime("%Y-%m-%d")}))
@@ -60,7 +60,7 @@ def handle_uploaded_file(f, day):
 
 
 def process(path, daystr):
-    p = Popen(['python', 'manage.py', 'import_xls', path, daystr, '--process'], stdout=PIPE, stderr=PIPE)
+    p = Popen(['python', '%s/manage.py' % PROJECT_ROOT, 'import_xls', path, daystr, '--process'], stdout=PIPE, stderr=PIPE)
     output = p.communicate()
     if output[1]:
         raise RuntimeError(output[1])
