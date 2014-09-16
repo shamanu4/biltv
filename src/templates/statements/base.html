@@ -15,43 +15,50 @@
             showDelay: 1000
         });
 
-{#        Ext.Ajax.on('requestcomplete', function(req,response){        	#}
-{#            batch = eval(response.responseText)#}
-{#            for(line in batch) {#}
-{#                if(isInt(line)) {#}
-{#                    data = batch[line]#}
-{#                    if(Ext.isArray(data.result)) {#}
-{#                        for(line in data.result) {                          #}
-{#                        	$("#traceback-content").val()#}
-{#                          	result = data.result[line]#}
-{#                          	if(!result){#}
-{#                          		continue#}
-{#                          	}#}
-{#                          	if(data.result.errors){#}
-{#                        		Ext.ux.traceback('Критическая ошибка',data.result.errors,getCookie('csrftoken'))#}
-{#                            }#}
-{#                        	else if(result.msg && result.title) {#}
-{#                          		if(result.success) {#}
-{#                    		 		Ext.ux.msg(result.title, result.msg, Ext.Msg.INFO);#}
-{#                        		} else {#}
-{#                             		Ext.ux.msg(result.title, result.msg, Ext.Msg.ERROR);#}
-{#                        		}#}
-{#                    		}                    		#}
-{#                        }#}
-{#                    }#}
-{#                    if(data.result.errors){#}
-{#                        Ext.ux.traceback('Критическая ошибка',data.result.errors,getCookie('csrftoken'))                             	#}
-{#                    }#}
-{#                    else if(data.result.msg && data.result.title) {#}
-{#                    	if(data.result.success) {#}
-{#                    		 Ext.ux.msg(data.result.title, data.result.msg, Ext.Msg.INFO);#}
-{#                        } else {#}
-{#                             Ext.ux.msg(data.result.title, data.result.msg, Ext.Msg.ERROR);                             #}
-{#                        }#}
-{#                    }#}
-{#                }                    #}
-{#            }            #}
-{#        }, this);#}
+        Ext.Ajax.on('requestcomplete', function(req,response){
+            try {
+                batch = eval(response.responseText);
+            }
+            catch (e) {
+                console.log(e);
+                return false;
+            }
+
+            for(line in batch) {
+                if(isInt(line)) {
+                    data = batch[line]
+                    if(Ext.isArray(data.result)) {
+                        for(line in data.result) {
+                        	$("#traceback-content").val()
+                          	result = data.result[line]
+                          	if(!result){
+                          		continue
+                          	}
+                          	if(data.result.errors){
+                        		Ext.ux.traceback('Критическая ошибка',data.result.errors,getCookie('csrftoken'))
+                            }
+                        	else if(result.msg && result.title) {
+                          		if(result.success) {
+                    		 		Ext.ux.msg(result.title, result.msg, Ext.Msg.INFO);
+                        		} else {
+                             		Ext.ux.msg(result.title, result.msg, Ext.Msg.ERROR);
+                        		}
+                    		}
+                        }
+                    }
+                    if(data.result.errors){
+                        Ext.ux.traceback('Критическая ошибка',data.result.errors,getCookie('csrftoken'))
+                    }
+                    else if(data.result.msg && data.result.title) {
+                    	if(data.result.success) {
+                    		 Ext.ux.msg(data.result.title, data.result.msg, Ext.Msg.INFO);
+                        } else {
+                             Ext.ux.msg(data.result.title, data.result.msg, Ext.Msg.ERROR);
+                        }
+                    }
+                }
+            }
+        }, this);
 
         Ext.Ajax.on('requestexception', function(){
             Ext.ux.msg('Failure', 'Request failed', Ext.Msg.ERROR);

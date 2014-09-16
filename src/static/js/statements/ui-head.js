@@ -20,7 +20,7 @@ Engine = {
             Ext.apply(Engine.components[string], params);            
 			return Engine.components[string]
         } else {
-            Engine.components[string] = new component(params)
+            Engine.components[string] = new component(params);
 			return Engine.components[string]
         }
     },
@@ -70,18 +70,6 @@ Engine = {
                 }
             }, this)
         }
-//        loadMenu: function() {
-//			MainApi.menu(function(response){
-//                for (i in response.menuitems) {
-//                if(isInt(i)) {
-//                        Ext.getCmp('menu-bar').toolbars[0].add(Ext.ux.menu[response.menuitems[i]]);
-//                    }
-//                }
-//                Ext.getCmp('menu-bar').toolbars[0].doLayout()
-//				Ext.get('loading').hide();
-//				Ext.get('loading-mask-half').hide();
-//            }, this)
-//        }
     },
     user: {
 		id: null,

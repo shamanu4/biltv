@@ -44,8 +44,9 @@ class Command(BaseCommand):
             except Exception, e:
                 raise CommandError("Can't parse file. Error: %s" % e)
             else:
-                head = parsed[1]
-                data = parsed[2]
+                # @TODO: find proper head and data structures in file.
+                head = parsed[2]
+                data = parsed[3]
             statement = {
                 'day': date,
                 'opcount': int(float(head[1][2])),
@@ -61,10 +62,10 @@ class Command(BaseCommand):
                 amount = float("%0.2f" % float(data[3][i]))
                 currency = str(data[4][i])
                 egrpou = str(data[5][i])
-                verbose_name = unidecode(data[6][i])
+                verbose_name = unicode(data[6][i])
                 account_num = str(data[7][i])
                 mfo = str(data[8][i])
-                descr = unidecode(data[9][i])
+                descr = unicode(data[9][i])
                 e = {
                     'pid': pid,
                     'timestamp': timestamp,
@@ -87,5 +88,6 @@ class Command(BaseCommand):
                 s = Statement.objects.create(**statement)
                 for e in entries:
                     Entry.objects.create(statement=s, **e)
+                s.save()
             except Exception, e:
                 raise CommandError("Database consistency error")

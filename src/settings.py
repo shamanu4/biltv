@@ -1,6 +1,9 @@
 # Django settings for src project.
 import os, sys
 
+reload(sys)  # Reload does the trick!
+sys.setdefaultencoding('UTF8')
+
 def rel(*x):
     return os.path.join(os.path.abspath(os.path.dirname(__file__)), *x)
 

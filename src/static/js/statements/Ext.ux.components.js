@@ -329,9 +329,7 @@ Ext.ux.grid.BufferView = Ext.extend(Ext.grid.GridView, {
 Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
     store: null,
     ds_model: null,
-    columns: [],
-    height: 500,
-    boxMaxWidth: 1000,
+    colModel: null,
     instance: null,
     viewConfig: {
         //forceFit:true
@@ -352,41 +350,10 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
         options = options || {}
         var config = {
             frame:true,
-            closable: true,
             current_row: 0,
             unsaved_row: 0,
-            tbar: [{
-                text: 'Apply',
-                icon: '/static/extjs/custom/tick_16.png',
-                cls: 'x-btn-text-icon',
-                handler: function() {
-                    this.store.save()
-                    //this.store.commitChanges();
-                },
-                scope: this
-            },{
-                text: 'Add',
-                icon: '/static/extjs/custom/plus_16.png',
-                cls: 'x-btn-text-icon',
-                handler: function() {
-                    this.store.insert(
-                        0,
-                        new this.ds_model()
-                    );
-                    this.startEditing(0,1);
-                },
-                scope: this
-            },{
-                text: 'Cancel',
-                icon: '/static/extjs/custom/block_16.png',
-                cls: 'x-btn-text-icon',
-                handler: function() {
-                    this.store.reload()
-                },
-                scope: this
-            },
-            new Ext.Toolbar.Spacer(),
-             this.searchfield = new Ext.form.TextField({
+            tbar: [
+            this.searchfield = new Ext.form.TextField({
                 listeners: {
                     specialkey: {
                         fn: function(field, e){
@@ -397,9 +364,9 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                         scope: this
                     }
                 }
-            }),
-            new Ext.Toolbar.Spacer(),
-            {
+            }),{
+                xtype: 'tbseparator'
+            },{
                 icon: '/static/extjs/custom/search_16.png',
                 cls: 'x-btn-text-icon',
                 handler: function() {
@@ -410,51 +377,129 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                 icon: '/static/extjs/custom/delete_16.png',
                 cls: 'x-btn-text-icon',
                 handler: function() {
-                    this.searchfield.setValue('')
-                    this.store.baseParams.filter_value = ''
-                    this.store.load()
+                    var grid = Ext.getCmp(this.id);
+                    grid.searchfield.setValue('');
+                    grid.store.baseParams.filter_value = '';
+                    grid.store.reload();
+                    this.resizeAction();
                 },
                 scope: this
+            },{
+                xtype: 'tbseparator'
+            },{
+                xtype: 'label',
+                text: 'Всього:'
             },
-            ],
-            bbar: new Ext.PagingToolbar({
-                pageSize:  this.pageSize || 16,
+            this.lb_total = new Ext.form.TextField({
+                width: '60px'
+            }),{
+                xtype: 'tbseparator'
+            },{
+                xtype: 'label',
+                text: 'Не в реєстрах:'
+            },
+            this.lb_unregistered = new Ext.form.TextField({
+                xtype: 'textfield',
+                width: '60px'
+            }),{
+                xtype: 'tbseparator'
+            },{
+                xtype: 'label',
+                text: 'Не проведені:'
+            },
+            this.lb_unprocessed = new Ext.form.TextField({
+                xtype: 'textfield',
+                width: '60px'
+            }),{
+                xtype: 'tbseparator'
+            }],
+            bbar: this.pager = new Ext.PagingToolbar({
+//                pageSize:  this.pageSize || 16,
                 store: this.store
             }),
             listeners: {
-                    beforeclose: {
-                        fn: function(obj) {
-                            obj.hide()
-                        }
-                    },
-                    beforedestroy: {
-                        fn: function(e) {
-                            return false;
-                        }
+                beforeclose: {
+                    fn: function(obj) {
+                        obj.hide()
+                    }
+                },
+                beforedestroy: {
+                    fn: function(e) {
+                        return false;
+                    }
+                },
+                afterrender: {
+                    fn: function(e) {
+                        var grid = Ext.getCmp(this.id);
+                        grid.getView().dragZone.onBeforeDrag = function(el, e) {
+                            var isValidDrag = true;
+                            Ext.each(el.selections, function(row) {
+                                if(row.data.locked) {
+                                    isValidDrag = false;
+                                }
+                            });
+                            return isValidDrag;
+                        };
+                        var GridDropTargetEl =  grid.getView().scroller.dom;
+                        var GridDropTarget = new Ext.dd.DropTarget(GridDropTargetEl, {
+                            ddGroup    : 'GridDD',
+                            notifyDrop : function(ddSource, e, data){
+                                var records =  ddSource.dragData.selections;
+                                Ext.each(records, ddSource.grid.store.remove, ddSource.grid.store);
+                                grid.store.add(records);
+                                Ext.each(records, function(r){
+                                    var target = grid.store.baseParams.filter.category__pk || 0;
+                                    MainApi.set_entry_category(r.id, target, function(response){
+                                        grid.store.reload();
+                                        ddSource.grid.store.reload();
+                                        if(grid.update_stats) {
+                                            grid.update_stats();
+                                        }
+                                    });
+                                });
+                                return true;
+                            }
+                        });
+                        this.resizeAction();
+                    }
+                },
+                resize: {
+                    fn: function(e) {
+                        this.resizeAction();
+                    }
+                }
+
+            },
+            resizeAction: function() {
+                var grid = Ext.getCmp(this.id);
+                    var height = grid.getView().scroller.getHeight();
+                    if(height>100) {
+                        delete grid.pager.pageSize;
+                        delete grid.pageSize;
+                        grid.pager.pageSize = parseInt((height-10)/21);
+                        $("#"+grid.pager.id).find('button.x-tbar-loading').click();
                     }
             },
             searchAction: function() {
-                this.store.baseParams.filter_value = this.searchfield.getValue()
-                this.store.load()
-            }
-          /*  sm: new Ext.grid.RowSelectionModel({
+                var grid = Ext.getCmp(this.id);
+                grid.store.baseParams.filter_value = grid.searchfield.getValue();
+                grid.store.reload();
+                this.resizeAction();
+            },
+            enableDragDrop: true,
+            ddGroup: "GridDD",
+            sm: new Ext.grid.RowSelectionModel({
                 singleSelect: true,
                 listeners: {
                     rowselect: {
                         fn: function(sm,index,record) {
-                            //if(this.current_row != index) {
-                            //    this.unsaved_row = this.current_row
-                            //    this.current_row = index
-                            //    this.store.save()
-                            //    this.store.commitChanges();
-                            //}
+
                         },
                         scope: this
                     }
                 }
             })
-          */
-        }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.apply(this, options);
         Ext.ux.CustomGrid.superclass.initComponent.apply(this, arguments);
@@ -464,8 +509,16 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
 
 var entry_ds_model = Ext.data.Record.create([
     'id',
+    'pid',
     'timestamp',
     'amount',
+    'currency',
+    'egrpou',
+    'verbose_name',
+    'account_num',
+    'mfo',
+    'descr',
+    'processed'
 ]);
 
 
@@ -473,21 +526,34 @@ Ext.ux.Entry_store_config = {
     api: {
         read: EntryGrid.read,
         create: EntryGrid.foo,
-        update: EntryGrid.update,
+        update: EntryGrid.foo,
         destroy: EntryGrid.foo
     },
+    remoteSort: true,
     restful: true,
-    autoLoad: true,
+    autoLoad: false,
     autoSave: false,
-    storeId: 'entry-store',
     reader: new Ext.data.JsonReader({
         root: 'data',
         totalProperty: 'total',
-        //idProperty: 'id',
+        idProperty: 'id',
         fields: [
             'id',
+            'pid',
             'timestamp',
             'amount',
+            'currency',
+            'egrpou',
+            'verbose_name',
+            'account_num',
+            'mfo',
+            'descr',
+            'processed',
+            'statement_id',
+            'category_id',
+            'parent_id',
+            'register_id',
+            'locked'
         ]
     }),
     writer: new Ext.data.JsonWriter({
@@ -504,9 +570,10 @@ Ext.ux.Entry_store_config = {
     }
 };
 
+
 Ext.ux.EntryStore = Ext.extend(Ext.data.DirectStore, {
     initComponent: function(options) {
-        config: Ext.ux.Entry_store_config;
+        var config = Ext.ux.Entry_store_config;
         options = options || {};
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.apply(this, options);
@@ -515,21 +582,116 @@ Ext.ux.EntryStore = Ext.extend(Ext.data.DirectStore, {
 });
 
 
+var colModel = new Ext.grid.ColumnModel({
+    columns: [
+        {header: "Id", dataIndex: 'id', width:50, sortable: true},
+        {header: "Pid", dataIndex: 'pid', sortable: true},
+        {header: "Час", dataIndex: 'timestamp', width:120, sortable: true},
+        {header: "Сума", dataIndex: 'amount', width:50, sortable: true},
+        {header: "Валюта", dataIndex: 'currency', width:40, sortable: true},
+        {header: "ЕГРПОУ", dataIndex: 'egrpou', width:80, sortable: true},
+        {header: "Назва", dataIndex: 'verbose_name', width:200, sortable: true},
+        {header: "Рахунок", dataIndex: 'account_num', sortable: true},
+        {header: "МФО", dataIndex: 'mfo', sortable: true},
+        {header: "Коментар", dataIndex: 'descr', sortable: true},
+        {header: "Проведено", dataIndex: 'processed', sortable: true},
+        {header: "Реєстр", dataIndex: 'register_id', sortable: true},
+    ],
+    defaults: {
+        sortable: true,
+        width: 100
+    }
+});
+
+
 Ext.ux.EntryGrid = Ext.extend(Ext.ux.CustomGrid, {
     ds_model: entry_ds_model,
     title: 'Entry',
-    columns: [
-        {header: "Id", dataIndex: 'id'},
-        {header: "Amount", dataIndex: 'amount', editor: new Ext.form.TextField()},
-        {header: "Timestamp", dataIndex: 'timestamp', editor: new Ext.form.TextField()},
-    ],
+    stateful: true,
+    stateId: 'stateGrid1',
+    colModel: colModel,
     initComponent: function(options) {
         options = options || {};
-        var config = {};
+        var config = {
+            closable: false
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.apply(this, options);
         Ext.ux.EntryGrid.superclass.initComponent.apply(this, arguments);
     }
 });
 
+
 Ext.reg('ext:ux:entry-grid', Ext.ux.EntryGrid);
+
+
+Ext.ux.TabPanel = Ext.extend(Ext.TabPanel,{
+    initComponent: function(){
+        var config = {
+            frame:true,
+            closable:false
+        };
+        Ext.apply(this, Ext.apply(this.initialConfig, config));
+        Ext.ux.TabPanel.superclass.initComponent.apply(this, arguments);
+    }
+});
+
+
+Ext.ux.Category_store_config = {
+    restful: true,
+    autoLoad: true,
+    autoSave: false,
+    storeId: 'new_cat_combo_store',
+    reader: new Ext.data.JsonReader({
+        root: 'data',
+        totalProperty: 'total',
+        fields: [
+            'id',
+            'name',
+            'svc_type',
+            'source_id'
+        ]
+    }),
+    writer: new Ext.data.JsonWriter({
+        encode: false,
+        writeAllFields: true,
+        listful: true
+    }),
+    api: {
+        read: MainApi.get_available_categories,
+        create: EntryGrid.foo,
+        update: EntryGrid.foo,
+        destroy: EntryGrid.foo
+    }
+};
+
+Ext.ux.NewCategoryStore = Ext.extend(Ext.data.DirectStore, {
+    initComponent: function(options){
+        var config = {};
+        Ext.apply(this, Ext.apply(this.initialConfig, config));
+        options = options || {};
+        Ext.apply(this, options);
+        Ext.ux.new_cat_combo_store.superclass.initComponent.apply(this, arguments);
+    }
+});
+
+//stst = new Ext.ux.new_cat_combo_store();
+
+Ext.ux.NewCategorySelect = Ext.extend(Ext.form.ComboBox, {
+    initComponent: function(options){
+        var config = {
+            editable: true,
+            forceSelection: true,
+            lazyRender: false,
+            triggerAction: 'all',
+            valueField: 'id',
+            displayField: 'name'
+        }
+        Ext.apply(this, Ext.apply(this.initialConfig, config));
+        options = options || {};
+        Ext.apply(this, options);
+        Ext.ux.NewCategorySelect.superclass.initComponent.apply(this, arguments);
+    }
+});
+
+Ext.reg('ext:ux:cat-select', Ext.ux.NewCategorySelect);

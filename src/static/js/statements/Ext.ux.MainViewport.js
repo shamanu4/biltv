@@ -35,7 +35,7 @@ Ext.ux.MainViewport = Ext.extend(Ext.Viewport, {
                         }
                     },{
                         xtype: 'button',
-                        text: 'Отправить',
+                        text: 'Відправити',
                         handler: function(){
                             if(fp.getForm().isValid()){
                                 fp.getForm().submit({
@@ -68,34 +68,60 @@ Ext.ux.MainViewport = Ext.extend(Ext.Viewport, {
 
                 new Ext.Panel({
                     region: 'south'
-                }), {
+                }),
+                new Ext.ux.TabPanel({
                     region: 'west',
                     id: 'west-panel', // see Ext.getCmp() below
-                    title: 'West',
+//                    title: 'West',
                     split: true,
                     width: 1000,
                     minSize: 100,
                     collapsible: true,
                     margins: '0 0 0 5',
+                    tbar: {
+                        items:[{
+                            xtype: 'button',
+                            ui: 'round',
+                            text: '_',
+                            dock: 'left',
+                            handler: function(){
+//                                alert('Botton1 Working Now');
+                            }
+                        }]
+                    },
                     items: [
                         new Ext.ux.EntryGrid({
+                            title: "виписка "+window.day,
+                            id: "main-grid",
                             store: new Ext.ux.EntryStore(Ext.apply({
                                 baseParams: {
                                     start:0,
-                                    limit:16,
-                                    filter_fields:['amount,'],
+                                    limit:20,
+                                    filter_fields:[
+                                        'id',
+                                        'pid',
+                                        'amount',
+                                        'currency',
+                                        'egrpou',
+                                        'verbose_name',
+                                        'account_num',
+                                        'mfo',
+                                        'descr',
+                                        'processed'
+                                    ],
                                     filter_value:'',
-                                    filter: {'statement__id': window.statement_id }
+                                    filter: {'statement__id': window.statement_id, 'category__isnull':true }
                                 }
                             }, Ext.ux.Entry_store_config))
                         })
                     ]
-                },
+                }),
                 // in this instance the TabPanel is not wrapped by another panel
                 // since no title is needed, this Panel is added directly
                 // as a Container
-                new Ext.TabPanel({
+                new Ext.ux.TabPanel({
                     region: 'center', // a center region is ALWAYS required for border layout
+                    id: "center-tab-panel",
                     deferredRender: false,
                     activeTab: 0,     // first tab initially active
                     collapsible: true,
@@ -103,7 +129,51 @@ Ext.ux.MainViewport = Ext.extend(Ext.Viewport, {
                     width: 1000,
                     minSize: 100,
                     maxSize: 1200,
-                    items: []
+                    items: [ ],
+                    tbar: {
+                        items:[
+                            new Ext.ux.NewCategorySelect({
+                                id: 'add-new-cat-select',
+                                store: new Ext.ux.NewCategoryStore(Ext.apply({
+                                    baseParams: {
+                                        day: window.day
+                                    }
+                                }, Ext.ux.Category_store_config))
+                            }),
+                        {
+                            xtype: 'button',
+                            ui: 'round',
+                            icon: '/static/extjs/custom/plus_16.png',
+                            text: 'Додати банк',
+                            dock: 'left',
+                            handler: function(){
+                                var select = Ext.getCmp('add-new-cat-select');
+                                var record = select.store.data.items[select.selectedIndex].data;
+                                var panel = Ext.getCmp("center-tab-panel");
+                                if(select.value) {
+                                    var tab = window.panelAddTab(panel, record.name, record.id, record.svc_type);
+                                    tab.category_id = record.id;
+                                    tab.source_id = record.source_id;
+                                }
+                            }
+                        },{
+                            xtype: 'tbseparator'
+                        },{
+                            xtype: 'button',
+                            id: 'create-register-btn',
+                            disabled: true,
+                            ui: 'round',
+                            icon: '/static/extjs/custom/label_16.png',
+                            text: 'Створити реєстр',
+                            dock: 'left',
+                            handler: function(){
+                                var tab = Ext.getCmp('center-tab-panel').getActiveTab();
+                                MainApi.create_register(tab.category_id, function(response){
+                                    tab.update_stats()
+                                });
+                            }
+                        }]
+                    }
                 })
             ]
         };
