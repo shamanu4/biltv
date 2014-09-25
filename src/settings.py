@@ -14,6 +14,8 @@ sys.path.insert(0, rel('app',))
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
+PROJECT_ROOT = rel('.')
+
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
 )
