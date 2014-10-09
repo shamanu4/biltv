@@ -83,7 +83,7 @@ class Category(models.Model):
     svc_type = models.PositiveSmallIntegerField(choices=CATEGORY_TYPES)
     default = models.BooleanField(default=False)
     auto_processed = models.BooleanField(default=False)
-    source = models.ForeignKey("tv.PaymentSource", blank=True, null=True)
+    source = models.ForeignKey("tv.PaymentSource", blank=True, null=True, related_name="statements_categories")
 
     def __unicode__(self):
         return self.name
