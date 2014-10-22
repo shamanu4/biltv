@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from lib.extjs import RpcRouter, store_read
+from lib.extjs import RpcRouter, store_read, check_perm
 from ui.rpc import GridApiClass
 from .forms import EntryForm
 from ui.forms import LoginForm
@@ -36,19 +36,8 @@ class MainApiClass(object):
         return dict(success=True, msg='logged out.')
     logout._args_len = 0
 
-    def menu(self, request):
-        menuitems = []
-        user = request.user
-        if user.has_perm('tv.manage_trunk'):
-            menuitems.append('scrambler')
-        if user.has_perm('abon.manage_bills'):
-            menuitems.append('cashier')
-        menuitems.append('address')
-
-        return dict(success=True, menuitems=menuitems)
-    menu._args_len = 0
-
     @store_read
+    @check_perm('accounts.rpc_update_generic_grid')
     def get_categories(self, day, request):
         try:
             st = Statement.objects.get(day=day)
@@ -59,6 +48,7 @@ class MainApiClass(object):
     get_categories._args_len = 1
 
     @store_read
+    @check_perm('accounts.rpc_update_generic_grid')
     def get_available_categories(self, rdata, request):
         day = rdata.get('day', None)
         if not day:
@@ -72,6 +62,7 @@ class MainApiClass(object):
             return Category.objects.filter(~Q(pk__in=existent))
     get_available_categories._args_len = 1
 
+    @check_perm('accounts.rpc_update_generic_grid')
     def set_entry_category(self, entry_id, category_id, request):
         try:
             e = Entry.objects.get(pk=entry_id)
@@ -94,6 +85,7 @@ class MainApiClass(object):
             return dict(success=True)
     set_entry_category._args_len = 2
 
+    @check_perm('accounts.rpc_update_generic_grid')
     def create_register(self, category_id, request):
         try:
             c = Category.objects.get(pk=category_id)
@@ -107,6 +99,7 @@ class MainApiClass(object):
                 return dict(success=True, title="Создан реестр №%s" % register.pk, msg=str("created register #%s" % register.pk))
     create_register._args_len = 1
 
+    @check_perm('accounts.rpc_update_generic_grid')
     def update_stats(self, category_id, statement_id, request):
         if category_id>0:
             try:
