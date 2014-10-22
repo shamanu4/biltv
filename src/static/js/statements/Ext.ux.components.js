@@ -489,7 +489,7 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
             enableDragDrop: true,
             ddGroup: "GridDD",
             sm: new Ext.grid.RowSelectionModel({
-                singleSelect: true,
+                singleSelect: false,
                 listeners: {
                     rowselect: {
                         fn: function(sm,index,record) {
