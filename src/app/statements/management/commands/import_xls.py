@@ -51,7 +51,8 @@ class Command(BaseCommand):
                 statement = {}
                 head = {}
                 data = {}
-                while not ok and index < 3:
+                while not ok or index < 3:
+                    print ok,index
                     head = parsed[index]
                     data = parsed[index+1]
                     try:
@@ -62,6 +63,7 @@ class Command(BaseCommand):
                             'turnover': float("%0.2f" % float(head[1][1])),
                         }
                     except Exception, e:
+                        print str(e)
                         index += 1
                 if not ok:
                     raise RuntimeError(str(e))
