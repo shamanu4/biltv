@@ -45,20 +45,28 @@ class Command(BaseCommand):
                 raise CommandError("Can't parse file. Error: %s" % e)
             else:
                 # @TODO: find proper head and data structures in file.
-                head = parsed[1]
-                data = parsed[2]
-                print "#######################"
-                print head
-                print "#######################"
-                print data
-                print "#######################"
-                raise
-            statement = {
-                'day': date,
-                'opcount': int(float(head[1][2])),
-                'remains': float("%0.2f" % float(head[1][0])),
-                'turnover': float("%0.2f" % float(head[1][1])),
-            }
+                index = 1
+                ok = False
+                e = ""
+                statement = {}
+                head = {}
+                data = {}
+                while not ok and index < 3:
+                    head = parsed[index]
+                    data = parsed[index+1]
+                    try:
+                        statement = {
+                            'day': date,
+                            'opcount': int(float(head[1][2])),
+                            'remains': float("%0.2f" % float(head[1][0])),
+                            'turnover': float("%0.2f" % float(head[1][1])),
+                        }
+                    except Exception, e:
+                        index += 1
+                if not ok:
+                    raise RuntimeError(str(e))
+                raise RuntimeError("OK")
+
             entries = []
             for i in xrange(1, statement['opcount']+1):
                 dt = datetime.strptime(str(data[1][i]), "%d.%m.%Y").date()
