@@ -47,6 +47,11 @@ class Command(BaseCommand):
                 # @TODO: find proper head and data structures in file.
                 head = parsed[2]
                 data = parsed[3]
+                print "#######################"
+                print head
+                print "#######################"
+                print data
+                print "#######################"
             statement = {
                 'day': date,
                 'opcount': int(float(head[1][2])),
