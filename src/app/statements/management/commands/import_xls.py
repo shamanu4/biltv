@@ -69,7 +69,6 @@ class Command(BaseCommand):
                         ok = True
                 if not ok:
                     raise RuntimeError(str(e))
-                raise RuntimeError("OK")
 
             entries = []
             for i in xrange(1, statement['opcount']+1):
