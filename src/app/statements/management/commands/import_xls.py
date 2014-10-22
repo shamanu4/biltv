@@ -52,7 +52,6 @@ class Command(BaseCommand):
                 head = {}
                 data = {}
                 while not ok or index < 3:
-                    print ok,index
                     head = parsed[index]
                     data = parsed[index+1]
                     try:
@@ -65,6 +64,8 @@ class Command(BaseCommand):
                     except Exception, e:
                         print str(e)
                         index += 1
+                    else:
+                        ok = True
                 if not ok:
                     raise RuntimeError(str(e))
                 raise RuntimeError("OK")
