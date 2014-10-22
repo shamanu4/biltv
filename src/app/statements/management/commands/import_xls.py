@@ -51,7 +51,8 @@ class Command(BaseCommand):
                 statement = {}
                 head = {}
                 data = {}
-                while not ok or index < 3:
+                while not ok and index < 3:
+                    print ok, index
                     head = parsed[index]
                     data = parsed[index+1]
                     try:
