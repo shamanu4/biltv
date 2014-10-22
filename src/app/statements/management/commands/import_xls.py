@@ -45,13 +45,14 @@ class Command(BaseCommand):
                 raise CommandError("Can't parse file. Error: %s" % e)
             else:
                 # @TODO: find proper head and data structures in file.
-                head = parsed[2]
-                data = parsed[3]
+                head = parsed[1]
+                data = parsed[2]
                 print "#######################"
                 print head
                 print "#######################"
                 print data
                 print "#######################"
+                raise
             statement = {
                 'day': date,
                 'opcount': int(float(head[1][2])),
