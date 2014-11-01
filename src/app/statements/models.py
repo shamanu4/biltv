@@ -25,6 +25,42 @@ class Statement(models.Model):
         super(Statement, self).save(*args, **kw)
         self.process()
 
+    def get_total_amount(self):
+        return self.lines.all().aggregate(models.Sum('amount'))['amount__sum'] or 0
+
+    def get_processed_amount(self):
+        return self.lines.filter(processed=True).aggregate(models.Sum('amount'))['amount__sum'] or 0
+
+    def get_unprocessed_amount(self):
+        return self.get_total_amount() - self.get_processed_amount()
+
+    def get_unregistered_unprocessed_amount(self):
+        return self.get_unregistered_unprocessed_lines().aggregate(models.Sum('amount'))['amount__sum'] or 0
+
+    def get_unregistered_unprocessed_lines(self):
+        return self.lines.filter(processed=False, register__isnull=True)
+
+    def get_registry_start(self):
+        return self.get_unregistered_unprocessed_lines().aggregate(models.Min('timestamp'))['timestamp__min'].date()
+
+    def get_registry_end(self):
+        return self.get_unregistered_unprocessed_lines().aggregate(models.Max('timestamp'))['timestamp__max'].date()
+
+    def get_registry_bank(self):
+        lines = self.get_unregistered_unprocessed_lines()
+        if lines.count():
+            return lines[0].statement.day
+        else:
+            return None
+
+    def store_record(self):
+        return {
+            'day': self.day,
+            'total': self.get_total_amount(),
+            'unregistered': self.get_unregistered_unprocessed_amount(),
+            'unprocessed': self.get_unprocessed_amount()
+        }
+
 
 class Entry(models.Model):
     statement = models.ForeignKey("statements.Statement", related_name="lines")
