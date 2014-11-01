@@ -441,7 +441,7 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                             return isValidDrag;
                         };
                         var GridDropTargetEl =  grid.getView().scroller.dom;
-                        var GridDropTarget = new Ext.dd.DropTarget(GridDropTargetEl, {
+                        grid.GridDropTarget = new Ext.dd.DropTarget(GridDropTargetEl, {
                             ddGroup    : 'GridDD',
                             notifyDrop : function(ddSource, e, data){
                                 var records =  ddSource.dragData.selections;
@@ -463,7 +463,6 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                                 return true;
                             }
                         });
-                        this.dropZone = new Ext.dd.DropZone(GridDropTargetEl, {});
                         this.resizeAction();
                     }
                 },

@@ -104,9 +104,9 @@ Ext.onReady(function () {
                 });
             }
         });
+        window.totaltab = tab;
         panel.add(tab);
-        tab.getView().dragZone.onBeforeDrag = function(el, e) { return false; };
-        tab.getView().dropZone.onNodeDrop = function(target, dd, e, data) { return false; };
+//        tab.getView().dragZone.onBeforeDrag = function(el, e) { return false; };
         return tab;
     };
 
