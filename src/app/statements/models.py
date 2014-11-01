@@ -65,12 +65,12 @@ class Statement(models.Model):
     def store_record(self):
         return {
             'day': self.day,
-            'total': self.get_total_amount(),
-            'unregistered': self.get_unregistered_unprocessed_amount(),
-            'unprocessed': self.get_unprocessed_amount(),
-            'total_cat': self.get_cat_total_amount(),
-            'unregistered_cat': self.get_cat_unregistered_unprocessed_amount(),
-            'unprocessed_cat': self.get_cat_unprocessed_amount()
+            'total': "%0.2f" % self.get_total_amount(),
+            'unregistered': "%0.2f" % self.get_unregistered_unprocessed_amount(),
+            'unprocessed': "%0.2f" % self.get_unprocessed_amount(),
+            'total_cat': "%0.2f" % self.get_cat_total_amount(),
+            'unregistered_cat': "%0.2f" % self.get_cat_unregistered_unprocessed_amount(),
+            'unprocessed_cat': "%0.2f" % self.get_cat_unprocessed_amount()
         }
 
 
@@ -193,9 +193,9 @@ class Category(models.Model):
             'svc_type': self.get_svc_type_display(),
             'source_id': self.source_id if self.source else None,
             'can_create_register': self.can_create_register(),
-            'total': self.get_total_amount(),
-            'unregistered': self.get_unregistered_unprocessed_amount(),
-            'unprocessed': self.get_unprocessed_amount()
+            'total': "%0.2f" % self.get_total_amount(),
+            'unregistered': "%0.2f" % self.get_unregistered_unprocessed_amount(),
+            'unprocessed': "%0.2f" % self.get_unprocessed_amount()
         }
 
 
