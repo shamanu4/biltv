@@ -89,32 +89,7 @@ Ext.ux.MainViewport = Ext.extend(Ext.Viewport, {
                             }
                         }]
                     },
-                    items: [
-                        new Ext.ux.EntryGrid({
-                            title: "виписка "+window.day,
-                            id: "main-grid",
-                            store: new Ext.ux.EntryStore(Ext.apply({
-                                baseParams: {
-                                    start:0,
-                                    limit:20,
-                                    filter_fields:[
-                                        'id',
-                                        'pid',
-                                        'amount',
-                                        'currency',
-                                        'egrpou',
-                                        'verbose_name',
-                                        'account_num',
-                                        'mfo',
-                                        'descr',
-                                        'processed'
-                                    ],
-                                    filter_value:'',
-                                    filter: {'statement__id': window.statement_id, 'category__isnull':true }
-                                }
-                            }, Ext.ux.Entry_store_config))
-                        })
-                    ]
+                    items: []
                 }),
                 // in this instance the TabPanel is not wrapped by another panel
                 // since no title is needed, this Panel is added directly
