@@ -37,6 +37,20 @@ def check_perm(perm):
     return decorator
 
 
+def extract_val(val):
+    try:
+        val = int(val)
+    except:
+        pass
+    try:
+        val = float(val)
+    except:
+        pass
+    val = True if val in ['true', 'True'] else val
+    val = False if val in ['false', 'False'] else val
+    return val
+
+
 def xls(data):
     r = redis.StrictRedis()
     filename = "xls_%s.xlsx" % str(datetime.now().strftime('%Y_%m_%d_%H_%M_%S'))
@@ -121,10 +135,11 @@ def store_read(func):
                 query=None
                 if 'query' in rdata:
                     for node in rdata['filter_fields']:
-                        val=unicode(rdata['query'])                        
+                        val=unicode(rdata['query'])
                         wild = val.split('*')                 
                         query2 = None
                         for v in wild:
+                            v = extract_val(v)
                             if not v == '':
                                 if spec_lookup.match(node):
                                     if query2:                            
@@ -149,6 +164,7 @@ def store_read(func):
                         wild = val.split('*')
                         query2 = None
                         for v in wild:
+                            v = extract_val(v)
                             if not v == '':
                                 if spec_lookup.match(node):
                                     if query2:
@@ -169,6 +185,7 @@ def store_read(func):
             if 'filter' in rdata:
                 for item in rdata['filter']:
                     val = unicode(rdata['filter'][item])
+                    val = extract_val(val)
                     result = result.filter(**{str(item):val})
             if 'sort' in rdata:
                 if 'dir' in rdata and rdata['dir']=='DESC':
