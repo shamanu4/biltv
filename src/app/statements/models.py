@@ -25,11 +25,14 @@ class Statement(models.Model):
         super(Statement, self).save(*args, **kw)
         self.process()
 
+    def get_lines(self):
+        return self.lines.filter(category__isnull=True)
+
     def get_total_amount(self):
-        return self.lines.all().aggregate(models.Sum('amount'))['amount__sum'] or 0
+        return self.get_lines().aggregate(models.Sum('amount'))['amount__sum'] or 0
 
     def get_processed_amount(self):
-        return self.lines.filter(processed=True).aggregate(models.Sum('amount'))['amount__sum'] or 0
+        return self.get_lines().filter(processed=True).aggregate(models.Sum('amount'))['amount__sum'] or 0
 
     def get_unprocessed_amount(self):
         return self.get_total_amount() - self.get_processed_amount()
@@ -38,7 +41,7 @@ class Statement(models.Model):
         return self.get_unregistered_unprocessed_lines().aggregate(models.Sum('amount'))['amount__sum'] or 0
 
     def get_unregistered_unprocessed_lines(self):
-        return self.lines.filter(processed=False, register__isnull=True)
+        return self.get_lines().filter(processed=False, register__isnull=True)
 
     def get_registry_start(self):
         return self.get_unregistered_unprocessed_lines().aggregate(models.Min('timestamp'))['timestamp__min'].date()
