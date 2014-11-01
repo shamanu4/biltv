@@ -61,6 +61,7 @@ Ext.onReady(function () {
                 });
             }
         });
+        tab.disableDragDrop = false;
         panel.add(tab);
         return tab;
     };
@@ -92,7 +93,7 @@ Ext.onReady(function () {
                         'processed'
                     ],
                     filter_value:'',
-                    filter: {'statement__id': window.statement_id, 'category__isnull':true }
+                    filter: {'statement__id': window.statement_id, 'category__isnull':false }
                 }
             }, Ext.ux.Entry_store_config)),
             update_stats: function() {
@@ -104,9 +105,8 @@ Ext.onReady(function () {
                 });
             }
         });
-        window.totaltab = tab;
+        tab.disableDragDrop = true;
         panel.add(tab);
-//        tab.getView().dragZone.onBeforeDrag = function(el, e) { return false; };
         return tab;
     };
 
@@ -166,6 +166,7 @@ Ext.onReady(function () {
                 });
             }
         });
+        tab.disableDragDrop = false;
         panel.add(tab);
         return tab;
     };

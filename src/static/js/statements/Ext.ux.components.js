@@ -432,6 +432,9 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                     fn: function(e) {
                         var grid = Ext.getCmp(this.id);
                         grid.getView().dragZone.onBeforeDrag = function(el, e) {
+                            if(grid.disableDragDrop) {
+                                return false
+                            }
                             var isValidDrag = true;
                             Ext.each(el.selections, function(row) {
                                 if(row.data.locked) {
@@ -444,6 +447,9 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                         grid.GridDropTarget = new Ext.dd.DropTarget(GridDropTargetEl, {
                             ddGroup    : 'GridDD',
                             notifyDrop : function(ddSource, e, data){
+                                if(grid.disableDragDrop) {
+                                    return false
+                                }
                                 var records =  ddSource.dragData.selections;
                                 Ext.each(records, ddSource.grid.store.remove, ddSource.grid.store);
                                 grid.store.add(records);
