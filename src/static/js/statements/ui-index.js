@@ -177,6 +177,9 @@ Ext.onReady(function () {
 
     panel = Ext.getCmp("center-tab-panel");
     tab = window.panelAddStatementCat(panel, window.statement_id)
+    tab.can_create_register = false;
+    tab.source_id = 0;
+    tab.category_id = 0;
     tab.update_stats();
 
     MainApi.get_categories(window.day, function (response) {
