@@ -463,6 +463,7 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                                 return true;
                             }
                         });
+                        this.dropZone = new Ext.dd.DropZone(GridDropTargetEl, {});
                         this.resizeAction();
                     }
                 },

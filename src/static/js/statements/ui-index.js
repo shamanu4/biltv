@@ -106,7 +106,7 @@ Ext.onReady(function () {
         });
         panel.add(tab);
         tab.getView().dragZone.onBeforeDrag = function(el, e) { return false; };
-        tab.getView().dragZone.onBeforeDrop = function(el, e) { return false; };
+        tab.getView().dropZone.onNodeDrop = function(target, dd, e, data) { return false; };
         return tab;
     };
 
