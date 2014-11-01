@@ -114,7 +114,7 @@ class MainApiClass(object):
             except Statement.DoesNotExist:
                 return dict(success=False, title='Ошибка', msg=str('no statement with id %s' % statement_id))
             else:
-                pass
+                return st.store_record()
     update_stats._args_len = 2
 
 
