@@ -183,6 +183,7 @@ Ext.onReady(function () {
         tab.source_id = 0;
         tab.category_id = 0;
         tab.update_stats();
+        window.totalstab = tab;
 
         MainApi.get_categories(window.day, function (response) {
             var panel = Ext.getCmp("center-tab-panel");
