@@ -22,6 +22,49 @@ Ext.onReady(function () {
         }
     };
 
+    window.panelAddStatement = function(panel, statement_id) {
+        var panel_id = "main-grid";
+        var e = Ext.getCmp(panel_id);
+        if(e) {
+            return false;
+        }
+        var tab = new Ext.ux.EntryGrid({
+            title: "виписка "+window.day,
+            statement_id: statement_id,
+            id: panel_id,
+            store: new Ext.ux.EntryStore(Ext.apply({
+                baseParams: {
+                    start:0,
+                    limit:20,
+                    filter_fields:[
+                        'id',
+                        'pid',
+                        'amount',
+                        'currency',
+                        'egrpou',
+                        'verbose_name',
+                        'account_num',
+                        'mfo',
+                        'descr',
+                        'processed'
+                    ],
+                    filter_value:'',
+                    filter: {'statement__id': window.statement_id, 'category__isnull':true }
+                }
+            }, Ext.ux.Entry_store_config)),
+            update_stats: function() {
+                var tab = Ext.getCmp(this.id);
+                MainApi.update_stats(0, tab.statement_id, function(response) {
+                    tab.lb_total.setValue(response.total);
+                    tab.lb_unregistered.setValue(response.unregistered);
+                    tab.lb_unprocessed.setValue(response.unprocessed);
+                });
+            }
+        });
+        panel.add(tab);
+        return tab;
+    };
+
     window.panelAddTab = function(panel, title, category_id, svc_type) {
         svc_type = svc_type || 'UNDEF';
         var panel_id = 'cat-panel-'+category_id;
@@ -81,6 +124,10 @@ Ext.onReady(function () {
         panel.add(tab);
         return tab;
     };
+
+    var panel = Ext.getCmp("west-panel");
+    var tab = window.panelAddStatement(panel,  window.statement_id)
+    tab.update_stats();
 
     MainApi.get_categories(window.day, function (response) {
         var panel = Ext.getCmp("center-tab-panel");
