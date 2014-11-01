@@ -151,8 +151,9 @@ Ext.ux.MainViewport = Ext.extend(Ext.Viewport, {
                     },
                     listeners: {
                         'tabchange': function (tabPanel, tab) {
-                            console.log(tab);
-                            console.log(tab.searchClearButton);
+                            if (tab.store) {
+                                tab.store.reload();
+                            }
                         }
                     }
                 })
