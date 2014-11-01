@@ -373,7 +373,8 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                     this.searchAction()
                 },
                 scope: this
-            },{
+            },
+            this.searchClearButton = {
                 icon: '/static/extjs/custom/delete_16.png',
                 cls: 'x-btn-text-icon',
                 handler: function() {
@@ -474,7 +475,7 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                             }
                         });
                         grid.resizeAction();
-                        grid.store.reload();
+                        grid.searchClearButton.click();
                     }
                 },
                 resize: {
