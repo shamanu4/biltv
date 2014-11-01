@@ -475,7 +475,6 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                             }
                         });
                         grid.resizeAction();
-                        grid.searchClearButton.click();
                     }
                 },
                 resize: {
