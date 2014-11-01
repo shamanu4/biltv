@@ -65,6 +65,51 @@ Ext.onReady(function () {
         return tab;
     };
 
+    window.panelAddStatementCat = function(panel, statement_id) {
+        var panel_id = "cat-panel-total";
+        var e = Ext.getCmp(panel_id);
+        if(e) {
+            return false;
+        }
+        var tab = new Ext.ux.EntryGrid({
+            title: "Всього "+window.day,
+            statement_id: statement_id,
+            id: panel_id,
+            store: new Ext.ux.EntryStore(Ext.apply({
+                baseParams: {
+                    start:0,
+                    limit:20,
+                    filter_fields:[
+                        'id',
+                        'pid',
+                        'amount',
+                        'currency',
+                        'egrpou',
+                        'verbose_name',
+                        'account_num',
+                        'mfo',
+                        'descr',
+                        'processed'
+                    ],
+                    filter_value:'',
+                    filter: {'statement__id': window.statement_id, 'category__isnull':true }
+                }
+            }, Ext.ux.Entry_store_config)),
+            update_stats: function() {
+                var tab = Ext.getCmp(this.id);
+                MainApi.update_stats(0, tab.statement_id, function(response) {
+                    tab.lb_total.setValue(response.total_cat);
+                    tab.lb_unregistered.setValue(response.unregistered_cat);
+                    tab.lb_unprocessed.setValue(response.unprocessed_cat);
+                });
+            }
+        });
+        panel.add(tab);
+        tab.getView().dragZone.onBeforeDrag = function(el, e) { return false; };
+        tab.getView().dragZone.onBeforeDrop = function(el, e) { return false; };
+        return tab;
+    };
+
     window.panelAddTab = function(panel, title, category_id, svc_type) {
         svc_type = svc_type || 'UNDEF';
         var panel_id = 'cat-panel-'+category_id;
@@ -126,7 +171,11 @@ Ext.onReady(function () {
     };
 
     var panel = Ext.getCmp("west-panel");
-    var tab = window.panelAddStatement(panel,  window.statement_id)
+    var tab = window.panelAddStatement(panel, window.statement_id)
+    tab.update_stats();
+
+    panel = Ext.getCmp("center-tab-panel");
+    tab = window.panelAddStatementCat(panel, window.statement_id)
     tab.update_stats();
 
     MainApi.get_categories(window.day, function (response) {
