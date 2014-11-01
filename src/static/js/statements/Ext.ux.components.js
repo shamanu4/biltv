@@ -455,6 +455,9 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                                         if(grid.update_stats) {
                                             grid.update_stats();
                                         }
+                                        if(ddSource.grid.update_stats) {
+                                            ddSource.grid.update_stats();
+                                        }
                                     });
                                 });
                                 return true;
