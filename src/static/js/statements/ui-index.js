@@ -49,7 +49,7 @@ Ext.onReady(function () {
                         'processed'
                     ],
                     filter_value:'',
-                    filter: {'statement__id': window.statement_id, 'category__isnull':true }
+                    filter: {'statement__id': window.statement_id, 'category__isnull':1 }
                 }
             }, Ext.ux.Entry_store_config)),
             update_stats: function() {
@@ -93,7 +93,7 @@ Ext.onReady(function () {
                         'processed'
                     ],
                     filter_value:'',
-                    filter: {'statement__id': window.statement_id, 'category__isnull':false }
+                    filter: {'statement__id': window.statement_id, 'category__isnull':0 }
                 }
             }, Ext.ux.Entry_store_config)),
             update_stats: function() {
