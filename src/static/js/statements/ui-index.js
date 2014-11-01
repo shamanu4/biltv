@@ -171,25 +171,30 @@ Ext.onReady(function () {
         return tab;
     };
 
-    var panel = Ext.getCmp("west-panel");
-    var tab = window.panelAddStatement(panel, window.statement_id)
-    tab.update_stats();
 
-    panel = Ext.getCmp("center-tab-panel");
-    tab = window.panelAddStatementCat(panel, window.statement_id)
-    tab.update_stats();
+    if (window.statement_id>0) {
+        var panel = Ext.getCmp("west-panel");
+        var tab = window.panelAddStatement(panel, window.statement_id)
+        tab.update_stats();
 
-    MainApi.get_categories(window.day, function (response) {
-        var panel = Ext.getCmp("center-tab-panel");
-        Ext.each(response.data, function (category) {
-            var tab = window.panelAddTab(panel, category.name, category.id, category.svc_type);
-            tab.can_create_register = category.can_create_register;
-            tab.source_id = category.source_id;
-            tab.category_id = category.id;
-            tab.update_stats();
-        })
-    });
+        panel = Ext.getCmp("center-tab-panel");
+        tab = window.panelAddStatementCat(panel, window.statement_id)
+        tab.can_create_register = false;
+        tab.source_id = 0;
+        tab.category_id = 0;
+        tab.update_stats();
 
+        MainApi.get_categories(window.day, function (response) {
+            var panel = Ext.getCmp("center-tab-panel");
+            Ext.each(response.data, function (category) {
+                var tab = window.panelAddTab(panel, category.name, category.id, category.svc_type);
+                tab.can_create_register = category.can_create_register;
+                tab.source_id = category.source_id;
+                tab.category_id = category.id;
+                tab.update_stats();
+            })
+        });
+    }
 });
 
 
