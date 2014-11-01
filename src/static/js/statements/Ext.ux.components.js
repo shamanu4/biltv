@@ -458,11 +458,15 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                                     MainApi.set_entry_category(r.id, target, function(response){
                                         grid.store.reload();
                                         ddSource.grid.store.reload();
+                                        window.totalstab.store.reload()
                                         if(grid.update_stats) {
                                             grid.update_stats();
                                         }
                                         if(ddSource.grid.update_stats) {
                                             ddSource.grid.update_stats();
+                                        }
+                                        if(window.totalstab.update_stats) {
+                                            window.totalstab.update_stats();
                                         }
                                     });
                                 });
