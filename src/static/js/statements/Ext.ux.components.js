@@ -474,6 +474,7 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                             }
                         });
                         this.resizeAction();
+                        this.store.reload();
                     }
                 },
                 resize: {
