@@ -100,7 +100,7 @@ Ext.ux.MainViewport = Ext.extend(Ext.Viewport, {
                     deferredRender: false,
                     enableTabScroll: true,
                     activeTab: 0,     // first tab initially active
-                    collapsible: false,
+                    collapsible: true,
                     split: true,
                     width: 1000,
                     minSize: 100,
