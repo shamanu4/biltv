@@ -98,6 +98,7 @@ Ext.ux.MainViewport = Ext.extend(Ext.Viewport, {
                     region: 'center', // a center region is ALWAYS required for border layout
                     id: "center-tab-panel",
                     deferredRender: false,
+                    enableTabScroll: true,
                     activeTab: 0,     // first tab initially active
                     collapsible: true,
                     split: true,
