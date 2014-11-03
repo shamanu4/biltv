@@ -239,7 +239,13 @@ Ext.ux.menu = {
                     'text': 'Отчет по нелегалам',
                     'oid': 0,
                     'my_owner_ct_id':0
-                }
+                },{
+                    'id': 'menu-cashier-statements-button',
+                    'handler': Engine.menu.cashier.statements.launch,
+                    'text': 'ПриватБанк Выписки',
+                    'oid': 0,
+                    'my_owner_ct_id':0
+                },
             ]
         }
     ],

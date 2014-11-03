@@ -386,7 +386,7 @@ Engine = {
 							cs_id:card_service_id
 						})
 					}
-				},
+				}
 			},
 			report: {
 				launch: function() {
@@ -403,7 +403,12 @@ Engine = {
                     Ext.getCmp('tab-panel').toolbars[0].add(grid);
                     Ext.getCmp('tab-panel').toolbars[0].doLayout();
                 }
-            }
+            },
+            statements: {
+				launch: function() {
+					window.open('/statements/','_newtab');
+				}
+			},
         },
         scrambler: {
             card: {
