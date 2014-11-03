@@ -94,12 +94,11 @@ Ext.ux.MainViewport = Ext.extend(Ext.Viewport, {
                 // in this instance the TabPanel is not wrapped by another panel
                 // since no title is needed, this Panel is added directly
                 // as a Container
-                Ext.ux.MultiRowTabPanel({
-                    multipleRows: true,
+                new Ext.ux.TabPanel({
                     region: 'center', // a center region is ALWAYS required for border layout
                     id: "center-tab-panel",
                     deferredRender: false,
-//                    enableTabScroll: true,
+                    enableTabScroll: true,
                     activeTab: 0,     // first tab initially active
                     collapsible: false,
                     split: true,
