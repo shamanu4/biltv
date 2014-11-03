@@ -179,10 +179,16 @@ class Category(models.Model):
         """
         register = PaymentRegister.objects.create(source=self.source,
                                                   total=self.get_unregistered_unprocessed_amount(),
-                                                  start=self.get_registry_start(),
-                                                  end=self.get_registry_end(),
+                                                  start=None,
+                                                  end=self.None,
                                                   bank=self.get_registry_bank(),
                                                   )
+        # register = PaymentRegister.objects.create(source=self.source,
+        #                                           total=self.get_unregistered_unprocessed_amount(),
+        #                                           start=self.get_registry_start(),
+        #                                           end=self.get_registry_end(),
+        #                                           bank=self.get_registry_bank(),
+        #                                           )
         self.get_unregistered_unprocessed_lines().update(register=register)
         return register
 
