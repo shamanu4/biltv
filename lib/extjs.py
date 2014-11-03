@@ -38,14 +38,6 @@ def check_perm(perm):
 
 
 def extract_val(val):
-    try:
-        val = int(val)
-    except:
-        pass
-    try:
-        val = float(val)
-    except:
-        pass
     val = True if val in ['true', 'True'] else val
     val = False if val in ['false', 'False'] else val
     return val
