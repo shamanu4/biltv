@@ -183,7 +183,7 @@ class Category(models.Model):
         register = PaymentRegister.objects.create(source=self.source,
                                                   total=self.get_unregistered_unprocessed_amount(statement_id),
                                                   start=None,
-                                                  end=self.None,
+                                                  end=None,
                                                   bank=self.get_registry_bank(statement_id),
                                                   )
         # register = PaymentRegister.objects.create(source=self.source,
