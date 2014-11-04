@@ -136,39 +136,42 @@ class Category(models.Model):
     def __unicode__(self):
         return self.name
 
-    def can_create_register(self):
+    def can_create_register(self, statement_id):
         return self.svc_type == TYPE_CATV and not self.auto_processed and (True if self.source else False) and \
-               self.get_unregistered_unprocessed_lines().count() > 0
+               self.get_unregistered_unprocessed_lines(statement_id).count() > 0
 
-    def get_total_amount(self):
-        return self.lines.all().aggregate(models.Sum('amount'))['amount__sum'] or 0
+    def get_lines(self, statement_id):
+        return self.lines.filter(statement_id=statement_id)
 
-    def get_processed_amount(self):
-        return self.lines.filter(processed=True).aggregate(models.Sum('amount'))['amount__sum'] or 0
+    def get_total_amount(self, statement_id):
+        return self.get_lines(statement_id).aggregate(models.Sum('amount'))['amount__sum'] or 0
 
-    def get_unprocessed_amount(self):
-        return self.get_total_amount() - self.get_processed_amount()
+    def get_processed_amount(self, statement_id):
+        return self.get_lines(statement_id).filter(processed=True).aggregate(models.Sum('amount'))['amount__sum'] or 0
 
-    def get_unregistered_unprocessed_amount(self):
-        return self.get_unregistered_unprocessed_lines().aggregate(models.Sum('amount'))['amount__sum'] or 0
+    def get_unprocessed_amount(self, statement_id):
+        return self.get_total_amount(statement_id) - self.get_processed_amount(statement_id)
 
-    def get_unregistered_unprocessed_lines(self):
-        return self.lines.filter(processed=False, register__isnull=True)
+    def get_unregistered_unprocessed_amount(self, statement_id):
+        return self.get_unregistered_unprocessed_lines(statement_id).aggregate(models.Sum('amount'))['amount__sum'] or 0
 
-    def get_registry_start(self):
-        return self.get_unregistered_unprocessed_lines().aggregate(models.Min('timestamp'))['timestamp__min'].date()
+    def get_unregistered_unprocessed_lines(self, statement_id):
+        return self.get_lines(statement_id).filter(processed=False, register__isnull=True)
 
-    def get_registry_end(self):
-        return self.get_unregistered_unprocessed_lines().aggregate(models.Max('timestamp'))['timestamp__max'].date()
+    def get_registry_start(self, statement_id):
+        return self.get_unregistered_unprocessed_lines(statement_id).aggregate(models.Min('timestamp'))['timestamp__min'].date()
 
-    def get_registry_bank(self):
-        lines = self.get_unregistered_unprocessed_lines()
+    def get_registry_end(self, statement_id):
+        return self.get_unregistered_unprocessed_lines(statement_id).aggregate(models.Max('timestamp'))['timestamp__max'].date()
+
+    def get_registry_bank(self, statement_id):
+        lines = self.get_unregistered_unprocessed_lines(statement_id)
         if lines.count():
             return lines[0].statement.day
         else:
             return None
 
-    def create_register(self):
+    def create_register(self, statement_id):
         """
             source = models.ForeignKey("tv.PaymentSource")
             total = models.FloatField(default=0)
@@ -178,10 +181,10 @@ class Category(models.Model):
             bank = models.DateField(blank=True,null=True)
         """
         register = PaymentRegister.objects.create(source=self.source,
-                                                  total=self.get_unregistered_unprocessed_amount(),
+                                                  total=self.get_unregistered_unprocessed_amount(statement_id),
                                                   start=None,
                                                   end=self.None,
-                                                  bank=self.get_registry_bank(),
+                                                  bank=self.get_registry_bank(statement_id),
                                                   )
         # register = PaymentRegister.objects.create(source=self.source,
         #                                           total=self.get_unregistered_unprocessed_amount(),
@@ -197,11 +200,19 @@ class Category(models.Model):
             'id': self.pk,
             'name': self.name,
             'svc_type': self.get_svc_type_display(),
+            'source_id': self.source_id if self.source else None
+        }
+
+    def store_record_stats(self, statement_id):
+        return {
+            'id': self.pk,
+            'name': self.name,
+            'svc_type': self.get_svc_type_display(),
             'source_id': self.source_id if self.source else None,
-            'can_create_register': self.can_create_register(),
-            'total': "%0.2f" % self.get_total_amount(),
-            'unregistered': "%0.2f" % self.get_unregistered_unprocessed_amount(),
-            'unprocessed': "%0.2f" % self.get_unprocessed_amount()
+            'can_create_register': self.can_create_register(statement_id),
+            'total': "%0.2f" % self.get_total_amount(statement_id),
+            'unregistered': "%0.2f" % self.get_unregistered_unprocessed_amount(statement_id),
+            'unprocessed': "%0.2f" % self.get_unprocessed_amount(statement_id)
         }
 
 

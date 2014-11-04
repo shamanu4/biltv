@@ -86,16 +86,16 @@ class MainApiClass(object):
     set_entry_category._args_len = 2
 
     @check_perm('accounts.rpc_update_generic_grid')
-    def create_register(self, category_id, request):
+    def create_register(self, category_id, statement_id, request):
         try:
             c = Category.objects.get(pk=category_id)
         except Category.DoesNotExist:
             return dict(success=False, title='Ошибка', msg=str('no category with id %s' % category_id))
         else:
-            if not c.can_create_register():
+            if not c.can_create_register(statement_id):
                 return dict(success=False, title='Ошибка', msg=str('category with id %s cant create register' % category_id))
             else:
-                register = c.create_register()
+                register = c.create_register(statement_id)
                 return dict(success=True, title="Создан реестр №%s" % register.pk, msg=str("created register #%s" % register.pk))
     create_register._args_len = 1
 
@@ -107,7 +107,7 @@ class MainApiClass(object):
             except Category.DoesNotExist:
                 return dict(success=False, title='Ошибка', msg=str('no category with id %s' % category_id))
             else:
-                return c.store_record()
+                return c.store_record_stats(statement_id)
         elif statement_id>0:
             try:
                 st = Statement.objects.get(pk=statement_id)

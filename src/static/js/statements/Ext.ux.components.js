@@ -13,12 +13,13 @@ Ext.ux.msg = function () {
     }
 
     return function (title, text, type, callback) {
+        var delay = 1;
         if (type == "ext-mb-error") {
-            var delay = 10;
+            delay = 10;
         } else if (type == "ext-mb-invisible") {
-            var delay = 1
+            delay = 1;
         } else {
-            var delay = 3
+            delay = 3;
         }
         if (!msgCt) {
             msgCt = Ext.DomHelper.insertFirst(document.body, {id: 'msg-div'}, true)
@@ -53,7 +54,7 @@ Ext.ux.traceback = function () {
             '<textarea id="traceback-descripton" cols="75" rows="10" name=traceback-descr>',
             '</textarea>',
             '<br />',
-            '</form>',
+            '</form>'
         ].join('')
     }
 
@@ -73,7 +74,7 @@ Ext.ux.traceback = function () {
                         Ext.get("traceback-form").dom.submit();
                     }
                 }
-            ],
+            ]
         }).show();
     }
 
@@ -347,7 +348,7 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
         }
     },
     initComponent: function(options) {
-        options = options || {}
+        options = options || {};
         var config = {
             frame:true,
             current_row: 0,
@@ -459,7 +460,7 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                                     MainApi.set_entry_category(r.id, target, function(response){
                                         grid.store.reload();
                                         ddSource.grid.store.reload();
-                                        window.totalstab.store.reload()
+                                        window.totalstab.store.reload();
                                         if(grid.update_stats) {
                                             grid.update_stats();
                                         }
@@ -609,7 +610,7 @@ var colModel = new Ext.grid.ColumnModel({
         {header: "МФО", dataIndex: 'mfo', sortable: true},
         {header: "Коментар", dataIndex: 'descr', sortable: true},
         {header: "Проведено", dataIndex: 'processed', sortable: true},
-        {header: "Реєстр", dataIndex: 'register_id', sortable: true},
+        {header: "Реєстр", dataIndex: 'register_id', sortable: true}
     ],
     defaults: {
         sortable: true,
@@ -700,7 +701,7 @@ Ext.ux.NewCategorySelect = Ext.extend(Ext.form.ComboBox, {
             triggerAction: 'all',
             valueField: 'id',
             displayField: 'name'
-        }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         options = options || {};
         Ext.apply(this, options);
