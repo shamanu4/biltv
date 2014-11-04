@@ -97,7 +97,7 @@ class MainApiClass(object):
             else:
                 register = c.create_register(statement_id)
                 return dict(success=True, title="Создан реестр №%s" % register.pk, msg=str("created register #%s" % register.pk))
-    create_register._args_len = 1
+    create_register._args_len = 2
 
     @check_perm('accounts.rpc_update_generic_grid')
     def update_stats(self, category_id, statement_id, request):
