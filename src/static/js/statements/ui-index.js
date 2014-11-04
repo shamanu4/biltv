@@ -119,6 +119,8 @@ Ext.onReady(function () {
         }
         var tab = new Ext.ux.EntryGrid({
             title: title,
+            statement_id: statement_id,
+            category_id: category_id,
             id: panel_id,
             iconCls: 'icon-tab-title-'+svc_type,
             store: new Ext.ux.EntryStore(Ext.apply({
