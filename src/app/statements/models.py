@@ -141,7 +141,7 @@ class Category(models.Model):
                self.get_unregistered_unprocessed_lines(statement_id).count() > 0
 
     def get_lines(self, statement_id):
-        return self.lines.filter(statement_id=statement_id)
+        return self.lines.filter(statement__id=statement_id)
 
     def get_total_amount(self, statement_id):
         return self.get_lines(statement_id).aggregate(models.Sum('amount'))['amount__sum'] or 0
