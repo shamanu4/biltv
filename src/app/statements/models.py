@@ -192,7 +192,7 @@ class Category(models.Model):
         #                                           end=self.get_registry_end(),
         #                                           bank=self.get_registry_bank(),
         #                                           )
-        self.get_unregistered_unprocessed_lines().update(register=register)
+        self.get_unregistered_unprocessed_lines(statement_id).update(register=register)
         return register
 
     def store_record(self):
