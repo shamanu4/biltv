@@ -144,7 +144,7 @@ Ext.ux.MainViewport = Ext.extend(Ext.Viewport, {
                             dock: 'left',
                             handler: function(){
                                 var tab = Ext.getCmp('center-tab-panel').getActiveTab();
-                                MainApi.create_register(tab.category_id, function(response){
+                                MainApi.create_register(tab.category_id, tab.statement_id, function(response){
                                     tab.update_stats()
                                 });
                             }
