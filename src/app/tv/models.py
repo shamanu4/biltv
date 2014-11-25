@@ -379,11 +379,11 @@ class PaymentRegister(models.Model):
 
     @property
     def current(self):
-        return float("%0.2f" % Payment.objects.filter(register=self).aggregate(current=models.Sum('sum'))['current'] or 0)
+        return float("%0.2f" % (Payment.objects.filter(register=self).aggregate(current=models.Sum('sum'))['current'] or 0))
 
     @property
     def current_maked(self):
-        return float("%0.2f" % Payment.objects.filter(register=self, maked=True).aggregate(current=models.Sum('sum'))['current'] or 0)
+        return float("%0.2f" % (Payment.objects.filter(register=self, maked=True).aggregate(current=models.Sum('sum'))['current'] or 0))
 
     def try_this_payment(self,sum):
         if not (self.current + sum) > self.total:
@@ -420,7 +420,7 @@ class PaymentRegister(models.Model):
     @property
     def payments_maked_sum(self):
         from django.db.models import Sum
-        return float("%0.2f" % self.payments.filter(maked__exact=True).aggregate(payments_maked_sum=Sum('sum'))['payments_maked_sum'] or 0)
+        return float("%0.2f" % (self.payments.filter(maked__exact=True).aggregate(payments_maked_sum=Sum('sum'))['payments_maked_sum'] or 0))
 
     def save(self, *args, **kwargs):
         if self.closed and (not self.is_confirmed or not self.is_filled):
