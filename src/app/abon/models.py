@@ -494,6 +494,30 @@ class Bill(models.Model):
         for abonent in self.abonents.all():
             abonent.send_cards()
 
+    def fix_history(self):
+        from tv.models import Fee, Payment
+        balance = 0
+        fees = self.fees.filter(deleted__exact=False, rolled_by__exact=None, maked__exact=True)
+        payments = self.payments.filter(deleted__exact=False, rolled_by__exact=None, maked__exact=True)
+        log = {}
+        for item in fees:
+            log.update(item.inner_record())
+        for item in payments:
+            log.update(item.inner_record())
+
+        for i in sorted(log.keys()):
+            print [i, log[i].timestamp.strftime("%Y-%m-%d %H:%I:%S"), log[i]]
+            op = log[i]
+            op.prev = balance
+            if type(op) == Payment:
+                balance += op.sum
+            if type(op) == Fee:
+                balance -= op.sum
+            op.save(skip=True)
+        print balance
+        self.balance = balance
+        self.save(nocheck=True)
+
     def save(self,*args,**kwargs):
         if 'nocheck' in kwargs:
             del kwargs['nocheck']
@@ -506,10 +530,10 @@ class Bill(models.Model):
             last_operation_date = None
 
         super(self.__class__, self).save(*args, **kwargs)
+        # self.fix_history()
         self.balance2set()
-        self.fix_operations_log(last_operation_date)
-        self.checksum()
-        self.restore_tp_check()
+        # self.fix_operations_log(last_operation_date)
+        # self.checksum()
 
 
 class Credit(models.Model):
@@ -752,28 +776,7 @@ class Abonent(models.Model):
                 #print "    DEACTIVATED: %s" % history.__unicode__()
 
     def fix_bill_history(self):
-        from tv.models import Fee, Payment
-        balance = 0
-        fees = self.bill.fees.filter(deleted__exact=False, rolled_by__exact=None, maked__exact=True)
-        payments = self.bill.payments.filter(deleted__exact=False, rolled_by__exact=None, maked__exact=True)
-        log = {}
-        for item in fees:
-            log.update(item.inner_record())
-        for item in payments:
-            log.update(item.inner_record())
-
-        for i in sorted(log.keys()):
-            print [i, log[i].timestamp.strftime("%Y-%m-%d %H:%I:%S"), log[i]]
-            op = log[i]
-            op.prev = balance
-            if type(op) == Payment:
-                balance += op.sum
-            if type(op) == Fee:
-                balance -= op.sum
-            op.save(skip=True)
-        print balance
-        self.bill.balance = balance
-        self.bill.save()
+        self.bill.fix_history()
 
     def launch_hamster(self,countdown=True,debug=True):
         from lib.functions import date_formatter, add_months
