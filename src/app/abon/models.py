@@ -751,6 +751,18 @@ class Abonent(models.Model):
                 history.save()
                 #print "    DEACTIVATED: %s" % history.__unicode__()
 
+    def fix_bill_history(self):
+        fees = self.bill.fees.filter(deleted__exact=False, rolled_by__exact=None, maked__exact=False)
+        payments = self.bill.payments.filter(deleted__exact=False, rolled_by__exact=None, maked__exact=False)
+        log = {}
+        for item in fees:
+            log.update(item.inner_record())
+        for item in payments:
+            log.update(item.inner_record())
+
+        for i in sorted(log.keys()):
+            print [i, log[i].timestamp, log[i]]
+
     def launch_hamster(self,countdown=True,debug=True):
         from lib.functions import date_formatter, add_months
         from tv.models import FeeType, Fee, Payment, TariffPlan
