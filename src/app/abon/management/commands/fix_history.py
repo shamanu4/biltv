@@ -11,7 +11,7 @@ class Command(BaseCommand):
         total = Abonent.objects.all().count()
         for a in Abonent.objects.all():
             elapsed = (datetime.now() - start)
-            done = float("%0.4f" % (count / total))
+            done = float("%0.4f" % (float(count) / float(total)))
             if done>0:
                 eta = timedelta(seconds=(elapsed.seconds/done))
             else:
