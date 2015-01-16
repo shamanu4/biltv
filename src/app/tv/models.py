@@ -520,6 +520,7 @@ class Payment(models.Model):
         obj['timestamp'] = self.timestamp
         obj['bill'] = self.bill.pk
         obj['sum'] = self.sum
+        obj['abssum'] = self.sum
         obj['prev'] = self.prev
         obj['maked'] = self.maked
         obj['descr'] = self.descr
@@ -648,6 +649,7 @@ class Fee(models.Model):
         obj['timestamp'] = self.timestamp
         obj['bill'] = self.bill.pk
         obj['sum'] = self.sum
+        obj['abssum'] = -self.sum
         obj['prev'] = self.prev
         obj['bonus'] = self.bonus
         obj['maked'] = self.maked
