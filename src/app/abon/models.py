@@ -506,7 +506,6 @@ class Bill(models.Model):
             log.update(item.inner_record())
 
         for i in sorted(log.keys()):
-            print [i, log[i].timestamp.strftime("%Y-%m-%d %H:%I:%S"), log[i]]
             op = log[i]
             op.prev = balance
             if type(op) == Payment:
@@ -515,7 +514,6 @@ class Bill(models.Model):
                 balance -= op.sum
             op.save(skip=True)
             balance = float("%0.3f" % balance)
-        print balance
         self.balance = balance
         self.save(nocheck=True)
 
@@ -531,7 +529,7 @@ class Bill(models.Model):
             last_operation_date = None
 
         super(self.__class__, self).save(*args, **kwargs)
-        # self.fix_history()
+        self.fix_history()
         self.balance2set()
         # self.fix_operations_log(last_operation_date)
         # self.checksum()
