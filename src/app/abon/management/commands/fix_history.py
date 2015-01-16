@@ -44,7 +44,7 @@ class Command(BaseCommand):
                 else:
                     eta = timedelta(seconds=0)
                 a.fix_bill_history()
-                print "%6s/%6s %5s%% elapsed: %s remaining: %s" % (
+                print "%6s of %6s done %5s%%. elapsed: %s remaining: %s" % (
                     count, total, "%0.2f" % (done*100),
                     strfdelta(elapsed, "{hours}:{minutes}:{seconds}"),
                     strfdelta(eta, "{hours}:{minutes}:{seconds}")
