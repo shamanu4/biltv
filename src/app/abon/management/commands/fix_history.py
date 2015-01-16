@@ -1,15 +1,30 @@
 from django.core.management.base import BaseCommand, CommandError
 from abon.models import Bill, Abonent
 from datetime import datetime, timedelta
-
+from optparse import make_option
 
 class Command(BaseCommand):
+    args = '<skip>'
+    help = 'Closes the specified poll for voting'
 
     def handle(self, *args, **options):
+        option_list = BaseCommand.option_list + (
+            make_option(
+                "-s",
+                "--skip",
+                dest="skip",
+                help="skip abonents from beginning",
+                metavar="SKIP"
+            ),
+        )
+
         start = datetime.now()
         count = 0
-        total = Abonent.objects.all().count()
-        for a in Abonent.objects.all():
+        abonlist = Abonent.objects.all()
+        if int(options['skip'])>0:
+            abonlist = abonlist[int(options['skip']):]
+        total = abonlist.count()
+        for a in abonlist:
             count += 1
             if not (count % 20):
                 elapsed = (datetime.now() - start)
