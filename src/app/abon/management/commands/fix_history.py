@@ -6,19 +6,19 @@ import gc
 
 
 class Command(BaseCommand):
+    option_list = BaseCommand.option_list + (
+        make_option(
+            "-s",
+            "--skip",
+            dest="skip",
+            help="skip abonents from beginning",
+            metavar="SKIP"
+        ),
+    )
 
     def handle(self, *args, **options):
         gc.enable()
         gc.set_debug(gc.DEBUG_STATS)
-        option_list = BaseCommand.option_list + (
-            make_option(
-                "-s",
-                "--skip",
-                dest="skip",
-                help="skip abonents from beginning",
-                metavar="SKIP"
-            ),
-        )
 
         start = datetime.now()
         count = 0
