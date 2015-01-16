@@ -789,6 +789,7 @@ class Abonent(models.Model):
         res = []
         for i in sorted(log.keys()):
             res.append(log[i])
+        return res
 
     def launch_hamster(self,countdown=True,debug=True):
         from lib.functions import date_formatter, add_months
