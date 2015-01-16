@@ -514,6 +514,7 @@ class Bill(models.Model):
             if type(op) == Fee:
                 balance -= op.sum
             op.save(skip=True)
+            balance = float("%0.3f" % balance)
         print balance
         self.balance = balance
         self.save(nocheck=True)
