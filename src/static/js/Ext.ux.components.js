@@ -2190,8 +2190,8 @@ Ext.ux.AbonOperationsGrid = Ext.extend(Ext.ux.CustomGridNE ,{
             if (c>0) {
                 return ''
             }
-            var c = record.get('maked');
-            if (c) {
+            var c = record.get('abssum');
+            if (c>0) {
 				return 'maked_true_class';
 			} else {
 				return 'maked_false_class';
