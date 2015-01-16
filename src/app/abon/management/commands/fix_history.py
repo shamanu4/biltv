@@ -9,6 +9,7 @@ def strfdelta(tdelta, fmt):
     d = {"days": tdelta.days}
     d["hours"], rem = divmod(tdelta.seconds, 3600)
     d["minutes"], d["seconds"] = divmod(rem, 60)
+    d["hours"] = str(d["hours"]).zfill(2)
     d["minutes"] = str(d["minutes"]).zfill(2)
     d["seconds"] = str(d["seconds"]).zfill(2)
     return fmt.format(**d)
@@ -45,8 +46,8 @@ class Command(BaseCommand):
                 a.fix_bill_history()
                 print "%6s/%6s %2.2f%% elapsed: %s remaining: %s" % (
                     count, total, done*100,
-                    strfdelta(elapsed, "{days} days {hours}:{minutes}:{seconds}"),
-                    strfdelta(eta, "{days} days {hours}:{minutes}:{seconds}")
+                    strfdelta(elapsed, "{hours}:{minutes}:{seconds}"),
+                    strfdelta(eta, "{hours}:{minutes}:{seconds}")
                 )
             if not (count % 100):
                 gc.collect()
