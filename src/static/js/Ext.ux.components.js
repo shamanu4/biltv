@@ -1588,7 +1588,7 @@ Ext.ux.BalanceForm = Ext.extend(Ext.FormPanel, {
                 },
                 scope: this
             },{
-                icon: '/static/img/icons/green/16x16/Arrow2 Right.png',
+                icon: '/static/img/icons/red/16x16/ArrowRight.png',
                 handler: function(){
                     Engine.menu.cashier.transfer.openForm(this.oid,this.parent_form.id)
                 },
