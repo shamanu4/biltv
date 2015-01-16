@@ -493,10 +493,11 @@ class Payment(models.Model):
             if self.register.current + self.sum > self.register.total:
                 raise RegisterOverflowException(u'реестр переполнен')
 
-        super(self.__class__, self).save(*args, **kwargs)
         if 'skip' in kwargs:
             del kwargs['skip']
+            super(self.__class__, self).save(*args, **kwargs)
         else:
+            super(self.__class__, self).save(*args, **kwargs)
             self.bill.resend_cards()
             self.bill.balance2set()
             for fee in self.bill.fees.filter(maked__exact=False,deleted__exact=False,rolled_by__exact=None):
@@ -635,7 +636,10 @@ class Fee(models.Model):
         return "%s" % self.sum
 
     def save(self, *args, **kwargs):
-        self.bill.balance2set()
+        if 'skip' in kwargs:
+            del kwargs['skip']
+        else:
+            self.bill.balance2set()
         super(self.__class__, self).save(*args, **kwargs)
         
     def store_record(self):
