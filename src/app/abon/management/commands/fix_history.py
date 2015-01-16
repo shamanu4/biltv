@@ -5,6 +5,13 @@ from optparse import make_option
 import gc
 
 
+def strfdelta(tdelta, fmt):
+    d = {"days": tdelta.days}
+    d["hours"], rem = divmod(tdelta.seconds, 3600)
+    d["minutes"], d["seconds"] = divmod(rem, 60)
+    return fmt.format(**d)
+
+
 class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
         make_option(
@@ -36,8 +43,10 @@ class Command(BaseCommand):
                 else:
                     eta = "--:--:--"
                 a.fix_bill_history()
-                print "%s/%s %s%% elapsed: %s remaining: %s" % (count, total, done*100, str(elapsed), str(eta))
+                print "%6s/%6s %2.2f%% elapsed: %s remaining: %s" % (
+                    count, total, done*100,
+                    strfdelta(elapsed, "{days} days {hours}:{minutes}:{seconds}"),
+                    strfdelta(eta, "{days} days {hours}:{minutes}:{seconds}")
+                )
             if not (count % 100):
-                print "garbage collecting ..."
                 gc.collect()
-                print "done"
