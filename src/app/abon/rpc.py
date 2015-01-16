@@ -610,7 +610,6 @@ class AbonApiClass(object):
     @check_perm('accounts.rpc_abon_payments_get')
     @store_read
     def operations_get(self,rdata,request):
-        from tv.models import Payment
         from abon.models import Abonent
         print rdata
         uid = int(rdata['uid'])
