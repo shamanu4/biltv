@@ -494,21 +494,24 @@ class Payment(models.Model):
                 raise RegisterOverflowException(u'реестр переполнен')
 
         super(self.__class__, self).save(*args, **kwargs)
-        self.bill.resend_cards()
-        self.bill.balance2set()
-        for fee in self.bill.fees.filter(maked__exact=False,deleted__exact=False,rolled_by__exact=None):
-            print fee
-            if not fee.card or not fee.tp:
-                fee.make()
-            else:
-                try:
-                    cs = CardService.objects.get(card=fee.card,tp=fee.tp)
-                except CardService.DoesNotExist:
-                    pass
+        if 'skip' in kwargs:
+            del kwargs['skip']
+        else:
+            self.bill.resend_cards()
+            self.bill.balance2set()
+            for fee in self.bill.fees.filter(maked__exact=False,deleted__exact=False,rolled_by__exact=None):
+                print fee
+                if not fee.card or not fee.tp:
+                    fee.make()
                 else:
-                    cs.activate(activated=fee.timestamp.date())
-                    fee.delete()
-                    #cs.activate()
+                    try:
+                        cs = CardService.objects.get(card=fee.card,tp=fee.tp)
+                    except CardService.DoesNotExist:
+                        pass
+                    else:
+                        cs.activate(activated=fee.timestamp.date())
+                        fee.delete()
+                        #cs.activate()
 
     def store_record(self):
         obj = {}
