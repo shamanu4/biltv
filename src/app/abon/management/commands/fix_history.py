@@ -9,6 +9,8 @@ def strfdelta(tdelta, fmt):
     d = {"days": tdelta.days}
     d["hours"], rem = divmod(tdelta.seconds, 3600)
     d["minutes"], d["seconds"] = divmod(rem, 60)
+    d["minutes"] = str(d["minutes"]).zfill(2)
+    d["seconds"] = str(d["seconds"]).zfill(2)
     return fmt.format(**d)
 
 
@@ -25,8 +27,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         gc.disable()
-        gc.set_debug(gc.DEBUG_STATS)
-
         start = datetime.now()
         count = 0
         abonlist = Abonent.objects.all()
