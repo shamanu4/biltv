@@ -769,8 +769,8 @@ class Abonent(models.Model):
             if type(op) == Payment:
                 balance += op.sum
             if type(op) == Fee:
-                balance += op.sum
-            op.save()
+                balance -= op.sum
+            op.save(skip=True)
         print balance
 
     def launch_hamster(self,countdown=True,debug=True):
