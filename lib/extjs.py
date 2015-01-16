@@ -122,6 +122,9 @@ def store_read(func):
         total=0
         if isinstance(result, list):
             result = [obj.store_record() for obj in result]
+            total = len(result)
+            if 'start' in rdata and 'limit' in rdata:
+                result = result[rdata['start']:rdata['start']+rdata['limit']]
         if isinstance(result, QuerySet) or isinstance(result, QuerySetChain):
             if 'xls' in rdata and rdata['xls']:
                 r.publish('xls', json.dumps({"ready": False, "msg": u"обработка данных..."}))
