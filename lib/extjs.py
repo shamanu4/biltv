@@ -120,6 +120,8 @@ def store_read(func):
             success = True
             extras = {}
         total=0
+        if isinstance(result, list):
+            result = [obj.store_record() for obj in result]
         if isinstance(result, QuerySet) or isinstance(result, QuerySetChain):
             if 'xls' in rdata and rdata['xls']:
                 r.publish('xls', json.dumps({"ready": False, "msg": u"обработка данных..."}))
