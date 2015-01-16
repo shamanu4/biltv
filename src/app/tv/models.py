@@ -539,6 +539,11 @@ class Payment(models.Model):
         obj['admin'] = self.admin.first_name or self.admin.username 
         return obj
 
+    def inner_record(self):
+        return {
+            int(time.mktime(self.timestamp.timetuple())): self
+        }
+
     def make(self):
 
         from django.core.mail import EmailMultiAlternatives
@@ -645,6 +650,11 @@ class Fee(models.Model):
         except:
             obj['rolled_by'] = 0
         return obj
+
+    def inner_record(self):
+        return {
+            int(time.mktime(self.timestamp.timetuple())): self
+        }
 
     def make(self):
 

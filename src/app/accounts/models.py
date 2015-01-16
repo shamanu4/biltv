@@ -23,6 +23,7 @@ class User(BaseUser):
             ("rpc_abon_enable", "RPC abon.enable"),
             ("rpc_abon_disable", "RPC abon.disable"),
             ("rpc_abon_balance_get", "RPC abon.balance_get"),
+            ("rpc_abon_balance_set", "RPC abon.balance_set"),
             ("rpc_abon_cards_get", "RPC abon.cards_get"),
             ("rpc_abon_abon_history_get", "RPC abon.abon_history_get"),
             ("rpc_abon_cards_set", "RPC abon.cards_set"),
