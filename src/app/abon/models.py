@@ -752,6 +752,8 @@ class Abonent(models.Model):
                 #print "    DEACTIVATED: %s" % history.__unicode__()
 
     def fix_bill_history(self):
+        from tv.models import Fee, Payment
+        balance = 0
         fees = self.bill.fees.filter(deleted__exact=False, rolled_by__exact=None, maked__exact=True)
         payments = self.bill.payments.filter(deleted__exact=False, rolled_by__exact=None, maked__exact=True)
         log = {}
@@ -761,7 +763,15 @@ class Abonent(models.Model):
             log.update(item.inner_record())
 
         for i in sorted(log.keys()):
-            print [i, log[i].timestamp, log[i]]
+            print [i, log[i].timestamp.strftime("%Y-%m-%d %H:%I:%S"), log[i]]
+            op = log[i]
+            op.prev = balance
+            if type(op) == Payment:
+                balance += op.sum
+            if type(op) == Fee:
+                balance += op.sum
+            op.save()
+        print balance
 
     def launch_hamster(self,countdown=True,debug=True):
         from lib.functions import date_formatter, add_months
