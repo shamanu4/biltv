@@ -12,7 +12,10 @@ class Command(BaseCommand):
         for a in Abonent.objects.all():
             elapsed = (datetime.now() - start)
             done = float("%0.4f" % (count / total))
-            eta = timedelta(seconds=(elapsed.seconds/done))
+            if done>0:
+                eta = timedelta(seconds=(elapsed.seconds/done))
+            else:
+                eta = "--:--:--"
             a.fix_bill_history()
             count += 1
             if not (count % 20):
