@@ -121,7 +121,7 @@ def store_read(func):
             extras = {}
         total=0
         if isinstance(result, list):
-            result = [obj.store_record() for obj in result]
+            result = [obj.store_record() if hasattr(obj,'store_record') else obj for obj in result]
             total = len(result)
             if 'start' in rdata and 'limit' in rdata:
                 result = result[rdata['start']:rdata['start']+rdata['limit']]
