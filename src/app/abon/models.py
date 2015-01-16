@@ -772,6 +772,8 @@ class Abonent(models.Model):
                 balance -= op.sum
             op.save(skip=True)
         print balance
+        self.bill.balance = balance
+        self.bill.save()
 
     def launch_hamster(self,countdown=True,debug=True):
         from lib.functions import date_formatter, add_months
