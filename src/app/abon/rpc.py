@@ -1251,8 +1251,7 @@ class AbonApiClass(object):
             except Abonent.DoesNotExist:
                 return dict(success=False, title='Сбой правки баланса', msg='abonent not found', errors='')
             else:
-                fees = abonent.bill.fees.filter(deleted__exact=False, rolled_by__exact=None, maked__exact=False)
-                payments = abonent.bill.payments.filter(deleted__exact=False, rolled_by__exact=None, maked__exact=False)
+                abonent.fix_bill_history()
                 return dict(success=True,
                             data={'balance': abonent.bill.balance_get_wo_credit(), 'credit': abonent.bill.get_credit()})
         else:

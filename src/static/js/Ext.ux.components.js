@@ -1582,6 +1582,12 @@ Ext.ux.BalanceForm = Ext.extend(Ext.FormPanel, {
                 },
                 scope: this
             },{
+                icon: '/static/img/icons/green/16x16/Table.png',
+                handler: function(){
+					this.recalc()
+                },
+                scope: this
+            },{
                 text: 'оплата',
                 handler: function(){
 					Engine.menu.cashier.payment.openForm(this.oid,this.parent_form.id)
@@ -1624,6 +1630,13 @@ Ext.ux.BalanceForm = Ext.extend(Ext.FormPanel, {
                     if (result.data.credit) {
                     	this.body.dom.innerHTML+='<div class="balance_digits_negative"><small><small><small>Кредит: '+result.data.credit+' грн.</small></small></small></div>'
                     }
+            	}.createDelegate(this));
+            },
+            recalc: function() {
+            	AbonApi.balance_set({
+                	uid: (this.oid || 0)
+                },function (result,e) {
+                    this.refresh()
             	}.createDelegate(this));
             },
             scope: this
