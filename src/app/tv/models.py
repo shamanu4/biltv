@@ -3,6 +3,7 @@
 from django.db import models
 from logger.models import logging_postsave, logging_postdelete
 from datetime import datetime, date, time, timedelta
+from time import mktime
 from app.abills.models import Tp
 
 class Trunk(models.Model):
@@ -541,7 +542,7 @@ class Payment(models.Model):
 
     def inner_record(self):
         return {
-            int(time.mktime(self.timestamp.timetuple())): self
+            int(mktime(self.timestamp.timetuple())): self
         }
 
     def make(self):
@@ -653,7 +654,7 @@ class Fee(models.Model):
 
     def inner_record(self):
         return {
-            int(time.mktime(self.timestamp.timetuple())): self
+            int(mktime(self.timestamp.timetuple())): self
         }
 
     def make(self):
