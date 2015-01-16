@@ -17,7 +17,7 @@ class Command(BaseCommand):
     )
 
     def handle(self, *args, **options):
-        gc.enable()
+        gc.disable()
         gc.set_debug(gc.DEBUG_STATS)
 
         start = datetime.now()
@@ -37,7 +37,7 @@ class Command(BaseCommand):
                     eta = "--:--:--"
                 a.fix_bill_history()
                 print "%s/%s %s%% elapsed: %s remaining: %s" % (count, total, done*100, str(elapsed), str(eta))
-            if not (count % 20):
+            if not (count % 100):
                 print "garbage collecting ..."
                 gc.collect()
                 print "done"
