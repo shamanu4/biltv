@@ -30,7 +30,7 @@ class Command(BaseCommand):
         start = datetime.now()
         count = 0
         abonlist = Abonent.objects.all()
-        if int(options['skip'])>0:
+        if int(options['skip'] or 0)>0:
             abonlist = abonlist[int(options['skip']):]
         total = abonlist.count()
         for a in abonlist:
