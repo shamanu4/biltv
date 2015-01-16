@@ -605,6 +605,26 @@ class AbonApiClass(object):
         return {}
     fees_get._args_len = 1
 
+
+    @check_perm('accounts.rpc_abon_fees_get')
+    @check_perm('accounts.rpc_abon_payments_get')
+    @store_read
+    def operations_get(self,rdata,request):
+        from tv.models import Payment
+        from abon.models import Abonent
+        print rdata
+        uid = int(rdata['uid'])
+        if uid>0:
+            try:
+                abonent=Abonent.objects.get(pk=uid)
+            except Abonent.DoesNotExist:
+                return dict(success=False, title='Сбой загрузки операций', msg='abonent not found', errors='', data={} )
+            operations = abonent.sorted_operations()
+            operations.reverse()
+            return operations
+        return {}
+    operations_get._args_len = 1
+
     @check_perm('accounts.rpc_abon_credits_get')
     @store_read
     def abon_credit_get(self,rdata,request):
