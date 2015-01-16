@@ -769,7 +769,7 @@ class Abonent(models.Model):
             if type(op) == Payment:
                 balance += op.sum
             if type(op) == Fee:
-                balance += op.sum
+                balance -= op.sum
             op.save(skip=True)
         print balance
 
