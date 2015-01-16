@@ -778,6 +778,18 @@ class Abonent(models.Model):
     def fix_bill_history(self):
         self.bill.fix_history()
 
+    def sorted_operations(self):
+        fees = self.bill.fees.filter(deleted__exact=False, rolled_by__exact=None)
+        payments = self.bill.payments.filter(deleted__exact=False, rolled_by__exact=None)
+        log = {}
+        for item in fees:
+            log.update(item.inner_record())
+        for item in payments:
+            log.update(item.inner_record())
+        res = []
+        for i in sorted(log.keys()):
+            res.append(log[i])
+
     def launch_hamster(self,countdown=True,debug=True):
         from lib.functions import date_formatter, add_months
         from tv.models import FeeType, Fee, Payment, TariffPlan
