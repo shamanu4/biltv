@@ -6,8 +6,6 @@ import gc
 
 
 class Command(BaseCommand):
-    args = '<skip>'
-    help = 'Closes the specified poll for voting'
 
     def handle(self, *args, **options):
         gc.enable()
