@@ -10,13 +10,13 @@ class Command(BaseCommand):
         count = 0
         total = Abonent.objects.all().count()
         for a in Abonent.objects.all():
-            elapsed = (datetime.now() - start)
-            done = float("%0.4f" % (float(count) / float(total)))
-            if done>0:
-                eta = timedelta(seconds=(elapsed.seconds/done))
-            else:
-                eta = "--:--:--"
-            a.fix_bill_history()
             count += 1
             if not (count % 20):
+                elapsed = (datetime.now() - start)
+                done = float("%0.4f" % (float(count) / float(total)))
+                if done>0:
+                    eta = timedelta(seconds=(elapsed.seconds/done))
+                else:
+                    eta = "--:--:--"
+                a.fix_bill_history()
                 print "%s/%s %s%% elapsed: %s remaining: %s" % (count, total, done*100, str(elapsed), str(eta))
