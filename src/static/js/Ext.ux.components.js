@@ -1588,6 +1588,12 @@ Ext.ux.BalanceForm = Ext.extend(Ext.FormPanel, {
                 },
                 scope: this
             },{
+                icon: '/static/img/icons/green/16x16/Arrow2 Right.png',
+                handler: function(){
+                    Engine.menu.cashier.transfer.openForm(this.oid,this.parent_form.id)
+                },
+                scope: this
+            },{
                 text: 'оплата',
                 handler: function(){
 					Engine.menu.cashier.payment.openForm(this.oid,this.parent_form.id)
@@ -1599,12 +1605,6 @@ Ext.ux.BalanceForm = Ext.extend(Ext.FormPanel, {
                     Engine.menu.cashier.fee.openForm(this.oid,this.parent_form.id)
                 },
                 scope: this                
-            },{
-                text: 'трансфер',
-                handler: function(){
-                    Engine.menu.cashier.transfer.openForm(this.oid,this.parent_form.id)
-                },
-                scope: this
             }],
             listeners: {
                 afterrender : {

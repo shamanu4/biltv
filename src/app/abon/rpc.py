@@ -1239,7 +1239,6 @@ class AbonApiClass(object):
     report._args_len = 1
 
 
-
     @check_perm('accounts.rpc_abon_balance_set')
     def balance_set(self, rdata, request):
         from abon.models import Abonent
@@ -1257,4 +1256,4 @@ class AbonApiClass(object):
         else:
             return dict(success=True, data={'balance': None, 'credit': None})
 
-    balance_get._args_len = 1
+    balance_set._args_len = 1
