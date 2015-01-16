@@ -549,7 +549,7 @@ class Payment(models.Model):
         timestamp = int(mktime(self.timestamp.timetuple()))
         pk = "%s0" % str(self.pk).zfill(12)
         return {
-            "%s%s" % (self.timestamp, self.pk)
+            "%s%s" % (self.timestamp, self.pk): self
         }
 
     def make(self):
@@ -667,7 +667,7 @@ class Fee(models.Model):
         timestamp = int(mktime(self.timestamp.timetuple()))
         pk = "%s1" % str(self.pk).zfill(12)
         return {
-            "%s%s" % (self.timestamp, self.pk)
+            "%s%s" % (self.timestamp, self.pk): self
         }
 
     def make(self):
