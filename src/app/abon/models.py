@@ -521,13 +521,6 @@ class Bill(models.Model):
         if 'nocheck' in kwargs:
             del kwargs['nocheck']
             return super(self.__class__, self).save(*args, **kwargs)
-
-        if 'last_operation_date' in kwargs:
-            last_operation_date = kwargs['last_operation_date']
-            del kwargs['last_operation_date']
-        else:
-            last_operation_date = None
-
         super(self.__class__, self).save(*args, **kwargs)
         self.fix_history()
         self.balance2set()
