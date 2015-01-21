@@ -36,6 +36,7 @@ class Command(BaseCommand):
         total = abonlist.count()
         for a in abonlist:
             count += 1
+            a.fix_bill_history()
             if not (count % 20):
                 elapsed = (datetime.now() - start)
                 done = float("%0.4f" % (float(count) / float(total)))
@@ -43,11 +44,10 @@ class Command(BaseCommand):
                     eta = timedelta(seconds=(elapsed.seconds/done))
                 else:
                     eta = timedelta(seconds=0)
-                a.fix_bill_history()
                 print "%6s of %6s done %5s%%. elapsed: %s remaining: %s" % (
                     count, total, "%0.2f" % (done*100),
                     strfdelta(elapsed, "{hours}:{minutes}:{seconds}"),
-                    strfdelta(eta, "{hours}:{minutes}:{seconds}")
+                    strfdelta(elapsed-eta, "{hours}:{minutes}:{seconds}")
                 )
             if not (count % 100):
                 gc.collect()

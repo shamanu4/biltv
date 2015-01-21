@@ -563,13 +563,7 @@ class Payment(models.Model):
         bill.balance = bill.balance + self.sum
         self.maked=True
         self.save()
-        print "before bill save"
-        p = self.prev
-        print p
-        bill.save(last_operation_date=self.bank_date)
-        print "after bill save"
-        f = self.__class__.objects.get(pk=self.pk)
-        print f.prev
+        bill.save()
         try:
             self.register.try_close()
         except:
@@ -598,11 +592,11 @@ class Payment(models.Model):
             r.rolled_by = self
             r.timestamp = self.timestamp
             r.save()
-            r.make()
             self.rolled_by=r
             self.register = None
             self.source = None
             self.save()
+            r.make()
             return (True,r)
         return (False,"Already rolled back")
 
@@ -687,13 +681,7 @@ class Fee(models.Model):
         bill.balance = bill.balance - self.sum
         self.maked=True
         self.save()
-        print "before bill save"
-        p = self.prev
-        print p
-        bill.save(last_operation_date=self.timestamp)
-        print "after bill save"
-        f = self.__class__.objects.get(pk=self.pk)
-        print f.prev
+        bill.save()
         if self.bonus and self.card:
             print "fee promotion"
             self.card.promotion(self)
@@ -723,9 +711,9 @@ class Fee(models.Model):
             r.rolled_by=self
             r.timestamp = self.timestamp
             r.save()
-            r.make()
             self.rolled_by=r
             self.save()
+            r.make()
             return (True,r)
         return (False,"Already rolled back")
 
