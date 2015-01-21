@@ -47,7 +47,7 @@ class Command(BaseCommand):
                 print "%6s of %6s done %5s%%. elapsed: %s remaining: %s" % (
                     count, total, "%0.2f" % (done*100),
                     strfdelta(elapsed, "{hours}:{minutes}:{seconds}"),
-                    strfdelta(elapsed-eta, "{hours}:{minutes}:{seconds}")
+                    strfdelta(eta-elapsed, "{hours}:{minutes}:{seconds}")
                 )
             if not (count % 100):
                 gc.collect()
