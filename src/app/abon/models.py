@@ -507,7 +507,7 @@ class Bill(models.Model):
 
         for i in sorted(log.keys()):
             op = log[i]
-            print "%10s %s" % (balance, op)
+            # print "%10s %s" % (balance, op)
             op.prev = balance
             if type(op) == Payment:
                 balance += op.sum
@@ -515,8 +515,8 @@ class Bill(models.Model):
                 balance -= op.sum
             op.save(skip=True)
             balance = float("%0.3f" % balance)
-        print "-------------------------------------------------"
-        print "balance: %10s op count: %10s" % (balance, log)
+        # print "-------------------------------------------------"
+        # print "balance: %10s op count: %10s" % (balance, len(log))
         self.balance = balance
         self.save(nocheck=True)
 
