@@ -594,9 +594,12 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                     }
                 },
                 rowcontextmenu: function(grid, index, event){
-                     event.stopEvent();
-                     Ext.ux.mnuContext.data = grid.store.getAt(index);
-                     Ext.ux.mnuContext.showAt(event.xy);
+                    event.stopEvent();
+                    var row = grid.store.getAt(index);
+                    if((!row.data.processed) && (!row.data.register)) {
+                        Ext.ux.mnuContext.data = row;
+                        Ext.ux.mnuContext.showAt(event.xy);
+                    }
                 }
 
             },
