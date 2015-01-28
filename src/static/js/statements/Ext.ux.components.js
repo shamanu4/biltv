@@ -80,6 +80,116 @@ Ext.ux.traceback = function () {
 
 }();
 
+Ext.ux.mnuContext = new Ext.menu.Menu({
+    items: [{
+        id: 'split',
+        text: 'Розділити'
+    }],
+    data: {},
+    listeners: {
+        itemclick: function(item) {
+            switch (item.id) {
+                case 'split':
+                    window.split_popup = new Ext.ux.PopupWindow();
+                    split_popup.title='Розділити позицію №' + this.data.id || '[id]';
+                    split_popup.data = this.data;
+                    split_popup.items.add(
+                        new Ext.ux.SplitPanel({
+                            data: this.data
+                        })
+                    );
+                    split_popup.show();
+                    break;
+            }
+        }
+    }
+});
+
+Ext.ux.PopupWindow = Ext.extend(Ext.Window,{
+    initComponent: function(){
+        var config = {
+            title: 'popup title',
+            layout: 'fit',
+            height: 180,
+            width: 360,
+            closable: true,
+            resizable: false,
+            draggable: true,
+            items: []
+        };
+        Ext.apply(this, Ext.apply(this.initialConfig, config));
+        Ext.ux.PopupWindow.superclass.initComponent.apply(this, arguments);
+    }
+});
+
+Ext.ux.SplitPanel = Ext.extend(Ext.FormPanel, {
+    initComponent: function(){
+        var config = {
+            padding: 10,
+            items: [
+                new Ext.form.Label({
+                    html: this.data.data.descr
+                }),
+                new Ext.form.Label({
+                    html: "<br /> " + this.data.data.amount + " грн."
+                }),
+                this.slider = new Ext.Slider({
+                    value: 0,
+                    increment: 0.01,
+                    minValue: 0.01,
+                    maxValue: this.data.data.amount-0.01,
+                    listeners: {
+                        change: {
+                            fn: function ( slider, newValue, thumb ) {
+                                this.field.setValue(newValue)
+                            },
+                            scope: this
+                        }
+                    }
+                }),
+                this.field = new Ext.form.NumberField({
+                    value: 1,
+                    minValue: 0.01,
+                    maxValue: this.data.data.amount-0.01,
+                    enableKeyEvents: true,
+                    tm: 0,
+                    listeners: {
+                        keypress: {
+                            fn: function (el, e) {
+                                var $this = this;
+                                if($this.field.validate()) {
+                                    if($this.tm) {
+                                        clearTimeout($this.tm)
+                                    }
+                                    this.tm = setTimeout(function(){
+                                        $this.slider.setValue($this.field.getRawValue());
+                                    }, 300);
+                                }
+                            },
+                            scope: this
+                        }
+                    }
+                }),
+                new Ext.Button({
+                    text: 'розділити',
+                    handler: function() {
+                        var $this = this;
+                        MainApi.split_entry($this.data.id, $this.field.getValue(), function(response){
+                            if(response.success) {
+                                $this.data.store.reload();
+                                window.split_popup.close();
+                            }
+                        })
+                    },
+                    scope: this
+                })
+            ],
+        };
+        Ext.apply(this, Ext.apply(this.initialConfig, config));
+        Ext.ux.SplitPanel.superclass.initComponent.apply(this, arguments);
+    }
+});
+
 /*!
  * Ext JS Library 3.4.0
  * Copyright(c) 2006-2011 Sencha Inc.
@@ -482,6 +592,11 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                     fn: function(e) {
                         this.resizeAction();
                     }
+                },
+                rowcontextmenu: function(grid, index, event){
+                     event.stopEvent();
+                     Ext.ux.mnuContext.data = grid.store.getAt(index);
+                     Ext.ux.mnuContext.showAt(event.xy);
                 }
 
             },
