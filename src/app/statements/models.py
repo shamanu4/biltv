@@ -113,6 +113,13 @@ class Entry(models.Model):
             'locked': self.processed or not self.register is None
         }
 
+    def split(self, value):
+        self.amount -= value
+        self.save()
+        self.pk = None
+        self.amount = value
+        self.save()
+
 
 TYPE_UNDEF = 0
 TYPE_INET = 1

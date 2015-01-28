@@ -117,6 +117,21 @@ class MainApiClass(object):
                 return st.store_record()
     update_stats._args_len = 2
 
+    @check_perm('accounts.rpc_update_generic_grid')
+    def split_entry(self, entry_id, value, request):
+        try:
+            e = Entry.objects.get(pk=entry_id)
+        except Entry.DoesNotExist:
+            return dict(success=False, title='Ошибка', msg=str('no entry with id %s' % entry_id))
+        else:
+            if e.processed or e.register:
+                return dict(success=False, title='Ошибка', msg=str('Entry with id %s already processed' % entry_id))
+            if 0 < value < e.amount:
+                e.split(value)
+            else:
+                return dict(success=False, title='Ошибка', msg=str('Wrong value' % entry_id))
+            return dict(success=True)
+    split_entry._args_len = 2
 
 class Router(RpcRouter):
     def __init__(self):
