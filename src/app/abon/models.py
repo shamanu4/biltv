@@ -525,7 +525,7 @@ class Bill(models.Model):
             del kwargs['nocheck']
             return super(self.__class__, self).save(*args, **kwargs)
         super(self.__class__, self).save(*args, **kwargs)
-        self.fix_history()
+        # self.fix_history()
         self.balance2set()
         # self.fix_operations_log(last_operation_date)
         # self.checksum()
