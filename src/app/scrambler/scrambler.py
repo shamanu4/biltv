@@ -111,7 +111,7 @@ class UserPacket(BasicPacket):
 
 class UserExport(BasicPacket):
 
-    def __init__(self, card_id):
+    def __init__(self):
         BasicPacket.__init__(self)
         self.data.append(0xad)
         self.data.append(0x01)
