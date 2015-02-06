@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import logging
+
 logger = logging.getLogger('scrambler')
 hdlr = logging.FileHandler('/var/log/scrambler.log')
 formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
@@ -9,13 +11,13 @@ logger.setLevel(logging.DEBUG)
 
 import socket
 import struct
-import logging
+import settings
 
 from tv.models import Trunk
 from tv.models import Card, CardDigital
 from settings import EXPORT_PATH
 from lib.functions import int_to_4byte_wrapped, list2bin
-import settings
+
 
 
 class BasicPacket:
