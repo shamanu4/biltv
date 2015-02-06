@@ -5,6 +5,7 @@ from logger.models import logging_postsave, logging_postdelete
 from datetime import datetime, date, time, timedelta
 from time import mktime
 from app.abills.models import Tp
+from time import time, sleep
 
 class Trunk(models.Model):
 
@@ -973,16 +974,23 @@ class Card(models.Model):
         uq.run()
 
     def send(self):
-        from time import time
         start = time()
         deferred = self.defer()
         print "calculated in %s seconds" % (time()-start,)
         start = time()
+        running = time()
+        timeout = CardDigital.objects.count()/10.0
         for uq in deferred:
-            print "TIME: %s, CARD: %s BEGIN" % (time()-start,uq.packet.card)
+            t = time()
+            # print "TIME: %s, RUNNING: %s, CARD: %s BEGIN" % (t-start, t-running, uq.packet.card)
             uq.run()
-            print "TIME: %s, CARD: %s END" % (time()-start,uq.packet.card)
+            print "TIME: %s, RUNNING: %s, CARD: %s END" % (t-start, t-running, uq.packet.card)
             print "===================================================================================================="
+            if t-running > 3:
+                print "RUNNING TIME > 3 sec. sleep for %0.2f " % timeout
+                sleep(timeout)
+                running = time()
+
 
     @classmethod
     def send_all(cls):
