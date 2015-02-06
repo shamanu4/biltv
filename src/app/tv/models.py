@@ -6,6 +6,7 @@ from datetime import datetime, date, time, timedelta
 from time import mktime
 from app.abills.models import Tp
 from time import time, sleep
+from django.conf import settings
 
 class Trunk(models.Model):
 
@@ -988,7 +989,8 @@ class Card(models.Model):
             print "===================================================================================================="
             if t-running > 3:
                 print "RUNNING TIME > 3 sec. sleep for %0.2f " % timeout
-                sleep(timeout)
+                if not settings.NOSLEEP:
+                    sleep(timeout)
                 running = time()
 
 

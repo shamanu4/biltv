@@ -142,6 +142,7 @@ NEGATIVE_SUM_LOCK = -25
 NEGATIVE_SUM_BACKUP = -50
 ALL_USERS_CREDIT = 0
 DEFAULT_CATV_TP_ID = 1
+NOSLEEP = 1
 
 try:
     from settings_local import *
