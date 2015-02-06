@@ -73,7 +73,23 @@ class ChannelPacket(BasicPacket):
         self.append_crc()
 
 
-class ChannelExport(ChannelPacket):
+class BasicExport(object):
+    data = []
+
+    def binary(cls):
+        s = ""
+        for w in cls.data:
+            s += chr(w)
+        return s
+
+
+class ChannelExport(BasicExport):
+
+    def __init__(self):
+        self.data = []
+        trunks = Trunk.objects.all()
+        for t in trunks:
+            self.data.extend(t.channel_mask)
 
     @classmethod
     def export(cls):
@@ -109,12 +125,9 @@ class UserPacket(BasicPacket):
         print "Generating packet for card #%s at position %s" % (card.num, card.digital.pk)
 
 
-class UserExport(BasicPacket):
+class UserExport(BasicExport):
 
     def __init__(self):
-        BasicPacket.__init__(self)
-        self.data.append(0xad)
-        self.data.append(0x01)
         count = CardDigital.objects.count()
         self.data.extend(int_to_4byte_wrapped(count))
 
@@ -123,9 +136,6 @@ class UserExport(BasicPacket):
             self.data.extend(int_to_4byte_wrapped((card.num - 1) * 2))
             self.data.extend(card.bin_flags)
             self.data.extend(int_to_4byte_wrapped(card.balance_int or 0))
-
-        self.mk_prefix()
-        self.append_crc()
 
     @classmethod
     def export(cls):
