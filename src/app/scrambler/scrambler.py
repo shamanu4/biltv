@@ -72,16 +72,13 @@ class ChannelPacket(BasicPacket):
         self.mk_prefix()
         self.append_crc()
 
-    @classmethod
-    def export(self):
-        f = open('%s/%s' % (EXPORT_PATH, 'prog.bin'), 'w')
-        data = []
 
-        trunks = Trunk.objects.all()
-        data.append(trunks.count())
-        for t in trunks:
-            data.extend(t.channel_mask)
-        f.write(list2bin(data))
+class ChannelExport(ChannelPacket):
+
+    @classmethod
+    def export(cls):
+        f = open('%s/%s' % (EXPORT_PATH, 'prog.bin'), 'w')
+        f.write(cls().binary())
         f.close()
 
 
@@ -92,7 +89,7 @@ class UserPacket(BasicPacket):
         try:
             card = Card.objects.get(num=card_id)
         except Card.DoesNotExist:
-            self.data.append(0x01)
+            raise RuntimeError("Card does not exist ID:%s" % card_id)
         else:
             if card.active:
                 self.data.append(0x01)
@@ -111,32 +108,29 @@ class UserPacket(BasicPacket):
         print
         print "Generating packet for card #%s at position %s" % (card.num, card.digital.pk)
 
-    @classmethod
-    def export_card(cls, card_num):
-        data = []
-        try:
-            card = Card.objects.get(num=card_num)
-        except Card.DoesNotExist:
-            return data
-        data.extend(int_to_4byte_wrapped((card.num - 1) * 2))
-        data.extend(card.bin_flags)
-        data.extend(int_to_4byte_wrapped(card.balance_int or 0))
-        # print list2hex(data)
-        return data
 
+class UserExport(BasicPacket):
+
+    def __init__(self, card_id):
+        BasicPacket.__init__(self)
+        self.data.append(0xad)
+        self.data.append(0x01)
+        count = CardDigital.objects.count()
+        self.data.extend(int_to_4byte_wrapped(count))
+
+        for card in CardDigital.objects.all():
+            self.data.extend(int_to_4byte_wrapped(card.pk))
+            self.data.extend(int_to_4byte_wrapped((card.num - 1) * 2))
+            self.data.extend(card.bin_flags)
+            self.data.extend(int_to_4byte_wrapped(card.balance_int or 0))
+
+        self.mk_prefix()
+        self.append_crc()
 
     @classmethod
     def export(cls):
         f = open('%s/%s' % (EXPORT_PATH, 'user.bin'), 'w')
-        data = []
-
-        c = CardDigital.objects.count()
-        data.extend(int_to_4byte_wrapped(c))
-        f.write(list2bin(data))
-
-        for cd in CardDigital.objects.all():
-            f.write(list2bin(cls.export_card(cd.card.num)))
-
+        f.write(cls().binary())
         f.close()
 
 
