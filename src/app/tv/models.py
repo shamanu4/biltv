@@ -1307,6 +1307,18 @@ class CardDigital(models.Model):
             print "deleting this object (%s) will cause data corrupt. ignoring..." % self
             return False
 
+    @property
+    def num(self):
+        return self.card.num
+
+    @property
+    def bin_flags(self):
+        return self.card.bin_flags
+
+    @property
+    def balance_int(self):
+        return self.card.balance_int
+
             
 class CardService(models.Model):
 
