@@ -560,12 +560,9 @@ class Payment(models.Model):
 
         if self.maked:
             return (True,self)
-        self.prev = self.bill.balance_get_wo_credit()
-        bill = self.bill
-        bill.balance = bill.balance + self.sum
-        self.maked=True
+        self.prev = self.bill.process(self)
+        self.maked = True
         self.save()
-        bill.save()
         try:
             self.register.try_close()
         except:
@@ -673,17 +670,16 @@ class Fee(models.Model):
         print "fee.make"
         if self.maked:
             return (True,self)
-        self.prev = self.bill.balance_get_wo_credit()
         if self.fee_type and not self.fee_type.allow_negative:
             if self.sum > 0 and ((self.bill.balance_get() - self.sum) < -1):
                 self.descr = "Not enough money (%s < %s)" % (self.bill.balance_get(),self.sum)
                 self.save()
                 return (False,"Not enougn money")
-        bill = self.bill
-        bill.balance = bill.balance - self.sum
+        self.prev = self.bill.process(self)
+        #bill = self.bill
+        #bill.balance = bill.balance - self.sum
         self.maked=True
         self.save()
-        bill.save()
         if self.bonus and self.card:
             print "fee promotion"
             self.card.promotion(self)
@@ -720,24 +716,25 @@ class Fee(models.Model):
         return (False,"Already rolled back")
 
     def unroll(self):
-        if self.rolled:
-            r = self.fee
-            if r:
-                if self.rolled_by:
-                    b = r.bill
-                    b.balance += r.sum
-                    b.save()
-                else:
-                    print 'skip'
-                self.rolled_by=None
-                self.save()
-                r.delete()
-                return (True,self)
-            else:
-                self.rolled_by=None
-                self.save()
-                return (False,"Not rolled back")
-        return (False,"Not rolled back")
+        raise NotImplementedError("not implemented")
+        # if self.rolled:
+        #     r = self.fee
+        #     if r:
+        #         if self.rolled_by:
+        #             b = r.bill
+        #             b.balance += r.sum
+        #             b.save()
+        #         else:
+        #             print 'skip'
+        #         self.rolled_by=None
+        #         self.save()
+        #         r.delete()
+        #         return (True,self)
+        #     else:
+        #         self.rolled_by=None
+        #         self.save()
+        #         return (False,"Not rolled back")
+        # return (False,"Not rolled back")
 
     @property
     def sort(self):
