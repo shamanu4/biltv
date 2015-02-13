@@ -556,13 +556,13 @@ class Bill(models.Model):
         # print "balance: %10s op count: %10s" % (balance, len(log))
         diff = abs(self.balance - balance)
         if diff > 0.1:
-            if not dryrun:
-                self.balance = balance
-                self.save()
             print u"WARNING: %20s \t %s" % (
                 u"%s <> %s diff %s" % (self.balance, balance, diff),
                 unidecode(self.abonents.get().sorting)
             )
+            if not dryrun:
+                self.balance = balance
+                self.save()
 
     def save(self,*args,**kwargs):
         if 'nocheck' in kwargs:
