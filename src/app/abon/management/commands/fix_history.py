@@ -4,6 +4,9 @@ from optparse import make_option
 from django.core.management.base import BaseCommand
 from abon.models import Abonent
 
+from django.conf import settings
+settings.DEBUG = False
+
 
 def strfdelta(tdelta, fmt):
     d = {"days": tdelta.days}
@@ -68,4 +71,3 @@ class Command(BaseCommand):
                 )
             # if not (count % 100):
             # gc.collect()
-            del a

@@ -553,12 +553,13 @@ class Bill(models.Model):
             balance = float("%0.3f" % balance)
         # print "-------------------------------------------------"
         # print "balance: %10s op count: %10s" % (balance, len(log))
-        if not self.balance == balance:
+        diff = abs(self.balance - balance)
+        if diff > 0.1:
             if not dryrun:
                 self.balance = balance
                 self.save()
             print "WARNING: %20s \t %s" % (
-                "%s <> %s diff %s" % (self.balance, balance, (self.balance - balance)),
+                "%s <> %s diff %s" % (self.balance, balance, diff),
                 self.abonents.get().sorting
             )
 
