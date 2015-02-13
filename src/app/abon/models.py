@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import date, datetime
 from django.db import models
+from tv.models import Fee, Payment
 
 class Group(models.Model):
 
@@ -357,6 +358,10 @@ class Illegal(models.Model):
         return obj
 
 
+import time
+current_milli_time = lambda: int(round(time.time() * 1000))
+
+
 class Bill(models.Model):
 
     balance = models.FloatField(default=0)
@@ -370,6 +375,34 @@ class Bill(models.Model):
 
     def __unicode__(self):
         return "%s" % self.balance_get()
+
+    @property
+    def qs(self):
+        return self.__class__.objects.filter(pk=self.pk)
+
+    def process(self, transaction):
+        mult = 0
+        if type(transaction) == Fee:
+            # print "is fee"
+            mult = -1
+        if type(transaction) == Payment:
+            # print "is payment"
+            mult = 1
+        bill = self.qs.get()
+        before = float(bill.balance)
+        # print (type(transaction), transaction.sum, mult, before)
+        # print "--- %s ---" % current_milli_time()
+        # print (bill.balance, bill.balance2)
+        bill.balance = models.F('balance') + (transaction.sum * mult)
+        # print (bill.balance, bill.balance2)
+        bill.save(nocheck=True)
+        # print (bill.balance, bill.balance2)
+        # bill = self.qs.get()
+        # print (bill.balance, bill.balance2)
+        # print (self.pk, bill.pk)
+        # print "--- %s ---" % current_milli_time()
+        return before
+
 
     def get_credit(self,dt=None):
         from django.db.models import Sum
@@ -393,8 +426,11 @@ class Bill(models.Model):
         return self.balance_get_wo_credit()+self.get_credit()
 
     def balance2set(self):
-        self.balance2 = self.balance_get_wo_credit()
-        self.save(nocheck=True)
+        self.qs.update(balance2=models.F('balance') + (
+            self.payments.filter(maked__exact=False,deleted__exact=False,rolled_by__exact=None).aggregate(total=models.Sum('sum'))['total'] or 0)
+        )
+        # self.balance2 = self.balance_get_wo_credit()
+        # self.save(nocheck=True)
 
     @property
     def balance_int(self):
@@ -494,7 +530,7 @@ class Bill(models.Model):
         for abonent in self.abonents.all():
             abonent.send_cards()
 
-    def fix_history(self):
+    def fix_history(self, dryrun=False):
         from tv.models import Fee, Payment
         balance = 0
         fees = self.fees.filter(deleted__exact=False, rolled_by__exact=None, maked__exact=True)
@@ -517,16 +553,22 @@ class Bill(models.Model):
             balance = float("%0.3f" % balance)
         # print "-------------------------------------------------"
         # print "balance: %10s op count: %10s" % (balance, len(log))
-        self.balance = balance
-        self.save(nocheck=True)
+        if not self.balance == balance:
+            if not dryrun:
+                self.balance = balance
+                self.save()
+            print "WARNING: %20s \t %s" % (
+                "%s <> %s diff %s" % (self.balance, balance, (self.balance - balance)),
+                self.abonents.get().sorting
+            )
 
     def save(self,*args,**kwargs):
         if 'nocheck' in kwargs:
             del kwargs['nocheck']
-            return super(self.__class__, self).save(*args, **kwargs)
-        super(self.__class__, self).save(*args, **kwargs)
+            # return super(self.__class__, self).save(*args, **kwargs)
+        super(Bill, self).save(*args, **kwargs)
         # self.fix_history()
-        self.balance2set()
+        # self.balance2set()
         # self.fix_operations_log(last_operation_date)
         # self.checksum()
 
@@ -770,8 +812,8 @@ class Abonent(models.Model):
                 history.save()
                 #print "    DEACTIVATED: %s" % history.__unicode__()
 
-    def fix_bill_history(self):
-        self.bill.fix_history()
+    def fix_bill_history(self, dryrun=False):
+        self.bill.fix_history(dryrun)
 
     def sorted_operations(self):
         fees = self.bill.fees.filter(deleted__exact=False, rolled_by__exact=None)
