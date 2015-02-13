@@ -68,4 +68,4 @@ class Command(BaseCommand):
                 )
             # if not (count % 100):
             # gc.collect()
-            del (a)
+            del a
