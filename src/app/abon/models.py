@@ -558,9 +558,9 @@ class Bill(models.Model):
             if not dryrun:
                 self.balance = balance
                 self.save()
-            print "WARNING: %20s \t %s" % (
-                "%s <> %s diff %s" % (self.balance, balance, diff),
-                self.abonents.get().sorting
+            print u"WARNING: %20s \t %s" % (
+                u"%s <> %s diff %s" % (self.balance, balance, diff),
+                unicode(self.abonents.get().sorting)
             )
 
     def save(self,*args,**kwargs):
