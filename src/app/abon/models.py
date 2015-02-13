@@ -532,6 +532,7 @@ class Bill(models.Model):
 
     def fix_history(self, dryrun=False):
         from tv.models import Fee, Payment
+        from unidecode import unidecode
         balance = 0
         fees = self.fees.filter(deleted__exact=False, rolled_by__exact=None, maked__exact=True)
         payments = self.payments.filter(deleted__exact=False, rolled_by__exact=None, maked__exact=True)
@@ -560,7 +561,7 @@ class Bill(models.Model):
                 self.save()
             print u"WARNING: %20s \t %s" % (
                 u"%s <> %s diff %s" % (self.balance, balance, diff),
-                unicode(self.abonents.get().sorting)
+                unidecode(self.abonents.get().sorting)
             )
 
     def save(self,*args,**kwargs):
