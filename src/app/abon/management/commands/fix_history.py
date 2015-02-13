@@ -54,7 +54,7 @@ class Command(BaseCommand):
         for a in abonlist:
             count += 1
             a.fix_bill_history(dryrun=options['dryrun'])
-            if not (count % 20) and not options['quiet']:
+            if not (count % 100) and not options['quiet']:
                 elapsed = (datetime.now() - start)
                 done = float("%0.4f" % (float(count) / float(total)))
                 if done > 0:
