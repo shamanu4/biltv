@@ -48,10 +48,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         start = datetime.now()
-        count = 0
+        count = initial = 0
         abonlist = Abonent.objects.all()
         if int(options['skip'] or 0) > 0:
-            count = int(options['skip'])
+            count = initial = int(options['skip'])
             abonlist = abonlist[count:]
         total = abonlist.count() + count
         for a in abonlist:
@@ -59,7 +59,7 @@ class Command(BaseCommand):
             a.fix_bill_history(dryrun=options['dryrun'])
             if not (count % 100) and not options['quiet']:
                 elapsed = (datetime.now() - start)
-                done = float("%0.4f" % (float(count) / float(total)))
+                done = float("%0.4f" % (float(count - initial) / float(total - initial)))
                 if done > 0:
                     eta = timedelta(seconds=(elapsed.seconds / done))
                 else:
