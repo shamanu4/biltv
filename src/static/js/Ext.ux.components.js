@@ -12,12 +12,13 @@ Ext.ux.msg = function(){
     }
 
     return function(title, text, type, callback){
+        var delay = 0;
         if(type=="ext-mb-error") {
-            var delay = 10;
+            delay = 10;
         } else if (type=="ext-mb-invisible") {
-            var delay = 1
+            delay = 1
         } else {
-            var delay = 3
+            delay = 3
         }
         if(!msgCt){
             msgCt = Ext.DomHelper.insertFirst(document.body, {id:'msg-div'}, true)
@@ -52,7 +53,7 @@ Ext.ux.traceback = function() {
         	'<textarea id="traceback-descripton" cols="75" rows="10" name=traceback-descr>',        		         
         	'</textarea>',
     		'<br />',
-        '</form>',
+        '</form>'
     	].join('')
 	}
 	
@@ -70,7 +71,7 @@ Ext.ux.traceback = function() {
 	            	$("#traceback-content").removeAttr("disabled");
 	            	Ext.get("traceback-form").dom.submit();	          	    	           
 	            }
-	        }],
+	        }]
 	    }).show();
 	}
 	
@@ -95,19 +96,21 @@ Ext.ux.LoginForm = Ext.extend(Ext.form.FormPanel,{
 
             submitaction: function() {
                 this.getForm().submit({
-                    failure: function(form, action){
-                        if(this.getForm().isValid()) {
+                    failure: function(form){
+                        var $this = this;
+                        if($this.getForm().isValid()) {
                             // Ext.ux.msg('Ошибка авторизации', action.result.msg, Ext.Msg.ERROR);
                         } else {
                             Ext.ux.msg('Ошибка ввода', 'обязательные поля не заполнены', Ext.Msg.ERROR);
                         }
-                        this.ownerCt.loginFailed()
-                        this.getForm().reset()
+                        $this.ownerCt.loginFailed();
+                        $this.getForm().reset()
                     },
                     success: function(form, action){
                         // Ext.ux.msg('Авторизация успешная', action.result.msg, Ext.Msg.INFO);
-                        this.ownerCt.loginSuccess()
-                        this.ownerCt.close()
+                        var $this = this;
+                        $this.ownerCt.loginSuccess();
+                        $this.ownerCt.close()
                     },
                     scope: this
                 });
@@ -141,7 +144,7 @@ Ext.ux.LoginForm = Ext.extend(Ext.form.FormPanel,{
             },
             clientValidation: true,
             paramsAsHash: true
-        }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.LoginForm.superclass.initComponent.apply(this, arguments);
     }//initComponent    
@@ -159,7 +162,7 @@ Ext.ux.LoginWindow = Ext.extend(Ext.Window,{
             resizable: false,
             draggable: false,
             items: [new Ext.ux.LoginForm()]
-        }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.LoginWindow.superclass.initComponent.apply(this, arguments);
     },
@@ -172,7 +175,7 @@ Ext.ux.TabPanel = Ext.extend(Ext.TabPanel,{
     initComponent: function(){
         var config = {
             frame:true
-        }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.TabPanel.superclass.initComponent.apply(this, arguments);
     }
@@ -193,7 +196,7 @@ Ext.ux.menu = {
                     'text': 'Карточки'                    
                 },{
                     'text': 'Стволы'
-                },
+                }
             ]
         }
     ],
@@ -245,7 +248,7 @@ Ext.ux.menu = {
                     'text': 'ПриватБанк Выписки',
                     'oid': 0,
                     'my_owner_ct_id':0
-                },
+                }
             ]
         }
     ],
@@ -277,7 +280,7 @@ Ext.ux.menu = {
             ]
         }
     ]
-}
+};
 
 Ext.ux.MenuBar = Ext.extend(Ext.Toolbar,{
     initComponent: function(){
@@ -291,7 +294,7 @@ Ext.ux.MenuBar = Ext.extend(Ext.Toolbar,{
                     handler: Engine.auth.doLogout
                 }
             ]
-        }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.MenuBar.superclass.initComponent.apply(this, arguments);
     }
@@ -318,7 +321,7 @@ Ext.ux.CustomGridNE = Ext.extend(Ext.grid.EditorGridPanel,{
         // overrides in instance
     },
     searchAction: function() {
-        this.store.baseParams.filter_value = this.searchfield.getValue()
+        this.store.baseParams.filter_value = this.searchfield.getValue();
 		this.store.load()
 	},
     initComponent: function(){
@@ -358,13 +361,14 @@ Ext.ux.CustomGridNE = Ext.extend(Ext.grid.EditorGridPanel,{
             },{
                 icon: '/static/extjs/custom/delete_16.png',
                 cls: 'x-btn-text-icon',
-                handler: function() {                    
-                    this.searchfield.setValue('')
-                    this.store.baseParams.filter_value = ''
-                    this.store.load()
+                handler: function() {
+                    var $this = this;
+                    $this.searchfield.setValue('');
+                    $this.store.baseParams.filter_value = '';
+                    $this.store.load()
                 },
                 scope: this
-            },
+            }
             ],
             bbar: new Ext.PagingToolbar({
                 pageSize: this.pageSize || 16,
@@ -381,8 +385,8 @@ Ext.ux.CustomGridNE = Ext.extend(Ext.grid.EditorGridPanel,{
                             return false;
                         }
                     }
-            },
-        }
+            }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.CustomGrid.superclass.initComponent.apply(this, arguments);
     }
@@ -411,7 +415,7 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
         }
     },
     initComponent: function(options) {
-        options = options || {}
+        options = options || {};
         var config = {
             frame:true,
             closable: true,
@@ -422,7 +426,7 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                 icon: '/static/extjs/custom/tick_16.png',
                 cls: 'x-btn-text-icon',
                 handler: function() {		    
-                    this.store.save()
+                    this.store.save();
                     //this.store.commitChanges();
                 },
                 scope: this
@@ -472,12 +476,12 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                 icon: '/static/extjs/custom/delete_16.png',
                 cls: 'x-btn-text-icon',
                 handler: function() {
-                    this.searchfield.setValue('')
-                    this.store.baseParams.filter_value = ''
+                    this.searchfield.setValue('');
+                    this.store.baseParams.filter_value = '';
                     this.store.load()
                 },
                 scope: this
-            },
+            }
             ],
             bbar: new Ext.PagingToolbar({
                 pageSize:  this.pageSize || 16,
@@ -496,7 +500,7 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                     }
             },
             searchAction: function() {
-                this.store.baseParams.filter_value = this.searchfield.getValue()
+                this.store.baseParams.filter_value = this.searchfield.getValue();
                 this.store.load()
             }
           /*  sm: new Ext.grid.RowSelectionModel({
@@ -516,7 +520,7 @@ Ext.ux.CustomGrid = Ext.extend(Ext.grid.EditorGridPanel,{
                 }
             })
           */
-        }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.apply(this, options);
         Ext.ux.CustomGrid.superclass.initComponent.apply(this, arguments);
@@ -531,7 +535,7 @@ Ext.ux.CityGrid = Ext.extend(Ext.ux.CustomGrid ,{
                 {header: "Id", dataIndex: 'id'},
                 {header: "Name", dataIndex: 'name', editor: new Ext.form.TextField()},
                 {header: "Label", dataIndex: 'label', editor: new Ext.form.TextField()},
-                {header: "Comment", dataIndex: 'comment', editor: new Ext.form.TextField()},
+                {header: "Comment", dataIndex: 'comment', editor: new Ext.form.TextField()}
             ]
 });
 
@@ -555,7 +559,7 @@ Ext.ux.StreetGrid = Ext.extend(Ext.ux.CustomGrid ,{
                         mode: 'local'
                     }),
                     renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-                         var index = Ext.ux.cities_combo_store.findExact('id',value)
+                         var index = Ext.ux.cities_combo_store.findExact('id',value);
                          if (index>=0) {
                             return Ext.ux.cities_combo_store.getAt(index).data.name
                          } else {
@@ -566,8 +570,7 @@ Ext.ux.StreetGrid = Ext.extend(Ext.ux.CustomGrid ,{
                 },
                 {header: "Name", dataIndex: 'name', editor: new Ext.form.TextField()},
                 {header: "Code", dataIndex: 'code', editor: new Ext.form.TextField()},
-                {header: "Comment", dataIndex: 'comment', editor: new Ext.form.TextField()},
-            ]
+                {header: "Comment", dataIndex: 'comment', editor: new Ext.form.TextField()}            ]
 });
 
 Ext.ux.HouseNumGrid = Ext.extend(Ext.ux.CustomGrid ,{
@@ -578,7 +581,7 @@ Ext.ux.HouseNumGrid = Ext.extend(Ext.ux.CustomGrid ,{
                 {header: "Id", dataIndex: 'id'},
                 {header: "Num", dataIndex: 'num', editor: new Ext.form.TextField()},
                 {header: "Code", dataIndex: 'code', editor: new Ext.form.TextField()},
-                {header: "Comment", dataIndex: 'comment', editor: new Ext.form.TextField()},
+                {header: "Comment", dataIndex: 'comment', editor: new Ext.form.TextField()}
             ]
 });
 
@@ -599,7 +602,7 @@ Ext.ux.BuildingGrid = Ext.extend(Ext.ux.CustomGrid ,{
                         mode: 'local'
                     }),
                     renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-                         var index = Ext.ux.streets_combo_store.findExact('id',value)
+                         var index = Ext.ux.streets_combo_store.findExact('id',value);
                          if (index>=0) {
                             return Ext.ux.streets_combo_store.getAt(index).data.name
                          } else {
@@ -619,7 +622,7 @@ Ext.ux.BuildingGrid = Ext.extend(Ext.ux.CustomGrid ,{
                         mode: 'local'
                     }),
                     renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-                         var index = Ext.ux.houses_combo_store.findExact('id',value)
+                         var index = Ext.ux.houses_combo_store.findExact('id',value);
                          if (index>=0) {
                             return Ext.ux.houses_combo_store.getAt(index).data.num
                          } else {
@@ -628,7 +631,7 @@ Ext.ux.BuildingGrid = Ext.extend(Ext.ux.CustomGrid ,{
                     },
                     scope: this
                 },                
-                {header: "Comment", dataIndex: 'comment', editor: new Ext.form.TextField()},
+                {header: "Comment", dataIndex: 'comment', editor: new Ext.form.TextField()}
             ]
 });
 
@@ -641,9 +644,22 @@ Ext.ux.IllegalGrid = Ext.extend(Ext.ux.CustomGrid ,{
                 {header: "Код", dataIndex: 'code', editor: new Ext.form.TextField()},
                 {header: "Дата", dataIndex: 'date', xtype: 'datecolumn', editor: new Ext.form.DateField({format:'Y-m-d'}), format:'Y-m-d'},
                 {header: "Погашено", dataIndex: 'deleted', xtype: 'checkcolumn', editable:true},
-                {header: "Комментарий", dataIndex: 'comment', editor: new Ext.form.TextField(), width:300},
-            ],
+                {header: "Комментарий", dataIndex: 'comment', editor: new Ext.form.TextField(), width:300}
+            ]
 });
+
+Ext.ux.WarningGrid = Ext.extend(Ext.ux.CustomGrid ,{
+            store: 'warning-store',
+            ds_model: warning_ds_model,
+            title: 'Предупреждения',
+            columns: [
+                {header: "Id", dataIndex: 'id'},
+                {header: "Код", dataIndex: 'code', editable:false},
+                {header: "Дата", dataIndex: 'date', xtype: 'datecolumn', editable:false},
+                {header: "Тип", dataIndex: 'level', editable:false}
+            ]
+});
+
 
 Ext.ux.AbonentGrid = Ext.extend(Ext.ux.CustomGridNE ,{
 	initComponent: function() {
@@ -673,7 +689,7 @@ Ext.ux.AbonentGrid = Ext.extend(Ext.ux.CustomGridNE ,{
             			'comment',
             			'confirmed',
 						'disabled',
-						'deactivated',
+						'deactivated'
         			]
     			}),    		
         		listful: true,
@@ -710,20 +726,20 @@ Ext.ux.AbonentGrid = Ext.extend(Ext.ux.CustomGridNE ,{
                     renderer: function(value, metaData, record, rowIndex, colIndex, store) {
                         return '<div class="inline_edit_button abonent_edit_button" id="'+value+'" code="'+record.data.code+'" confirmed="'+record.data.confirmed+'" dis="'+record.data.disabled+'"></div>'
                     }
-                },
+                }
             ],
             addAction: function(){
                 Engine.menu.cashier.abonent.openForm()
-            },           
-        }
+            }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.AbonentGrid.superclass.initComponent.apply(this, arguments);
-   },
-   listeners: {
+    },
+    listeners: {
                 afterrender : {
                     fn: function(obj) {
-						this.topToolbar.addSpacer()
-						this.topToolbar.addText("№ декодера")
+						this.topToolbar.addSpacer();
+						this.topToolbar.addText("№ декодера");
 						this.optsearchfield = new Ext.form.TextField({id:"search-by-decoder",width:50,
 							listeners: {
                     			specialkey: {
@@ -735,8 +751,8 @@ Ext.ux.AbonentGrid = Ext.extend(Ext.ux.CustomGridNE ,{
                         			scope: this
                     			}
                     		}
-						})
-						this.topToolbar.add(this.optsearchfield)
+						});
+						this.topToolbar.add(this.optsearchfield);
 						this.topToolbar.addButton({
                 			icon: '/static/extjs/custom/search_16.png',
                 			cls: 'x-btn-text-icon',
@@ -744,13 +760,13 @@ Ext.ux.AbonentGrid = Ext.extend(Ext.ux.CustomGridNE ,{
                     			this.optSearchAction()
                 			},
                 			scope: this
-            			}),
+            			});
             			this.topToolbar.addButton({
                 			icon: '/static/extjs/custom/delete_16.png',
                 			cls: 'x-btn-text-icon',
                 			handler: function() {
-                    			this.optsearchfield.setValue('')
-                    			this.store.baseParams.filter_value = ''
+                    			this.optsearchfield.setValue('');
+                    			this.store.baseParams.filter_value = '';
                     			this.store.load()
                 			},
                 			scope: this
@@ -758,21 +774,21 @@ Ext.ux.AbonentGrid = Ext.extend(Ext.ux.CustomGridNE ,{
                     }
                 }
             },
-	searchAction: function() {
-            	this.store.baseParams.filter_value = this.searchfield.getValue()
+    searchAction: function() {
+            	this.store.baseParams.filter_value = this.searchfield.getValue();
                 this.store.baseParams.filter_fields = ['person__firstname','person__lastname','person__passport','person__sorting',
-        		'code','address__building__street__name','address__building__sorting','address__sorting'],
+        		'code','address__building__street__name','address__building__sorting','address__sorting'];
                 this.store.load()
             },
 	optSearchAction: function() {
-				var v = this.optsearchfield.getValue()
-            	this.store.baseParams.filter_value = parseInt(v-0)+''       	
-            	this.optsearchfield.setValue(this.store.baseParams.filter_value)
-            	this.store.baseParams.filter_fields = ['cards__num__exact']
+				var v = this.optsearchfield.getValue();
+            	this.store.baseParams.filter_value = parseInt(v-0)+'';
+            	this.optsearchfield.setValue(this.store.baseParams.filter_value);
+            	this.store.baseParams.filter_fields = ['cards__num__exact'];
             	if(this.store.baseParams.filter_value!='NaN') {
                 	this.store.load()
                 }
-            }, 
+            }
 });
 
 Ext.ux.CardGrid = Ext.extend(Ext.ux.CustomGrid ,{
@@ -784,7 +800,7 @@ Ext.ux.CardGrid = Ext.extend(Ext.ux.CustomGrid ,{
                 {header: "Num", dataIndex: 'num', width:100, editor: new Ext.form.TextField()},
                 {header: "Owner", dataIndex: 'owner', width:300},
                 {header: "Active", dataIndex: 'active', width:100, xtype: 'booleancolumn', default:true},
-                {header: "Activated", dataIndex: 'activated', width:150},
+                {header: "Activated", dataIndex: 'activated', width:150}
             ]         
 });
 
@@ -799,7 +815,7 @@ Ext.ux.SourceCombo = Ext.extend(Ext.form.ComboBox, {
             valueField: 'id',
             displayField: 'name',
             mode: 'local'
-        }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.SourceCombo.superclass.initComponent.apply(this, arguments);
     }
@@ -813,31 +829,25 @@ Ext.ux.RegisterGrid = Ext.extend(Ext.ux.CustomGrid ,{
                 {header: "Id", dataIndex: 'id', width:70, editable:false},
                 {header: "Source", dataIndex: 'source', width:165, editable:false, editor: new Ext.ux.SourceCombo(),
 					renderer: function(value, metaData, record, rowIndex, colIndex, store){
-						if (true) {
-							this.editable = true
-						}
+						this.editable = true
 						return value;
 					}
                 },
                 {header: "Total", dataIndex: 'total', width:100, editable:false, editor: new Ext.form.TextField(),
 					renderer: function(value, metaData, record, rowIndex, colIndex, store){
-						if (true) {
-							this.editable = true
-						}
+						this.editable = true
 						return value;
 					} 
 				},
                 {header: "Start", dataIndex: 'start', width:100, editable:false, editor: new Ext.form.DateField({format:'Y-m-d'}),
 					renderer: function(value, metaData, record, rowIndex, colIndex, store){
-						if (true) {
-							this.editable = true
-						}
+						this.editable = true
 						return value;
 					},
                 	listeners: {
                     	change : {
                         	fn: function(obj) {
-                            	tfoo=1
+                            	var tfoo=1;
 								debugger;
                         	},
                         	scope: this
@@ -846,17 +856,13 @@ Ext.ux.RegisterGrid = Ext.extend(Ext.ux.CustomGrid ,{
 				},
 				{header: "End", dataIndex: 'end', width:100, editable:false, editor: new Ext.form.DateField({format:'Y-m-d'}),
 					renderer: function(value, metaData, record, rowIndex, colIndex, store){
-						if (true) {
-							this.editable = true
-						}
+						this.editable = true
 						return value;
 					}
 				},
 				{header: "Bank", dataIndex: 'bank', width:100, editable:false, editor: new Ext.form.DateField({format:'Y-m-d'}),
 					renderer: function(value, metaData, record, rowIndex, colIndex, store){
-						if (true) {
-							this.editable = true
-						}
+						this.editable = true
 						return value;
 					}
 				},
@@ -897,7 +903,7 @@ Ext.ux.RegisterGrid = Ext.extend(Ext.ux.CustomGrid ,{
                     renderer: function(value, metaData, record, rowIndex, colIndex, store) {
                         return '<div class="inline_edit_button register_edit_button" id="'+value+'" code="'+record.data.code+'" confirmed="'+record.data.confirmed+'" dis="'+record.data.disabled+'"></div>'
                     }
-                },
+                }
             ],
             addAction: function(){
                 Engine.menu.cashier.abonent.openForm()
@@ -961,13 +967,13 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
 												'total',
 												'current',
 												'start',
-												'end',            						
+												'end'
 											]
     									}),
     									baseParams : {
         									start:0,
-        									limit:1000,        							
-    									},
+        									limit:1000
+    									}
     								}),
 									width: 380,
 									valueField: 'unicode',
@@ -979,10 +985,10 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
 									listeners: {
 										select: {
 											fn: function(combo,record,index) {
-												this.register = record.data.id
-												this.setTitle('Реестр #'+record.data.id)
-												this.startdate.setValue(record.data.start)
-												this.enddate.setValue(record.data.end)
+												this.register = record.data.id;
+												this.setTitle('Реестр #'+record.data.id);
+												this.startdate.setValue(record.data.start);
+												this.enddate.setValue(record.data.end);
 												//this.preload()
 											},
 											scope: this
@@ -995,8 +1001,8 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
 									listeners: {
 										click: {
 											fn: function(button, event) {
-												this.registercombo.reset()
-												this.register = null
+												this.registercombo.reset();
+												this.register = null;
 												//this.preload()
 											},
 											scope: this
@@ -1027,13 +1033,13 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
         								//idProperty: 'id',
         								fields: [
             								'id',
-											'username',          						
+											'username'
 										]
     								}),
     								baseParams : {
         								start:0,
-        								limit:100,        							
-    								},
+        								limit:100
+    								}
     							}),
 								width: 200,
 								valueField: 'username',
@@ -1045,7 +1051,7 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
 								listeners: {
 									select: {
 										fn: function(combo,record,index) {
-											this.admin = record.data.id
+											this.admin = record.data.id;
 											//this.preload()
 										},
 										scope: this
@@ -1058,8 +1064,8 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
 								listeners: {
 									click: {
 										fn: function(button, event) {
-											this.admincombo.reset()
-											this.admin = null
+											this.admincombo.reset();
+											this.admin = null;
 											//this.preload()
 										},
 										scope: this
@@ -1074,12 +1080,12 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
 								this.startdate = new Ext.form.DateField({
 									width: 100,
 									value: new Date(),
-									format: 'Y-m-d',
+									format: 'Y-m-d'
 								}),
 								this.enddate = new Ext.form.DateField({
 									width: 100,
 									value: new Date(),
-									format: 'Y-m-d',
+									format: 'Y-m-d'
 								}),
 								this.resetadmin = new Ext.Button({
 									width: 64,
@@ -1098,11 +1104,11 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
 						},
 						this.countfield = new Ext.form.TextField({
 							fieldLabel: 'Количество',
-							readOnly: true,
+							readOnly: true
 						}),
 						this.sumfield = new Ext.form.TextField({
 							fieldLabel: 'Сумма',
-							readOnly: true,
+							readOnly: true
 						}),
 						this.refreshbutton = new Ext.Button({
 							text: 'обновить',
@@ -1114,7 +1120,7 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
 									scope: this
 								}
 							}
-						}),
+						})
 					]					
 				}),
 				this.resultsgrid = new Ext.grid.GridPanel({
@@ -1139,7 +1145,7 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
 								'source__name',
 								'bank_date',
                         		'descr',
-                        		'inner_descr',								
+                        		'inner_descr'
                     		]
                 		}),
                 		api: {
@@ -1152,7 +1158,7 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
                     		register_id:this.register,
                     		admin_id:this.admin,
                     		start_date:null,
-							end_date:null,
+							end_date:null
                 		}
 					}),
 					columns: [
@@ -1173,8 +1179,8 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
 									return '<div class="inline_delete_button register_delete_payment" id="'+value+'"></div>'	
 								}                        		
                     		}
-                		},   				
-    				],
+                		}
+    				]
 				})
 			],
 			listeners: {
@@ -1185,16 +1191,16 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
 						}							
 						this.registercombo.store.load({							
 							callback: function(response) {
-								index = this.registercombo.store.indexOfId(parseInt(this.oid))								
+								var index = this.registercombo.store.indexOfId(parseInt(this.oid));
 								if (index>=0) {
-									this.setTitle('Реестр #'+response[index].data.id)
-									this.registercombo.setValue(response[index].data.unicode)
-									this.register = this.oid									
+									this.setTitle('Реестр #'+response[index].data.id);
+									this.registercombo.setValue(response[index].data.unicode);
+									this.register = this.oid;
 									this.preload()
 								}								
 							},
 							scope: this
-						})
+						});
 						/*	moved to ui-index autoload
 						 
 						$(".register_delete_payment").live('click', function(e) {
@@ -1223,22 +1229,22 @@ Ext.ux.RegisterForm = Ext.extend(Ext.Panel, {
 				//}
 				Ext.get('loading').show();
             	Ext.get('loading-mask-half').show();
-				this.resultsgrid.store.setBaseParam('register_id',this.register)
-				this.resultsgrid.store.setBaseParam('admin_id',this.admin)
-				this.resultsgrid.store.setBaseParam('start_date',this.startdate.getValue())
-				this.resultsgrid.store.setBaseParam('end_date',this.enddate.getValue())
+				this.resultsgrid.store.setBaseParam('register_id',this.register);
+				this.resultsgrid.store.setBaseParam('admin_id',this.admin);
+				this.resultsgrid.store.setBaseParam('start_date',this.startdate.getValue());
+				this.resultsgrid.store.setBaseParam('end_date',this.enddate.getValue());
 				this.resultsgrid.store.load({
 					callback: function(response) {
 						Ext.get('loading').hide();
             			Ext.get('loading-mask-half').fadeOut('fast');
-						extras = this.resultsgrid.store.reader.jsonData.extras
-						this.countfield.setValue(extras.count)
+						var extras = this.resultsgrid.store.reader.jsonData.extras;
+						this.countfield.setValue(extras.count);
 						this.sumfield.setValue(extras.sum)						
 					},
 					scope: this
 				})
-			},
-		}		
+			}
+		};
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.RegisterForm.superclass.initComponent.apply(this, arguments);
 	} 
@@ -1325,7 +1331,7 @@ Ext.ux.PersonForm = Ext.extend(Ext.FormPanel, {
                         uid: (this.oid || 0)
                     },
                     success: function(form, action){
-                        this.parent_form.children_forms.person.ready2 = true
+                        this.parent_form.children_forms.person.ready2 = true;
                         this.parent_form.children_forms.person.oid = action.result.data['id']
                     },
                     scope: this
@@ -1338,11 +1344,11 @@ Ext.ux.PersonForm = Ext.extend(Ext.FormPanel, {
                         passport: (passport || 0)
                     },
                     success: function(form, action){
-                        this.parent_form.children_forms.person.ready2 = true
+                        this.parent_form.children_forms.person.ready2 = true;
                         this.parent_form.children_forms.person.oid = action.result.data['id']
                     },
                     failure: function(form, action){
-                        this.parent_form.children_forms.person.ready2=false
+                        this.parent_form.children_forms.person.ready2=false;
                         this.parent_form.children_forms.person.oid=null
                     },
                     scope: this
@@ -1354,12 +1360,12 @@ Ext.ux.PersonForm = Ext.extend(Ext.FormPanel, {
                         uid: (this.oid || 0)
                     },
                     failure: function(form, action){
-                        this.parent_form.children_forms.person.ready2=false
+                        this.parent_form.children_forms.person.ready2=false;
                         this.parent_form.children_forms.person.oid=null
                     },
                     success: function(form, action){
-                        this.parent_form.children_forms.person.ready2=true
-                        this.parent_form.children_forms.person.oid = action.result.data[0]['id']
+                        this.parent_form.children_forms.person.ready2=true;
+                        this.parent_form.children_forms.person.oid = action.result.data[0]['id'];
                         this.parent_form.children_forms_ready()
                     },
                     scope: this
@@ -1371,7 +1377,7 @@ Ext.ux.PersonForm = Ext.extend(Ext.FormPanel, {
             listeners: {
                 afterrender : {
                     fn: function(obj) {
-                        this.parent_form.children_forms.person.obj=this
+                        this.parent_form.children_forms.person.obj=this;
                         if(this.oid) {
                             this.loadaction()                            
                         }
@@ -1380,11 +1386,11 @@ Ext.ux.PersonForm = Ext.extend(Ext.FormPanel, {
                     scope: this
                 }               
             }
-        }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.PersonForm.superclass.initComponent.apply(this, arguments);
     }
-})
+});
 
 Ext.reg('ext:ux:person-form', Ext.ux.PersonForm );
 
@@ -1399,11 +1405,11 @@ Ext.ux.StreetCombo = Ext.extend(Ext.form.ComboBox, {
             valueField: 'id',
             displayField: 'name',
             mode: 'local'
-        }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.StreetCombo.superclass.initComponent.apply(this, arguments);
     }
-}),
+});
 
 Ext.reg('ext:ux:street-combo', Ext.ux.StreetCombo);
 
@@ -1418,11 +1424,11 @@ Ext.ux.HouseCombo = Ext.extend(Ext.form.ComboBox, {
             valueField: 'id',
             displayField: 'num',
             mode: 'local'
-        }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.HouseCombo.superclass.initComponent.apply(this, arguments);
     }
-}),
+});
 
 Ext.reg('ext:ux:house-combo', Ext.ux.HouseCombo);
 
@@ -1524,7 +1530,7 @@ Ext.ux.AddressForm = Ext.extend(Ext.FormPanel, {
                         uid: (this.oid || 0)
                     },
                     success: function(form, action) {    
-						this.parent_form.children_forms.address.ready2=true
+						this.parent_form.children_forms.address.ready2=true;
                         this.parent_form.children_forms.address.oid = action.result.data['id']
                     },
                     scope: this
@@ -1536,12 +1542,12 @@ Ext.ux.AddressForm = Ext.extend(Ext.FormPanel, {
                         uid: (this.oid || 0)
                     },
                     failure: function(form, action){
-                        this.parent_form.children_forms.address.ready2=false
+                        this.parent_form.children_forms.address.ready2=false;
                         this.parent_form.children_forms.address.oid=null
                     },
                     success: function(form, action){
-                        this.parent_form.children_forms.address.ready2=true
-                        this.parent_form.children_forms.address.oid = action.result.data[0]['id']
+                        this.parent_form.children_forms.address.ready2=true;
+                        this.parent_form.children_forms.address.oid = action.result.data[0]['id'];
                         this.parent_form.children_forms_ready()
                     },
                     scope: this
@@ -1553,7 +1559,7 @@ Ext.ux.AddressForm = Ext.extend(Ext.FormPanel, {
             listeners: {
                 afterrender : {
                     fn: function(obj) {
-                        this.parent_form.children_forms.address.obj=this
+                        this.parent_form.children_forms.address.obj=this;
                         if (this.oid) {
                             this.loadaction()
                         }                        
@@ -1561,11 +1567,11 @@ Ext.ux.AddressForm = Ext.extend(Ext.FormPanel, {
                     scope: this
                 }
             }
-        }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.AddressForm.superclass.initComponent.apply(this, arguments);
     }
-})
+});
 
 Ext.reg('ext:ux:address-form', Ext.ux.AddressForm);
 
@@ -1615,7 +1621,7 @@ Ext.ux.BalanceForm = Ext.extend(Ext.FormPanel, {
                 }
             },
             refresh: function() {
-            	this.body.dom.innerHTML='<div class="balance_digits_positive">...</div>'
+            	this.body.dom.innerHTML='<div class="balance_digits_positive">...</div>';
             	AbonApi.balance_get({
                 	uid: (this.oid || 0)
                 },function (result,e) {
@@ -1640,11 +1646,11 @@ Ext.ux.BalanceForm = Ext.extend(Ext.FormPanel, {
             	}.createDelegate(this));
             },
             scope: this
-        }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.AddressForm.superclass.initComponent.apply(this, arguments);
     }
-})
+});
 
 Ext.reg('ext:ux:balance-form', Ext.ux.BalanceForm);
 
@@ -1659,11 +1665,11 @@ Ext.ux.FreeCardCombo = Ext.extend(Ext.form.ComboBox, {
             valueField: 'id',
             displayField: 'num',
             mode: 'local'
-        }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.FreeCardCombo.superclass.initComponent.apply(this, arguments);
     }
-}),
+});
 
 Ext.reg('ext:ux:free-cards-combo', Ext.ux.FreeCardCombo);
 
@@ -1681,7 +1687,7 @@ Ext.ux.AbonCardsGrid = Ext.extend(Ext.ux.CustomGrid ,{
                         'id',
                         'num',
                         'active',
-                        'activated',
+                        'activated'
                     ]
                 }),
                 writer: new Ext.data.JsonWriter({
@@ -1716,9 +1722,9 @@ Ext.ux.AbonCardsGrid = Ext.extend(Ext.ux.CustomGrid ,{
                 listeners: {
                     rowselect: {
                         fn: function(sm,index,record) {                                      
-							var tpstore = sm.grid.parent_form.children_forms.tariffs.obj.store							
+							var tpstore = sm.grid.parent_form.children_forms.tariffs.obj.store;
                             if (typeof(record.id)=='number') {								
-                                tpstore.setBaseParam('card_id',record.id)
+                                tpstore.setBaseParam('card_id',record.id);
 								tpstore.load()                                
                             } else {
                                 //this.store.load()
@@ -1733,8 +1739,8 @@ Ext.ux.AbonCardsGrid = Ext.extend(Ext.ux.CustomGrid ,{
         		{header: "Num", dataIndex: 'num', width:80, editable: false,
             		renderer: function(value, metaData, record, rowIndex, colIndex, store) {
             			if (value===undefined) {
-                    		this.editable=true
-                    		var store = Ext.ux.free_card_combo_store
+                    		this.editable=true;
+                    		var store = Ext.ux.free_card_combo_store;
                     		store.load()
                 		}
                 		if (value<0) {
@@ -1743,7 +1749,7 @@ Ext.ux.AbonCardsGrid = Ext.extend(Ext.ux.CustomGrid ,{
                     		return '<b>'+value+'</b>';
                 		}
             		},
-            		editor: new Ext.ux.FreeCardCombo(),
+            		editor: new Ext.ux.FreeCardCombo()
         		},
         		{header: "Active", dataIndex: 'active', width:40,
             		renderer: function(value, metaData, record, rowIndex, colIndex, store) {
@@ -1764,7 +1770,7 @@ Ext.ux.AbonCardsGrid = Ext.extend(Ext.ux.CustomGrid ,{
             		scope: this
         		},
         		{header: "Activated", dataIndex: 'activated', width:140, editable: true,
-        			editor: new Ext.form.DateField({format:"Y-m-d"}),
+        			editor: new Ext.form.DateField({format:"Y-m-d"})
         		},
         		{header: "", dataIndex: 'id', width:26,        		    
             		renderer: function(value, metaData, record, rowIndex, colIndex, store) {
@@ -1775,16 +1781,16 @@ Ext.ux.AbonCardsGrid = Ext.extend(Ext.ux.CustomGrid ,{
                 	    }
             		},
             		scope: this
-        		},
+        		}
     		],
     		abon_card_func: function(func,param) {
         	}
-        }        
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.AbonCardsGrid.superclass.initComponent.apply(this, [config]);
     },
     title: 'Карточки',
-    ds_model: card_ds_model,
+    ds_model: card_ds_model
         
 });
 
@@ -1801,11 +1807,11 @@ Ext.ux.CardTpCombo = Ext.extend(Ext.form.ComboBox, {
             valueField: 'id',
             displayField: 'name',
             mode: 'local'
-        }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.CardTpCombo.superclass.initComponent.apply(this, arguments);
     }
-}),
+});
 
 Ext.reg('ext:ux:free-cards-combo', Ext.ux.FreeCardCombo);
 
@@ -1825,7 +1831,7 @@ Ext.ux.AbonCardsTpGrid = Ext.extend(Ext.ux.CustomGrid ,{
                         'tariff',
                         'active',
                         'activated',
-                        'extra',
+                        'extra'
                     ]
                 }),
                 writer: new Ext.data.JsonWriter({
@@ -1861,8 +1867,8 @@ Ext.ux.AbonCardsTpGrid = Ext.extend(Ext.ux.CustomGrid ,{
                 listeners: {
                     rowselect: {
                         fn: function(sm,index,record) {
-                        	var tpstore = Ext.ux.card_tp_combo_store
-                        	tpstore.load()
+                        	var tpstore = Ext.ux.card_tp_combo_store;
+                        	tpstore.load();
                             //sm.grid.parent_form.children_forms.tariffs.obj.setTitle('13')
                         },
                     scope: this
@@ -1872,7 +1878,7 @@ Ext.ux.AbonCardsTpGrid = Ext.extend(Ext.ux.CustomGrid ,{
             columns: [
         		{header: "Id", dataIndex: 'id', width:40},
         		{header: "Tariff", dataIndex: 'tariff', width:145,
-        			editor: new Ext.ux.CardTpCombo(),
+        			editor: new Ext.ux.CardTpCombo()
         		},
         		{header: "Active", dataIndex: 'active', width:40,
             		renderer: function(value, metaData, record, rowIndex, colIndex, store) {
@@ -1884,7 +1890,7 @@ Ext.ux.AbonCardsTpGrid = Ext.extend(Ext.ux.CustomGrid ,{
             		}
         		},        		
         		{header: "Activated", dataIndex: 'activated', width:120, editable: true,
-        			editor: new Ext.form.DateField({format:"Y-m-d"}),
+        			editor: new Ext.form.DateField({format:"Y-m-d"})
         		},
         		{header: "", dataIndex: 'id', width:26,
             		renderer: function(value, metaData, record, rowIndex, colIndex, store) {
@@ -1892,20 +1898,20 @@ Ext.ux.AbonCardsTpGrid = Ext.extend(Ext.ux.CustomGrid ,{
             		}
         		},
         		{header: "login", dataIndex: 'extra', width:80,
-        			editor: new Ext.form.TextField(),
+        			editor: new Ext.form.TextField()
         		},
         		{header: "", dataIndex: 'id', width:26,
             		renderer: function(value, metaData, record, rowIndex, colIndex, store) {
                 		return '<img src="/static/extjs/custom/right_16.png" class="abon_tp_move" val="'+record.data.id+'">';
             		}
-        		},
+        		}
     		]
-        }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.AbonCardsTpGrid.superclass.initComponent.apply(this, [config]);
     },
     title: 'Карточки',
-    ds_model: tariff_ds_model,    
+    ds_model: tariff_ds_model
 });
 
 Ext.reg('ext:ux:abon-cards-tp-grid', Ext.ux.AbonCardsTpGrid);
@@ -1973,8 +1979,8 @@ Ext.ux.AbonPaymentsGrid = Ext.extend(Ext.ux.CustomGridNE ,{
                     },
                     scope: this
                 }
-            },
-        }
+            }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.AbonCardsGrid.superclass.initComponent.apply(this, [config]);
     },    
@@ -2074,7 +2080,7 @@ Ext.ux.AbonFeesGrid = Ext.extend(Ext.ux.CustomGridNE ,{
                     scope: this
                 }
             }
-        }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.AbonCardsGrid.superclass.initComponent.apply(this, [config]);
     },    
@@ -2166,7 +2172,7 @@ Ext.ux.AbonOperationsGrid = Ext.extend(Ext.ux.CustomGridNE ,{
                     scope: this
                 }
             }
-        }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.AbonCardsGrid.superclass.initComponent.apply(this, [config]);
     },
@@ -2240,7 +2246,7 @@ Ext.ux.AbonHistoryGrid = Ext.extend(Ext.ux.CustomGridNE ,{
                     start:0,
                     limit:12,
                     foo:'bar',
-                    uid:this.oid || 0,
+                    uid:this.oid || 0
                 }
             }),
             pageSize: 12,
@@ -2253,7 +2259,7 @@ Ext.ux.AbonHistoryGrid = Ext.extend(Ext.ux.CustomGridNE ,{
                     scope: this
                 }
             }
-        }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.AbonHistoryGrid.superclass.initComponent.apply(this, [config]);
     },    
@@ -2269,8 +2275,8 @@ Ext.ux.AbonHistoryGrid = Ext.extend(Ext.ux.CustomGridNE ,{
                 	return '<div class="inline_delete_button card_history_deldete" id="del_ch_'+record.data.id+'" val="'+record.data.id+'"></div>'
             	} 
             }
-        },        
-    ],
+        }
+    ]
 });
 
 Ext.reg('ext:ux:abon-history-grid', Ext.ux.AbonHistoryGrid);
@@ -2309,14 +2315,14 @@ Ext.ux.AbonCreditsGrid = Ext.extend(Ext.ux.CustomGrid ,{
                 baseParams : {
                     start:0,
                     limit:10,
-                    uid:this.oid,
+                    uid:this.oid
                 }
             }),
             columns: [
                 {header: "Id", dataIndex: 'id', width:40},
                 {header: "Bill", dataIndex: 'bill', width:65},
                 {header: "Sum", dataIndex: 'sum', width:65, editor: new Ext.form.TextField()},
-                {header: "Valid from", dataIndex: 'valid_from', width:120,
+                {header: "Valid from", dataIndex: 'valid_from', width:120
                     //editor: new Ext.form.DateField({format:"Y-m-d"})
                 },
                 {header: "Valid until", dataIndex: 'valid_until', width:120,
@@ -2337,7 +2343,7 @@ Ext.ux.AbonCreditsGrid = Ext.extend(Ext.ux.CustomGrid ,{
             },
             pageSize: 12,
             height: 380
-        }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.AbonCreditsGrid.superclass.initComponent.apply(this, [config]);
     },
@@ -2386,7 +2392,7 @@ Ext.ux.AbonIllegalGrid = Ext.extend(Ext.ux.CustomGrid ,{
                 {header: "Id", dataIndex: 'id'},
                 {header: "Дата", dataIndex: 'date', xtype: 'datecolumn', editor: new Ext.form.DateField({format:'Y-m-d'}), format:'Y-m-d'},
                 {header: "Погашено", dataIndex: 'deleted', xtype: 'checkcolumn', editable:true},
-                {header: "Комментарий", dataIndex: 'comment', editor: new Ext.form.TextField(), width:300},
+                {header: "Комментарий", dataIndex: 'comment', editor: new Ext.form.TextField(), width:300}
             ],
             viewConfig: {
                 forceFit: true,
@@ -2401,7 +2407,7 @@ Ext.ux.AbonIllegalGrid = Ext.extend(Ext.ux.CustomGrid ,{
             },
             pageSize: 12,
             height: 380
-        }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.AbonIllegalGrid.superclass.initComponent.apply(this, [config]);
     },
@@ -2417,6 +2423,63 @@ Ext.ux.AbonIllegalGrid = Ext.extend(Ext.ux.CustomGrid ,{
 Ext.reg('ext:ux:abon-illegal-grid', Ext.ux.AbonIllegalGrid);
 
 
+Ext.ux.AbonWarningGrid = Ext.extend(Ext.ux.CustomGrid ,{
+    initComponent: function(){
+        var config = {
+            store: new Ext.data.DirectStore({
+                restful: true,
+                autoLoad: false,
+                autoSave: false,
+                reader: new Ext.data.JsonReader({
+                    root: 'data',
+                    totalProperty: 'total',
+                    fields: [
+                        'id',
+                        'code',
+                        'date',
+                        'level'
+                    ]
+                }),
+                writer: new Ext.data.JsonWriter({
+                    encode: false,
+                    writeAllFields: true,
+                    listful: true
+                }),
+                api: {
+                    read: AbonApi.abon_warning_get,
+                    create: AbonApi.abon_warning_add,
+                    update: AbonApi.foo,
+                    destroy: AbonApi.foo
+                },
+                baseParams : {
+                    start:0,
+                    limit:10,
+                    uid:this.oid
+                }
+            }),
+            columns: [
+                {header: "Id", dataIndex: 'id'},
+                {header: "Код", dataIndex: 'code', editable:false},
+                {header: "Дата", dataIndex: 'date', xtype: 'datecolumn', editable:false},
+                {header: "Тип", dataIndex: 'level', editable:false}
+            ],
+            pageSize: 12,
+            height: 380
+            };
+        Ext.apply(this, Ext.apply(this.initialConfig, config));
+        Ext.ux.AbonWarningGrid.superclass.initComponent.apply(this, [config]);
+    },
+    title: 'Предупреждения',
+    ds_model: Ext.data.Record.create([
+			'id',
+			'code',
+            'date',
+            'level'
+    ])
+});
+
+Ext.reg('ext:ux:abon-warning-grid', Ext.ux.AbonWarningGrid);
+
 
 Ext.ux.AbonCommentsPanel = Ext.extend(Ext.Panel ,{
 	    initComponent: function() {
@@ -2430,7 +2493,7 @@ Ext.ux.AbonCommentsPanel = Ext.extend(Ext.Panel ,{
             items: [
 			this.comment_field = new Ext.form.TextArea({
 				xtype: 'textarea',
-				width: 900,
+				width: 900
 			}),
 			{
             	xtype: 'tbbutton',
@@ -2446,23 +2509,23 @@ Ext.ux.AbonCommentsPanel = Ext.extend(Ext.Panel ,{
                         	});
                     	},
                     	scope: this
-                	},
-            	},
+                	}
+            	}
 			}],
 			listeners: {
                 afterrender : {
                     fn: function(obj) {
 						AbonApi.comment_get({
-                            uid: (this.oid || 0),							
+                            uid: (this.oid || 0)
                         },this.getCommentCallback.createDelegate(this));
                     },
                     scope: this
-                },
+                }
             },
 			getCommentCallback: function(response) {
 				this.comment_field.setValue(response.data.comment)
-			},
-        }
+			}
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.AbonCommentsPanel.superclass.initComponent.apply(this, arguments);
     }
@@ -2559,6 +2622,14 @@ Ext.ux.AbonInfoPanel = Ext.extend(Ext.Panel ,{
                             xtype: 'ext:ux:abon-illegal-grid',
                             oid: this.oid
                         }]
+                    },{
+                        title: 'Предупреждения',
+                        xtype: 'panel',
+                        parent_form: this,
+                        items: [{
+                            xtype: 'ext:ext:ux:abon-warning-grid',
+                            oid: this.oid
+                        }]
                     }]
             }),
             children_forms:{
@@ -2569,7 +2640,7 @@ Ext.ux.AbonInfoPanel = Ext.extend(Ext.Panel ,{
                     obj: null
                 }
             }
-        }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.AbonentForm.superclass.initComponent.apply(this, arguments);
     }
@@ -2638,7 +2709,7 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                         listeners: {
                             afterrender : {
                                 fn: function(obj) {
-                                    this.children_forms.confirmed.obj=obj
+                                    this.children_forms.confirmed.obj=obj;
                                     if((this.confirmed=="true")||(this.confirmed=="true")) {
                                         obj.setValue(true)
                                     }
@@ -2656,12 +2727,12 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                         listeners: {
                             afterrender : {
                                 fn: function(obj) {
-                                    this.children_forms.disabled.obj=obj
+                                    this.children_forms.disabled.obj=obj;
                                     if((this.dis=="false")||(this.dis==false)) {
-                                        obj.setText("Подключен")
+                                        obj.setText("Подключен");
 										obj.addClass("bold_green")										
                                     } else {
-                                    	obj.setText("Отключен")
+                                    	obj.setText("Отключен");
 										obj.addClass("bold_red")
                                     }
                                 },
@@ -2686,10 +2757,10 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                             afterrender : {
                                 fn: function(obj) {
                                 	if((this.dis=="false")||(this.dis==false)) {
-                                        obj.setText("Отключить")
+                                        obj.setText("Отключить");
 										obj.setIcon("/static/extjs/custom/delete_16.png")                                        
                                     } else {
-										obj.setText("Подключить")
+										obj.setText("Подключить");
 										obj.setIcon("/static/extjs/custom/tick_16.png")
 									}
                                 },
@@ -2743,7 +2814,7 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
             }],            
             
             submitprep: function() {
-				this.children_forms_ready()
+				this.children_forms_ready();
                 if(!this.children_forms.person.ready2) {
                     this.children_forms.person.obj.submitaction()                    
                 }
@@ -2756,7 +2827,7 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                     uid: (this.oid || 0),
                     person_id: this.children_forms.person.oid,
                     address_id: this.children_forms.address.oid,
-                    confirmed: this.children_forms.confirmed.obj.checked,
+                    confirmed: this.children_forms.confirmed.obj.checked
 					//disabled: this.children_forms.disabled.obj.checked,
 					//activated: this.children_forms.address.obj.activated_field.value,
 					//deactivated: this.children_forms.address.obj.deactivated_field.value                       
@@ -2765,10 +2836,10 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
             submitcallback: function(result,e) {                
                 if(result.success) {                    
                     //Ext.ux.abonent_store.load()
-					this.setTitle("абон: "+(result.data[0]['code'] || '<новый>'))
+					this.setTitle("абон: "+(result.data[0]['code'] || '<новый>'));
 					if (!this.oid) {
-						this.hide()
-						this.ownerCt.remove(this.id)			
+						this.hide();
+						this.ownerCt.remove(this.id);
 						Engine.menu.cashier.abonent.openForm(result.data[0]['id'], result.data[0]['code'], result.data[0]['confirmed'], result.data[0]['disabled']);
 					}					
                 }
@@ -2780,9 +2851,9 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
             },
             refreshcallback: function(result,e) {                
                 if(result.success) {                    
-                    this.setTitle("абон: "+(result.data[0]['code'] || '<новый>'))						
-					this.hide()
-					this.ownerCt.remove(this.id)			
+                    this.setTitle("абон: "+(result.data[0]['code'] || '<новый>'));
+					this.hide();
+					this.ownerCt.remove(this.id);
 					Engine.menu.cashier.abonent.openForm(result.data[0]['id'], result.data[0]['code'], result.data[0]['confirmed'], result.data[0]['disabled']);					
                 }
             },
@@ -2809,7 +2880,7 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
             },
             deletecallback: function(result,e) {
 			    if(result.success) {       
-                	this.hide()
+                	this.hide();
 					this.ownerCt.remove(this.id)	             
                 }
             },            
@@ -2900,21 +2971,21 @@ Ext.ux.AbonentForm = Ext.extend(Ext.Panel ,{
                 show: {
                     fn: function(obj) {
                     	if(this.children_forms.person.obj && this.children_forms.address.obj) {
-                        	this.children_forms.person.obj.onShow()
+                        	this.children_forms.person.obj.onShow();
                         	this.children_forms.address.obj.onShow()
                     	} else {
                       		(function(){
                       			if(this.children_forms.person.obj && this.children_forms.address.obj) {
-									this.children_forms.person.obj.onShow()
+									this.children_forms.person.obj.onShow();
                         			this.children_forms.address.obj.onShow()
                         		}                    		
 							}).defer(1000,this);
                     	}
                     },
                     scope: this
-                },                
+                }
             }
-        }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.AbonentForm.superclass.initComponent.apply(this, arguments);
     }    
@@ -2959,7 +3030,7 @@ Ext.ux.PaymentForm = Ext.extend(Ext.Panel ,{
         							//idProperty: 'id',
         							fields: [
             							'id',
-            							'code',						
+            							'code'
 									]
     							}),
     							baseParams : {
@@ -2967,7 +3038,7 @@ Ext.ux.PaymentForm = Ext.extend(Ext.Panel ,{
         							limit:8,
         							filter_fields:['code'],
         							filter_value:''
-    							},
+    							}
     						}),
 							valueField: 'code',
             				displayField: 'code',
@@ -2993,7 +3064,7 @@ Ext.ux.PaymentForm = Ext.extend(Ext.Panel ,{
 							xtype: 'button',
                 			handler: function() {
                     			AbonApi.abonent_get({
-                            		code: (this.searchfield.getValue() || 0),                            		
+                            		code: (this.searchfield.getValue() || 0)
                         		},this.preload.createDelegate(this));
                 			},
                 			scope: this
@@ -3015,14 +3086,14 @@ Ext.ux.PaymentForm = Ext.extend(Ext.Panel ,{
         							fields: [
             							'id',
             							'person',
-            							'disabled',						
+            							'disabled'
 									]
     							}),
     							baseParams : {
         							start:0,
         							limit:8,
         							filter_disabled: 1     							
-    							},
+    							}
     						}),
 							valueField: 'id',
             				displayField: 'person',
@@ -3033,16 +3104,16 @@ Ext.ux.PaymentForm = Ext.extend(Ext.Panel ,{
 							listeners: {
 								change: {
 									fn: function(combo,newval,oldval) {
-										var record_new = combo.store.getAt(combo.store.findExact('id',newval))
+										var record_new = combo.store.getAt(combo.store.findExact('id',newval));
 										//var record_old = combo.store.getAt(combo.store.findExact('id',oldval))
-										this.addressfield.setText(record_new.json.address)
+										this.addressfield.setText(record_new.json.address);
 										if(record_new.data.disabled) {
 											Ext.ux.msg('Внимание!',"абонент отключен", Ext.Msg.INFO);
 											combo.addClass('combo-bg-red')
 										} else {
 											combo.removeClass('combo-bg-red')
 										}
-										this.abonent = newval
+										this.abonent = newval;
 										this.oid=0								
 									},
 									scope: this
@@ -3091,13 +3162,13 @@ Ext.ux.PaymentForm = Ext.extend(Ext.Panel ,{
 										'total',
 										'current',
 										'start',
-										'end',            						
+										'end'
 									]
     							}),
     							baseParams : {
         							start:0,
-        							limit:1000,        							
-    							},
+        							limit:1000
+    							}
     						}),
 							width: 400,
 							valueField: 'unicode',
@@ -3114,7 +3185,7 @@ Ext.ux.PaymentForm = Ext.extend(Ext.Panel ,{
 									scope: this
 								}
 							}
-						}),												
+						})
 					]					
 				},{
 					xtype: 'form',
@@ -3129,8 +3200,8 @@ Ext.ux.PaymentForm = Ext.extend(Ext.Panel ,{
 							baseChars: '1234567890.'
 						}),
 						this.descr = new Ext.form.TextField({
-							fieldLabel: 'Описание',							
-						}),					
+							fieldLabel: 'Описание'
+						})
 					],
 					bbar:[{					
                         xtype: 'tbbutton',
@@ -3183,21 +3254,21 @@ Ext.ux.PaymentForm = Ext.extend(Ext.Panel ,{
             },
 			preload: function(response) {
 				if(response.success) {						
-					this.searchfield.setValue(response.data[0]['code'])					
+					this.searchfield.setValue(response.data[0]['code']);
 					//this.personfield.setText(response.data[0]['person'])
-					this.personfield.setRawValue('')
-					this.personfield.store.setBaseParam('code',response.data[0]['code'])
+					this.personfield.setRawValue('');
+					this.personfield.store.setBaseParam('code',response.data[0]['code']);
 					this.personfield.store.load({
-						callback: this.afterload.createDelegate(this),
+						callback: this.afterload.createDelegate(this)
 					})
 				}
 				this.searchfield.focus()
 			},
 			afterload: function(response) {
 				if(this.personfield.store.data.length) {
-					this.personfield.setValue(parseInt(this.oid) || this.personfield.store.getAt(0).id)				
-					this.abonent = parseInt(this.oid) || this.personfield.store.getAt(0).id
-					this.oid=0
+					this.personfield.setValue(parseInt(this.oid) || this.personfield.store.getAt(0).id);
+					this.abonent = parseInt(this.oid) || this.personfield.store.getAt(0).id;
+					this.oid=0;
 					this.personfield.fireEvent('change',this.personfield,this.abonent)
 				} else {
 					Ext.ux.msg('Сбой загрузки формы',"абонент не найден или отключен", Ext.Msg.ERROR);
@@ -3205,19 +3276,19 @@ Ext.ux.PaymentForm = Ext.extend(Ext.Panel ,{
 			},
 			submitaction: function() {
 							if(this.register<1) {
-								Ext.ux.msg('Ошибка ввода',"выберите реестр оплат",Ext.Msg.ERROR)
+								Ext.ux.msg('Ошибка ввода',"выберите реестр оплат",Ext.Msg.ERROR);
 								return false
 							}
 							if(this.abonent<1) {
-								Ext.ux.msg('Ошибка ввода',"выберите абонента",Ext.Msg.ERROR)
+								Ext.ux.msg('Ошибка ввода',"выберите абонента",Ext.Msg.ERROR);
 								return false
 							}
 							if (!this.bankdate.getValue()) {
-								Ext.ux.msg('Ошибка ввода',"введите правильную дату",Ext.Msg.ERROR)
+								Ext.ux.msg('Ошибка ввода',"введите правильную дату",Ext.Msg.ERROR);
 								return false
 							}
 							if (parseFloat(this.sum.getValue() || 0) <= 0) {
-								Ext.ux.msg('Ошибка ввода',"введите правильную сумму",Ext.Msg.ERROR)
+								Ext.ux.msg('Ошибка ввода',"введите правильную сумму",Ext.Msg.ERROR);
 								return false
 							}
 							AbonApi.make_payment({
@@ -3235,18 +3306,18 @@ Ext.ux.PaymentForm = Ext.extend(Ext.Panel ,{
 				if(this.my_owner_ct_id) {
 					Ext.getCmp(this.my_owner_ct_id).refresh()
 					(function(){
-						this.hide()
+						this.hide();
 						this.ownerCt.remove(this.id);	
 					}).defer(300,this);
 				}			
 			},
 			register: 0,
 			abonent: 0
-        }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.PaymentForm.superclass.initComponent.apply(this, arguments);
     }    
-})
+});
 
 Ext.ux.FeeForm = Ext.extend(Ext.Panel ,{
 	initComponent: function() {
@@ -3287,7 +3358,7 @@ Ext.ux.FeeForm = Ext.extend(Ext.Panel ,{
         							//idProperty: 'id',
         							fields: [
             							'id',
-            							'code',						
+            							'code'
 									]
     							}),
     							baseParams : {
@@ -3295,7 +3366,7 @@ Ext.ux.FeeForm = Ext.extend(Ext.Panel ,{
         							limit:8,
         							filter_fields:['code'],
         							filter_value:''
-    							},
+    							}
     						}),
 							valueField: 'code',
             				displayField: 'code',
@@ -3344,13 +3415,13 @@ Ext.ux.FeeForm = Ext.extend(Ext.Panel ,{
         							fields: [
             							'id',
             							'person',
-            							'disabled',						
+            							'disabled'
 									]
     							}),
     							baseParams : {
         							start:0,
-        							limit:8,        							
-    							},
+        							limit:8
+    							}
     						}),
 							valueField: 'id',
             				displayField: 'person',
@@ -3361,21 +3432,21 @@ Ext.ux.FeeForm = Ext.extend(Ext.Panel ,{
 							listeners: {
 								change: {
 									fn: function(combo,newval,oldval) {
-										var record_new = combo.store.getAt(combo.store.findExact('id',newval))
-										var record_old = combo.store.getAt(combo.store.findExact('id',oldval))
+										var record_new = combo.store.getAt(combo.store.findExact('id',newval));
+										var record_old = combo.store.getAt(combo.store.findExact('id',oldval));
 										if(record_new.data.disabled) {
-											alert("Внимание! Абонент отключен")
+											alert("Внимание! Абонент отключен");
 											combo.addClass('combo-bg-red')
 										} else {
 											combo.removeClass('combo-bg-red')
 										}
-										this.abonent = newval		
+										this.abonent = newval;
 										this.oid=0								
 									},
 									scope: this
 								}
 							}
-						}),														
+						})
 					]
 				},{
 					xtype: 'panel',
@@ -3406,8 +3477,8 @@ Ext.ux.FeeForm = Ext.extend(Ext.Panel ,{
     							}),
     							baseParams : {
         							start:0,
-        							limit:100,        							
-    							},
+        							limit:100
+    							}
     						}),
 							width: 400,
 							valueField: 'unicode',
@@ -3419,13 +3490,13 @@ Ext.ux.FeeForm = Ext.extend(Ext.Panel ,{
 							listeners: {
 								select: {
 									fn: function(combo,record,index) {
-										this.sum.setValue(record.data.sum)
+										this.sum.setValue(record.data.sum);
 										this.feetype = record.data.id
 									},
 									scope: this
 								}
 							}
-						}),												
+						})
 					]					
 				},{
 					xtype: 'form',
@@ -3440,17 +3511,17 @@ Ext.ux.FeeForm = Ext.extend(Ext.Panel ,{
 							baseChars: '1234567890.'
 						}),
 						this.descr = new Ext.form.TextField({
-							fieldLabel: 'Описание',							
+							fieldLabel: 'Описание'
 						}),
 						this.allowzero = new Ext.form.Checkbox({
-							fieldLabel: 'Разрешить 0',							
+							fieldLabel: 'Разрешить 0'
 						}),		
 						this.autopay = new Ext.form.Checkbox({
-							fieldLabel: 'Автопополнение',							
+							fieldLabel: 'Автопополнение'
 						}),							
 						this.autoactivate = new Ext.form.Checkbox({
-							fieldLabel: 'Включить абонента',							
-						}),	
+							fieldLabel: 'Включить абонента'
+						})
 					],
 					bbar:[{					
                         xtype: 'tbbutton',
@@ -3503,19 +3574,19 @@ Ext.ux.FeeForm = Ext.extend(Ext.Panel ,{
             },
             submitaction: function() {
             				if(this.feetype<1) {
-								Ext.ux.msg('Ошибка ввода',"выберите тип снятия",Ext.Msg.ERROR)
+								Ext.ux.msg('Ошибка ввода',"выберите тип снятия",Ext.Msg.ERROR);
 								return false
 							}
 							if(this.abonent<1) {
-								Ext.ux.msg('Ошибка ввода',"выберите абонента",Ext.Msg.ERROR)
+								Ext.ux.msg('Ошибка ввода',"выберите абонента",Ext.Msg.ERROR);
 								return false
 							}
 							if (!this.bankdate.getValue()) {
-								Ext.ux.msg('Ошибка ввода',"введите правильную дату",Ext.Msg.ERROR)
+								Ext.ux.msg('Ошибка ввода',"введите правильную дату",Ext.Msg.ERROR);
 								return false
 							}
 							if ((parseFloat(this.sum.getValue() || 0) <= 0)&&(!this.allowzero.getValue())) {
-								Ext.ux.msg('Ошибка ввода',"введите правильную сумму",Ext.Msg.ERROR)
+								Ext.ux.msg('Ошибка ввода',"введите правильную сумму",Ext.Msg.ERROR);
 								return false
 							}
 							AbonApi.make_fee({
@@ -3530,20 +3601,20 @@ Ext.ux.FeeForm = Ext.extend(Ext.Panel ,{
             },
 			preload: function(response) {
 				if(response.success) {						
-					this.searchfield.setValue(response.data[0]['code'])					
+					this.searchfield.setValue(response.data[0]['code']);
 					//this.personfield.setText(response.data[0]['person'])
 					this.allowzero.setValue(false);
-					this.personfield.setRawValue('')
-					this.personfield.store.setBaseParam('code',response.data[0]['code'])
+					this.personfield.setRawValue('');
+					this.personfield.store.setBaseParam('code',response.data[0]['code']);
 					this.personfield.store.load({
-						callback: this.afterload.createDelegate(this),
+						callback: this.afterload.createDelegate(this)
 					})					
 				}
 				this.searchfield.focus()
 			},
 			afterload: function(response) {
-				this.personfield.setValue(parseInt(this.oid) || this.personfield.store.getAt(0).id)				
-				this.abonent = parseInt(this.oid) || this.personfield.store.getAt(0).id
+				this.personfield.setValue(parseInt(this.oid) || this.personfield.store.getAt(0).id);
+				this.abonent = parseInt(this.oid) || this.personfield.store.getAt(0).id;
 				this.oid=0
 			},
 			fee_callback: function(response) {
@@ -3554,18 +3625,18 @@ Ext.ux.FeeForm = Ext.extend(Ext.Panel ,{
 				if(this.my_owner_ct_id) {
 					Ext.getCmp(this.my_owner_ct_id).refresh()
 					(function(){
-						this.hide()
+						this.hide();
 						this.ownerCt.remove(this.id);	
 					}).defer(300,this);
 				}
 			},
 			register: 0,
 			abonent: 0
-        }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.FeeForm.superclass.initComponent.apply(this, arguments);
     }    
-})
+});
 
 Ext.ux.DisableForm = Ext.extend(Ext.Panel ,{
 	initComponent: function() {
@@ -3606,7 +3677,7 @@ Ext.ux.DisableForm = Ext.extend(Ext.Panel ,{
         							//idProperty: 'id',
         							fields: [
             							'id',
-            							'code',						
+            							'code'
 									]
     							}),
     							baseParams : {
@@ -3614,7 +3685,7 @@ Ext.ux.DisableForm = Ext.extend(Ext.Panel ,{
         							limit:8,
         							filter_fields:['code'],
         							filter_value:''
-    							},
+    							}
     						}),
 							valueField: 'code',
             				displayField: 'code',
@@ -3663,13 +3734,13 @@ Ext.ux.DisableForm = Ext.extend(Ext.Panel ,{
         							fields: [
             							'id',
             							'person',
-            							'disabled',						
+            							'disabled'
 									]
     							}),
     							baseParams : {
         							start:0,
-        							limit:8,        							
-    							},
+        							limit:8
+    							}
     						}),
 							valueField: 'id',
             				displayField: 'person',
@@ -3680,21 +3751,21 @@ Ext.ux.DisableForm = Ext.extend(Ext.Panel ,{
 							listeners: {
 								change: {
 									fn: function(combo,newval,oldval) {
-										var record_new = combo.store.getAt(combo.store.findExact('id',newval))
-										var record_old = combo.store.getAt(combo.store.findExact('id',oldval))
+										var record_new = combo.store.getAt(combo.store.findExact('id',newval));
+										var record_old = combo.store.getAt(combo.store.findExact('id',oldval));
 										if(record_new.data.disabled) {
-											alert("Внимание! Абонент отключен")
+											alert("Внимание! Абонент отключен");
 											combo.addClass('combo-bg-red')
 										} else {
 											combo.removeClass('combo-bg-red')
 										}
-										this.abonent = newval		
+										this.abonent = newval;
 										this.oid=0								
 									},
 									scope: this
 								}
 							}
-						}),														
+						})
 					]
 				},{
 					xtype: 'form',
@@ -3705,8 +3776,8 @@ Ext.ux.DisableForm = Ext.extend(Ext.Panel ,{
 							format: 'Y-m-d'
 						}),
 						this.descr = new Ext.form.TextField({
-							fieldLabel: 'Описание',							
-						}),					
+							fieldLabel: 'Описание'
+						})
 					],
 					bbar:[{					
                         xtype: 'tbbutton',
@@ -3717,11 +3788,11 @@ Ext.ux.DisableForm = Ext.extend(Ext.Panel ,{
                         width: 100,
                         handler: function(){
                             if(this.abonent<1) {
-								Ext.ux.msg('Ошибка ввода',"выберите абонента",Ext.Msg.ERROR)
+								Ext.ux.msg('Ошибка ввода',"выберите абонента",Ext.Msg.ERROR);
 								return false
 							}
 							if (!this.date.getValue()) {
-								Ext.ux.msg('Ошибка ввода',"введите правильную дату",Ext.Msg.ERROR)
+								Ext.ux.msg('Ошибка ввода',"введите правильную дату",Ext.Msg.ERROR);
 								return false
 							}
 							AbonApi.disable({
@@ -3758,19 +3829,19 @@ Ext.ux.DisableForm = Ext.extend(Ext.Panel ,{
             },
 			preload: function(response) {
 				if(response.success) {						
-					this.searchfield.setValue(response.data[0]['code'])					
+					this.searchfield.setValue(response.data[0]['code']);
 					//this.personfield.setText(response.data[0]['person'])
-					this.personfield.setRawValue('')
-					this.personfield.store.setBaseParam('code',response.data[0]['code'])
+					this.personfield.setRawValue('');
+					this.personfield.store.setBaseParam('code',response.data[0]['code']);
 					this.personfield.store.load({
-						callback: this.afterload.createDelegate(this),
+						callback: this.afterload.createDelegate(this)
 					})					
 				}
 				this.searchfield.focus()
 			},
 			afterload: function(response) {
-				this.personfield.setValue(parseInt(this.oid) || this.personfield.store.getAt(0).id)				
-				this.abonent = parseInt(this.oid) || this.personfield.store.getAt(0).id
+				this.personfield.setValue(parseInt(this.oid) || this.personfield.store.getAt(0).id);
+				this.abonent = parseInt(this.oid) || this.personfield.store.getAt(0).id;
 				this.oid=0
 			},
 			abon_disable_callback: function(response) {
@@ -3778,18 +3849,18 @@ Ext.ux.DisableForm = Ext.extend(Ext.Panel ,{
 				this.personfield.setRawValue('');
 				this.abonent = 0;					
 				(function(){
-					this.hide()
+					this.hide();
 					this.ownerCt.remove(this.id);	
 				}).defer(300,this);
 				Ext.getCmp(this.my_owner_ct_id).refresh()												
 			},
 			register: 0,
 			abonent: 0
-        }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.DisableForm.superclass.initComponent.apply(this, arguments);
     }    
-})
+});
 
 Ext.ux.EnableForm = Ext.extend(Ext.Panel ,{
 	initComponent: function() {
@@ -3830,7 +3901,7 @@ Ext.ux.EnableForm = Ext.extend(Ext.Panel ,{
         							//idProperty: 'id',
         							fields: [
             							'id',
-            							'code',						
+            							'code'
 									]
     							}),
     							baseParams : {
@@ -3838,7 +3909,7 @@ Ext.ux.EnableForm = Ext.extend(Ext.Panel ,{
         							limit:8,
         							filter_fields:['code'],
         							filter_value:''
-    							},
+    							}
     						}),
 							valueField: 'code',
             				displayField: 'code',
@@ -3887,13 +3958,13 @@ Ext.ux.EnableForm = Ext.extend(Ext.Panel ,{
         							fields: [
             							'id',
             							'person',
-            							'disabled',						
+            							'disabled'
 									]
     							}),
     							baseParams : {
         							start:0,
-        							limit:8,        							
-    							},
+        							limit:8
+    							}
     						}),
 							valueField: 'id',
             				displayField: 'person',
@@ -3904,21 +3975,21 @@ Ext.ux.EnableForm = Ext.extend(Ext.Panel ,{
 							listeners: {
 								change: {
 									fn: function(combo,newval,oldval) {
-										var record_new = combo.store.getAt(combo.store.findExact('id',newval))
-										var record_old = combo.store.getAt(combo.store.findExact('id',oldval))
+										var record_new = combo.store.getAt(combo.store.findExact('id',newval));
+										var record_old = combo.store.getAt(combo.store.findExact('id',oldval));
 										if(record_new.data.disabled) {
-											alert("Внимание! Абонент отключен")
+											alert("Внимание! Абонент отключен");
 											combo.addClass('combo-bg-red')
 										} else {
 											combo.removeClass('combo-bg-red')
 										}
-										this.abonent = newval		
+										this.abonent = newval;
 										this.oid=0								
 									},
 									scope: this
 								}
 							}
-						}),														
+						})
 					]
 				},{
 					xtype: 'form',
@@ -3929,8 +4000,8 @@ Ext.ux.EnableForm = Ext.extend(Ext.Panel ,{
 							format: 'Y-m-d'
 						}),
 						this.descr = new Ext.form.TextField({
-							fieldLabel: 'Описание',							
-						}),					
+							fieldLabel: 'Описание'
+						})
 					],
 					bbar:[{					
                         xtype: 'tbbutton',
@@ -3941,11 +4012,11 @@ Ext.ux.EnableForm = Ext.extend(Ext.Panel ,{
                         width: 100,
                         handler: function(){
                             if(this.abonent<1) {
-								Ext.ux.msg('Ошибка ввода',"выберите абонента",Ext.Msg.ERROR)
+								Ext.ux.msg('Ошибка ввода',"выберите абонента",Ext.Msg.ERROR);
 								return false
 							}
 							if (!this.date.getValue()) {
-								Ext.ux.msg('Ошибка ввода',"введите правильную дату",Ext.Msg.ERROR)
+								Ext.ux.msg('Ошибка ввода',"введите правильную дату",Ext.Msg.ERROR);
 								return false
 							}
 							AbonApi.enable({
@@ -3982,19 +4053,19 @@ Ext.ux.EnableForm = Ext.extend(Ext.Panel ,{
             },
 			preload: function(response) {
 				if(response.success) {						
-					this.searchfield.setValue(response.data[0]['code'])					
+					this.searchfield.setValue(response.data[0]['code']);
 					//this.personfield.setText(response.data[0]['person'])
-					this.personfield.setRawValue('')
-					this.personfield.store.setBaseParam('code',response.data[0]['code'])
+					this.personfield.setRawValue('');
+					this.personfield.store.setBaseParam('code',response.data[0]['code']);
 					this.personfield.store.load({
-						callback: this.afterload.createDelegate(this),
+						callback: this.afterload.createDelegate(this)
 					})					
 				}
 				this.searchfield.focus()
 			},
 			afterload: function(response) {
-				this.personfield.setValue(parseInt(this.oid) || this.personfield.store.getAt(0).id)				
-				this.abonent = parseInt(this.oid) || this.personfield.store.getAt(0).id
+				this.personfield.setValue(parseInt(this.oid) || this.personfield.store.getAt(0).id);
+				this.abonent = parseInt(this.oid) || this.personfield.store.getAt(0).id;
 				this.oid=0
 			},
 			abon_enable_callback: function(response) {
@@ -4002,18 +4073,18 @@ Ext.ux.EnableForm = Ext.extend(Ext.Panel ,{
 				this.personfield.setRawValue('');
 				this.abonent = 0;
 				(function(){
-					this.hide()
+					this.hide();
 					this.ownerCt.remove(this.id);	
 				}).defer(300,this);
 				Ext.getCmp(this.my_owner_ct_id).refresh();		
 			},
 			register: 0,
 			abonent: 0
-        }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.EnableForm.superclass.initComponent.apply(this, arguments);
     }    
-})
+});
 
 Ext.ux.TransferForm = Ext.extend(Ext.Panel ,{
 	initComponent: function() {
@@ -4052,7 +4123,7 @@ Ext.ux.TransferForm = Ext.extend(Ext.Panel ,{
 								'margin-left': '10px',
 								'font-size': '18px'
 							}
-						}),																								
+						})
 					]
 				},
 				{
@@ -4078,7 +4149,7 @@ Ext.ux.TransferForm = Ext.extend(Ext.Panel ,{
         							//idProperty: 'id',
         							fields: [
             							'id',
-            							'code',						
+            							'code'
 									]
     							}),
     							baseParams : {
@@ -4086,8 +4157,8 @@ Ext.ux.TransferForm = Ext.extend(Ext.Panel ,{
         							limit:8,
         							filter_fields:['code'],
         							filter_value:''
-    							},
-    						}),
+    							}
+                            }),
 							valueField: 'code',
             				displayField: 'code',
 							triggerAction: 'all',							
@@ -4135,14 +4206,14 @@ Ext.ux.TransferForm = Ext.extend(Ext.Panel ,{
         							fields: [
             							'id',
             							'person',
-            							'disabled',						
+            							'disabled'
 									]
     							}),
     							baseParams : {
         							start:0,
-        							limit:8,        							
-    							},
-    						}),
+        							limit:8
+                                }
+                            }),
 							valueField: 'id',
             				displayField: 'person',
 							forceSelection: true,
@@ -4152,13 +4223,13 @@ Ext.ux.TransferForm = Ext.extend(Ext.Panel ,{
 							listeners: {
 								change: {
 									fn: function(combo,newval,oldval) {
-										this.abonent_to = newval		
+										this.abonent_to = newval;
 										this.oid=0								
 									},
 									scope: this
 								}
 							}
-						}),														
+						})
 					]
 				},{
 					xtype: 'form',
@@ -4173,8 +4244,8 @@ Ext.ux.TransferForm = Ext.extend(Ext.Panel ,{
 							baseChars: '1234567890.'
 						}),
 						this.descr = new Ext.form.TextField({
-							fieldLabel: 'Описание',							
-						}),					
+							fieldLabel: 'Описание'
+                        })
 					],
 					bbar:[{					
                         xtype: 'tbbutton',
@@ -4193,7 +4264,7 @@ Ext.ux.TransferForm = Ext.extend(Ext.Panel ,{
             listeners: {
             	afterrender : {
                     fn: function(obj) {
-                    	obj.getEl().on('keypress', function(e,o) {
+                    	obj.getEl().on('keypress', function(e) {
                				if(e.ctrlKey) {
 								if(e.button==114) {
 									// Ctrl+S
@@ -4207,7 +4278,7 @@ Ext.ux.TransferForm = Ext.extend(Ext.Panel ,{
                 activate: {
                     fn: function(obj) {
 						if (parseInt(this.oid)>0) {
-							this.abonent_from = this.oid
+							this.abonent_from = this.oid;
 							AbonApi.abonent_get({
                             	uid: (parseInt(this.oid) || 0)
                         	},this.preload.createDelegate(this));
@@ -4228,23 +4299,23 @@ Ext.ux.TransferForm = Ext.extend(Ext.Panel ,{
             },
             submitaction: function() {
             				if(this.abonent_from<1) {
-								Ext.ux.msg('Ошибка',"закройте форму и попробуйте еще раз",Ext.Msg.ERROR)
+								Ext.ux.msg('Ошибка',"закройте форму и попробуйте еще раз",Ext.Msg.ERROR);
 								return false
 							}
                             if(this.abonent_to<1) {
-								Ext.ux.msg('Ошибка ввода',"выберите абонента",Ext.Msg.ERROR)
+								Ext.ux.msg('Ошибка ввода',"выберите абонента",Ext.Msg.ERROR);
 								return false
 							}
 							if (!this.date.getValue()) {
-								Ext.ux.msg('Ошибка ввода',"введите правильную дату",Ext.Msg.ERROR)
+								Ext.ux.msg('Ошибка ввода',"введите правильную дату",Ext.Msg.ERROR);
 								return false
 							}
 							if(this.abonent_to==this.abonent_from) {
-								Ext.ux.msg('Ошибка ввода',"нельзя передать сумму на тот же счёт",Ext.Msg.ERROR)
+								Ext.ux.msg('Ошибка ввода',"нельзя передать сумму на тот же счёт",Ext.Msg.ERROR);
 								return false
 							}
 							if (parseFloat(this.sum.getValue() || 0) <= 0) {
-								Ext.ux.msg('Ошибка ввода',"введите правильную сумму",Ext.Msg.ERROR)
+								Ext.ux.msg('Ошибка ввода',"введите правильную сумму",Ext.Msg.ERROR);
 								return false
 							}
 							AbonApi.make_transfer({
@@ -4260,18 +4331,18 @@ Ext.ux.TransferForm = Ext.extend(Ext.Panel ,{
 					if (this.oid) {		
 						this.transfer_from.setText(response.data[0]['person']+' | '+response.data[0]['code'])				
 					}
-					this.searchfield.setValue(response.data[0]['code'])	
-					this.personfield.setRawValue('')
-					this.personfield.store.setBaseParam('code',response.data[0]['code'])
+					this.searchfield.setValue(response.data[0]['code']);
+					this.personfield.setRawValue('');
+					this.personfield.store.setBaseParam('code',response.data[0]['code']);
 					this.personfield.store.load({
-						callback: this.afterload.createDelegate(this),
-					})					
+						callback: this.afterload.createDelegate(this)
+                    })
 				}
 				this.searchfield.focus()
 			},
 			afterload: function(response) {
-				this.personfield.setValue(parseInt(this.oid) || this.personfield.store.getAt(0).id)				
-				this.abonent_to = parseInt(this.oid) || this.personfield.store.getAt(0).id
+				this.personfield.setValue(parseInt(this.oid) || this.personfield.store.getAt(0).id);
+				this.abonent_to = parseInt(this.oid) || this.personfield.store.getAt(0).id;
 				this.oid=0
 			},
 			transfer_callback: function(response) {
@@ -4281,18 +4352,18 @@ Ext.ux.TransferForm = Ext.extend(Ext.Panel ,{
 				if(this.my_owner_ct_id) {
 					Ext.getCmp(this.my_owner_ct_id).refresh()
 					(function(){
-						this.hide()
+						this.hide();
 						this.ownerCt.remove(this.id);	
 					}).defer(300,this);
 				}
 			},
 			abonent_from: 0,
 			abonent_to: 0
-        }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.FeeForm.superclass.initComponent.apply(this, arguments);
     }    
-})
+});
 
 Ext.ux.AbonTpMoveCombo = Ext.extend(Ext.form.ComboBox, {
     initComponent: function() {
@@ -4314,7 +4385,7 @@ Ext.ux.AbonTpMoveCombo = Ext.extend(Ext.form.ComboBox, {
     		        //idProperty: 'id',
     		        fields: [
     		            'id',
-    		            'num',
+    		            'num'
     		        ]
     		    }),
     		    baseParams : {        
@@ -4323,7 +4394,7 @@ Ext.ux.AbonTpMoveCombo = Ext.extend(Ext.form.ComboBox, {
     		    listeners: {
                     load: {
                         fn: function(store,records,options){                            
-                            for(i in records) {                            	
+                            for(var i in records) {
                             	if(records[i].data.num < 0) {
                             		records[i].data.num = 'CaTV'
                             	}
@@ -4340,7 +4411,7 @@ Ext.ux.AbonTpMoveCombo = Ext.extend(Ext.form.ComboBox, {
             valueField: 'id',
             displayField: 'num',
             mode: 'local'
-        }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.SourceCombo.superclass.initComponent.apply(this, arguments);
         this.store.setBaseParam('service_id',this.cs_id)
@@ -4365,11 +4436,11 @@ Ext.ux.AbonTpMoveForm = Ext.ux.AbonInfoPanel = Ext.extend(Ext.Window ,{
             	this.submit_button = new Ext.Button({
             		text: 'перенести',
             		handler: function() {
-            			card_id = parseInt(this.card_combo.getValue())
+            			var card_id = parseInt(this.card_combo.getValue());
             			if(!card_id) {
             				alert('выберите карту')
             			} else {
-            				Engine.menu.cashier.abon_card_func.tp_move(this.cs_id,card_id)
+            				Engine.menu.cashier.abon_card_func.tp_move(this.cs_id,card_id);
             				this.close()
             			}
             		},
@@ -4385,10 +4456,11 @@ Ext.ux.AbonTpMoveForm = Ext.ux.AbonInfoPanel = Ext.extend(Ext.Window ,{
             	})
             
             ]
-        }
+        };
         Ext.apply(this, Ext.apply(this.initialConfig, config));
         Ext.ux.AbonTpMoveForm.superclass.initComponent.apply(this, arguments);        
     }
 });
-alert
 
+
+//EOF
