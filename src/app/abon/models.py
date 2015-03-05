@@ -1230,3 +1230,34 @@ class AbillsLink(models.Model):
         else:
             pass
             print "nothing to do"
+
+
+class AbonentWarning(models.Model):
+
+    WARN_CLEAR = 0
+    WARN_SOFT = 1
+    WARN_HARD = 2
+    WARN_LAST = 3
+
+    ABON_WARNINGS = (
+        (WARN_CLEAR, u'попередження знято'),
+        (WARN_SOFT, u'перше попередження'),
+        (WARN_HARD, u'друге попередження'),
+        (WARN_LAST, u'третє попередження'),
+    )
+
+    abonent = models.ForeignKey(Abonent, related_name='warnings')
+    date = models.DateField(default=date.today)
+    manager = models.ForeignKey("accounts.User",blank=True,null=True)
+    level = models.PositiveSmallIntegerField(choices=ABON_WARNINGS)
+
+    def __unicode__(self):
+        return "%s - %s" % (self.abonent.address.override, self.get_level_display())
+
+    def store_record(self):
+        obj = {}
+        obj['id'] = self.pk,
+        obj['code'] = self.abonent.address.override,
+        obj['level'] = self.get_level_display(),
+        obj['date'] = self.date,
+        return obj

@@ -14,7 +14,6 @@ def index(request):
 @login_required
 def traceback(request):
     if request.method == "POST":
-        print request.POST
         traceback_text = request.POST.get('traceback',None)
         traceback_descr = request.POST.get('traceback-descr',None)
         context = {

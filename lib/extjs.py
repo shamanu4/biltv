@@ -255,27 +255,35 @@ class RpcRouter(object):
     def __call__(self, request, *args, **kwargs):
         user = request.user
         POST = request.POST
-        
-        if POST.get('extAction'):
-            #Forms not supported yet
-            requests = {
-                'action': POST.get('extAction'),
-                'method': POST.get('extMethod'),
-                'data': [POST],
-                'upload': POST.get('extUpload') == 'true',
-                'tid': POST.get('extTID')
-            }
+        if POST:
+            if POST.get('extAction'):
+                #Forms not supported yet
+                requests = {
+                    'action': POST.get('extAction'),
+                    'method': POST.get('extMethod'),
+                    'data': [POST],
+                    'upload': POST.get('extUpload') == 'true',
+                    'tid': POST.get('extTID')
+                }
 
-            if requests['upload']:
-                requests['data'].append(request.FILES)
-                output = simplejson.dumps(self.call_action(requests, user))
-                return HttpResponse('<script>document.domain=document.domain;</script><textarea>%s</textarea>' \
-                                    % output)
+                if requests['upload']:
+                    requests['data'].append(request.FILES)
+                    output = simplejson.dumps(self.call_action(requests, user))
+                    return HttpResponse('<script>document.domain=document.domain;</script><textarea>%s</textarea>' \
+                                        % output)
+            else:
+                requests = simplejson.loads(request.POST.keys()[0])
+
         else:
-            requests = simplejson.loads(request.POST.keys()[0])
+            try:
+                data = json.loads(request.body)
+            except Exception, e:
+                return HttpResponse(str(e), status=500)
+            else:
+                requests = data
 
         if not isinstance(requests, list):
-                requests = [requests]
+            requests = [requests]
 
         output = [self.call_action(rd, request, *args, **kwargs) for rd in requests]
 

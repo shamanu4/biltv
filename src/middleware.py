@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
+from django.http import QueryDict
 
 try:
     from threading import local
 except ImportError:
     from django.utils._threading_local import local
 from django.conf import settings
+
+import json
 
 def make_tls_property(default=None):
     """Creates a class-wide instance property with a thread-specific value."""

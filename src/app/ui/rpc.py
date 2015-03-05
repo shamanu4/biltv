@@ -3,7 +3,14 @@
 from lib.extjs import RpcRouter, store_read, check_perm
 from tv.rpc import TvApiClass
 from abon.rpc import AbonApiClass
-from tv.models import PaymentRegister
+from abon.models import City, Street, House, Building, Abonent, Illegal, AbonentWarning
+from tv.models import Card, PaymentRegister, PaymentSource
+from abon.forms import CityForm, StreetForm, HouseNumForm, BuildingForm, IllegalForm
+from tv.forms import CardForm, RegisterForm
+from django.db.models import Q
+from forms import LoginForm
+from django.contrib.auth import logout
+
 
 class MainApiClass(object):
 
@@ -17,7 +24,6 @@ class MainApiClass(object):
     is_authenticated._args_len = 0
 
     def login(self, rdata, request):
-        from forms import LoginForm
                 
         form = LoginForm(rdata, request.user)
         if form.is_valid():
@@ -28,7 +34,6 @@ class MainApiClass(object):
     login._form_handler = True
 
     def logout(self,request):
-        from django.contrib.auth import logout
 
         logout(request)
         # msg handlead at client. title removed to prevent default msg handler
@@ -133,6 +138,7 @@ class GridApiClass(object):
     @check_perm('accounts.rpc_delete_in_generic_grid')
     def destroy(self,rdata,request):
         print request.POST
+        print request.body
 
     def foo(self,rdata,request):
         print rdata
@@ -140,11 +146,6 @@ class GridApiClass(object):
 
 class Router(RpcRouter):
     def __init__(self):
-        from abon.models import City, Street, House, Building, Abonent, Illegal
-        from tv.models import Card, PaymentRegister, PaymentSource
-        from abon.forms import CityForm, StreetForm, HouseNumForm, BuildingForm, IllegalForm
-        from tv.forms import CardForm, RegisterForm
-        from django.db.models import Q
 
         self.url = 'ui:router'
         self.actions = {
@@ -160,5 +161,6 @@ class Router(RpcRouter):
             'RegisterGrid': GridApiClass(PaymentRegister, RegisterForm),
             'SourceGrid': GridApiClass(PaymentSource, None),
             'IllegalGrid': GridApiClass(Illegal, IllegalForm),
+            'AbonWarningGrid': GridApiClass(AbonentWarning, None),
         }
         self.enable_buffer = 50

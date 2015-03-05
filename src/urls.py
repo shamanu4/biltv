@@ -1,5 +1,5 @@
 from django.conf.urls.defaults import *
-from settings import MEDIA_ROOT
+from settings import STATIC_ROOT
 
 from django.contrib import admin
 admin.autodiscover()
@@ -12,9 +12,9 @@ urlpatterns = patterns('',
     # to INSTALLED_APPS to enable admin documentation:
     # (r'^admin/doc/', include('django.contrib.admindocs.urls')),
     (r'^static/(?P<path>.*)$', 'django.views.static.serve',     
-        {'document_root': MEDIA_ROOT}),
+        {'document_root': STATIC_ROOT}),
     (r'^favicon.ico$', 'django.views.static.serve', 
-        {'document_root': MEDIA_ROOT, 'path':'favicon.ico'}),
+        {'document_root': STATIC_ROOT, 'path':'favicon.ico'}),
     (r'^logs/admin/(?P<app_label>[^/]+)/(?P<model>[^/]+)/(?P<oid>\d+)/', 'logger.views.index'),
     (r'^admin/', include(admin.site.urls)),
     (r'^statements/', include('statements.urls', 'statements')),
