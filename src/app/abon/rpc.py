@@ -791,7 +791,7 @@ class AbonApiClass(object):
                 abonent=Abonent.objects.get(pk=uid)
             except Abonent.DoesNotExist:
                 return dict(success=False, title='Сбой загрузки предупреждений', msg='abonent not found', errors='', data={} )
-            return abonent.warnings.all()
+            return abonent.warnings.all().order_by('-date', '-id')
         return {}
     abon_warning_get._args_len = 1
 
