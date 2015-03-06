@@ -431,6 +431,14 @@ class Bill(models.Model):
         )
         # self.balance2 = self.balance_get_wo_credit()
         # self.save(nocheck=True)
+        print "balance 2 set"
+        if self.balance2 >= 0:
+            print "balance 2 set positive"
+            for a in self.abonents.all():
+                print "balance 2 set for %s" % a
+                if a.warning:
+                    print "warning exists %s" % a.warning
+                    AbonentWarning.objects.create(abonent=a, level=AbonentWarning.WARN_CLEAR, date=date.today())
 
     @property
     def balance_int(self):
@@ -568,11 +576,6 @@ class Bill(models.Model):
         if 'nocheck' in kwargs:
             del kwargs['nocheck']
             # return super(self.__class__, self).save(*args, **kwargs)
-        else:
-            if self.balance2 >= 0:
-                for a in self.abonents.all():
-                    if a.warning:
-                        AbonentWarning(abonent=a, level=AbonentWarning.WARN_CLEAR, date=date.today())
         super(Bill, self).save(*args, **kwargs)
         # self.fix_history()
         # self.balance2set()
