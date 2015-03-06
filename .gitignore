@@ -8,4 +8,4 @@
 env
 settings_local.py
 nbproject
-static
+/src/static/
