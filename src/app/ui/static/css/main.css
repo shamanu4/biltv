@@ -1,0 +1,124 @@
+.invisible {
+    display: none;
+}
+
+.balance_digits_positive {
+    color: #509050;
+    font-weight: bolder;
+    font-family: 'Times New Roman', Times, serif; /* Гарнитура текста */
+    font-size: 300%; /* Размер шрифта в процентах */
+}
+
+.balance_digits_negative {
+    color: #d03030;
+    font-weight: bolder;
+    font-family: 'Times New Roman', Times, serif; /* Гарнитура текста */
+    font-size: 300%; /* Размер шрифта в процентах */
+}
+
+.abonent_ok_status_false {
+    display: block;
+    width: 16px;
+    height: 16px;
+    background: transparent;
+    background-image: url(/static/extjs/custom/delete_16.png);
+}
+
+.abonent_ok_status_true {
+    display: block;
+    width: 16px;
+    height: 16px;
+    background: transparent;
+    background-image: url(/static/extjs/custom/tick_16.png);
+}
+
+.abonent_disabled_status_false {
+    display: block;
+    width: 16px;
+    height: 16px;
+    background: transparent;    
+}
+
+.abonent_disabled_status_true {
+    display: block;
+    width: 16px;
+    height: 16px;
+    background: transparent;
+    background-image: url(/static/extjs/custom/delete_16.png);
+}
+
+.maked_true_class {
+	background-color: #e0ffe0;
+}
+
+.maked_false_class {
+	background-color: #ffc0c0;
+}
+
+.inline_edit_button {
+    display: block;
+    width: 16px;
+    height: 16px;
+    background: transparent;
+    background-image: url(/static/extjs/custom/pencil_16.png);
+    cursor: pointer;
+}
+
+.inline_delete_button {
+    display: block;
+    width: 16px;
+    height: 16px;
+    background: transparent;
+    background-image: url(/static/extjs/custom/delete_16.png);
+    cursor: pointer;
+}
+
+.inline_transfer_button {
+    display: block;
+    width: 16px;
+    height: 16px;
+    background: transparent;
+    background-image: url('/static/img/icons/green/16x16/Arrow1 Right.png');
+    cursor: pointer;
+}
+
+.inline_cash_button {
+    display: block;
+    width: 16px;
+    height: 16px;
+    background: transparent;
+    background-image: url('/static/img/icons/green/16x16/Currency Dollar.png');
+	cursor: pointer;
+}
+
+.inline_rollback_button {
+    display: block;
+    width: 16px;
+    height: 16px;
+    background: transparent;
+    background-image: url('/static/img/icons/red/16x16/Back.png');
+	cursor: pointer;
+}
+
+.combo-bg-red {
+	background-color: #b00000 !important;
+	font-weight: bold !important;
+	color: red !important;
+}
+
+
+.bold_green {
+    color: #509050;
+    font-weight: bolder !important;
+    font-family: 'Times New Roman', Times, serif; /* Гарнитура текста */
+    font-size: 150%; /* Размер шрифта в процентах */
+}
+
+.bold_red {
+    color: #d03030;
+    font-weight: bolder !important;
+    font-family: 'Times New Roman', Times, serif; /* Гарнитура текста */
+	font-size: 150%;    
+}
+
+

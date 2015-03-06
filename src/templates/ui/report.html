@@ -1,465 +1,547 @@
 {% extends 'base2.html' %}
+{% load static %}
 {% block head %}
-	<script type="text/javascript" src="{% url ui:api %}?v={{ PROGRAM_VERSION }}і"></script>
-	<script type="text/javascript" src="{{ MEDIA_URL }}js/Ext.stores.js?v={{ PROGRAM_VERSION }}"></script>
-	<style>
-		
-	body {
-		overflow-y: scroll !important		
-	}
-	.x-grid3-cell-inner {
-		border-top: 1px solid #c0c0c0;
-		border-right: 1px solid #c0c0c0;
-	}
-	.x-grid3-cell-shadowed {
-		border-bottom: 1px solid #c0c0c0; 
-		border-top: none !important;
-		color: #505050;
-		height: 100%;
-		white-space: normal !important; 		
-	}
-	.attention {
-		color: #f00000;
-		font-weight: bold;
-	}
-	</style>
+    <script type="text/javascript" src="{% url "ui:api" %}?v={{ PROGRAM_VERSION }}і"></script>
+    <script type="text/javascript" src="{% static "js/Ext.stores.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <style>
+
+        body {
+            overflow-y: scroll !important
+        }
+
+        .x-grid3-cell-inner {
+            border-top: 1px solid #c0c0c0;
+            border-right: 1px solid #c0c0c0;
+        }
+
+        .x-grid3-cell-shadowed {
+            border-bottom: 1px solid #c0c0c0;
+            border-top: none !important;
+            color: #505050;
+            height: 100%;
+            white-space: normal !important;
+        }
+
+        .attention {
+            color: #f00000;
+            font-weight: bold;
+        }
+
+        .warns {
+            display: inline-block;
+        }
+
+        .warns div {
+            display: inline-block;
+            margin-left: 5px;
+            margin-right: 5px;
+            height: 12px;
+            width: 12px;
+            border: 1px solid black;
+        }
+
+        .warns div:hover {
+            border: 1px solid red;
+            cursor: pointer;
+        }
+
+        .warns .wp0 {
+            background-color: #67d700;
+        }
+
+        .warns .wp1 {
+            background-color: #ffec0e;
+        }
+
+        .warns .wp2 {
+            background-color: #ff9319;
+        }
+
+
+    </style>
 {% endblock %}
 {% block body %}
     <script type="text/javascript">
-    
-    window.lines = 0;
-    ws = new WebSocket("{{ settings.TORNADO_SOCKET }}/xls/");
-    ws.onmessage = function(event) {
-        data = $.parseJSON(event.data);
-        if(data.ready) {
-            load_mask.hide();
-            setTimeout(function() {
-                window.open(data.url);
-            }, 3000);
-        } else {
-            $(".x-mask-loading").html('<div>'+data.msg+'</div>')
-        }
-    }
-    
-    Ext.onReady(function(){
-		
-		load_mask = new Ext.LoadMask(Ext.getBody(),{msg:'подготовка...'});
-		//document.styleSheets[0].cssRules[942].style.removeProperty('overflow')
-		
-		street_store = new Ext.data.DirectStore({
-    		api: {
-        		read: StreetGrid.read,
-        		create: StreetGrid.foo,
-        		update: StreetGrid.foo,
-        		destroy: StreetGrid.foo
-    		},
-    		restful: true,
-    		autoLoad: true,
-    		autoSave: false,
-		    reader: new Ext.data.JsonReader({
-        		root: 'data',
-        		totalProperty: 'total',        		
-        		fields: [
-            		'id',
-            		'city',
-            		'name',
-            		'code',
-            		'comment',
-        		]
-    		}),
-    		baseParams : {
-        		filter_fields:['name','code'],
-        		filter_value:''
-    		}    
-		});
-		
-		street_combo = new Ext.form.ComboBox({
-    		store: street_store,
-    		minChars: 2,
-    		displayField:'name',
-    		valueField:'id',
-    		typeAhead: true,
-    		mode: 'remote',
-    		queryParam: 'query',  
-    		hideTrigger: true,    
-    		selectOnFocus: true,
-    		//forceSelection: true,
-    		allowBlank: false,
-            allowBlank: true,
-    		width: 250,
-    		fieldLabel: 'Вулиця',
-    		listeners: {
-    			change: {    				
-                	fn: function(obj) {
-                		if(parseInt(this.value)>0) {
-                			Ext.get(this.el.dom).removeClass('attention')
-                		    building_store.setBaseParam('filter',{'street__id':parseInt(this.value)})
-                		    building_store.load()
-                		    building_combo.setRawValue("")
-                		    building_combo.setValue("")
-                		} else {
-                			Ext.get(this.el.dom).addClass('attention')
-                		}
-                    }
-                },
-    		}
-		});
-		
-		building_store = new Ext.data.DirectStore({
-    		api: {
-        		read: BuildingGrid.read,
-        		create: BuildingGrid.foo,
-        		update: BuildingGrid.foo,
-        		destroy: BuildingGrid.foo
-    		},
-    		restful: true,
-    		autoLoad: true,
-    		autoSave: false,
-    	
-    		reader: new Ext.data.JsonReader({
-        		root: 'data',
-        		totalProperty: 'total',
-        	
-        		fields: [
-            		'id',
-            		'street',
-            		'house',
-            		'street_name',
-            		'house_num',
-            		'comment',
-        		]	
-    		}),
-    		baseParams : {
-        		start:0,
-        		limit:16,
-        		filter_fields:['house__num'],
-        		filter_value:''
-    		},    	
-		});
-		
-		building_combo = new Ext.form.ComboBox({
-    		store: building_store,
-    		minChars: 1,
-    		displayField:'house_num',
-    		valueField:'id',
-    		typeAhead: true,
-    		mode: 'remote',
-    		queryParam: 'query',  
-    		hideTrigger: true,    
-    		//selectOnFocus: true,
-    		forceSelection: true,
-    		width: 250,
-    		fieldLabel: 'Будинок'
-		});
-		
-		balance_input = new Ext.form.TextField({
-			fieldLabel: 'Баланс',
-			allowBlank: false
-		});
 
-        disabled_input = new Ext.form.Checkbox({
-			fieldLabel: 'Показать отключенных',
-			allowBlank: true
-		});
-		
-		abonent_store = new Ext.data.DirectStore({
-    			api: {
-        			read: AbonentGrid.read,
-        			create: AbonentGrid.foo,
-        			update: AbonentGrid.foo,
-        			destroy: AbonentGrid.foo
-    			},
-    			remoteSort: false,
+        window.lines = 0;
+        ws = new WebSocket("{{ settings.TORNADO_SOCKET }}/xls/");
+        ws.onmessage = function (event) {
+            data = $.parseJSON(event.data);
+            if (data.ready) {
+                load_mask.hide();
+                setTimeout(function () {
+                    window.open(data.url);
+                }, 3000);
+            } else {
+                $(".x-mask-loading").html('<div>' + data.msg + '</div>')
+            }
+        };
+
+        window.selected_id = 0;
+
+        $(".warns").live('click', function(){
+            window.selected_id = 0;
+            (function(){
+                abonent_store.reload();
+                $(".warns").remove();
+            }).defer(500);
+        });
+
+        $('.wp0').live('click', function () {
+            if (window.selected_id) {
+                AbonApi.abon_warning_add({uid: window.selected_id, data: {level: 0}})
+            }
+        });
+
+        $('.wp1').live('click', function () {
+            if (window.selected_id) {
+                AbonApi.abon_warning_add({uid: window.selected_id, data: {level: 1}})
+            }
+        });
+
+        $('.wp2').live('click', function () {
+            if (window.selected_id) {
+                AbonApi.abon_warning_add({uid: window.selected_id, data: {level: 2}})
+            }
+        });
+
+        Ext.onReady(function () {
+
+            load_mask = new Ext.LoadMask(Ext.getBody(), {msg: 'подготовка...'});
+            //document.styleSheets[0].cssRules[942].style.removeProperty('overflow')
+
+            street_store = new Ext.data.DirectStore({
+                api: {
+                    read: StreetGrid.read,
+                    create: StreetGrid.foo,
+                    update: StreetGrid.foo,
+                    destroy: StreetGrid.foo
+                },
+                restful: true,
+                autoLoad: true,
+                autoSave: false,
+                reader: new Ext.data.JsonReader({
+                    root: 'data',
+                    totalProperty: 'total',
+                    fields: [
+                        'id',
+                        'city',
+                        'name',
+                        'code',
+                        'comment'
+                    ]
+                }),
+                baseParams: {
+                    filter_fields: ['name', 'code'],
+                    filter_value: ''
+                }
+            });
+
+            street_combo = new Ext.form.ComboBox({
+                store: street_store,
+                minChars: 2,
+                displayField: 'name',
+                valueField: 'id',
+                typeAhead: true,
+                mode: 'remote',
+                queryParam: 'query',
+                hideTrigger: true,
+                selectOnFocus: true,
+                //forceSelection: true,
+                allowBlank: true,
+                width: 250,
+                fieldLabel: 'Вулиця',
+                listeners: {
+                    change: {
+                        fn: function (obj) {
+                            if (parseInt(this.value) > 0) {
+                                Ext.get(this.el.dom).removeClass('attention');
+                                building_store.setBaseParam('filter', {'street__id': parseInt(this.value)});
+                                building_store.load();
+                                building_combo.setRawValue("");
+                                building_combo.setValue("")
+                            } else {
+                                Ext.get(this.el.dom).addClass('attention')
+                            }
+                        }
+                    }
+                }
+            });
+
+            building_store = new Ext.data.DirectStore({
+                api: {
+                    read: BuildingGrid.read,
+                    create: BuildingGrid.foo,
+                    update: BuildingGrid.foo,
+                    destroy: BuildingGrid.foo
+                },
+                restful: true,
+                autoLoad: true,
+                autoSave: false,
+
+                reader: new Ext.data.JsonReader({
+                    root: 'data',
+                    totalProperty: 'total',
+
+                    fields: [
+                        'id',
+                        'street',
+                        'house',
+                        'street_name',
+                        'house_num',
+                        'comment'
+                    ]
+                }),
+                baseParams: {
+                    start: 0,
+                    limit: 16,
+                    filter_fields: ['house__num'],
+                    filter_value: ''
+                }
+            });
+
+            building_combo = new Ext.form.ComboBox({
+                store: building_store,
+                minChars: 1,
+                displayField: 'house_num',
+                valueField: 'id',
+                typeAhead: true,
+                mode: 'remote',
+                queryParam: 'query',
+                hideTrigger: true,
+                //selectOnFocus: true,
+                forceSelection: true,
+                width: 250,
+                fieldLabel: 'Будинок'
+            });
+
+            balance_input = new Ext.form.TextField({
+                fieldLabel: 'Баланс',
+                allowBlank: false
+            });
+
+            disabled_input = new Ext.form.Checkbox({
+                fieldLabel: 'Показать отключенных',
+                allowBlank: true
+            });
+
+            abonent_store = new Ext.data.DirectStore({
+                api: {
+                    read: AbonentGrid.read,
+                    create: AbonentGrid.foo,
+                    update: AbonentGrid.foo,
+                    destroy: AbonentGrid.foo
+                },
+                remoteSort: false,
                 sortInfo: {
                     field: 'code',
                     direction: 'ASC' // or 'DESC' (case sensitive for local sorting)
                 },
-    			restful: true,
-    			autoLoad: false,
-    			autoSave: false,
-    			reader: new Ext.data.JsonReader({
-        			root: 'data',
-        			totalProperty: 'total',
-        			//idProperty: 'id',
-        			fields: [
-            			'id',
-            			'code',
-            			'person',
-            			'person__passport',
-            			'address',
-            			'bill__balance',
-            			'bill__balance_wo_credit',
-            			'comment',
-            			'confirmed',
-						'disabled',
-						'activated',
-						'deactivated',
-        			]
-    			}),    		
-        		listful: true,
-    			baseParams : {
-        			filter_fields:['address__building__street__id__exact','address__building__id__exact'],
-        			filter_value:'',
-                    xls: false,
-       			},
-       			listeners:{
-       				beforeload: function(obj) {
-       					window.lines = 0;
-       					return true
-       				},
-        			load: function (obj) {
-        				obj.filterBy(
-        					function(record, id){
-        						form = Ext.getCmp("report-form-cmp").getForm()      						
-        						if(record.data.bill__balance_wo_credit > form.items.items[2].getValue()) {
-        							return false;        							
-        						} else{
-        							return true;
-        						}
-							}        					
-        				)
-        				load_mask.hide();        				        				
-        				Ext.getCmp('report-grid-result').setHeight(200+23*obj.data.items.length+(window.lines));        				
-        				//$('body').height($(document).height());
-        			}
-        		}
-    		}),
-		
-		abonent_grid = Ext.extend(Ext.grid.EditorGridPanel ,{
-			initComponent: function() {
-        	var config = {
-        	store:  abonent_store,
-            title: 'Результат пошуку',
-            //closable: true,
-            columns: [
-                {header: "Code", dataIndex: 'code', width:80, sortable:true},
-                {header: "ФИО", dataIndex: 'person', width:140, sortable:true},
-                {header: "Адрес", dataIndex: 'address', width:200, sortable:true},
-                {header: "Баланс", dataIndex: 'bill__balance2', width:60},
-                //{header: "Comment", dataIndex: 'comment'},
-                {header: "Откл.", dataIndex: 'disabled', width: 56, sortable:true,
-                    renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-                    	if(value){
-                        	return 'x'
-                       	}
-                    }
+                restful: true,
+                autoLoad: false,
+                autoSave: false,
+                reader: new Ext.data.JsonReader({
+                    root: 'data',
+                    totalProperty: 'total',
+                    //idProperty: 'id',
+                    fields: [
+                        'id',
+                        'code',
+                        'person',
+                        'person__passport',
+                        'address',
+                        'bill__balance',
+                        'bill__balance2',
+                        'bill__balance_wo_credit',
+                        'warning',
+                        'comment',
+                        'confirmed',
+                        'disabled',
+                        'activated',
+                        'deactivated'
+                    ]
+                }),
+                listful: true,
+                baseParams: {
+                    filter_fields: ['address__building__street__id__exact', 'address__building__id__exact'],
+                    filter_value: '',
+                    xls: false
                 },
-                {header: "Подключен", dataIndex: 'activated', width:75, sortable:false},
-                {header: "Отключен", dataIndex: 'deactivated', width:75, sortable:false},
-                {header: "", dataIndex: 'comment', width:22, sortable:false, 
-                	renderer: function(value, metaData, record, rowIndex, colIndex, store) {
-                		if(value){
-                			window.lines++;
-                			return '</td></tr><tr><td><div class="x-grid3-cell-inner x-grid3-cell-shadowed">Коментар:</div></td><td colspan="6"><div class="x-grid3-cell-inner x-grid3-cell-shadowed" unselectable="on">'+value+'</div></td></tr>'
-                		} else {
-                			return '</td></tr>'
-                		}
-                	}
-                },
-            ],
-        }
-        Ext.apply(this, Ext.apply(this.initialConfig, config));
-        abonent_grid.superclass.initComponent.apply(this, arguments);
-   		},
-
-	});
-	
-	Ext.reg('abonent-grid', abonent_grid );	
-		
-		report_form = Ext.extend(Ext.form.FormPanel,{
-		  initComponent: function() {
-		  var config = {
-    		frame: false,
-    		width: 300,
-    		height: 160,
-    		padding: 10,
-    		buttons:[{
-                text: 'Знайти',
-                handler: function(){
-                    this.submitaction()
-                },
-                scope: this
-            },{
-                text: 'Завантажити xls',
-                handler: function(){
-                    this.xlsaction()
-                },
-                scope: this
-            },{
-                text: 'Друкувати',
-                handler: function(){
-                    this.collapse();
-                    setTimeout("window.print();",500);
-                    this.expand.defer(2000, this);;                    
-                },
-                scope: this
-            }],
-
-            submitaction: function() {            	
-                var form = this.getForm();                
-                if(!form.isValid()) {
-                	return false
-                }
-                load_mask.show();
-                if(form.items.items[1].value>0) {
-                	abonent_store.setBaseParam('filter_fields',['address__building__id__exact'])
-                	abonent_store.setBaseParam('filter_value',form.items.items[1].getValue())
-                } else if(form.items.items[0].value>0) {
-                	abonent_store.setBaseParam('filter_fields',['address__building__street__id__exact'])
-                	abonent_store.setBaseParam('filter_value',form.items.items[0].getValue())
-                } else {
-                	abonent_store.setBaseParam('filter_fields',['address__building__street__name__istartswith'])
-                	abonent_store.setBaseParam('filter_value',form.items.items[0].getValue())
-                }
-                if(!form.items.items[3].getValue())
-                {
-                    abonent_store.setBaseParam('filter',{'disabled':0, 'bill__balance2__lte':parseInt(form.items.items[2].getValue())});
-                } else {
-                    abonent_store.setBaseParam('filter',{'bill__balance2__lte':parseInt(form.items.items[2].getValue())})
-                }
-                abonent_store.setBaseParam('xls',false);
-                abonent_store.load();
-            },
-            xlsaction: function() {
-                var form = this.getForm();
-                if(!form.isValid()) {
-                	return false
-                }
-                load_mask.show();
-                if(form.items.items[1].value>0) {
-                	abonent_store.setBaseParam('filter_fields',['address__building__id__exact'])
-                	abonent_store.setBaseParam('filter_value',form.items.items[1].getValue())
-                } else if(form.items.items[0].value>0) {
-                	abonent_store.setBaseParam('filter_fields',['address__building__street__id__exact'])
-                	abonent_store.setBaseParam('filter_value',form.items.items[0].getValue())
-                } else {
-                	abonent_store.setBaseParam('filter_fields',['address__building__street__name__istartswith'])
-                	abonent_store.setBaseParam('filter_value',form.items.items[0].getValue())
-                }
-                if(!form.items.items[3].getValue())
-                {
-                    abonent_store.setBaseParam('filter',{'disabled':0, 'bill__balance2__lte':parseInt(form.items.items[2].getValue())});
-                } else {
-                    abonent_store.setBaseParam('filter',{'bill__balance2__lte':parseInt(form.items.items[2].getValue())})
-                }
-                abonent_store.setBaseParam('xls',true);
-                abonent_store.load();
-            },
-
-            keys: [
-                {
-                    key: [Ext.EventObject.ENTER], handler: function() {                      
-                        this.submitaction()
+                listeners: {
+                    beforeload: function (obj) {
+                        window.lines = 0;
+                        return true
                     },
-                    scope: this
+                    load: function (obj) {
+                        obj.filterBy(
+                                function (record, id) {
+                                    form = Ext.getCmp("report-form-cmp").getForm();
+                                    return record.data.bill__balance_wo_credit <= form.items.items[2].getValue();
+                                }
+                        );
+                        load_mask.hide();
+                        Ext.getCmp('report-grid-result').setHeight(200 + 23 * obj.data.items.length + (window.lines));
+                        //$('body').height($(document).height());
+                    }
                 }
-            ],
+            });
 
-            defaults: {anchor: '100%'},
-            defaultType: 'textfield',
-            items: [
-            	street_combo,
-            	building_combo,
-            	balance_input,
-                disabled_input
-            ],
+            abonent_grid = Ext.extend(Ext.grid.EditorGridPanel, {
+                initComponent: function () {
+                    var config = {
+                        store: abonent_store,
+                        title: 'Результат пошуку',
+                        //closable: true,
+                        columns: [
+                            {header: "Code", dataIndex: 'code', width: 80, sortable: true},
+                            {header: "ФИО", dataIndex: 'person', width: 140, sortable: true},
+                            {header: "Адрес", dataIndex: 'address', width: 200, sortable: true},
+                            {header: "Баланс", dataIndex: 'bill__balance2', width: 60},
+                            //{header: "Comment", dataIndex: 'comment'},
+                            {
+                                header: "Откл.", dataIndex: 'disabled', width: 56, sortable: true,
+                                renderer: function (value, metaData, record, rowIndex, colIndex, store) {
+                                    if (value) {
+                                        return 'x'
+                                    }
+                                }
+                            },
+                            {header: "Подключен", dataIndex: 'activated', width: 75, sortable: false},
+                            {header: "Отключен", dataIndex: 'deactivated', width: 75, sortable: false},
+                            {header: "Предупреждения", dataIndex: 'warning', width: 190, sortable: false},
+                            {
+                                header: "", dataIndex: 'comment', width: 22, sortable: false,
+                                renderer: function (value, metaData, record, rowIndex, colIndex, store) {
+                                    if (value) {
+                                        window.lines++;
+                                        return '</td></tr><tr><td><div class="x-grid3-cell-inner x-grid3-cell-shadowed">Коментар:</div></td><td colspan="6"><div class="x-grid3-cell-inner x-grid3-cell-shadowed" unselectable="on">' + value + '</div></td></tr>'
+                                    } else {
+                                        return '</td></tr>'
+                                    }
+                                }
+                            }
+                        ],
+                        sm: new Ext.grid.RowSelectionModel({
+                            singleSelect: true,
+                            listeners: {
+                                rowselect: function (sm, row, rec) {
+                                    console.log([row, rec]);
+                                    window.selected_id = sm.grid.store.getAt(row).data.id;
+                                    $(".warns").remove();
+                                    $(".x-grid3-row-selected", "#report-grid-result").find(".x-grid3-td-7 div").prepend(
+                                            ' <div class="warns"><div class="wp0"></div><div class="wp1"></div><div class="wp2"></div></div>'
+                                    );
+                                }
+                            },
+                            scope: this
+                        })
+                    };
+                    Ext.apply(this, Ext.apply(this.initialConfig, config));
+                    abonent_grid.superclass.initComponent.apply(this, arguments);
+                }
 
-            // configs for BasicForm
-            api: {
-                submit: AbonApi.report
-            },
-            
-            clientValidation: true,
-            paramsAsHash: true,
-        	renderTo: 'content',        					
-		  }  
-		  Ext.apply(this, Ext.apply(this.initialConfig, config));
-          report_form.superclass.initComponent.apply(this, arguments);
-          }
-	    });
-	    
-	    Ext.reg('report-form', report_form );
-						
-		main_viewport = Ext.extend(Ext.Viewport, {
-    		renderTo: Ext.getBody(),
+            });
 
-    		initComponent: function(){
-        		var config = {
-            		layout: 'anchor',
-            		defaults: {autoScroll: true},            		
-            		items: [{
-            			xtype: 'panel',
-            			layout: 'anchor',            			            		
-            			items: [{            				
-            				xtype: 'report-form',
-            				id:	'report-form-cmp',
-            				collapsible: true,
-            				title: 'Форма пошуку',    						
-    						region:'north',
-    						width: 300,
-    					}]            
-            		},{
-            			xtype: 'panel',
-            			layout: 'fit',             			
-            			region:'center',
-            			id: 'report-grid-result',       		
-            			items: [{            				
-            				xtype: 'abonent-grid',
-            				title: 'Результат пошуку',
-            				autoScroll: true, 							
-    					}]                   
-            		}]
-        		}
-        		Ext.apply(this, Ext.apply(this.initialConfig, config));
-        		main_viewport.superclass.initComponent.apply(this, arguments);
-    		},//initComponent
-    
-		});
-		
-		//vp = new main_viewport();
-		
-		new report_form({id:'report-form-cmp'});
-		new abonent_grid({renderTo:'content', id:'report-grid-result'});
-		
-		Ext.Ajax.timeout = 30000;  
-		
-		/*
-		 *  CSRF and ExtJS
-		 *  http://djbook.ru/examples/22/
-		 */
-		
-		window.getCookie = function(name) {
-          var cookieValue = null;
-          if (document.cookie && document.cookie != '') {
-              var cookies = document.cookie.split(';');
-              for (var i = 0; i < cookies.length; i++) {
-                  var cookie = jQuery.trim(cookies[i]);
-                  // Does this cookie string begin with the name we want?
-                      if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                          break;
-                      }
-              }
-          }
-          return cookieValue;
-	    };
-	    
-	    Ext.Ajax.on('beforerequest', function(conn, options){
-          if (!(/^http:.*/.test(options.url) || /^https:.*/.test(options.url))) {
-              options.headers = options.headers || {};
-              options.headers["X-CSRFToken"] = getCookie('csrftoken');
-          }              
-      	}, this);
+            Ext.reg('abonent-grid', abonent_grid);
 
-    });
-	
-	
-	
+            report_form = Ext.extend(Ext.form.FormPanel, {
+                initComponent: function () {
+                    var config = {
+                        frame: false,
+                        width: 300,
+                        height: 160,
+                        padding: 10,
+                        buttons: [{
+                            text: 'Знайти',
+                            handler: function () {
+                                this.submitaction()
+                            },
+                            scope: this
+                        }, {
+                            text: 'Завантажити xls',
+                            handler: function () {
+                                this.xlsaction()
+                            },
+                            scope: this
+                        }, {
+                            text: 'Друкувати',
+                            handler: function () {
+                                this.collapse();
+                                setTimeout("window.print();", 500);
+                                this.expand.defer(2000, this);
+                            },
+                            scope: this
+                        }],
+
+                        submitaction: function () {
+                            var form = this.getForm();
+                            if (!form.isValid()) {
+                                return false
+                            }
+                            load_mask.show();
+                            if (form.items.items[1].value > 0) {
+                                abonent_store.setBaseParam('filter_fields', ['address__building__id__exact']);
+                                abonent_store.setBaseParam('filter_value', form.items.items[1].getValue())
+                            } else if (form.items.items[0].value > 0) {
+                                abonent_store.setBaseParam('filter_fields', ['address__building__street__id__exact']);
+                                abonent_store.setBaseParam('filter_value', form.items.items[0].getValue())
+                            } else {
+                                abonent_store.setBaseParam('filter_fields', ['address__building__street__name__istartswith']);
+                                abonent_store.setBaseParam('filter_value', form.items.items[0].getValue())
+                            }
+                            if (!form.items.items[3].getValue()) {
+                                abonent_store.setBaseParam('filter', {
+                                    'disabled': 0,
+                                    'bill__balance2__lte': parseInt(form.items.items[2].getValue())
+                                });
+                            } else {
+                                debugger;
+                                abonent_store.setBaseParam('filter', {'bill__balance2__lte': parseInt(form.items.items[2].getValue())})
+                            }
+                            abonent_store.setBaseParam('xls', false);
+                            abonent_store.load();
+                        },
+                        xlsaction: function () {
+                            var form = this.getForm();
+                            if (!form.isValid()) {
+                                return false
+                            }
+                            load_mask.show();
+                            if (form.items.items[1].value > 0) {
+                                abonent_store.setBaseParam('filter_fields', ['address__building__id__exact']);
+                                abonent_store.setBaseParam('filter_value', form.items.items[1].getValue())
+                            } else if (form.items.items[0].value > 0) {
+                                abonent_store.setBaseParam('filter_fields', ['address__building__street__id__exact']);
+                                abonent_store.setBaseParam('filter_value', form.items.items[0].getValue())
+                            } else {
+                                abonent_store.setBaseParam('filter_fields', ['address__building__street__name__istartswith']);
+                                abonent_store.setBaseParam('filter_value', form.items.items[0].getValue())
+                            }
+                            if (!form.items.items[3].getValue()) {
+                                abonent_store.setBaseParam('filter', {
+                                    'disabled': 0,
+                                    'bill__balance2__lte': parseInt(form.items.items[2].getValue())
+                                });
+                            } else {
+                                abonent_store.setBaseParam('filter', {'bill__balance2__lte': parseInt(form.items.items[2].getValue())})
+                            }
+                            abonent_store.setBaseParam('xls', true);
+                            abonent_store.load();
+                        },
+
+                        keys: [
+                            {
+                                key: [Ext.EventObject.ENTER], handler: function () {
+                                this.submitaction()
+                            },
+                                scope: this
+                            }
+                        ],
+
+                        defaults: {anchor: '100%'},
+                        defaultType: 'textfield',
+                        items: [
+                            street_combo,
+                            building_combo,
+                            balance_input,
+                            disabled_input
+                        ],
+
+                        // configs for BasicForm
+                        api: {
+                            submit: AbonApi.report
+                        },
+
+                        clientValidation: true,
+                        paramsAsHash: true,
+                        renderTo: 'content'
+                    };
+                    Ext.apply(this, Ext.apply(this.initialConfig, config));
+                    report_form.superclass.initComponent.apply(this, arguments);
+                }
+            });
+
+            Ext.reg('report-form', report_form);
+
+            main_viewport = Ext.extend(Ext.Viewport, {
+                renderTo: Ext.getBody(),
+
+                initComponent: function () {
+                    var config = {
+                        layout: 'anchor',
+                        defaults: {autoScroll: true},
+                        items: [{
+                            xtype: 'panel',
+                            layout: 'anchor',
+                            items: [{
+                                xtype: 'report-form',
+                                id: 'report-form-cmp',
+                                collapsible: true,
+                                title: 'Форма пошуку',
+                                region: 'north',
+                                width: 300
+                            }]
+                        }, {
+                            xtype: 'panel',
+                            layout: 'fit',
+                            region: 'center',
+                            id: 'report-grid-result',
+                            items: [{
+                                xtype: 'abonent-grid',
+                                title: 'Результат пошуку',
+                                autoScroll: true
+                            }]
+                        }]
+                    };
+                    Ext.apply(this, Ext.apply(this.initialConfig, config));
+                    main_viewport.superclass.initComponent.apply(this, arguments);
+                }//initComponent
+
+            });
+
+            //vp = new main_viewport();
+
+            new report_form({id: 'report-form-cmp'});
+            new abonent_grid({renderTo: 'content', id: 'report-grid-result'});
+
+            Ext.Ajax.timeout = 30000;
+
+            /*
+             *  CSRF and ExtJS
+             *  http://djbook.ru/examples/22/
+             */
+
+            window.getCookie = function (name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie != '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = jQuery.trim(cookies[i]);
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            };
+
+            Ext.Ajax.on('beforerequest', function (conn, options) {
+                if (!(/^http:.*/.test(options.url) || /^https:.*/.test(options.url))) {
+                    options.headers = options.headers || {};
+                    options.headers["X-CSRFToken"] = getCookie('csrftoken');
+                }
+            }, this);
+
+        });
+
+
     </script>
-    
+
     {% csrf_token %}
 
     <div id="content"></div>
 
-    
+
 {% endblock %}

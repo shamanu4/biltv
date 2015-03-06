@@ -22,7 +22,7 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-EMAIL_HOST = '192.168.33.125'
+EMAIL_HOST = '192.168.33.145'
 EMAIL_PORT = 25
 
 DATABASES = {
@@ -63,17 +63,17 @@ USE_L10N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = rel('static')
+STATIC_ROOT = rel('static')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
-MEDIA_URL = '/static/'
+STATIC_URL = '/static/'
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/media/'
+# ADMIN_MEDIA_PREFIX = '/media/'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '**************************************************'
@@ -91,7 +91,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'middleware.CurrentUserMiddleware',
+    'middleware.CurrentUserMiddleware'
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -118,7 +118,9 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.admin',
+    'django.contrib.staticfiles',
     'south',
+    'compressor',
     #'django_extensions',          # optional, needed for development only
     'accounts',
     'logger',
@@ -128,6 +130,13 @@ INSTALLED_APPS = (
     'abills',
     'statements',
     'ui',
+)
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    # other finders..
+    'compressor.finders.CompressorFinder',
 )
 
 DIGITAL_CARD_ALLOW_DELETE = True
@@ -151,3 +160,18 @@ except ImportError:
 
 CHAN_COPY_SOURCE = 6
 CHAN_COPY_DESTINATION = [11, 12, 13, 14, 15, 9]
+<<<<<<< HEAD
+=======
+
+
+# COMPRESS_JS_FILTERS = [
+#     # 'compressor.filters.yui.YUIJSFilter',
+#     # 'compressor.filters.closure.ClosureCompilerFilter'
+#     # 'compressor.filters.jsmin.SlimItFilter',
+# ]
+
+# COMPRESS_YUI_BINARY = rel("../lib/yuicompressor-2.4.8.jar")
+# COMPRESS_YUI_JS_ARGUMENTS = "--nomunge"
+
+# COMPRESS_CLOSURE_COMPILER_BINARY = "java -jar %s " % rel('../lib/compiler.jar')
+>>>>>>> 175a8720aa28ed9021b105f762163cf49c68259b

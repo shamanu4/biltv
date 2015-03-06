@@ -61,6 +61,7 @@ def xls(data):
     worksheet.set_column('E:E', 3)
     worksheet.set_column('F:F', 7)
     worksheet.set_column('G:G', 7)
+    worksheet.set_column('H:H', 10)
 
     bold = workbook.add_format({'bold': 1, 'font_size': 10})
     small = workbook.add_format({'font_size': 10})
@@ -74,6 +75,7 @@ def xls(data):
     worksheet.write('E1', u'Откл', bold)
     worksheet.write('F1', u'Подключен', bold)
     worksheet.write('G1', u'Отключен', bold)
+    worksheet.write('H1', u'Предупрежден', bold)
 
     cx = 1
 
@@ -100,6 +102,8 @@ def xls(data):
             cx += 1
             comment = line['comment'].replace('\n','    ')
             worksheet.merge_range('A%s:G%s' % (cx, cx), comment, merge_small)
+        if line['warning']:
+            worksheet.write_datetime('F%s' % cx, line['warning'], small)
         if not cur % 10:
             r.publish('xls', json.dumps({"ready": False, "msg": u"загрузка [%s/%s]" % (cur, total)}))
     r.publish('xls', json.dumps({"ready": True, "url": "%sxls/%s" % (settings.MEDIA_URL, filename)}))
@@ -255,27 +259,35 @@ class RpcRouter(object):
     def __call__(self, request, *args, **kwargs):
         user = request.user
         POST = request.POST
-        
-        if POST.get('extAction'):
-            #Forms not supported yet
-            requests = {
-                'action': POST.get('extAction'),
-                'method': POST.get('extMethod'),
-                'data': [POST],
-                'upload': POST.get('extUpload') == 'true',
-                'tid': POST.get('extTID')
-            }
+        if POST:
+            if POST.get('extAction'):
+                #Forms not supported yet
+                requests = {
+                    'action': POST.get('extAction'),
+                    'method': POST.get('extMethod'),
+                    'data': [POST],
+                    'upload': POST.get('extUpload') == 'true',
+                    'tid': POST.get('extTID')
+                }
 
-            if requests['upload']:
-                requests['data'].append(request.FILES)
-                output = simplejson.dumps(self.call_action(requests, user))
-                return HttpResponse('<script>document.domain=document.domain;</script><textarea>%s</textarea>' \
-                                    % output)
+                if requests['upload']:
+                    requests['data'].append(request.FILES)
+                    output = simplejson.dumps(self.call_action(requests, user))
+                    return HttpResponse('<script>document.domain=document.domain;</script><textarea>%s</textarea>' \
+                                        % output)
+            else:
+                requests = simplejson.loads(request.POST.keys()[0])
+
         else:
-            requests = simplejson.loads(request.POST.keys()[0])
+            try:
+                data = json.loads(request.body)
+            except Exception, e:
+                return HttpResponse(str(e), status=500)
+            else:
+                requests = data
 
         if not isinstance(requests, list):
-                requests = [requests]
+            requests = [requests]
 
         output = [self.call_action(rd, request, *args, **kwargs) for rd in requests]
 

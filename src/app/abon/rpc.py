@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from abon.models import Illegal
+from abon.models import Illegal, AbonentWarning
 
 from lib.extjs import store_read, check_perm
 from datetime import datetime, date
@@ -750,6 +750,7 @@ class AbonApiClass(object):
         return {}
     abon_illegal_add._args_len = 1
 
+
     @check_perm('accounts.rpc_update_generic_grid')
     @store_read
     def abon_illegal_update(self,rdata,request):
@@ -778,6 +779,46 @@ class AbonApiClass(object):
                 return dict(success=False, title='Сбой изменения нелегала', msg=form.errors, errors='', data={})
         return {}
     abon_illegal_update._args_len = 1
+
+
+    @check_perm('accounts.rpc_read_generic_grid')
+    @store_read
+    def abon_warning_get(self,rdata,request):
+        from abon.models import Abonent, Illegal
+        uid = int(rdata['uid'])
+        if uid>0:
+            try:
+                abonent=Abonent.objects.get(pk=uid)
+            except Abonent.DoesNotExist:
+                return dict(success=False, title='Сбой загрузки предупреждений', msg='abonent not found', errors='', data={} )
+            return abonent.warnings.all()
+        return {}
+    abon_warning_get._args_len = 1
+
+
+    @check_perm('accounts.rpc_add_in_generic_grid')
+    @store_read
+    def abon_warning_add(self, rdata, request):
+        from abon.models import Abonent
+        uid = int(rdata['uid'])
+        data = rdata['data']
+        if uid>0:
+            try:
+                abonent=Abonent.objects.get(pk=uid)
+            except Abonent.DoesNotExist:
+                return dict(success=False, title='Сбой добавления предупреждения', msg='abonent not found', errors='', data={})
+            dt = data.get('date', date.today().strftime('%Y-%m-%dT%H:%M:%S'))
+            try:
+                dt = datetime.strptime(dt,'%Y-%m-%dT%H:%M:%S').date()
+            except ValueError:
+                return dict(success=False, title='Сбой добавления предупреждения', msg='invalid date', errors='', data={} )
+            level = data.get('level', 0)
+            c = AbonentWarning(abonent=abonent, level=level, date=dt)
+            c.save()
+            return dict(success=True, title='предупреждение добавлено', msg=abonent.__unicode__(), errors='', data={} )
+        return {}
+    abon_warning_add._args_len = 1
+
 
     @check_perm('accounts.rpc_abon_registers_get')
     @store_read
