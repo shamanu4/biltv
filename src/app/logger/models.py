@@ -6,6 +6,10 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.dispatch import Signal
 from datetime import datetime
+from lib.serializers import DatetimeJSONEncoderQt
+from django.conf import settings
+import json
+
 
 class Log(models.Model):
 
@@ -24,10 +28,8 @@ class Log(models.Model):
     def __unicode__(self):
         return '%s %s' % (self.content_type, self.action)
 
+
 def logging_abstract(instance, action, **kwargs):
-    from django.utils import simplejson
-    from lib.serializers import DatetimeJSONEncoderQt
-    from django.conf import settings
 
     data = {}
     for i in instance.__dict__.keys():
@@ -35,7 +37,7 @@ def logging_abstract(instance, action, **kwargs):
             continue        
         data.update( {i: instance.__dict__[i]} )
 
-    response = simplejson.dumps(data, cls=DatetimeJSONEncoderQt)
+    response = json.dumps(data, cls=DatetimeJSONEncoderQt)
     content_type = ContentType.objects.get_for_model(instance)
     log = Log(content_type=content_type, data=response, action=action, oid=instance.pk, user=settings.CURRENT_USER)
     log.save()

@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 
-from django.utils import simplejson, datetime_safe
+from django.utils import datetime_safe
 import time, datetime
+import json
 
 def str2date(value):
     return datetime.datetime(*time.strptime(value, '%Y-%m-%d %H:%M:%S')[:6])
 
-class DatetimeJSONEncoder(simplejson.JSONEncoder):
+
+class DatetimeJSONEncoder(json.JSONEncoder):
 
     class DateInt(int):
         def __str__(self):
@@ -20,7 +22,8 @@ class DatetimeJSONEncoder(simplejson.JSONEncoder):
         else:
             return super(DatetimeJSONEncoder, self).default(o)
 
-class DatetimeJSONEncoderQt(simplejson.JSONEncoder):
+
+class DatetimeJSONEncoderQt(json.JSONEncoder):
 
     def default(self, o):
         if isinstance(o, datetime.datetime):
