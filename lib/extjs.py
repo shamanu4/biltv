@@ -6,7 +6,6 @@ from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from inspect import getargspec
 from django.core.serializers.json import DjangoJSONEncoder
-from django.utils import simplejson
 from django.db.models.query import QuerySet
 from lib.functions import QuerySetChain
 from django.db.models import Q
@@ -213,7 +212,7 @@ def store_read(func):
         return dict(data=result, success=success, total=total, extras=extras)
     return update_wrapper(wrapper, func)
 
-class RpcRouterJSONEncoder(simplejson.JSONEncoder):
+class RpcRouterJSONEncoder(json.JSONEncoder):
 
     def __init__(self, url_args, url_kwargs, *args, **kwargs):
         self.url_args = url_args
@@ -253,7 +252,7 @@ class RpcRouter(object):
         self.enable_buffer = enable_buffer
 
     def api(self, request, *args, **kwargs):
-        obj = simplejson.dumps(self, cls=RpcRouterJSONEncoder, url_args=args, url_kwargs=kwargs)
+        obj = json.dumps(self, cls=RpcRouterJSONEncoder, url_args=args, url_kwargs=kwargs)
         return HttpResponse('Ext.Direct.addProvider(%s)' % obj)
 
     def __call__(self, request, *args, **kwargs):
@@ -272,11 +271,11 @@ class RpcRouter(object):
 
                 if requests['upload']:
                     requests['data'].append(request.FILES)
-                    output = simplejson.dumps(self.call_action(requests, user))
+                    output = json.dumps(self.call_action(requests, user))
                     return HttpResponse('<script>document.domain=document.domain;</script><textarea>%s</textarea>' \
                                         % output)
             else:
-                requests = simplejson.loads(request.POST.keys()[0])
+                requests = json.loads(request.POST.keys()[0])
 
         else:
             try:
@@ -291,7 +290,7 @@ class RpcRouter(object):
 
         output = [self.call_action(rd, request, *args, **kwargs) for rd in requests]
 
-        return HttpResponse(simplejson.dumps(output, cls=DjangoJSONEncoder), mimetype="application/json")
+        return HttpResponse(json.dumps(output, cls=DjangoJSONEncoder), mimetype="application/json")
 
     def action_extra_kwargs(self, action, request, *args, **kwargs):
         if hasattr(action, '_extra_kwargs'):

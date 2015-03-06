@@ -1,8 +1,8 @@
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.http import HttpResponse
-from django.utils import simplejson
 from django.core.serializers.json import DjangoJSONEncoder
+import json
 
 def render_to(tpl=None):
     """
@@ -36,8 +36,8 @@ def render_to(tpl=None):
 def render_to_json(func):
     def wrapper(request, *args, **kwargs):
         result = func(request, *args, **kwargs)
-        json = simplejson.dumps(result, cls=DjangoJSONEncoder)
-        return HttpResponse(json, mimetype="application/json")
+        j = json.dumps(result, cls=DjangoJSONEncoder)
+        return HttpResponse(j, mimetype="application/json")
     return wrapper
 
 def has_perm(func, perm=None):

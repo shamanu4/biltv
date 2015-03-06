@@ -5,13 +5,12 @@ from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
-from django.utils import simplejson
+from logger.models import Log
+import json
+
 
 @login_required
-
 def index(request,app_label,model,oid):
-    from logger.models import Log    
-
     try:
         content_type = ContentType.objects.get(app_label=app_label, model=model)
     except ContentType.DoesNotExist:
@@ -25,7 +24,7 @@ def index(request,app_label,model,oid):
             object='unknown object'
 
     for entry in log:
-        entry.data = simplejson.loads(str(entry.data))
+        entry.data = json.loads(str(entry.data))
 
     c = Context({'log_entires':log,'app_label':app_label,'module_name':model,'object':object,'oid':oid,})
     t = loader.get_template('admin/object_log.html')
