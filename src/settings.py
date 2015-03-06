@@ -160,9 +160,6 @@ except ImportError:
 
 CHAN_COPY_SOURCE = 6
 CHAN_COPY_DESTINATION = [11, 12, 13, 14, 15, 9]
-<<<<<<< HEAD
-=======
-
 
 # COMPRESS_JS_FILTERS = [
 #     # 'compressor.filters.yui.YUIJSFilter',
@@ -174,4 +171,4 @@ CHAN_COPY_DESTINATION = [11, 12, 13, 14, 15, 9]
 # COMPRESS_YUI_JS_ARGUMENTS = "--nomunge"
 
 # COMPRESS_CLOSURE_COMPILER_BINARY = "java -jar %s " % rel('../lib/compiler.jar')
->>>>>>> 175a8720aa28ed9021b105f762163cf49c68259b
+
