@@ -105,7 +105,7 @@ def xls(data):
             worksheet.write('H%s' % cx, line['warning'], small)
         if not cur % 10:
             r.publish('xls', json.dumps({"ready": False, "msg": u"загрузка [%s/%s]" % (cur, total)}))
-    r.publish('xls', json.dumps({"ready": True, "url": "%sxls/%s" % (settings.MEDIA_URL, filename)}))
+    r.publish('xls', json.dumps({"ready": True, "url": "%sxls/%s" % (settings.STATIC_URL, filename)}))
 
 
 def store_read(func):
