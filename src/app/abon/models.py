@@ -568,6 +568,11 @@ class Bill(models.Model):
         if 'nocheck' in kwargs:
             del kwargs['nocheck']
             # return super(self.__class__, self).save(*args, **kwargs)
+        else:
+            if self.balance2 >= 0:
+                for a in self.abonents.all():
+                    if a.warning:
+                        AbonentWarning(abonent=a, level=AbonentWarning.WARN_CLEAR, date=date.today())
         super(Bill, self).save(*args, **kwargs)
         # self.fix_history()
         # self.balance2set()
@@ -1040,7 +1045,15 @@ class Abonent(models.Model):
         #print "restarting thread..."
         return {'fa':fb,'fb':fb*2-fa,'ts':start,'tc':total,'tr':ready}
 
-
+    @property
+    def warning(self):
+        w = self.warnings.all().order_by('-date', '-id')
+        if w.count():
+            w = w[0]
+            res = ("(%s) %s" % (w.level, w.date)) if w.level else None
+        else:
+            res = None
+        return res
 
     def store_record(self):
         obj = {}
@@ -1058,12 +1071,7 @@ class Abonent(models.Model):
         obj['bill__balance'] = self.bill.balance_get()
         obj['bill__balance2'] = self.bill.balance2
         obj['bill__balance_wo_credit'] = self.bill.balance_get_wo_credit()
-        w = self.warnings.all().order_by('-date', '-id')
-        if w.count():
-            w = w[0]
-            obj['warning'] = ("(%s) %s" % (w.level, w.date)) if w.level else ""
-        else:
-            obj['warning'] = ""
+        obj['warning'] = self.warning or ""
         return obj
 
 
