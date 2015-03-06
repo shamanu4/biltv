@@ -49,7 +49,7 @@ def xls(data):
     cur = 0
 
     # Create an new Excel file and add a worksheet.
-    workbook = xlsxwriter.Workbook("%s/xls/%s" % (settings.MEDIA_ROOT, filename))
+    workbook = xlsxwriter.Workbook("%s/xls/%s" % (settings.STATIC_ROOT, filename))
     worksheet = workbook.add_worksheet()
 
     # Widen the first column to make the text clearer.
