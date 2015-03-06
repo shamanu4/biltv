@@ -1058,6 +1058,12 @@ class Abonent(models.Model):
         obj['bill__balance'] = self.bill.balance_get()
         obj['bill__balance2'] = self.bill.balance2
         obj['bill__balance_wo_credit'] = self.bill.balance_get_wo_credit()
+        w = self.warnings.all().order_by('-date', '-id')
+        if w.count():
+            w = w[0]
+            obj['warning'] = ("(%s) %s" % (w.level, w.date)) if w.level else ""
+        else:
+            obj['warning'] = ""
         return obj
 
 
