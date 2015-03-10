@@ -35,27 +35,26 @@
             display: inline-block;
             margin-left: 5px;
             margin-right: 5px;
-            height: 12px;
-            width: 12px;
-            border: 1px solid black;
+{#            height: 12px;#}
+{#            width: 12px;#}
+{#            border: 1px solid black;#}
         }
 
-        .warns div:hover {
-            border: 1px solid red;
-            cursor: pointer;
+        .warns div:hover .x-btn {
+            background-color: lightgrey !important;
         }
 
-        .warns .wp0 {
-            background-color: #67d700;
-        }
-
-        .warns .wp1 {
-            background-color: #ffec0e;
-        }
-
-        .warns .wp2 {
-            background-color: #ff9319;
-        }
+{#        .warns .wp0 {#}
+{#            background-color: #67d700;#}
+{#        }#}
+{##}
+{#        .warns .wp1 {#}
+{#            background-color: #ffec0e;#}
+{#        }#}
+{##}
+{#        .warns .wp2 {#}
+{#            background-color: #ff9319;#}
+{#        }#}
 
 
     </style>
@@ -329,7 +328,13 @@
                                     window.selected_id = sm.grid.store.getAt(row).data.id;
                                     $(".warns").remove();
                                     $(".x-grid3-row-selected", "#report-grid-result").find(".x-grid3-td-7 div").prepend(
-                                            ' <div class="warns"><div class="wp0"></div><div class="wp1"></div><div class="wp2"></div></div>'
+                                            '<div class="warns"><div class="wp0">' +
+                                            '<td class="x-toolbar-cell" ><table  cellspacing="0" class="x-btn x-btn-text-icon x-btn-icon"><tbody class="x-btn-small x-btn-icon-small-left"><tr><td class="x-btn-tl"><i>&nbsp;</i></td><td class="x-btn-tc"></td><td class="x-btn-tr"><i>&nbsp;</i></td></tr><tr><td class="x-btn-ml"><i>&nbsp;</i></td><td class="x-btn-mc"><em class=" x-unselectable" unselectable="on"><button type="button"  class=" x-btn-text" style="background-image: url(https://biltv.local:8000/static/extjs/custom/label_16_green.png);">&nbsp;</button></em></td><td class="x-btn-mr"><i>&nbsp;</i></td></tr><tr><td class="x-btn-bl"><i>&nbsp;</i></td><td class="x-btn-bc"></td><td class="x-btn-br"><i>&nbsp;</i></td></tr></tbody></table></td>' +
+                                            '</div><div class="wp1">' +
+                                            '<td class="x-toolbar-cell" ><table  cellspacing="0" class="x-btn x-btn-text-icon x-btn-icon"><tbody class="x-btn-small x-btn-icon-small-left"><tr><td class="x-btn-tl"><i>&nbsp;</i></td><td class="x-btn-tc"></td><td class="x-btn-tr"><i>&nbsp;</i></td></tr><tr><td class="x-btn-ml"><i>&nbsp;</i></td><td class="x-btn-mc"><em class=" x-unselectable" unselectable="on"><button type="button"  class=" x-btn-text" style="background-image: url(https://biltv.local:8000/static/extjs/custom/label_16_yellow.png);">&nbsp;</button></em></td><td class="x-btn-mr"><i>&nbsp;</i></td></tr><tr><td class="x-btn-bl"><i>&nbsp;</i></td><td class="x-btn-bc"></td><td class="x-btn-br"><i>&nbsp;</i></td></tr></tbody></table></td>' +
+                                            '</div><div class="wp2">' +
+                                            '<td class="x-toolbar-cell" ><table  cellspacing="0" class="x-btn x-btn-text-icon x-btn-icon"><tbody class="x-btn-small x-btn-icon-small-left"><tr><td class="x-btn-tl"><i>&nbsp;</i></td><td class="x-btn-tc"></td><td class="x-btn-tr"><i>&nbsp;</i></td></tr><tr><td class="x-btn-ml"><i>&nbsp;</i></td><td class="x-btn-mc"><em class=" x-unselectable" unselectable="on"><button type="button"  class=" x-btn-text" style="background-image: url(https://biltv.local:8000/static/extjs/custom/label_16_orange.png);">&nbsp;</button></em></td><td class="x-btn-mr"><i>&nbsp;</i></td></tr><tr><td class="x-btn-bl"><i>&nbsp;</i></td><td class="x-btn-bc"></td><td class="x-btn-br"><i>&nbsp;</i></td></tr></tbody></table></td>' +
+                                            '</div></div>'
                                     );
                                 }
                             },
