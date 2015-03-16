@@ -130,19 +130,19 @@
 
         $('.wp0').live('click', function () {
             if (window.selected_id) {
-                AbonApi.abon_warning_add({uid: window.selected_id, data: {level: 0}})
+                AbonApi.abon_warning_add({uid: window.selected_id, data: {level: 0, date:window.dateinput.getValue()}})
             }
         });
 
         $('.wp1').live('click', function () {
             if (window.selected_id) {
-                AbonApi.abon_warning_add({uid: window.selected_id, data: {level: 1}})
+                AbonApi.abon_warning_add({uid: window.selected_id, data: {level: 1, date:window.dateinput.getValue()}})
             }
         });
 
         $('.wp2').live('click', function () {
             if (window.selected_id) {
-                AbonApi.abon_warning_add({uid: window.selected_id, data: {level: 2}})
+                AbonApi.abon_warning_add({uid: window.selected_id, data: {level: 2, date:window.dateinput.getValue()}})
             }
         });
 
@@ -419,7 +419,7 @@
                     var config = {
                         frame: false,
                         width: 300,
-                        height: 160,
+                        height: 186,
                         padding: 10,
                         buttons: [{
                             text: 'Знайти',
@@ -514,7 +514,10 @@
                             street_combo,
                             building_combo,
                             balance_input,
-                            disabled_input
+                            disabled_input,
+                            window.dateinput = new Ext.form.DateField({
+                                value: new Date()
+                            }),
                         ],
 
                         // configs for BasicForm
