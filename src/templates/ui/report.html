@@ -44,6 +44,14 @@
             background-color: lightgrey !important;
         }
 
+        .loading {
+            width: 16px;
+            height: 16px;
+            padding: 1px 1px 1px 1px;
+            background: url(/static/extjs/resources/images/default/grid/loading.gif) no-repeat;
+            display: inline-block;
+        }
+
 {#        .warns .wp0 {#}
 {#            background-color: #67d700;#}
 {#        }#}
@@ -77,13 +85,47 @@
         };
 
         window.selected_id = 0;
+        window.request_exists = 0;
+        window.request_running = 0;
+        window.queued = [];
+        window.running = [];
+
+        window.check_request = function() {
+            $(".loading").each(function(){
+                if($(this).data('wid') && window.queued.indexOf($(this).data('wid'))<0) {
+                    $(this).remove();
+                }
+            });
+            console.log('request check');
+            if(window.request_running) {
+                console.log('request still running');
+                return false;
+            }
+            if(window.request_exists) {
+                console.log('request accepted');
+                window.request_exists = 0;
+                (function(){
+                    console.log('request try run');
+                    abonent_store.reload();
+                }).defer(250);
+            } else {
+                console.log('idle');
+            }
+        };
 
         $(".warns").live('click', function(){
+            window.queued.push(window.selected_id);
             window.selected_id = 0;
+            var w_selected_id = 0;
+            window.request_exists = 1;
+            console.log('request click');
             (function(){
-                abonent_store.reload();
-                $(".warns").remove();
-            }).defer(500);
+                console.log('request queued');
+                window.check_request();
+                var $warns = $(".warns");
+                $warns.parent().append('&nbsp;&nbsp;<div class="loading" data-wid="0">&nbsp;</div>');
+                $warns.remove();
+            }).defer(50);
         });
 
         $('.wp0').live('click', function () {
@@ -269,18 +311,31 @@
                 listeners: {
                     beforeload: function (obj) {
                         window.lines = 0;
+                        if(window.request_running) {
+                            console.log('request still running!!!');
+                            return false;
+                        }
+                        window.request_running = 1;
+                        window.running = window.queued.slice();
+                        console.log('request launched');
                         return true
                     },
                     load: function (obj) {
                         obj.filterBy(
-                                function (record, id) {
-                                    form = Ext.getCmp("report-form-cmp").getForm();
-                                    return record.data.bill__balance_wo_credit <= form.items.items[2].getValue();
-                                }
+                            function (record, id) {
+                                form = Ext.getCmp("report-form-cmp").getForm();
+                                return record.data.bill__balance_wo_credit <= form.items.items[2].getValue();
+                            }
                         );
                         load_mask.hide();
                         Ext.getCmp('report-grid-result').setHeight(200 + 23 * obj.data.items.length + (window.lines));
                         //$('body').height($(document).height());
+                        console.log('request finished');
+                        window.request_running = 0;
+                        while(window.running.length) {
+                            window.queued.remove(window.running.pop())
+                        }
+                        window.check_request()
                     }
                 }
             });
@@ -307,13 +362,20 @@
                             },
                             {header: "Подключен", dataIndex: 'activated', width: 75, sortable: false},
                             {header: "Отключен", dataIndex: 'deactivated', width: 75, sortable: false},
-                            {header: "Предупреждения", dataIndex: 'warning', width: 190, sortable: false},
+                            {header: "Предупреждения", dataIndex: 'warning', width: 190, sortable: false,
+                                renderer: function (value, metaData, record, rowIndex, colIndex, store) {
+                                    if(window.queued.indexOf(record.id)>=0) {
+                                        return value + '&nbsp;&nbsp;<div class="loading" data-wid="'+record.id+'">&nbsp;</div>'
+                                    }
+                                    return value;
+                                }
+                            },
                             {
                                 header: "", dataIndex: 'comment', width: 22, sortable: false,
                                 renderer: function (value, metaData, record, rowIndex, colIndex, store) {
                                     if (value) {
                                         window.lines++;
-                                        return '</td></tr><tr><td><div class="x-grid3-cell-inner x-grid3-cell-shadowed">Коментар:</div></td><td colspan="6"><div class="x-grid3-cell-inner x-grid3-cell-shadowed" unselectable="on">' + value + '</div></td></tr>'
+                                        return '</td></tr><tr><td><div class="x-grid3-cell-inner x-grid3-cell-shadowed">Коментар:</div></td><td colspan="7"><div class="x-grid3-cell-inner x-grid3-cell-shadowed" unselectable="on">' + value + '</div></td></tr>'
                                     } else {
                                         return '</td></tr>'
                                     }
@@ -324,9 +386,12 @@
                             singleSelect: true,
                             listeners: {
                                 rowselect: function (sm, row, rec) {
-                                    console.log([row, rec]);
-                                    window.selected_id = sm.grid.store.getAt(row).data.id;
                                     $(".warns").remove();
+                                    window.selected_id = sm.grid.store.getAt(row).data.id;
+                                    if(window.queued.indexOf(window.selected_id)>=0) {
+                                        console.log("already queued");
+                                        return false;
+                                    }
                                     $(".x-grid3-row-selected", "#report-grid-result").find(".x-grid3-td-7 div").prepend(
                                             '<div class="warns"><div class="wp0">' +
                                             '<td class="x-toolbar-cell" ><table  cellspacing="0" class="x-btn x-btn-text-icon x-btn-icon"><tbody class="x-btn-small x-btn-icon-small-left"><tr><td class="x-btn-tl"><i>&nbsp;</i></td><td class="x-btn-tc"></td><td class="x-btn-tr"><i>&nbsp;</i></td></tr><tr><td class="x-btn-ml"><i>&nbsp;</i></td><td class="x-btn-mc"><em class=" x-unselectable" unselectable="on"><button type="button"  class=" x-btn-text" style="background-image: url(https://biltv.local:8000/static/extjs/custom/label_16_green.png);">&nbsp;</button></em></td><td class="x-btn-mr"><i>&nbsp;</i></td></tr><tr><td class="x-btn-bl"><i>&nbsp;</i></td><td class="x-btn-bc"></td><td class="x-btn-br"><i>&nbsp;</i></td></tr></tbody></table></td>' +
