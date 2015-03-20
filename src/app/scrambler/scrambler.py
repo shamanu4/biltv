@@ -88,6 +88,7 @@ class ChannelExport(BasicExport):
     def __init__(self):
         self.data = []
         trunks = Trunk.objects.all()
+        self.data.append(trunks.count())
         for t in trunks:
             self.data.extend(t.channel_mask)
 
