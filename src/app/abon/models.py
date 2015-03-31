@@ -1059,6 +1059,18 @@ class Abonent(models.Model):
         return res
 
     def store_record(self):
+
+        STATUS_ACTIVE = 1
+        STATUS_DISABLED = 2
+        STATUS_DISABLED_OLD = 3
+
+        STATUS_COLORS = [
+            '#EBEBEB',
+            '#EBFFEB',
+            '#FFFFEB',
+            '#FFEBEB'
+        ]
+
         obj = {}
         obj['id'] = self.pk
         obj['code'] = self.code
@@ -1075,6 +1087,9 @@ class Abonent(models.Model):
         obj['bill__balance2'] = self.bill.balance2
         obj['bill__balance_wo_credit'] = self.bill.balance_get_wo_credit()
         obj['warning'] = self.warning or ""
+        if hasattr(self, 'status'):
+            obj['status'] = self.status
+            obj['status_color'] = STATUS_COLORS[self.status]
         return obj
 
 

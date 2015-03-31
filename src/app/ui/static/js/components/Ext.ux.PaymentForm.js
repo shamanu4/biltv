@@ -17,7 +17,7 @@ Ext.ux.PaymentForm = Ext.extend(Ext.Panel ,{
 				{
 					xtype: 'panel',
 					width:  500,
-					layout: 'column',
+                    layout: 'column',
 					columnWidth: 1,
 					items: [
 						this.searchfield = new Ext.form.ComboBox({
@@ -93,7 +93,9 @@ Ext.ux.PaymentForm = Ext.extend(Ext.Panel ,{
         							fields: [
             							'id',
             							'person',
-            							'disabled'
+            							'disabled',
+                                        'status',
+                                        'status_color'
 									]
     							}),
     							baseParams : {
@@ -108,6 +110,7 @@ Ext.ux.PaymentForm = Ext.extend(Ext.Panel ,{
 							emptyText: 'Абонент',
 							editable: false,
     						triggerAction: 'all',
+                            tpl: '<tpl for="."><div class="x-combo-list-item" style="background-color: {status_color};">{person}</div></tpl>',
 							listeners: {
 								change: {
 									fn: function(combo,newval,oldval) {
