@@ -156,12 +156,26 @@ class AbonApiClass(object):
     @check_perm('accounts.rpc_abon_abonent_get_by_code')
     @store_read
     def abonent_get_by_code(self, rdata, request):
+
+        def annotate(a, s):
+            a.status = s
+            return a
+
         from abon.models import Abonent
         if 'code' in rdata:
             res =  Abonent.objects.filter(code__iexact=rdata['code']).order_by('disabled')
             if 'filter_disabled' in rdata and rdata['filter_disabled']:
                 if not request.user.has_perm('abon.can_manage_disabled_abonents'):
                     res = res.filter(disabled__exact=False)
+            res = res.order_by('disabled', )
+            if res.count():
+                if not res[0].disabled:
+                    res = map(lambda a: annotate(a, 3) if a.disabled else annotate(a, 1), res)
+                else:
+                    res = sorted(list(res), key=lambda a: a.deactivated)
+                    res.reverse()
+                    k = res[0].id
+                    res = map(lambda a: annotate(a, 2) if a.id == k else annotate(a, 3), res)
             return res
         else:
             return []
