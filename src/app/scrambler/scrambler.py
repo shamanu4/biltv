@@ -68,7 +68,8 @@ class ChannelPacket(BasicPacket):
         self.data.append(0x03)
         self.data.append(trunks.count())
         for t in trunks:
-            self.data.extend(t.channel_mask)
+            self.data.extend([0,0])
+            # self.data.extend(t.channel_mask)
         self.mk_prefix()
         self.append_crc()
 
@@ -133,7 +134,7 @@ class UserExport(BasicExport):
         self.data.extend(int_to_4byte_wrapped(count))
 
         for card in CardDigital.objects.all():
-            self.data.extend(int_to_4byte_wrapped(card.pk))
+            # self.data.extend(int_to_4byte_wrapped(card.pk))
             self.data.extend(int_to_4byte_wrapped((card.num - 1) * 2))
             self.data.extend(card.bin_flags)
             self.data.extend(int_to_4byte_wrapped(card.balance_int or 0))
