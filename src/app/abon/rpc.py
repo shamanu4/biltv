@@ -172,7 +172,7 @@ class AbonApiClass(object):
                 if not res[0].disabled:
                     res = map(lambda a: annotate(a, 3) if a.disabled else annotate(a, 1), res)
                 else:
-                    res = sorted(list(res), key=lambda a: a.deactivated)
+                    res = sorted(list(res), key=lambda a: a.deactivated if a.deactivated else date.today())
                     res.reverse()
                     k = res[0].id
                     res = map(lambda a: annotate(a, 2) if a.id == k else annotate(a, 3), res)
