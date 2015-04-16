@@ -170,6 +170,7 @@ class BasicQuery:
             return False
 
         self.response = None
+        res = []
 
         for host in settings.SCR1_IP:
 
@@ -181,45 +182,48 @@ class BasicQuery:
             logger.debug("[%s] running query %s\n request: %s" % (host, self.packet.card, self.packet.hex()))
 
             s.connect((host, settings.SCR1_PORT))
+
             try:
                 if len(self.request) != s.send(self.request):
                     print("cannot send to %s:%d\n$!" % (host, settings.SCR1_PORT))
                     logger.error("cannot send to %s:%d\n$!" % (host, settings.SCR1_PORT))
-                    return {
-                        "error": "cannot send to %s:%d\n$!" % (host, settings.SCR1_PORT),
-                    }
+                    res.append({
+                        "error": "cannot send to %s:%d\n$!" % (host, settings.SCR1_PORT)
+                    })
                 else:
                     try:
                         (data, addr) = s.recvfrom(1024)
                     except socket.error, msg:
                         print("socket error: %s" % msg)
                         logger.error("socket error: %s" % msg)
-                        return {
+                        res.append({
                             "error": "socket error: %s" % msg
-                        }
+                        })
                     except Exception, e:
                         print("other error: %s", e)
                         logger.error("other error: %s", e)
-                        return {
+                        res.append({
                             "error": "other error"
-                        }
-                    self.response = data
-                    return self.unpack()
+                        })
+                    else:
+                        self.response = data
+                        res.append(self.unpack(host))
             except Exception, e:
                 print("retry error: %s. iteration: %s" % (e, iteration))
                 logger.error("retry error: %s. iteration: %s" % (e, iteration))
                 self.run(iteration=iteration + 1)
+        return res
 
 
-    def unpack(self):
+    def unpack(self, host):
 
         self.data = {}
         u = struct.unpack('!3B', self.response)
         self.data.update({'len': u[0]})
         self.data.update({'result': u[1]})
         self.data.update({'checksum': u[2]})
-        print "finished query %s\n data: %s" % (self.__class__, self.data)
-        logger.debug("finished query %s\n data: %s" % (self.packet.card, self.data))
+        print "[%s] finished query %s\n data: %s" % (host, self.__class__, self.data)
+        logger.debug("[%s] finished query %s\n data: %s" % (host, self.packet.card, self.data))
         return self.data
 
     def cutzero(self, data):
