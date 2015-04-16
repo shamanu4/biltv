@@ -68,8 +68,8 @@ class ChannelPacket(BasicPacket):
         self.data.append(0x03)
         self.data.append(trunks.count())
         for t in trunks:
-            self.data.extend([0,0])
-            # self.data.extend(t.channel_mask)
+            # self.data.extend([0,0])
+            self.data.extend(t.channel_mask)
         self.mk_prefix()
         self.append_crc()
 
