@@ -163,18 +163,23 @@ class BasicQuery:
             return {
                 "error": "maximum retries done to send data"
             }
-        print "running query %s\n request: %s" % (self.__class__, self.packet.hex())
-        logger.debug("running query %s\n request: %s" % (self.packet.card, self.packet.hex()))
+
         if not settings.SCR1_ENABLED:
             logger.warning("disabled in config. query terminated")
             print "disabled in config. query terminated"
             return False
 
         self.response = None
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_RCVTIMEO, struct.pack('ll', 3, 0))
-        s.settimeout(0.3)
+
         for host in settings.SCR1_IP:
+
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_RCVTIMEO, struct.pack('ll', 3, 0))
+            s.settimeout(0.3)
+
+            print "[%s] running query %s\n request: %s" % (host, self.__class__, self.packet.hex())
+            logger.debug("[%s] running query %s\n request: %s" % (host, self.packet.card, self.packet.hex()))
+
             s.connect((host, settings.SCR1_PORT))
             try:
                 if len(self.request) != s.send(self.request):
@@ -199,6 +204,7 @@ class BasicQuery:
                     return self.unpack()
             except:
                 self.run(iteration=iteration + 1)
+
 
     def unpack(self):
 
