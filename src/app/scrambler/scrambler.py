@@ -183,6 +183,7 @@ class BasicQuery:
             s.connect((host, settings.SCR1_PORT))
             try:
                 if len(self.request) != s.send(self.request):
+                    print("cannot send to %s:%d\n$!" % (host, settings.SCR1_PORT))
                     logger.error("cannot send to %s:%d\n$!" % (host, settings.SCR1_PORT))
                     return {
                         "error": "cannot send to %s:%d\n$!" % (host, settings.SCR1_PORT),
@@ -191,18 +192,22 @@ class BasicQuery:
                     try:
                         (data, addr) = s.recvfrom(1024)
                     except socket.error, msg:
+                        print("socket error: %s" % msg)
                         logger.error("socket error: %s" % msg)
                         return {
                             "error": "socket error: %s" % msg
                         }
-                    except:
-                        logger.error("other error")
+                    except Exception, e:
+                        print("other error: %s", e)
+                        logger.error("other error: %s", e)
                         return {
                             "error": "other error"
                         }
                     self.response = data
                     return self.unpack()
-            except:
+            except Exception, e:
+                print("retry error: %s. iteration: %s" % (e, iteration))
+                logger.error("retry error: %s. iteration: %s" % (e, iteration))
                 self.run(iteration=iteration + 1)
 
 
