@@ -25,7 +25,7 @@ class Command(BaseCommand):
         settings.DEBUG = False
         ChannelExport.export()
         print "prog.bin ready"
-        # UserExport.export()
+        UserExport.export()
         print "user.bin ready"
         subprocess.call(["scp", USER_BIN, SCP_PATH])
         subprocess.call(["scp", PROG_BIN, SCP_PATH])
