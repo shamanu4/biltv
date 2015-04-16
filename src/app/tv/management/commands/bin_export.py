@@ -10,9 +10,10 @@ settings.DEBUG = False
 HOST = "192.168.33.152"
 USER = "maxim"
 REMOTE_DIR = "~/scr"
-LOCAL = "../export/*.bin"
+LOCAL = "export/*.bin"
 SCR_IP = "192.168.17.41"
 
+SSH_AUTH = "{user}@{host}".format(user=USER, host=HOST)
 SCP_PATH = "{user}@{host}:{dir}".format(user=USER, host=HOST, dir=REMOTE_DIR)
 
 class Command(BaseCommand):
@@ -22,7 +23,8 @@ class Command(BaseCommand):
         settings.DEBUG = False
         ChannelExport.export()
         print "prog.bin ready"
-        UserExport.export()
+        # UserExport.export()
         print "user.bin ready"
         subprocess.call(["scp", LOCAL, SCP_PATH])
+        subprocess.call(["ssh", SSH_AUTH, "scrambler/scr1fs", "192.168.17.41", "forceupload", '"prog.bin"', '"user.bin"'])
         print "export done"
