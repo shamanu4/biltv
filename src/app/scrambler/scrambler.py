@@ -239,7 +239,8 @@ class VersionQuery(BasicQuery):
         self.packet = VersionPacket()
         self.request = self.packet.binary()
 
-    def unpack(self):
+    def unpack(self, host):
+        from pprint import pprint
         u = struct.unpack('!B32s9B', self.response)
         self.data.update({'len': u[0]})
         self.data.update({'devname': self.cutzero(u[1])})
@@ -248,6 +249,7 @@ class VersionQuery(BasicQuery):
         self.data.update({'reserved': u[7]})
         self.data.update({'ver': "%s.%s" % (u[9], u[8])})
         self.data.update({'checksum': u[10]})
+        pprint({'host': host, 'data':self.data})
         return self.data
 
 
