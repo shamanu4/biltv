@@ -10,7 +10,8 @@ settings.DEBUG = False
 HOST = "192.168.33.152"
 USER = "maxim"
 REMOTE_DIR = "~/scrambler"
-LOCAL = "%s/*.bin" % settings.EXPORT_PATH
+PROG_BIN = "%s/prog.bin" % settings.EXPORT_PATH
+USER_BIN = "%s/user.bin" % settings.EXPORT_PATH
 SCR_IP = "192.168.17.41"
 
 SSH_AUTH = "{user}@{host}".format(user=USER, host=HOST)
@@ -26,6 +27,7 @@ class Command(BaseCommand):
         print "prog.bin ready"
         # UserExport.export()
         print "user.bin ready"
-        subprocess.call(["scp", LOCAL, SCP_PATH])
+        subprocess.call(["scp", USER_BIN, SCP_PATH])
+        subprocess.call(["scp", PROG_BIN, SCP_PATH])
         subprocess.call(["ssh", SSH_AUTH, "scrambler/scr1fs", "192.168.17.41", '"prog.bin"', '"user.bin"'])
         print "export done"
