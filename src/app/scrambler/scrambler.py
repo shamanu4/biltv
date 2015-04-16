@@ -148,9 +148,7 @@ class UserExport(BasicExport):
 
 class BasicQuery:
     # host = '192.168.33.158'
-    host = settings.SCR1_IP
     # port = 49153
-    port = settings.SCR1_PORT
     packet = None
     request = None
     response = None
@@ -165,41 +163,48 @@ class BasicQuery:
             return {
                 "error": "maximum retries done to send data"
             }
-        print "running query %s\n request: %s" % (self.__class__, self.packet.hex())
-        logger.debug("running query %s\n request: %s" % (self.packet.card, self.packet.hex()))
+
         if not settings.SCR1_ENABLED:
             logger.warning("disabled in config. query terminated")
             print "disabled in config. query terminated"
             return False
 
         self.response = None
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_RCVTIMEO, struct.pack('ll', 3, 0))
-        s.settimeout(0.3)
-        s.connect((self.host, self.port))
-        try:
-            if len(self.request) != s.send(self.request):
-                logger.error("cannot send to %s:%d\n$!" % (self.host, self.port))
-                return {
-                    "error": "cannot send to %s:%d\n$!" % (self.host, self.port),
-                }
-            else:
-                try:
-                    (data, addr) = s.recvfrom(1024)
-                except socket.error, msg:
-                    logger.error("socket error: %s" % msg)
+
+        for host in settings.SCR1_IP:
+
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_RCVTIMEO, struct.pack('ll', 3, 0))
+            s.settimeout(0.3)
+
+            print "[%s] running query %s\n request: %s" % (host, self.__class__, self.packet.hex())
+            logger.debug("[%s] running query %s\n request: %s" % (host, self.packet.card, self.packet.hex()))
+
+            s.connect((host, settings.SCR1_PORT))
+            try:
+                if len(self.request) != s.send(self.request):
+                    logger.error("cannot send to %s:%d\n$!" % (host, settings.SCR1_PORT))
                     return {
-                        "error": "socket error: %s" % msg
+                        "error": "cannot send to %s:%d\n$!" % (host, settings.SCR1_PORT),
                     }
-                except:
-                    logger.error("other error")
-                    return {
-                        "error": "other error"
-                    }
-                self.response = data
-                return self.unpack()
-        except:
-            self.run(iteration=iteration + 1)
+                else:
+                    try:
+                        (data, addr) = s.recvfrom(1024)
+                    except socket.error, msg:
+                        logger.error("socket error: %s" % msg)
+                        return {
+                            "error": "socket error: %s" % msg
+                        }
+                    except:
+                        logger.error("other error")
+                        return {
+                            "error": "other error"
+                        }
+                    self.response = data
+                    return self.unpack()
+            except:
+                self.run(iteration=iteration + 1)
+
 
     def unpack(self):
 
