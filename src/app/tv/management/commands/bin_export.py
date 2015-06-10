@@ -12,7 +12,7 @@ USER = "maxim"
 REMOTE_DIR = "~/scrambler"
 PROG_BIN = "%s/prog.bin" % settings.EXPORT_PATH
 USER_BIN = "%s/user.bin" % settings.EXPORT_PATH
-SCR_IP = "192.168.17.41"
+SCR_IP = "192.168.17.45"
 
 SSH_AUTH = "{user}@{host}".format(user=USER, host=HOST)
 SCP_PATH = "{user}@{host}:{dir}".format(user=USER, host=HOST, dir=REMOTE_DIR)

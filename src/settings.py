@@ -145,7 +145,7 @@ PROGRAM_VERSION = 'v0.18.1'
 #TODO: move this option in settings_local
 EXPORT_PATH = rel('..','export')
 SCR1_ENABLED = False
-SCR1_IP = ["192.168.17.40", "192.168.17.41"]
+SCR1_IP = ["192.168.17.45",]
 SCR1_PORT = 49153
 NEGATIVE_SUM_LOCK = -25
 NEGATIVE_SUM_BACKUP = -50
