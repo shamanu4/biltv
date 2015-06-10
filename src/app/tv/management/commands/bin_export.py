@@ -29,5 +29,5 @@ class Command(BaseCommand):
         print "user.bin ready"
         subprocess.call(["scp", USER_BIN, SCP_PATH])
         subprocess.call(["scp", PROG_BIN, SCP_PATH])
-        subprocess.call(["ssh", SSH_AUTH, "scrambler/scr1fs", "192.168.17.41", '"prog.bin"', '"user.bin"'])
+        subprocess.call(["ssh", SSH_AUTH, "scrambler/scr1fs", "192.168.17.45", '"prog.bin"', '"user.bin"'])
         print "export done"
