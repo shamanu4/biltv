@@ -1220,6 +1220,7 @@ class AbillsLink(models.Model):
 
     def sync(self):
         from lib.functions import round1000
+        action = False
         u = self.abonent.abills_get_user(self.service.extra)
         bill = self.abills.bill
         print
@@ -1236,20 +1237,21 @@ class AbillsLink(models.Model):
             if 0<diff<1:
                 print "delta too small. ignored"
                 diff=0
-                return False
-            if -1<diff<0:
+            elif -1<diff<0:
                 print "small negative delta. ignored"
                 diff=0
-                return False
-            if diff>0:
+            elif diff>0:
                 self.payment(diff)
-            else:
+                action = True
+            elif diff<0:
                 self.fee(-diff)
-            self.abills.admin_log('TV. deposit %s -> %s UAH' % (bill.deposit,self.abonent.bill.balance_get()), datetime.now())
-            bill.deposit = self.abonent.bill.balance_get()
-            bill.sync=bill.deposit
-            bill.save()
-        elif not bill.deposit == self.abonent.bill.balance_get():
+                action = True
+            if action:
+                self.abills.admin_log('TV. deposit %s -> %s UAH' % (bill.deposit,self.abonent.bill.balance_get()), datetime.now())
+                bill.deposit = self.abonent.bill.balance_get()
+                bill.sync=bill.deposit
+                bill.save()
+        if not action and not bill.deposit == self.abonent.bill.balance_get():
             diff = bill.deposit - self.abonent.bill.balance_get()
             if -0.1<diff<0.1:
                 print "local change too small. ignored"
