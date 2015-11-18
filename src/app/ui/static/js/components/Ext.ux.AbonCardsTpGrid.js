@@ -39,7 +39,12 @@ Ext.ux.AbonCardsTpGrid = Ext.extend(Ext.ux.CustomGrid ,{
             listeners: {
                 afterrender : {
                     fn: function(obj) {
-                        obj.parent_form.children_forms.tariffs.obj=obj
+                        obj.parent_form.children_forms.tariffs.obj=obj;
+                        //obj.body.dom.style = obj.parent_form.children_forms.cards.obj.body.dom.style;
+                        if(navigator.Vendor == "Firefox" && navigator.Version >= 42) {
+                            console.log("WARNING! Buggy Firefox version >= 42.0 found! Applying monkeypatch for it!");
+                            obj.body.dom.style = "width: 485px; height: 189px;";
+                        }
                     },
                     scope: this
                 }
