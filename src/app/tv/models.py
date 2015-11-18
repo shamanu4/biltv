@@ -215,7 +215,7 @@ class FeeType(models.Model):
                 sum=round(sum*self.get_proportion(date),2)
                 if self.ftype==FEE_TYPE_ONCE:
                     ret=sum
-            print {'fee':sum,'ret':ret,'full':sum,'bonus':bonus,'retbonus':retbonus}
+            # print {'fee':sum,'ret':ret,'full':sum,'bonus':bonus,'retbonus':retbonus}
             return {'fee':sum,'ret':ret,'full':sum,'bonus':bonus,'retbonus':retbonus}
         
         ranges = self.customranges.filter(interval__start__lte=date).filter(interval__end__gte=date).filter(startday__lte=day).filter(endday__gte=day)
@@ -227,7 +227,7 @@ class FeeType(models.Model):
             full += range.sum
         if not ranges.count():
             full = self.sum                  
-        print {'fee':sum,'ret':ret,'full':sum,'bonus':bonus,'retbonus':retbonus}
+        # print {'fee':sum,'ret':ret,'full':sum,'bonus':bonus,'retbonus':retbonus}
         return {'fee':sum,'ret':ret,'full':full,'bonus':bonus,'retbonus':retbonus}
 
     def store_record(self):
@@ -319,8 +319,8 @@ class TariffPlan(models.Model):
         return res
     
     def copy_channels(self,tp):
+        print "cloning to: %s" % self
         for ch in tp.channels.all():
-            print "cloning to: %s" % self
             try:
                 self.channels.through(chrel=ch, tp=self).save()
             except:
