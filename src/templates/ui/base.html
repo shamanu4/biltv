@@ -4,61 +4,61 @@
 
 {% block head %}
     <script type="text/javascript" src="{% url "ui:api" %}?v={{ PROGRAM_VERSION }}і"></script>
-    <script type="text/javascript" src="{% static "js/ui-head.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/Ext.ux.grid.CheckColumn.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/Ext.stores.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/ui-head.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/Ext.ux.grid.CheckColumn.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/Ext.stores.js" %}?v={{ PROGRAM_VERSION }}"></script>
     {% compress js %}
 {#    <script type="text/javascript" src="{% static "js/Ext.ux.components.js"></script>#}
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.msg.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.traceback.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.LoginForm.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.LoginWindow.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.TabPanel.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.menu.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.MenuBar.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.CustomGridNE.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.CustomGrid.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.CityGrid.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.StreetGrid.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.HouseNumGrid.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.BuildingGrid.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.IllegalGrid.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.WarningGrid.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.AbonentGrid.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.CardGrid.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.SourceCombo.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.RegisterGrid.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.RegisterForm.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.PersonForm.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.StreetCombo.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.HouseCombo.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.AddressForm.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.BalanceForm.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.FreeCardCombo.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.AbonCardsGrid.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.CardTpCombo.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.AbonCardsTpGrid.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.AbonPaymentsGrid.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.AbonFeesGrid.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.AbonOperationsGrid.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.AbonHistoryGrid.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.AbonCreditsGrid.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.AbonIllegalGrid.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.AbonWarningGrid.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.AbonCommentsPanel.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.AbonInfoPanel.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.AbonentForm.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.PaymentForm.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.FeeForm.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.DisableForm.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.EnableForm.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.TransferForm.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.AbonTpMoveCombo.js" %}"></script>
-    <script type="text/javascript" src="{% static "js/components/Ext.ux.AbonTpMoveForm.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.msg.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.traceback.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.LoginForm.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.LoginWindow.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.TabPanel.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.menu.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.MenuBar.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.CustomGridNE.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.CustomGrid.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.CityGrid.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.StreetGrid.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.HouseNumGrid.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.BuildingGrid.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.IllegalGrid.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.WarningGrid.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.AbonentGrid.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.CardGrid.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.SourceCombo.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.RegisterGrid.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.RegisterForm.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.PersonForm.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.StreetCombo.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.HouseCombo.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.AddressForm.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.BalanceForm.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.FreeCardCombo.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.AbonCardsGrid.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.CardTpCombo.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.AbonCardsTpGrid.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.AbonPaymentsGrid.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.AbonFeesGrid.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.AbonOperationsGrid.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.AbonHistoryGrid.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.AbonCreditsGrid.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.AbonIllegalGrid.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.AbonWarningGrid.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.AbonCommentsPanel.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.AbonInfoPanel.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.AbonentForm.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.PaymentForm.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.FeeForm.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.DisableForm.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.EnableForm.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.TransferForm.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.AbonTpMoveCombo.js" %}?v={{ PROGRAM_VERSION }}"></script>
+    <script type="text/javascript" src="{% static "js/components/Ext.ux.AbonTpMoveForm.js" %}?v={{ PROGRAM_VERSION }}"></script>
     {% endcompress %}
-    <script type="text/javascript" src="{% static "js/Ext.ux.MainViewport.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/Ext.ux.MainViewport.js" %}?v={{ PROGRAM_VERSION }}"></script>
     <script type="text/javascript">
-        Ext.BLANK_IMAGE_URL = '{% static "extjs/resources/images/default/s.gif" %}"';
+        Ext.BLANK_IMAGE_URL = '{% static "extjs/resources/images/default/s.gif" %}?v={{ PROGRAM_VERSION }}"';
         Ext.QuickTips.init();
         
         Ext.apply(Ext.QuickTips.getQuickTip(), {
@@ -151,7 +151,7 @@
     <div id="loading-mask-half" style=""></div>
     <div id="loading">
         <div class="loading-indicator">
-            <!-- <img src="{% static "img/ajax-loader2.gif" %}" width="100" height="100" style="margin-right:8px;" align="absmiddle"/>
+            <!-- <img src="{% static "img/ajax-loader2.gif" %}?v={{ PROGRAM_VERSION }}" width="100" height="100" style="margin-right:8px;" align="absmiddle"/>
 			-->
         </div>
     </div>
