@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
+from unidecode import unidecode
 from logger.models import logging_postsave, logging_postdelete
 from datetime import datetime, date, time, timedelta
 from time import mktime
@@ -319,10 +320,12 @@ class TariffPlan(models.Model):
     
     def copy_channels(self,tp):
         for ch in tp.channels.all():
+            print "cloning to: %s" % self
             try:
                 self.channels.through(chrel=ch,tp=self).save()
             except:
-                print "%s failed!" % ch
+                pass
+            print " -- copied -- %s" % ch
     
     def store_record(self):
         obj = {}
