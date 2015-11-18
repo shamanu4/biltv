@@ -322,10 +322,11 @@ class TariffPlan(models.Model):
         for ch in tp.channels.all():
             print "cloning to: %s" % self
             try:
-                self.channels.through(chrel=ch,tp=self).save()
+                self.channels.through(chrel=ch, tp=self).save()
             except:
                 pass
-            print " -- copied -- %s" % ch
+            else:
+                print " -- copied -- %s" % ch
     
     def store_record(self):
         obj = {}
