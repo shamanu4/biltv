@@ -140,7 +140,7 @@ STATICFILES_FINDERS = (
 )
 
 DIGITAL_CARD_ALLOW_DELETE = True
-PROGRAM_VERSION = 'v0.18.2'
+PROGRAM_VERSION = 'v0.18.3'
 
 #TODO: move this option in settings_local
 EXPORT_PATH = rel('..','export')

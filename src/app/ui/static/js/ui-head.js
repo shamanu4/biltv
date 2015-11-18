@@ -23,6 +23,8 @@ navigator.sayswho= (function(){
 navigator.Vendor = navigator.sayswho.split(' ')[0];
 navigator.Version = parseFloat(navigator.sayswho.split(' ')[1]);
 
+console.log(navigator.sayswho);
+
 alert = jAlert; 
 //confirm = jConfirm;
 //prompt= jPrompt;
