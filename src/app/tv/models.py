@@ -486,9 +486,9 @@ class Payment(models.Model):
     rolled_by = models.OneToOneField("tv.Payment", blank=True, null=True)
     descr = models.TextField()
     inner_descr = models.TextField()
-    admin = models.ForeignKey("accounts.User", blank=True, null=True)
-    source = models.ForeignKey("tv.PaymentSource", blank=True, null=True)
-    register = models.ForeignKey("tv.PaymentRegister", blank=True, null=True, related_name="payments")
+    admin = models.ForeignKey("accounts.User", blank=True, null=True, on_delete=models.SET_NULL)
+    source = models.ForeignKey("tv.PaymentSource", blank=True, null=True, on_delete=models.SET_NULL)
+    register = models.ForeignKey("tv.PaymentRegister", blank=True, null=True, related_name="payments", on_delete=models.SET_NULL)
     bank_date = models.DateField(default=date.today)
 
     def __unicode__(self):
@@ -619,7 +619,7 @@ class Fee(models.Model):
 
     timestamp = models.DateTimeField(default=datetime.now)
     bill = models.ForeignKey("abon.Bill",related_name="fees")
-    card = models.ForeignKey("tv.Card",blank=True,null=True)
+    card = models.ForeignKey("tv.Card",blank=True,null=True, on_delete=models.SET_NULL)
     sum = models.FloatField(default=0)    
     prev = models.FloatField(default=0)
     bonus = models.FloatField(default=0)
@@ -628,9 +628,9 @@ class Fee(models.Model):
     rolled_by = models.OneToOneField("tv.Fee", blank=True, null=True)
     descr = models.TextField()
     inner_descr = models.TextField()
-    tp = models.ForeignKey(TariffPlan, blank=True, null=True)
-    fee_type = models.ForeignKey(FeeType, blank=True, null=True)
-    admin = models.ForeignKey("accounts.User", blank=True, null=True)    
+    tp = models.ForeignKey(TariffPlan, blank=True, null=True, on_delete=models.SET_NULL)
+    fee_type = models.ForeignKey(FeeType, blank=True, null=True, on_delete=models.SET_NULL)
+    admin = models.ForeignKey("accounts.User", blank=True, null=True, on_delete=models.SET_NULL)
 
     def __unicode__(self):
         return "%s" % self.sum
