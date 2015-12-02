@@ -1176,10 +1176,11 @@ class Card(models.Model):
             service.make_fees(date)
     
     def check_past_deactivation(self,deactivated):
-        fees = self.fee_set.filter(maked=True,rolled_by=None,sum__gt=0,timestamp__gt=deactivated)
-        for fee in fees:
-            if not fee.fee_type.ftype == FEE_TYPE_ONCE and not fee.fee_type.ftype == FEE_TYPE_CUSTOM:  
-                fee.rollback()
+        return False
+        # fees = self.fee_set.filter(maked=True,rolled_by=None,sum__gt=0,timestamp__gt=deactivated)
+        # for fee in fees:
+        #     if not fee.fee_type.ftype == FEE_TYPE_ONCE and not fee.fee_type.ftype == FEE_TYPE_CUSTOM:
+        #         fee.rollback()
     
     def get_service(self,tp):
         try:
