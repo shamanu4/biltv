@@ -1315,19 +1315,20 @@ class AbonApiClass(object):
 
     @check_perm('accounts.rpc_abon_balance_set')
     def balance_set(self, rdata, request):
-        from abon.models import Abonent
-
-        uid = int(rdata['uid'])
-        if uid > 0:
-            try:
-                abonent = Abonent.objects.get(pk=uid)
-            except Abonent.DoesNotExist:
-                return dict(success=False, title='Сбой правки баланса', msg='abonent not found', errors='')
-            else:
-                abonent.fix_bill_history()
-                return dict(success=True,
-                            data={'balance': abonent.bill.balance_get_wo_credit(), 'credit': abonent.bill.get_credit()})
-        else:
-            return dict(success=True, data={'balance': None, 'credit': None})
+        return dict(success=False, title='Сбой правки баланса', msg='feature disabled', errors='')
+        # from abon.models import Abonent
+        #
+        # uid = int(rdata['uid'])
+        # if uid > 0:
+        #     try:
+        #         abonent = Abonent.objects.get(pk=uid)
+        #     except Abonent.DoesNotExist:
+        #         return dict(success=False, title='Сбой правки баланса', msg='abonent not found', errors='')
+        #     else:
+        #         abonent.fix_bill_history()
+        #         return dict(success=True,
+        #                     data={'balance': abonent.bill.balance_get_wo_credit(), 'credit': abonent.bill.get_credit()})
+        # else:
+        #     return dict(success=True, data={'balance': None, 'credit': None})
 
     balance_set._args_len = 1
