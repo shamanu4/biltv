@@ -973,7 +973,8 @@ class Card(models.Model):
 
     def send_one(self):
         uq = self.defer_one()
-        uq.run()
+        if uq:
+            uq.run()
 
     def send(self):
         start = time()
