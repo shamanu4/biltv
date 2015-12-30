@@ -86,7 +86,6 @@ class User(models.Model):
     
     def promotion_on(self,card,cs,pl,timestamp):
         pi = self.pi
-        print pi
         if pi:
             pi.card_num = card.num
         pi.save()
