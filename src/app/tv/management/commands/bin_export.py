@@ -29,5 +29,7 @@ class Command(BaseCommand):
         print "user.bin ready"
         subprocess.call(["scp", USER_BIN, SCP_PATH])
         subprocess.call(["scp", PROG_BIN, SCP_PATH])
-        subprocess.call(["ssh", SSH_AUTH, "scrambler/scr1fs", "192.168.17.45", '"prog.bin"', '"user.bin"'])
+        # subprocess.call(["ssh", SSH_AUTH, "scrambler/scr1fs", "192.168.17.45", '"prog.bin"', '"user.bin"'])
+        subprocess.call(["ftp", "-in", "-u", "ftp://root:7461120@192.168.17.50/scr/user.bin", USER_BIN, ])
+        subprocess.call(["ftp", "-in", "-u", "ftp://root:7461120@192.168.17.50/scr/prog.bin", PROG_BIN, ])
         print "export done"
