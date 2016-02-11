@@ -45,6 +45,7 @@ class Command(BaseCommand):
         self.http_server = tornado.httpserver.HTTPServer(application, ssl_options={
             "certfile": "/etc/ssl/biltv/biltv.itim.net.crt",
             "keyfile":  "/etc/ssl/biltv/biltv.itim.net.key",
+            "ca_certs":  "/etc/ssl/biltv/root_bundle.crt",
         })
         self.http_server.listen(port, address)
 
