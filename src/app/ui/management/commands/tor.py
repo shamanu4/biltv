@@ -42,7 +42,10 @@ class Command(BaseCommand):
             port = int(settings.TORNADO_PORT)
             address = str(settings.TORNADO_IP)
 
-        self.http_server = tornado.httpserver.HTTPServer(application)
+        self.http_server = tornado.httpserver.HTTPServer(application, ssl_options={
+            "certfile": "/etc/ssl/biltv/biltv.itim.net.crt",
+            "keyfile":  "/etc/ssl/biltv/biltv.itim.net.key",
+        })
         self.http_server.listen(port, address)
 
         # Init signals handler
