@@ -89,6 +89,7 @@ class TariffPlanChannelRelationshipInlineForm(forms.ModelForm):
 class TariffPlanChannelRelationshipInline(admin.TabularInline):
     model = TariffPlanChannelRelationship
     form = TariffPlanChannelRelationshipInlineForm
+    raw_id_fields = ['chrel', ]
     extra = 1
 
 class TariffPlanFeeRelationshipInlineForm(forms.ModelForm):
