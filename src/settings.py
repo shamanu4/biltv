@@ -153,22 +153,10 @@ ALL_USERS_CREDIT = 1
 DEFAULT_CATV_TP_ID = 1
 NOSLEEP = 1
 
+CHAN_COPY_SOURCE = 6
+CHAN_COPY_DESTINATION = [11, 12, 13, 14, 15, 9, 29, 30, 31]
+
 try:
     from settings_local import *
 except ImportError:
     pass
-
-CHAN_COPY_SOURCE = 6
-CHAN_COPY_DESTINATION = [11, 12, 13, 14, 15, 9, 29, 30, 31]
-
-
-# COMPRESS_JS_FILTERS = [
-#     # 'compressor.filters.yui.YUIJSFilter',
-#     # 'compressor.filters.closure.ClosureCompilerFilter'
-#     # 'compressor.filters.jsmin.SlimItFilter',
-# ]
-
-# COMPRESS_YUI_BINARY = rel("../lib/yuicompressor-2.4.8.jar")
-# COMPRESS_YUI_JS_ARGUMENTS = "--nomunge"
-
-# COMPRESS_CLOSURE_COMPILER_BINARY = "java -jar %s " % rel('../lib/compiler.jar')
