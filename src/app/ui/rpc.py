@@ -1,39 +1,42 @@
 # -*- coding: utf-8 -*-
 
-from lib.extjs import RpcRouter, store_read, check_perm
-from tv.rpc import TvApiClass
-from abon.rpc import AbonApiClass
-from abon.models import City, Street, House, Building, Abonent, Illegal, AbonentWarning
-from tv.models import Card, PaymentRegister, PaymentSource
-from abon.forms import CityForm, StreetForm, HouseNumForm, BuildingForm, IllegalForm
-from tv.forms import CardForm, RegisterForm
-from django.db.models import Q
-from forms import LoginForm
 from django.contrib.auth import logout
+from django.db.models import Q
+from django.forms import Form, ModelForm
+
+from abon.forms import CityForm, StreetForm, HouseNumForm, BuildingForm, IllegalForm
+from abon.models import City, Street, House, Building, Abonent, Illegal, AbonentWarning
+from abon.rpc import AbonApiClass
+from forms import LoginForm
+from lib.extjs import RpcRouter, store_read, check_perm
+from tv.forms import CardForm, RegisterForm
+from tv.models import Card, PaymentRegister, PaymentSource
+from tv.rpc import TvApiClass
 
 
 class MainApiClass(object):
-
     def is_authenticated(self, request):
         print request.session.session_key
         if request.user.is_authenticated():
-            return dict(success=True, authenticated=True, active=request.user.is_active, title='Приветствие', msg='Hello %s!' % request.user)
+            return dict(success=True, authenticated=True, active=request.user.is_active, title='Приветствие',
+                        msg='Hello %s!' % request.user)
         else:
             return dict(success=False, authenticated=False)
 
     is_authenticated._args_len = 0
 
     def login(self, rdata, request):
-                
+
         form = LoginForm(rdata, request.user)
         if form.is_valid():
             return form.save(request)
         else:
-            return dict(success=False, title='Сбой авторизации.', msg='authorization data is invaid', errors=form._errors)
+            return dict(success=False, title='Сбой авторизации.', msg='authorization data is invaid',
+                        errors=form._errors)
 
     login._form_handler = True
 
-    def logout(self,request):
+    def logout(self, request):
 
         logout(request)
         # msg handlead at client. title removed to prevent default msg handler
@@ -42,7 +45,7 @@ class MainApiClass(object):
 
     logout._args_len = 0
 
-    def menu(self,request):
+    def menu(self, request):
         menuitems = []
         user = request.user
         if user.has_perm('tv.manage_trunk'):
@@ -52,25 +55,23 @@ class MainApiClass(object):
         menuitems.append('address')
 
         return dict(success=True, menuitems=menuitems)
-    
+
     menu._args_len = 0
 
 
-
 class GridApiClass(object):
-
-    def __init__(self,model,form,filter=None):
+    def __init__(self, model, form, filter=None):
         self.filter = filter
         self.model = model
         self.form = form
 
     @store_read
-    def read_one(self,oid):
+    def read_one(self, oid):
         return self.model.objects.get(pk=oid)
-        
-    #@check_perm('accounts.rpc_read_generic_grid')
+
+    # @check_perm('accounts.rpc_read_generic_grid')
     @store_read
-    def read(self,rdata,request):
+    def read(self, rdata, request):
         if self.filter:
             return self.model.objects.all().filter(self.filter)
         else:
@@ -79,7 +80,7 @@ class GridApiClass(object):
     read._args_len = 1
 
     @check_perm('accounts.rpc_update_generic_grid')
-    def update(self,rdata,request):
+    def update(self, rdata, request):
 
         """
         dirty dirty hack
@@ -98,7 +99,10 @@ class GridApiClass(object):
         except self.model.DoesNotExist:
             return dict(success=False, msg="object not found")
         else:
-            form = self.form(data, instance=obj)
+            if type(self.form) == ModelForm:
+                form = self.form(data, instance=obj)
+            else:
+                form = self.form(data)
             if form.is_valid():
                 res = form.save(obj)
                 ok = res[0]
@@ -106,16 +110,16 @@ class GridApiClass(object):
                 msg = res[2]
             else:
                 ok = False
-                print form._errors
                 msg = form._errors
         if ok:
             return dict(success=True, title="Сохранено", msg="saved", data=result)
         else:
             return dict(success=False, title="Ошибка записи", msg=msg, data={})
+
     update._args_len = 1
 
     @check_perm('accounts.rpc_add_in_generic_grid')
-    def create(self,rdata,request):
+    def create(self, rdata, request):
         if not self.form:
             return dict(success=False, title="Ошибка записи", msg="Только для чтения", data={})
         result = []
@@ -133,20 +137,20 @@ class GridApiClass(object):
             return dict(success=True, title="Сохранено", msg="saved", data=result)
         else:
             return dict(success=False, title="Ошибка записи", msg=msg, data={})
+
     create._args_len = 1
 
     @check_perm('accounts.rpc_delete_in_generic_grid')
-    def destroy(self,rdata,request):
+    def destroy(self, rdata, request):
         print request.POST
         print request.body
 
-    def foo(self,rdata,request):
+    def foo(self, rdata, request):
         print rdata
 
 
 class Router(RpcRouter):
     def __init__(self):
-
         self.url = 'ui:router'
         self.actions = {
             'MainApi': MainApiClass(),
