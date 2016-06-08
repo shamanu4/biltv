@@ -2,6 +2,7 @@
 
 from django.contrib.auth import logout
 from django.db.models import Q
+from django.forms import Form, ModelForm
 
 from abon.forms import CityForm, StreetForm, HouseNumForm, BuildingForm, IllegalForm
 from abon.models import City, Street, House, Building, Abonent, Illegal, AbonentWarning
@@ -98,7 +99,10 @@ class GridApiClass(object):
         except self.model.DoesNotExist:
             return dict(success=False, msg="object not found")
         else:
-            form = self.form(data, instance=obj)
+            if type(self.form) == ModelForm:
+                form = self.form(data, instance=obj)
+            else:
+                form = self.form(data)
             if form.is_valid():
                 res = form.save(obj)
                 ok = res[0]
@@ -106,7 +110,6 @@ class GridApiClass(object):
                 msg = res[2]
             else:
                 ok = False
-                print form._errors
                 msg = form._errors
         if ok:
             return dict(success=True, title="Сохранено", msg="saved", data=result)
