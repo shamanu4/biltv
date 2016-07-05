@@ -5,6 +5,7 @@ import pandas as pd
 import os
 from datetime import datetime
 from unidecode import unidecode
+from pprint import pprint
 import json
 import warnings
 
@@ -44,31 +45,35 @@ class Command(BaseCommand):
             except Exception, e:
                 raise CommandError("Can't parse file. Error: %s" % e)
             else:
-                # @TODO: find proper head and data structures in file.
-                index = 1
-                ok = False
-                e = ""
-                statement = {}
-                head = {}
-                data = {}
-                while not ok and index < 3:
-                    print ok, index
-                    head = parsed[index]
-                    data = parsed[index+1]
-                    try:
-                        statement = {
-                            'day': date,
-                            'opcount': int(float(head[1][2])),
-                            'remains': float("%0.2f" % float(head[1][0])),
-                            'turnover': float("%0.2f" % float(head[1][1])),
-                        }
-                    except Exception, e:
-                        print str(e)
-                        index += 1
-                    else:
-                        ok = True
-                if not ok:
-                    raise RuntimeError(str(e))
+                # # @TODO: find proper head and data structures in file.
+                # index = 1
+                # ok = False
+                # e = ""
+                # statement = {}
+                # head = {}
+                # data = {}
+                # while not ok and index < 3:
+                #     print ok, index
+                #     head = parsed[index]
+                #     data = parsed[index+1]
+                #     try:
+                #     except Exception, e:
+                #         print str(e)
+                #         index += 1
+                #     else:
+                #         ok = True
+                # if not ok:
+                #     raise RuntimeError(str(e))
+                data = parsed[1][1:-1]
+                # pprint(data)
+                # for line in data:
+                #     pprint([line, data[line]])
+                statement = {
+                    'day': date,
+                    'opcount': len(data[1]),
+                    'remains': 0,
+                    'turnover': 0,
+                }
 
             entries = []
             for i in xrange(1, statement['opcount']+1):
@@ -77,12 +82,12 @@ class Command(BaseCommand):
                 pid = str(data[0][i])
                 timestamp = datetime.combine(dt, tm).strftime("%Y-%m-%d %H:%M:%S")
                 amount = float("%0.2f" % float(data[3][i]))
-                currency = str(data[4][i])
-                egrpou = str(data[5][i])
+                currency = str(data[5][i])
+                egrpou = str(data[7][i])
                 verbose_name = unicode(data[6][i])
-                account_num = str(data[7][i])
-                mfo = str(data[8][i])
-                descr = unicode(data[9][i])
+                account_num = str(data[9][i])
+                mfo = str(data[10][i])
+                descr = unicode(data[6][i])
                 e = {
                     'pid': pid,
                     'timestamp': timestamp,
@@ -94,13 +99,20 @@ class Command(BaseCommand):
                     'mfo': mfo,
                     'descr': descr
                 }
-                entries.append(e)
+                if e['amount'] > 0:
+                    entries.append(e)
+
+            statement['opcount'] = len(entries)
+            statement['turnover'] = float("%0.2f" % reduce(lambda x, y: y['amount']+x, entries, 0))
+            # pprint(statement)
 
             if not options['process']:
-                return json.dumps({
+                json_data = json.dumps({
                     'statement': statement,
                     'entries': entries
                 })
+                # pprint(entries)
+                return json_data
             try:
                 s = Statement.objects.create(**statement)
                 for e in entries:
