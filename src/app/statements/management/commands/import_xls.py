@@ -119,4 +119,4 @@ class Command(BaseCommand):
                     Entry.objects.create(statement=s, **e)
                 s.save()
             except Exception, e:
-                raise CommandError("Database consistency error")
+                raise CommandError("Database consistency error: %s" % str(e))
