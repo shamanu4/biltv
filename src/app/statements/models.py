@@ -83,7 +83,7 @@ class Entry(models.Model):
     amount = models.FloatField(default=0.0)
     currency = models.CharField(max_length=10)
     egrpou = models.CharField(max_length=32)
-    verbose_name = models.CharField(max_length=100)
+    verbose_name = models.TextField()
     account_num = models.CharField(max_length=32)
     mfo = models.PositiveIntegerField()
     descr = models.TextField()
