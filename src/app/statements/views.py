@@ -21,6 +21,7 @@ PROGRAM_VERSION = settings.PROGRAM_VERSION
 PATH = settings.STATEMENTS_PATH
 PROJECT_ROOT = settings.PROJECT_ROOT
 
+
 def index(request):
     return HttpResponseRedirect(reverse("statements:statement", kwargs={'day': date.today().strftime("%Y-%m-%d")}))
 
