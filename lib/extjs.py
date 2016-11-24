@@ -16,6 +16,7 @@ from datetime import datetime, date
 import redis
 import json
 import xlsxwriter
+import threading
 
 
 def check_perm(perm):
@@ -112,13 +113,8 @@ def xls(data, total):
         r.publish('xls', json.dumps({"ready": True, "url": "%sxls/%s" % (settings.STATIC_URL, filename)}))
 
 
-def xls_data_gen(result, r):
-    total = len(result)
-    cur = 0
+def xls_data_gen(result):
     for obj in result:
-        cur += 1
-        if not cur % 10:
-            r.publish('xls', json.dumps({"ready": False, "msg": u"обработка [%s/%s]" % (cur, total)}))
         yield obj.store_record()
 
 
@@ -211,8 +207,9 @@ def store_read(func):
                 result = result[rdata['start']:rdata['start']+rdata['limit']]
             if 'xls' in rdata and rdata['xls']:
                 result = result.order_by('address__override')
-                xls(xls_data_gen(result, r), len(result))
-                result = []
+                t = threading.Thread(target=xls, args=(xls_data_gen(result), len(result)))
+                t.start()
+                return dict(data=[], success=success, total=total, extras=extras)
             else:
                 result = [obj.store_record() for obj in result]
         return dict(data=result, success=success, total=total, extras=extras)
