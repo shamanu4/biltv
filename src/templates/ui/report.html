@@ -327,7 +327,9 @@
                                 return record.data.bill__balance_wo_credit <= form.items.items[2].getValue();
                             }
                         );
-                        load_mask.hide();
+                        if(!obj.baseParams.xls) {
+                            load_mask.hide();
+                        }
                         Ext.getCmp('report-grid-result').setHeight(200 + 23 * obj.data.items.length + (window.lines));
                         //$('body').height($(document).height());
                         console.log('request finished');
