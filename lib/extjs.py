@@ -104,8 +104,18 @@ def xls(data):
         if line['warning']:
             worksheet.write('H%s' % cx, line['warning'], small)
         if not cur % 10:
-            r.publish('xls', json.dumps({"ready": False, "msg": u"загрузка [%s/%s]" % (cur, total)}))
+            r.publish('xls', json.dumps({"ready": False, "msg": u"загрузка %s [%s/%s]" % (filename, cur, total)}))
     r.publish('xls', json.dumps({"ready": True, "url": "%sxls/%s" % (settings.STATIC_URL, filename)}))
+
+
+def xls_data_gen(result, r):
+    total = len(result)
+    cur = 0
+    for obj in result:
+        cur += 1
+        if not cur % 10:
+            r.publish('xls', json.dumps({"ready": False, "msg": u"обработка [%s/%s]" % (cur, total)}))
+        yield obj.store_record()
 
 
 def store_read(func):
@@ -196,16 +206,8 @@ def store_read(func):
             if 'start' in rdata and 'limit' in rdata:
                 result = result[rdata['start']:rdata['start']+rdata['limit']]
             if 'xls' in rdata and rdata['xls']:
-                rs = []
-                total = len(result)
-                cur = 0
                 result = result.order_by('address__override')
-                for obj in result:
-                    cur += 1
-                    if not cur % 10:
-                        r.publish('xls', json.dumps({"ready": False, "msg": u"обработка [%s/%s]" % (cur, total)}))
-                    rs.append(obj.store_record())
-                xls(rs)
+                xls(xls_data_gen(result, r))
                 result = []
             else:
                 result = [obj.store_record() for obj in result]
