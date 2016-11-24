@@ -42,10 +42,10 @@ def extract_val(val):
     return val
 
 
-def xls(data):
+def xls(data, total):
     r = redis.StrictRedis()
     filename = "xls_%s.xlsx" % str(datetime.now().strftime('%Y_%m_%d_%H_%M_%S'))
-    total = len(data)
+    # total = len(data)
     cur = 0
 
     # Create an new Excel file and add a worksheet.
@@ -78,34 +78,38 @@ def xls(data):
 
     cx = 1
 
-    for line in data:
-        cur += 1
-        cx += 1
-        worksheet.write('A%s' % cx, line['code'], small)
-        worksheet.write('B%s' % cx, line['person'], small)
-        worksheet.write('C%s' % cx, line['address'], small)
-        worksheet.write('D%s' % cx, line['bill__balance2'], small)
-        if line['disabled']:
-            worksheet.write('E%s' % cx, "x")
-        else:
-            worksheet.write('E%s' % cx, "")
-        if type(line['activated']) == date:
-            worksheet.write_datetime('F%s' % cx, line['activated'], date_format)
-        else:
-            worksheet.write('F%s' % cx, line['activated'], small)
-        if type(line['deactivated']) == date:
-            worksheet.write_datetime('G%s' % cx, line['deactivated'], date_format)
-        else:
-            worksheet.write('G%s' % cx, line['deactivated'], small)
-        if line['comment']:
+    try:
+        for line in data:
+            cur += 1
             cx += 1
-            comment = line['comment'].replace('\n','    ')
-            worksheet.merge_range('A%s:G%s' % (cx, cx), comment, merge_small)
-        if line['warning']:
-            worksheet.write('H%s' % cx, line['warning'], small)
-        if not cur % 10:
-            r.publish('xls', json.dumps({"ready": False, "msg": u"загрузка %s [%s/%s]" % (filename, cur, total)}))
-    r.publish('xls', json.dumps({"ready": True, "url": "%sxls/%s" % (settings.STATIC_URL, filename)}))
+            worksheet.write('A%s' % cx, line['code'], small)
+            worksheet.write('B%s' % cx, line['person'], small)
+            worksheet.write('C%s' % cx, line['address'], small)
+            worksheet.write('D%s' % cx, line['bill__balance2'], small)
+            if line['disabled']:
+                worksheet.write('E%s' % cx, "x")
+            else:
+                worksheet.write('E%s' % cx, "")
+            if type(line['activated']) == date:
+                worksheet.write_datetime('F%s' % cx, line['activated'], date_format)
+            else:
+                worksheet.write('F%s' % cx, line['activated'], small)
+            if type(line['deactivated']) == date:
+                worksheet.write_datetime('G%s' % cx, line['deactivated'], date_format)
+            else:
+                worksheet.write('G%s' % cx, line['deactivated'], small)
+            if line['comment']:
+                cx += 1
+                comment = line['comment'].replace('\n','    ')
+                worksheet.merge_range('A%s:G%s' % (cx, cx), comment, merge_small)
+            if line['warning']:
+                worksheet.write('H%s' % cx, line['warning'], small)
+            if not cur % 10:
+                r.publish('xls', json.dumps({"ready": False, "msg": u"загрузка %s [%s/%s]" % (filename, cur, total)}))
+    except Exception as e:
+        r.publish('xls', json.dumps({"ready": False, "msg": str(e)}))
+    else:
+        r.publish('xls', json.dumps({"ready": True, "url": "%sxls/%s" % (settings.STATIC_URL, filename)}))
 
 
 def xls_data_gen(result, r):
@@ -207,7 +211,7 @@ def store_read(func):
                 result = result[rdata['start']:rdata['start']+rdata['limit']]
             if 'xls' in rdata and rdata['xls']:
                 result = result.order_by('address__override')
-                xls(xls_data_gen(result, r))
+                xls(xls_data_gen(result, r), len(result))
                 result = []
             else:
                 result = [obj.store_record() for obj in result]
