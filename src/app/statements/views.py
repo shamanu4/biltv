@@ -16,6 +16,7 @@ from .forms import XLSUploadForm
 from .models import Statement
 
 from django.conf import settings
+import traceback
 
 PROGRAM_VERSION = settings.PROGRAM_VERSION
 PATH = settings.STATEMENTS_PATH
@@ -78,7 +79,7 @@ def upload(request):
             except Exception, e:
                 resp = {
                     "success": False,
-                    "errors": str(e)
+                    "errors": traceback.format_exc()
                 }
             else:
                 resp = {
