@@ -63,9 +63,9 @@ def handle_uploaded_file(f, day):
 
 def process(path, daystr):
     p = Popen(['python', '%s/manage.py' % PROJECT_ROOT, 'import_xls', path, daystr, '--process'], stdout=PIPE, stderr=PIPE)
-    output = p.communicate()
-    if output[1]:
-        raise RuntimeError(output[1])
+    out, err = p.communicate()
+    if err:
+        raise RuntimeError(err)
 
 
 @login_required
