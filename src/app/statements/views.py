@@ -76,10 +76,10 @@ def upload(request):
         if form.is_valid():
             try:
                 handle_uploaded_file(request.FILES['xls'], form.cleaned_data['day'])
-            except Exception, e:
+            except Exception:
                 resp = {
                     "success": False,
-                    "errors": traceback.format_exc()
+                    "errors": traceback.format_exc().splitlines()
                 }
             else:
                 resp = {
