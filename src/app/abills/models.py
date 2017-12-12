@@ -241,7 +241,7 @@ class Dv(models.Model):
     tp = models.ForeignKey(Tp)
 
     class Meta:
-        db_table = 'dv_main'
+        db_table = 'internet_main'
         ordering = ['user__login']
 
     def __unicode__(self):
